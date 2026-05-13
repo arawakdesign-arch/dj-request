@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08080B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DJ Request">
+<meta name="mobile-web-app-capable" content="yes">
+<title>DJ Request</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+const SUPABASE_URL  = 'https://jpthpyfndvqchyowasex.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_tCWvz0Q6pKU1NQERfxqkng_WLAVilu7';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* ══ RESET & VARS ══════════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+:root{
+  --ink:#08080B;--ink2:#0D0D12;--ink3:rgba(255,255,255,.05);--ink4:rgba(255,255,255,.07);--ink5:rgba(255,255,255,.09);
+  --vi:#6E3FF3;--vi2:#5E2DE0;--pk:#E8275A;--pk2:#C81E4A;
+  --cyan:#0071E3;--amber:#FF9500;--green:#34C759;--red:#FF3B30;--blue:#0071E3;
+  --grd:linear-gradient(135deg,#6E3FF3,#6E3FF3);
+  --grd-gold:linear-gradient(135deg,#FF9500,#FF3B30);
+  --grd-blue:linear-gradient(135deg,#0071E3,#34C759);
+  --grd-green:linear-gradient(135deg,#34C759,#0071E3);
+  --tx:#FFFFFF;--tx2:#E4E4E7;--tx3:#71717A;--tx4:#52525B;
+  --bdr:rgba(0,0,0,.08);--bdr2:rgba(110,63,243,.3);
+  --glass:rgba(255,255,255,.85);
+  --nav-h:62px;
+  /* Safe area pour iPhone avec encoche / Dynamic Island / barre home */
+  --safe-top:env(safe-area-inset-top, 0px);
+  --safe-bot:env(safe-area-inset-bottom, 0px);
+  --safe-left:env(safe-area-inset-left, 0px);
+  --safe-right:env(safe-area-inset-right, 0px);
+  --nav-total:calc(var(--nav-h) + var(--safe-bot));
+}
+html{height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  height:100%;overflow:hidden;
+  background:var(--ink);color:var(--tx);
+  font-family:'Outfit',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overscroll-behavior:none;
+  /* Prevent rubber-band scroll en mode PWA */
+  position:fixed;width:100%;
+}
+button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+input,select{font-family:'Outfit',sans-serif;font-size:16px /* iOS: empêche le zoom auto au focus */}
+a{color:inherit;text-decoration:none}
+/* Active state visuel pour tous les boutons (feedback tactile) */
+button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform .08s}
+
+/* Orbs */
+.orb{position:fixed;border-radius:50%;filter:blur(160px);pointer-events:none;z-index:0}
+.o1{width:500px;height:500px;background:#7C3AED;opacity:.18;top:-280px;right:-180px;animation:orb1 14s ease-in-out infinite alternate}
+.o2{width:400px;height:400px;background:#D946EF;opacity:.12;bottom:-180px;left:-120px;animation:orb2 11s ease-in-out infinite alternate}
+.o3{width:280px;height:280px;background:#8B5CF6;opacity:.08;top:45%;left:40%;animation:orb1 9s ease-in-out infinite alternate-reverse}
+@keyframes orb1{to{transform:translate(50px,35px)}}
+@keyframes orb2{to{transform:translate(-40px,-30px)}}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+
+/* ══ PAGES ════════════════════════════════════════════════════════ */
+.page{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;overflow:hidden;
+  /* Respecter l'encoche / Dynamic Island en haut */
+  padding-top:var(--safe-top);
+}
+.page.active{display:flex}
+/* Les pages avec nav laissent la place à la nav + safe area home */
+.page.has-nav{bottom:var(--nav-total)}
+.pe{animation:pe .34s cubic-bezier(.16,1,.3,1) both}
+@keyframes pe{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+.scroll::-webkit-scrollbar{width:0}
+/* Padding en bas de chaque scroll pour ne pas être caché par la nav */
+.scroll>*:last-child{padding-bottom:.5rem}
+/* Si la page a une FAB, laisser de l'espace en bas */
+.page.has-nav .scroll{padding-bottom:.25rem}
+
+/* ══ TOPBAR ════════════════════════════════════════════════════════ */
+.tb{display:flex;align-items:center;gap:.6rem;padding:.68rem 1rem;background:rgba(8,8,11,.85);backdrop-filter:blur(40px);border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;z-index:10;position:relative;
+  /* Pas de padding-top additionnel ici : le .page parent gère déjà le safe-top */
+  padding-left:max(1rem, var(--safe-left));
+  padding-right:max(1rem, var(--safe-right));
+  /* Cible tactile minimum */
+  min-height:52px;
+}
+.tb-back{width:44px;height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--tx2);flex-shrink:0;transition:all .18s}
+.tb-back:hover{border-color:var(--bdr2);background:rgba(147,51,234,.1)}
+.tb-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.05em;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none}
+.tb-live{display:flex;align-items:center;gap:4px;background:rgba(52,199,89,.15);border:1px solid rgba(52,199,89,.3);border-radius:20px;padding:3px 10px;font-size:.62rem;color:#34C759;font-weight:700;letter-spacing:.06em;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0}
+.pdot{width:5px;height:5px;border-radius:50%;background:var(--vi);animation:pdot 1.4s infinite}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ══ BOTTOM NAV ════════════════════════════════════════════════════ */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  height:var(--nav-total);
+  z-index:100;
+  background:rgba(8,8,11,.85);
+  backdrop-filter:blur(40px);
+  border-top:1px solid rgba(255,255,255,.08);
+  display:none;align-items:flex-start;
+  padding:0 .5rem;
+  /* Safe area home indicator iPhone */
+  padding-bottom:var(--safe-bot);
+  padding-left:calc(.5rem + var(--safe-left));
+  padding-right:calc(.5rem + var(--safe-right));
+}
+.bottom-nav.show{display:flex}
+.nav-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:.5rem .25rem;border-radius:10px;cursor:pointer;transition:all .2s;
+  position:relative;border:none;background:none;
+  /* Cible tactile minimum 44×44px recommandée par Apple */
+  min-height:44px;
+}
+.nav-tab:hover{background:rgba(0,0,0,.04)}
+.nav-tab.active{background:rgba(110,63,243,.1)}
+.nav-tab-ico{font-size:1.25rem;line-height:1;transition:transform .2s}
+.nav-tab.active .nav-tab-ico{transform:scale(1.12)}
+.nav-tab-lbl{font-size:.58rem;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;transition:color .2s}
+.nav-tab.active .nav-tab-lbl{color:var(--vi)}
+.nav-tab-badge{position:absolute;top:.2rem;right:calc(50% - 14px);background:#D946EF;color:white;font-size:.48rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:1.5px solid #08080B}
+
+/* ══ SHARED COMPONENTS ════════════════════════════════════════════ */
+.btn-g{width:100%;padding:.88rem;border-radius:var(--r2);border:none;background:#6E3FF3;color:#fff;font-size:1rem;font-weight:700;transition:opacity .2s;min-height:50px;letter-spacing:-.01em}
+.btn-g:hover{opacity:.9} .btn-g:disabled{opacity:.35}
+.btn-outline{background:none;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.78rem;color:var(--tx2);font-size:.9rem;font-weight:500;transition:all .2s;width:100%;min-height:48px}
+.btn-outline:hover{border-color:rgba(255,255,255,.2);color:var(--tx)}
+.card{background:var(--ink3);border:1px solid var(--bdr);border-radius:14px}
+.sec-lbl{font-size:.63rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em}
+.tag{font-size:.6rem;font-weight:700;padding:3px 9px;border-radius:8px;border:1px solid;display:inline-flex;align-items:center;gap:3px;min-height:22px}
+.pill-vi{background:rgba(147,51,234,.12);border-color:rgba(147,51,234,.25);color:var(--tx2)}
+.pill-green{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.22);color:var(--green)}
+.pill-amber{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.22);color:var(--amber)}
+.pill-pk{background:rgba(236,72,153,.1);border-color:rgba(236,72,153,.22);color:var(--pk)}
+.grd-txt{color:#6E3FF3;background:none;-webkit-text-fill-color:unset}
+/* CRITIQUE iOS: font-size 16px minimum sur tous les inputs pour éviter le zoom auto */
+.fi{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.72rem .9rem;color:var(--tx);font-size:16px;outline:none;transition:all .2s;min-height:50px;-webkit-appearance:none}
+.fi:focus{border-color:var(--bdr2);background:rgba(139,92,246,.08)}
+.fi::placeholder{color:rgba(255,255,255,.3);font-size:14px}
+.fl{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem}
+.fl label{font-size:.68rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.08em}
+
+/* Toast */
+.toast{position:fixed;bottom:calc(var(--nav-total) + .75rem);left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink4);border:1px solid var(--bdr);backdrop-filter:blur(20px);color:var(--tx);padding:.55rem 1.2rem;border-radius:20px;font-size:.82rem;font-weight:500;z-index:500;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Modal */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(5,5,8,.88);z-index:300;align-items:flex-end;backdrop-filter:blur(8px)}
+.modal-ov.open{display:flex}
+.modal-sheet{background:#0D0D12;border-radius:28px 28px 0 0;border:1px solid rgba(255,255,255,.1);border-bottom:none;padding:1.25rem;width:100%;max-height:88vh;overflow-y:auto;animation:shu .3s cubic-bezier(.16,1,.3,1)}
+@keyframes shu{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:36px;height:3px;background:rgba(255,255,255,.12);border-radius:2px;margin:0 auto 1rem}
+.sheet-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.04em;margin-bottom:1rem;color:#6E3FF3;background:none;-webkit-text-fill-color:unset}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — AUTH
+══════════════════════════════════════════════════════════════════ */
+#pg-auth{justify-content:center;align-items:center;padding:1.75rem}
+.auth-wrap{width:100%;max-width:360px;display:flex;flex-direction:column;gap:1.5rem}
+.auth-hero{text-align:center}
+.auth-ring{width:74px;height:74px;border-radius:50%;background:#6E3FF3;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto .6rem;box-shadow:0 0 40px rgba(147,51,234,.35);animation:rp 3s ease-in-out infinite}
+@keyframes rp{0%,100%{box-shadow:0 0 40px rgba(147,51,234,.35)}50%{box-shadow:0 0 64px rgba(147,51,234,.5),0 0 80px rgba(236,72,153,.2)}}
+.auth-appname{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:.06em;line-height:1;color:#6E3FF3;background:none;-webkit-text-fill-color:unset}
+.auth-tagline{font-size:.82rem;color:var(--tx3);font-weight:300;margin-top:.25rem}
+.auth-card{background:rgba(255,255,255,.06);backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1.5rem;position:relative;overflow:hidden}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:#6E3FF3;opacity:.45}
+.auth-card-ttl{font-size:.68rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1rem;text-align:center}
+.btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:.7rem;padding:.85rem;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--tx);font-size:.9rem;font-weight:500;transition:all .2s}
+.btn-google:hover{border-color:rgba(255,255,255,.2);transform:translateY(-1px)}
+.div-or{display:flex;align-items:center;gap:.65rem;margin:.85rem 0}
+.div-line{flex:1;height:1px;background:rgba(255,255,255,.07)}
+.div-txt{font-size:.7rem;color:var(--tx4)}
+.phone-row{display:flex;gap:.4rem;margin-bottom:.65rem}
+.cc-sel{background:var(--ink3);border:1px solid var(--bdr);border-radius:10px;padding:.68rem .65rem;color:#FFFFFF;font-size:16px;outline:none;width:95px;flex-shrink:0;appearance:none;-webkit-appearance:none;text-align:center;transition:border-color .2s;min-height:50px}
+.cc-sel:focus{border-color:var(--bdr2)}
+.phone-inp{flex:1;background:var(--ink3);border:1px solid var(--bdr);border-radius:10px;padding:.68rem .9rem;color:#FFFFFF;font-size:16px;font-family:'Space Mono',monospace;outline:none;transition:all .2s;letter-spacing:.04em;min-height:50px;-webkit-appearance:none}
+.phone-inp:focus{border-color:var(--bdr2);background:rgba(147,51,234,.05)}
+.phone-inp::placeholder{color:var(--tx4);font-family:'Outfit',sans-serif;letter-spacing:0;font-size:14px}
+.otp-wrap{display:none;flex-direction:column;gap:.6rem}
+.otp-wrap.show{display:flex}
+.otp-hint{font-size:.78rem;color:var(--tx3);text-align:center;line-height:1.5}
+.otp-hint strong{color:var(--tx2)}
+.otp-boxes{display:flex;gap:.4rem;justify-content:center}
+.otp-b{width:46px;height:56px;border-radius:10px;border:1.5px solid var(--bdr);background:rgba(255,255,255,.07);color:#FFFFFF;font-size:20px;font-family:'Space Mono',monospace;font-weight:700;text-align:center;outline:none;transition:all .2s;caret-color:var(--vi)}
+.otp-b:focus{border-color:var(--vi);background:rgba(147,51,234,.06);box-shadow:0 0 0 3px rgba(147,51,234,.12)}
+.otp-b.filled{border-color:rgba(147,51,234,.35);background:rgba(147,51,234,.05)}
+.resend-btn{background:none;border:none;color:var(--vi);font-size:.78rem;text-align:center;padding:.2rem;transition:color .2s}
+.resend-btn:disabled{color:var(--tx4)}
+.auth-err{font-size:.75rem;color:var(--red);text-align:center;min-height:.9rem}
+.auth-terms{font-size:.67rem;color:var(--tx4);text-align:center;line-height:1.5}
+.auth-terms a{color:var(--tx3);text-decoration:underline}
+.otp-back-btn{background:none;border:none;color:var(--tx4);font-size:.78rem;text-align:center;display:block;margin:.4rem auto 0;padding:.3rem}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — CLIENT (VOTE)
+══════════════════════════════════════════════════════════════════ */
+#pg-client{background:var(--ink)}
+/* ── FLYER SOIRÉE ─────────────────────────────────────────────── */
+.flyer-wrap{flex-shrink:0;padding:.65rem .65rem .45rem;position:relative}
+.flyer-card{border-radius:20px;overflow:hidden;position:relative;background:var(--ink3);border:1px solid rgba(255,255,255,.1)}
+.flyer-img{width:100%;height:148px;object-fit:cover;display:block;border-radius:0}
+.flyer-img-placeholder{width:100%;height:220px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.flyer-bg{position:absolute;inset:0;background:#1a1028}
+.flyer-grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(147,51,234,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(147,51,234,.12) 1px,transparent 1px);background-size:28px 28px}
+.flyer-glow1{position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(147,51,234,.45) 0%,transparent 70%);top:-60px;left:-40px;animation:fg1 6s ease-in-out infinite alternate}
+.flyer-glow2{position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(236,72,153,.35) 0%,transparent 70%);bottom:-50px;right:-30px;animation:fg1 8s ease-in-out infinite alternate-reverse}
+@keyframes fg1{to{transform:translate(20px,15px)}}
+.flyer-scan-line{position:absolute;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(147,51,234,.7),rgba(236,72,153,.7),transparent);animation:fscan 3s ease-in-out infinite;opacity:.7}
+@keyframes fscan{0%,100%{top:0;opacity:.7}50%{top:100%;opacity:.2}}
+.flyer-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:.85rem .9rem}
+.flyer-top{display:flex;justify-content:space-between;align-items:flex-start}
+.flyer-club-badge{background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:.25rem .75rem;font-size:.62rem;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:.06em;text-transform:uppercase}
+.flyer-live-dot{display:flex;align-items:center;gap:.35rem;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:.25rem .65rem;font-size:.58rem;font-weight:700;color:#34D399;text-transform:uppercase;letter-spacing:.08em}
+.live-blink{width:5px;height:5px;border-radius:50%;background:#34D399;animation:pdot 1.2s infinite}
+.flyer-bottom{display:flex;flex-direction:column;gap:.25rem}
+.flyer-event-name{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;letter-spacing:.04em;color:white;line-height:1;text-shadow:0 2px 30px rgba(0,0,0,.8)}
+.flyer-meta{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}
+.flyer-meta-item{display:flex;align-items:center;gap:.3rem;font-size:.68rem;color:rgba(255,255,255,.72);font-weight:400}
+.flyer-meta-item strong{color:rgba(255,255,255,.9);font-weight:600}
+.flyer-lineup{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.2rem}
+.flyer-dj-tag{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:8px;background:rgba(147,51,234,.25);border:1px solid rgba(147,51,234,.4);color:#C4B5FD;letter-spacing:.04em}
+.flyer-dj-tag.headliner{background:rgba(236,72,153,.2);border-color:rgba(236,72,153,.4);color:#F9A8D4}
+/* Club info strip */
+.club-strip{display:flex;align-items:center;gap:.55rem;padding:.5rem .75rem;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(0,0,0,.07);flex-shrink:0}
+.club-logo{width:28px;height:28px;border-radius:7px;background:#6E3FF3;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.club-name{font-size:.82rem;font-weight:700;color:var(--tx2)}
+.club-addr{font-size:.65rem;color:var(--tx4)}
+.club-sep{width:1px;height:20px;background:rgba(255,255,255,.08);margin-left:auto}
+.club-open{font-size:.62rem;font-weight:700;color:var(--green);display:flex;align-items:center;gap:.3rem}
+
+.ev-chip{padding:.5rem 1rem;background:rgba(147,51,234,.07);border-bottom:1px solid rgba(147,51,234,.12);font-size:.75rem;color:var(--tx3);display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.ev-chip strong{color:var(--tx2)}
+.search-zone{padding:.65rem 1rem .45rem;flex-shrink:0}
+
+/* ── SONG CARDS WITH ALBUM ART ────────────────────────────────── */
+/* ── SONG CARDS — Grande pochette ────────────────────────────────── */
+.song-card{display:flex;align-items:center;gap:.75rem;padding:.65rem .75rem;margin:0 .65rem .5rem;background:rgba(255,255,255,.04);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:1.5rem;position:relative;overflow:hidden;transition:all .22s}
+.song-card.voted{border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.1)}
+.song-card.voted::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#8B5CF6;border-radius:2px}
+.song-card.r1{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.04)}
+.song-card.r1::before{background:linear-gradient(#F59E0B,#EF4444)}
+/* Pochette grande — 72×72 */
+.s-cover{width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;position:relative;overflow:hidden;background:rgba(255,255,255,.08)}
+.s-cover img{width:100%;height:100%;object-fit:cover;border-radius:14px;position:absolute;inset:0}
+.s-cover-fallback{position:relative;z-index:1;font-size:1.5rem;line-height:1}
+.s-rank-badge{position:absolute;bottom:-1px;right:-1px;font-size:.7rem;line-height:1;z-index:2;filter:drop-shadow(0 1px 4px rgba(0,0,0,.6))}
+.s-body{flex:1;min-width:0}
+.s-name{font-size:.92rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.s-artist{font-size:.74rem;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:.45rem}
+.s-bar-f{height:3px;border-radius:2px;transition:width .7s ease}
+.vote-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.vup{width:46px;height:46px;border-radius:14px;border:1px solid rgba(139,92,246,.35);background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:rgba(139,92,246,.9);transition:all .18s}
+.vup:hover{border-color:rgba(139,92,246,.6);background:rgba(139,92,246,.25);transform:scale(1.06)}
+.vup.on{border-color:var(--vi);background:rgba(139,92,246,.4);color:#fff;box-shadow:0 4px 18px rgba(139,92,246,.45)}
+.vnum{font-family:'Space Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.35);line-height:1;font-weight:700}
+.vnum.on{color:var(--vi)}
+.sbox{position:relative}
+.sico{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:.95rem;color:var(--tx4);pointer-events:none}
+.si{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:.62rem .9rem .62rem 2.4rem;color:var(--tx);font-size:16px;outline:none;transition:all .2s;-webkit-appearance:none}
+.si:focus{border-color:var(--bdr2);background:rgba(147,51,234,.04)}
+.si::placeholder{color:var(--tx4)}
+.list-hdr{display:flex;justify-content:space-between;align-items:center;padding:.35rem 1rem;flex-shrink:0}
+.vote-cnt{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--vi);background:rgba(147,51,234,.1);border:1px solid rgba(147,51,234,.15);border-radius:18px;padding:2px 8px}
+.song-card{display:flex;align-items:center;gap:.8rem;padding:.8rem 1rem;margin:0 .75rem .42rem;background:var(--ink3);border:1px solid var(--bdr);border-radius:var(--r);position:relative;overflow:hidden;transition:all .2s}
+.song-card.voted{border-color:rgba(139,92,246,.35);background:rgba(139,92,246,.1)}
+.song-card.voted::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#6E3FF3}
+.song-card.r1{border-color:rgba(245,158,11,.22)}
+.song-card.r1::before{background:var(--grd-gold)}
+
+.s-rank-badge{position:absolute;bottom:-2px;right:-2px;font-size:.6rem;line-height:1}
+.s-body{flex:1;min-width:0}
+.s-name{font-size:.9rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.s-artist{font-size:.72rem;color:var(--tx3)}
+.s-bar{height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;margin-top:.38rem}
+.s-bar-f{height:3px;border-radius:2px;transition:width .7s ease}
+.vote-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
+.vup{width:44px;height:44px;border-radius:14px;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--tx3);transition:all .18s}
+.vup:hover{border-color:rgba(147,51,234,.45);background:rgba(147,51,234,.12);transform:scale(1.08)}
+.vup.on{border-color:var(--vi);background:rgba(139,92,246,.35);color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.4)}
+.vnum{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--tx4);line-height:1}
+.vnum.on{color:var(--vi)}
+.now-bar{display:flex;align-items:center;gap:.7rem;padding:.65rem 1rem;background:rgba(8,8,11,.9);backdrop-filter:blur(30px);border-top:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.now-disc{width:36px;height:36px;border-radius:50%;background:#6E3FF3;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;animation:spins 4s linear infinite;position:relative;overflow:hidden}
+.now-disc::after{content:'';position:absolute;width:11px;height:11px;border-radius:50%;background:var(--ink);border:1.5px solid rgba(255,255,255,.12)}
+@keyframes spins{to{transform:rotate(360deg)}}
+.now-lbl{font-size:.58rem;color:var(--vi);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.now-title{font-size:.85rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.waves{display:flex;gap:2px;align-items:center;height:18px;flex-shrink:0}
+.wv{width:3px;border-radius:2px;background:var(--vi);animation:wva 1s ease-in-out infinite}
+.wv:nth-child(1){animation-delay:0s;height:35%}.wv:nth-child(2){animation-delay:.14s;height:100%}.wv:nth-child(3){animation-delay:.28s;height:60%}.wv:nth-child(4){animation-delay:.14s;height:80%}.wv:nth-child(5){animation-delay:0s;height:30%}
+@keyframes wva{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.fab{position:fixed;bottom:calc(var(--nav-total) + .9rem);right:max(1rem, calc(1rem + var(--safe-right)));left:max(1rem, calc(1rem + var(--safe-left)));background:#8B5CF6;color:#fff;border:none;border-radius:1.25rem;padding:.95rem 1.5rem;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:.5rem;z-index:50;box-shadow:0 8px 32px rgba(139,92,246,.5);transition:all .2s;min-height:54px;letter-spacing:.01em}
+.fab:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(147,51,234,.5)}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;gap:.6rem;text-align:center}
+.empty-state .ei{font-size:2.8rem}
+.empty-state p{font-size:.83rem;color:var(--tx3);line-height:1.6}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — PROFIL
+══════════════════════════════════════════════════════════════════ */
+#pg-profile{background:var(--ink)}
+.prof-hero{position:relative;overflow:hidden}
+.prof-banner{height:72px;background:#6E3FF3;opacity:.28}
+.prof-banner::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(255,255,255,.025) 10px,rgba(255,255,255,.025) 20px)}
+.prof-body{padding:0 1rem 1rem;margin-top:-34px;position:relative}
+.prof-av{width:68px;height:68px;border-radius:50%;background:#6E3FF3;display:flex;align-items:center;justify-content:center;font-size:1.85rem;border:3px solid #F5F5F7;margin-bottom:.5rem}
+.prof-name{font-size:1.05rem;font-weight:700;color:var(--tx)}
+.prof-sub{font-size:.75rem;color:var(--tx3);margin-top:1px}
+.prof-badges{display:flex;gap:.4rem;margin-top:.55rem;flex-wrap:wrap}
+.stats4{display:grid;grid-template-columns:repeat(2,1fr);gap:.45rem;margin:.85rem 0}
+.st-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:.75rem .8rem;position:relative;overflow:hidden}
+.st-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.st-card.vi::before{background:#6E3FF3}.st-card.gold::before{background:var(--grd-gold)}.st-card.blue::before{background:var(--grd-blue)}.st-card.grn::before{background:var(--grd-green)}
+.st-n{font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;line-height:1}
+.st-card.vi .st-n{color:var(--vi)}.st-card.gold .st-n{color:var(--amber)}.st-card.blue .st-n{color:var(--blue)}.st-card.grn .st-n{color:var(--green)}
+.st-l{font-size:.6rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+.st-ico{position:absolute;right:.75rem;top:.65rem;font-size:1.3rem;opacity:.28}
+.xp-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(20px);border-radius:12px;padding:.9rem 1rem;margin-bottom:.85rem}
+.xp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.65rem}
+.xp-track{height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;margin-bottom:.45rem}
+.xp-fill{height:7px;border-radius:4px;background:#6E3FF3;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.xp-lbls{display:flex;justify-content:space-between}
+.xp-pts{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--tx3)}
+.levels-strip{display:flex;justify-content:space-between;margin-top:.8rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.05)}
+.lv-step{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.lv-dot{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:.72rem;transition:all .25s}
+.lv-dot.done{border-color:transparent}.lv-dot.cur{box-shadow:0 0 12px rgba(147,51,234,.45)}
+.lv-lbl{font-size:.52rem;color:var(--tx4);text-align:center}
+.lv-lbl.done{color:var(--tx3)}.lv-lbl.cur{color:var(--vi)}
+/* events list in profile */
+.ev-list{display:flex;flex-direction:column;gap:.45rem}
+.ev-row{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(20px);border-radius:12px;padding:.75rem .9rem;display:flex;align-items:center;gap:.7rem;cursor:pointer;transition:border-color .2s}
+.ev-row:hover{border-color:rgba(147,51,234,.22)}
+.ev-row.top1{border-color:rgba(245,158,11,.2)} .ev-row.top2{border-color:rgba(148,163,184,.15)} .ev-row.top3{border-color:rgba(205,124,84,.15)}
+.ev-rnk{font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;color:var(--tx4);width:24px;text-align:center;flex-shrink:0}
+.ev-rnk.g{color:var(--amber)}.ev-rnk.s{color:#94A3B8}.ev-rnk.b{color:#CD7C54}
+.ev-ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.ev-inf{flex:1;min-width:0}
+.ev-n{font-size:.86rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-m{font-size:.67rem;color:var(--tx4);margin-top:1px}
+.ev-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+.ev-sc{font-family:'Space Mono',monospace;font-size:.88rem;font-weight:700;color:var(--vi)}
+.impl-wrap{display:flex;align-items:center;gap:.3rem}
+.impl-bar{width:48px;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.impl-fill{height:4px;border-radius:2px;background:#6E3FF3}
+.impl-pct{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--tx4)}
+/* achievements */
+.ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}
+.ach{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:.7rem .55rem;display:flex;flex-direction:column;align-items:center;gap:.35rem;text-align:center;position:relative;overflow:hidden;transition:border-color .2s}
+.ach.ok{border-color:rgba(147,51,234,.18)}.ach.locked{opacity:.42}
+.ach-ico{font-size:1.55rem;position:relative}
+.ach-ico .lk{position:absolute;bottom:-2px;right:-2px;font-size:.65rem}
+.ach-n{font-size:.62rem;font-weight:700;color:var(--tx2);line-height:1.2}
+.ach.locked .ach-n{color:var(--tx4)}
+.ach-d{font-size:.56rem;color:var(--tx4);line-height:1.3}
+/* tab row */
+.tab-row{display:flex;gap:.3rem;background:var(--ink3);border:1px solid var(--bdr);border-radius:11px;padding:.28rem}
+.tr-tab{flex:1;text-align:center;padding:.42rem .4rem;border-radius:8px;font-size:.73rem;font-weight:500;color:var(--tx4);cursor:pointer;transition:all .2s}
+.tr-tab.act{background:rgba(147,51,234,.15);color:var(--vi);border:1px solid rgba(147,51,234,.2)}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — DJ LOGIN
+══════════════════════════════════════════════════════════════════ */
+#pg-dj-login{justify-content:center;align-items:center;padding:1.5rem}
+.dj-login-card{background:rgba(255,255,255,.06);backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1.6rem;width:100%;max-width:340px;position:relative;overflow:hidden}
+.dj-login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:#6E3FF3;opacity:.45}
+.dj-login-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:.05em;text-align:center;margin-bottom:1.4rem;color:#6E3FF3;background:none;-webkit-text-fill-color:unset}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — DJ DASHBOARD
+══════════════════════════════════════════════════════════════════ */
+#pg-dj{background:var(--ink)}
+.dj-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;padding:.75rem}
+.dj-st{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.68rem .6rem;text-align:center}
+.dj-st-n{font-family:'Space Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--vi)}
+.dj-st-l{font-size:.58rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.np-dj{margin:.2rem .75rem .65rem;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.25);backdrop-filter:blur(20px);border:1px solid rgba(147,51,234,.22);border-radius:13px;padding:.85rem 1rem;position:relative;overflow:hidden}
+.np-dj::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:#6E3FF3;opacity:.6}
+.np-dj-glow{position:absolute;right:-10px;top:50%;width:100px;height:100px;background:rgba(147,51,234,.15);border-radius:50%;filter:blur(30px);transform:translateY(-50%)}
+.np-tag{font-size:.58rem;color:rgba(255,255,255,.8);font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3px}
+.np-t{font-size:1rem;font-weight:700;color:#fff;position:relative}
+.np-a{font-size:.72rem;color:rgba(255,255,255,.7);position:relative;margin-bottom:.5rem}
+.prog-trk{height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.prog-fill{height:4px;border-radius:2px;background:#6E3FF3;transition:width .8s linear}
+/* QR card */
+.qr-card{margin:.2rem .75rem .65rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:.85rem 1rem;display:flex;gap:.85rem;align-items:center}
+.qr-box{background:white;border-radius:8px;padding:6px;flex-shrink:0}
+.qr-info{flex:1;min-width:0}
+.qr-evname{font-weight:700;font-size:.88rem;color:var(--tx);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qr-url{font-size:.62rem;color:var(--tx4);word-break:break-all;line-height:1.4;margin-bottom:.5rem}
+.qr-acts{display:flex;gap:.35rem}
+.qr-btn{font-size:.68rem;padding:.28rem .6rem;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--tx2);transition:all .15s}
+.qr-btn:hover{border-color:var(--bdr2);color:var(--vi)}
+.qr-btn.new{border-color:rgba(147,51,234,.22);color:var(--vi)}
+/* Queue */
+.q-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(20px);border-radius:var(--r2);padding:.7rem .85rem;display:flex;align-items:center;gap:.65rem;margin-bottom:.4rem;transition:all .2s;position:relative;overflow:hidden}
+.q-card.q1{border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.12)}
+.q-card.q1::after{content:'NEXT';position:absolute;right:0;top:0;background:#6E3FF3;color:white;font-size:.5rem;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:0 12px 0 7px}
+.q-rk{font-family:'Space Mono',monospace;font-size:.82rem;font-weight:700;color:var(--tx4);width:22px;text-align:center;flex-shrink:0}
+.q-rk.g{color:var(--amber)}.q-rk.s{color:#94A3B8}.q-rk.b{color:#CD7C54}
+.q-cv{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.q-bd{flex:1;min-width:0}
+.q-n{font-size:.86rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-s{display:flex;align-items:center;gap:.4rem;margin-top:1px;font-size:.67rem}
+.q-v{font-family:'Space Mono',monospace;color:var(--vi)}
+.q-ar{color:var(--tx4)}
+.q-acts{display:flex;gap:.28rem;flex-shrink:0}
+.qa{width:36px;height:36px;border-radius:7px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:.88rem;transition:all .18s}
+.qa.play{border-color:rgba(147,51,234,.3);color:var(--vi)}.qa.play:hover{background:rgba(147,51,234,.15)}
+.qa.ok{border-color:rgba(16,185,129,.2);color:var(--green)}.qa.ok:hover{background:rgba(16,185,129,.1)}
+.qa.no{border-color:rgba(248,113,113,.2);color:var(--red)}.qa.no:hover{background:rgba(248,113,113,.1)}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — PRESS KIT
+══════════════════════════════════════════════════════════════════ */
+#pg-presskit{background:var(--ink)}
+.pk-hero{position:relative;overflow:hidden;flex-shrink:0}
+.pk-hero-bg{height:200px;background:linear-gradient(135deg,#1a0030,#3b0764,#1a0044);position:relative}
+.pk-hero-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(147,51,234,.2),transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(236,72,153,.15),transparent 50%)}
+.pk-scan{position:absolute;top:0;left:0;right:0;height:2px;background:#6E3FF3;opacity:.6;animation:scan 4s ease-in-out infinite}
+@keyframes scan{0%,100%{top:0;opacity:.6}50%{top:100%;opacity:.15}}
+.pk-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:36px 36px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%)}
+.pk-avatar{position:absolute;bottom:-36px;left:1rem;width:72px;height:72px;border-radius:50%;background:#6E3FF3;display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid var(--ink);z-index:2;box-shadow:0 0 30px rgba(147,51,234,.35)}
+.pk-verified{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:#6E3FF3;display:flex;align-items:center;justify-content:center;font-size:.62rem;border:2px solid var(--ink)}
+.pk-info{padding:2.75rem 1rem 1rem;position:relative}
+.pk-genres{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.4rem}
+.pk-name{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:.06em;line-height:1;color:var(--tx)}
+.pk-realname{font-size:.78rem;color:var(--tx3);font-weight:300;margin-top:1px}
+.pk-tagline{font-size:.85rem;color:var(--tx2);margin:.4rem 0 .85rem;font-weight:300;font-style:italic;line-height:1.4}
+.pk-hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.06);border-radius:11px;overflow:hidden;border:1px solid var(--bdr);margin-bottom:.85rem}
+.pk-hs{background:rgba(255,255,255,.03);padding:.6rem .45rem;text-align:center}
+.pk-hs-n{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;color:var(--tx)}
+.pk-hs-l{font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.pk-cta{display:flex;gap:.45rem}
+.pk-sub-btn{flex:1;padding:.82rem;border-radius:11px;border:none;background:#6E3FF3;color:white;font-size:.88rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .2s}
+.pk-sub-btn.done{background:rgba(147,51,234,.15);border:1px solid rgba(147,51,234,.28);color:var(--vi)}
+.pk-book-btn{padding:.82rem 1rem;border-radius:11px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.04);color:var(--tx2);font-size:.88rem;font-weight:600;transition:all .2s}
+.pk-book-btn:hover{border-color:rgba(255,255,255,.2)}
+/* pk sections */
+.pk-sec{padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.pk-sec:last-child{border-bottom:none;padding-bottom:2rem}
+.pk-sec-t{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.05em;color:var(--tx);margin-bottom:.7rem;display:flex;align-items:center;gap:.5rem}
+.pk-sec-t .badge{font-size:.62rem;font-family:'Outfit',sans-serif;font-weight:700;color:var(--vi);background:rgba(147,51,234,.1);border:1px solid rgba(147,51,234,.2);border-radius:18px;padding:2px 8px;letter-spacing:.03em}
+.bio-txt{font-size:.85rem;color:var(--tx2);line-height:1.75;font-weight:300}
+.bio-txt em{color:var(--vi);font-style:normal;font-weight:600}
+.socials{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem}
+.soc-btn{display:flex;align-items:center;gap:.35rem;padding:.35rem .8rem;border-radius:18px;border:1px solid var(--bdr);background:rgba(255,255,255,.04);font-size:.73rem;color:var(--tx2);cursor:pointer;transition:all .2s}
+.soc-btn:hover{border-color:var(--bdr2);color:var(--vi)}
+/* upcoming sets */
+.up-list{display:flex;flex-direction:column;gap:.45rem}
+.up-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.78rem .9rem;display:flex;align-items:center;gap:.75rem;transition:border-color .2s;position:relative;overflow:hidden}
+.up-item.feat{border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.1)}
+.up-item.feat::after{content:'PROCHAINEMENT';position:absolute;top:0;right:0;background:#6E3FF3;color:white;font-size:.48rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:0 12px 0 7px}
+.up-dt{width:42px;text-align:center;flex-shrink:0}
+.up-d{font-family:'Space Mono',monospace;font-size:1.15rem;font-weight:700;color:var(--tx);line-height:1}
+.up-m{font-size:.58rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em}
+.up-sep{width:1px;height:34px;background:rgba(255,255,255,.08);flex-shrink:0}
+.up-inf{flex:1;min-width:0}
+.up-n{font-size:.86rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up-v{font-size:.7rem;color:var(--tx3);margin-top:2px}
+.up-tkt{padding:.35rem .65rem;border-radius:8px;background:rgba(147,51,234,.12);border:1px solid rgba(147,51,234,.2);color:var(--vi);font-size:.7rem;font-weight:700;cursor:pointer;flex-shrink:0;transition:all .2s}
+.up-tkt:hover{background:rgba(147,51,234,.22)}
+/* mixes */
+.mix-list{display:flex;flex-direction:column;gap:.45rem}
+.mix-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.78rem .9rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .2s}
+.mix-item:hover{border-color:rgba(147,51,234,.22);transform:translateY(-1px)}
+.mix-cov{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;position:relative;overflow:hidden}
+.mix-play-ov{position:absolute;inset:0;border-radius:10px;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:white;opacity:0;transition:opacity .2s}
+.mix-item:hover .mix-play-ov{opacity:1}
+.mix-inf{flex:1;min-width:0}
+.mix-n{font-size:.86rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mix-m{display:flex;align-items:center;gap:.4rem;margin-top:2px;font-size:.67rem}
+.mix-dur{font-family:'Space Mono',monospace;color:var(--tx4)}
+.mix-plat{color:var(--tx3)}
+.mix-plays{font-family:'Space Mono',monospace;color:var(--vi)}
+.mix-btn{padding:.32rem .65rem;border-radius:8px;border:1px solid var(--bdr);background:rgba(255,255,255,.03);color:var(--tx3);font-size:.7rem;flex-shrink:0;transition:all .2s}
+.mix-btn:hover{border-color:var(--bdr2);color:var(--vi)}
+/* booking */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.bk-val.link{color:var(--vi);cursor:pointer;text-decoration:underline}
+
+
+
+
+
+.bk-btn.p:hover{opacity:.9}
+.bk-btn.s:hover{border-color:rgba(255,255,255,.2)}
+/* reviews */
+.rv-list{display:flex;flex-direction:column;gap:.45rem}
+.rv{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.8rem .9rem}
+.rv-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem}
+.rv-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.rv-who{flex:1}.rv-n{font-size:.83rem;font-weight:600;color:var(--tx)}.rv-r{font-size:.66rem;color:var(--tx4)}
+.rv-stars{margin-bottom:.35rem;font-size:.7rem}
+.rv-txt{font-size:.78rem;color:var(--tx2);line-height:1.6;font-style:italic;font-weight:300}
+.rv-dt{font-size:.63rem;color:var(--tx4);margin-top:.35rem}
+/* subscribe plans */
+.plan-list{display:flex;flex-direction:column;gap:.45rem;margin-bottom:.85rem}
+.plan{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:13px;padding:.85rem .95rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.plan:hover{border-color:rgba(147,51,234,.3)}
+.plan.sel{border-color:var(--vi);background:rgba(139,92,246,.12)}
+.plan.pop::after{content:'POPULAIRE';position:absolute;top:0;right:0;background:#6E3FF3;color:white;font-size:.5rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:0 13px 0 7px}
+.plan-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem}
+.plan-nm{font-size:.9rem;font-weight:700;color:var(--tx)}
+.plan-pr{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;color:var(--vi)}
+.plan-pr span{font-size:.63rem;color:var(--tx3);font-family:'Outfit',sans-serif;font-weight:400}
+.plan-radio{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.plan.sel .plan-radio{border-color:var(--vi);background:var(--vi)}
+.plan.sel .plan-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:white}
+.plan-feats{display:flex;flex-direction:column;gap:.22rem;margin-top:.35rem}
+.pf{font-size:.73rem;color:var(--tx3);display:flex;align-items:center;gap:.3rem}
+.pf::before{content:'✓';color:var(--green);font-size:.66rem;font-weight:700;flex-shrink:0}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — BIGSCREEN
+══════════════════════════════════════════════════════════════════ */
+#pg-bigscreen{background:var(--ink)}
+.bs-wrap{padding:1.1rem 1rem 1.5rem;display:flex;flex-direction:column;gap:.85rem;height:100%;overflow:hidden}
+.bs-head{text-align:center}
+.bs-ev-lbl{font-size:.6rem;letter-spacing:.16em;color:var(--tx4);text-transform:uppercase}
+.bs-headline{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;line-height:1.1;color:#6E3FF3;background:none;-webkit-text-fill-color:unset;margin:.2rem 0}
+.bs-sub{font-size:.7rem;color:var(--tx4)}
+.bs-live{display:inline-flex;align-items:center;gap:4px;background:rgba(147,51,234,.1);border:1px solid rgba(147,51,234,.2);border-radius:18px;padding:3px 11px;margin-top:.4rem;font-size:.6rem;color:var(--vi);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.bs-now{background:var(--ink3);border:1px solid rgba(147,51,234,.22);border-radius:12px;padding:.8rem .9rem;position:relative;overflow:hidden;flex-shrink:0}
+.bs-now::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#6E3FF3}
+.bs-now-tag{font-size:.58rem;color:var(--vi);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
+.bs-now-t{font-size:.95rem;font-weight:700;color:var(--tx)}
+.bs-now-a{font-size:.72rem;color:var(--tx3);margin-bottom:.45rem}
+.bs-prog{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.bs-prog-f{height:4px;border-radius:2px;background:#6E3FF3;transition:width .8s linear}
+.bs-chart-lbl{font-size:.6rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;flex-shrink:0}
+.bs-chart{display:flex;flex-direction:column;gap:.55rem;flex:1;overflow:hidden}
+.bs-row{display:flex;flex-direction:column;gap:3px}
+.bs-row-top{display:flex;justify-content:space-between;align-items:center}
+.bs-sname{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.04em;color:var(--tx);display:flex;align-items:center;gap:.38rem}
+.bs-sname.top{color:#6E3FF3;background:none;-webkit-text-fill-color:unset}
+.bs-vc{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;color:var(--vi)}
+.bs-vc.top{color:#6E3FF3;background:none;-webkit-text-fill-color:unset}
+.bs-bar-trk{height:7px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden}
+.bs-bar-f{height:7px;border-radius:4px;transition:width .75s cubic-bezier(.4,0,.2,1)}
+.bs-by{font-size:.66rem;color:var(--tx4)}
+.bs-foot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid rgba(255,255,255,.05);padding-top:.7rem;flex-shrink:0}
+.bs-ft-st{text-align:center}
+.bs-ft-n{font-family:'Space Mono',monospace;font-size:1.2rem;font-weight:700;color:var(--vi)}
+.bs-ft-l{font-size:.56rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.bs-qr-wrap{text-align:center}
+.bs-qr-img{background:white;padding:5px;border-radius:7px;display:inline-block}
+.bs-qr-txt{font-size:.56rem;color:var(--tx4);margin-top:2px}
+</style>
+<style>
+/* Prevent content jump when iOS keyboard opens */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .page.has-nav{bottom:var(--nav-total)}
+  .bottom-nav{height:var(--nav-total)}
+  .fab{bottom:calc(var(--nav-total) + .9rem)}
+}
+/* Pull-to-refresh off in standalone PWA */
+@media (display-mode: standalone){
+  body{overscroll-behavior-y:none}
+  .page{padding-top:max(var(--safe-top), 20px)}
+}
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ══ MODALS ══════════════════════════════════════════════════════ -->
+<!-- Propose modal -->
+<div class="modal-ov" id="modal-propose" onclick="closeModalOut('modal-propose',event)">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Proposer un morceau</div>
+    <input class="fi" id="modal-q" type="text" placeholder="Chercher artiste, titre…" oninput="renderModalList()" style="margin-bottom:.65rem">
+    <div id="modal-list" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:.38rem;margin-bottom:.75rem"></div>
+    <button class="btn-g" id="modal-ok" disabled onclick="submitProposal()"><span>Envoyer la proposition ↗</span></button>
+    <button class="btn-outline" onclick="closeModal('modal-propose')" style="margin-top:.4rem">Annuler</button>
+  </div>
+</div>
+
+<!-- Subscribe modal -->
+<div class="modal-ov" id="modal-sub" onclick="closeModalOut('modal-sub',event)">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="width:52px;height:52px;border-radius:50%;background:#6E3FF3;display:flex;align-items:center;justify-content:center;font-size:1.45rem;margin:0 auto .55rem;border:2px solid rgba(255,255,255,.1)">🎧</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.04em;color:#6E3FF3;background:none;-webkit-text-fill-color:unset">S'abonner à DJ NOVA</div>
+      <div style="font-size:.78rem;color:var(--tx3);margin-top:.2rem">Restez informé de tous les prochains sets</div>
+    </div>
+    <div class="plan-list" id="plan-list">
+      <div class="plan sel" data-plan="free" onclick="selPlan(this)">
+        <div class="plan-top"><div class="plan-nm">🆓 Gratuit</div><div class="plan-pr">0€ <span>/mois</span></div><div class="plan-radio"></div></div>
+        <div class="plan-feats"><div class="pf">Notifications des prochains sets</div><div class="pf">Accès aux mixes publics</div></div>
+      </div>
+      <div class="plan pop" data-plan="fan" onclick="selPlan(this)">
+        <div class="plan-top"><div class="plan-nm">⭐ Fan</div><div class="plan-pr">2,99€ <span>/mois</span></div><div class="plan-radio"></div></div>
+        <div class="plan-feats"><div class="pf">Accès prioritaire aux billets</div><div class="pf">Sets exclusifs réservés fans</div><div class="pf">Playlist mensuelle curatée</div></div>
+      </div>
+      <div class="plan" data-plan="vip" onclick="selPlan(this)">
+        <div class="plan-top"><div class="plan-nm">💎 VIP</div><div class="plan-pr">7,99€ <span>/mois</span></div><div class="plan-radio"></div></div>
+        <div class="plan-feats"><div class="pf">Entrée gratuite 2×/mois</div><div class="pf">Meet & Greet backstage</div><div class="pf">Badge VIP + demandes prioritaires</div></div>
+      </div>
+    </div>
+    <button class="btn-g" onclick="doSubscribe()">Confirmer l'abonnement →</button>
+    <button class="btn-outline" onclick="closeModal('modal-sub')" style="margin-top:.4rem">Plus tard</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+   PAGES
+══════════════════════════════════════════════════════════════════ -->
+
+<!-- AUTH -->
+<div class="page active" id="pg-auth">
+  <div class="auth-wrap" style="position:relative;z-index:1;margin:auto;padding:1.75rem 1.5rem">
+    <div class="auth-hero" style="text-align:center">
+      <div class="auth-ring">🎵</div>
+      <div class="auth-appname">DJ REQUEST</div>
+      <div class="auth-tagline">Votez pour les prochains morceaux</div>
+    </div>
+    <div class="auth-card">
+      <div class="auth-card-ttl">Connectez-vous pour voter</div>
+      <button class="btn-google" onclick="signInGoogle()">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continuer avec Google
+      </button>
+      <div class="div-or"><div class="div-line"></div><div class="div-txt">ou par téléphone</div><div class="div-line"></div></div>
+      <div id="auth-phone-form">
+        <div class="phone-row">
+          <select class="cc-sel" id="cc">
+            <option value="+33">🇫🇷 +33</option><option value="+32">🇧🇪 +32</option><option value="+41">🇨🇭 +41</option>
+            <option value="+1">🇺🇸 +1</option><option value="+44">🇬🇧 +44</option><option value="+212">🇲🇦 +212</option>
+            <option value="+221">🇸🇳 +221</option><option value="+225">🇨🇮 +225</option>
+          </select>
+          <input class="phone-inp" id="phone-inp" type="tel" placeholder="06 12 34 56 78" maxlength="14" oninput="fmtPhone(this)">
+        </div>
+        <div class="otp-wrap" id="otp-wrap">
+          <div class="otp-hint">Code envoyé au <strong id="otp-num"></strong></div>
+          <div class="otp-boxes" id="otp-boxes">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,0)" onkeydown="otpKey(event,0)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,1)" onkeydown="otpKey(event,1)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,2)" onkeydown="otpKey(event,2)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,3)" onkeydown="otpKey(event,3)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,4)" onkeydown="otpKey(event,4)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,5)" onkeydown="otpKey(event,5)">
+          </div>
+          <button class="resend-btn" id="resend-btn" disabled onclick="resendSMS()">
+            Renvoyer le code (<span id="rtimer">30</span>s)
+          </button>
+          <button class="otp-back-btn" onclick="backToPhone()">← Changer de numéro</button>
+        </div>
+        <div class="auth-err" id="auth-err"></div>
+        <button class="btn-g" onclick="phoneAction()" style="margin-top:.2rem"><span id="phone-btn-txt">Recevoir le code SMS</span></button>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <button onclick="showPage('dj-login')" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-radius:1.25rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;transition:all .2s">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">🎛️</div>
+        <div style="text-align:left">
+          <div style="font-size:.85rem;font-weight:600;color:rgba(255,255,255,.8)">Espace Organisateur</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.35);margin-top:1px">DJ · Promoteur · Club manager</div>
+        </div>
+        <div style="margin-left:auto;color:rgba(255,255,255,.3);font-size:.9rem">→</div>
+      </button>
+    </div>
+    <button onclick="guestLogin()" style="width:100%;margin-top:.5rem;padding:.72rem;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.4);font-size:.82rem;font-family:Outfit,sans-serif;cursor:pointer;transition:all .2s" onmouseover="this.style.color='rgba(255,255,255,.65)'" onmouseout="this.style.color='rgba(255,255,255,.4)'">
+      Tester sans compte →
+    </button>
+    <div class="auth-terms">En continuant, vous acceptez nos <a href="#">CGU</a> et <a href="#">Politique de confidentialité</a></div>
+  </div>
+  <div id="recaptcha-container"></div>
+</div>
+
+<!-- CLIENT -->
+<div class="page has-nav" id="pg-client">
+  <div class="tb">
+    <div class="tb-title">🎵 DJ REQUEST</div>
+    <div style="margin-left:auto"><div class="tb-live"><div class="pdot"></div>Live</div></div>
+  </div>
+  <div class="scroll">
+    <!-- FLYER SOIRÉE -->
+    <div class="flyer-wrap">
+      <div class="flyer-card">
+        <div class="flyer-img-placeholder" id="flyer-container" style="background:linear-gradient(135deg,#1a0030,#3b0764,#0c0028)">
+          <div class="flyer-bg"></div>
+          <div class="flyer-grid-lines"></div>
+          <div class="flyer-glow1"></div>
+          <div class="flyer-glow2"></div>
+        </div>
+        <div class="flyer-content">
+          <div class="flyer-top">
+          </div>
+          <div class="flyer-bottom">
+            <div class="flyer-event-name" id="flyer-ev-name">Nuit Électrique</div>
+            <div class="flyer-meta">
+              <div class="flyer-meta-item">📅 <strong>Sam 17 mai 2026</strong></div>
+              <div class="flyer-meta-item">🕙 <strong>22h → 6h</strong></div>
+            </div>
+            <div class="flyer-lineup">
+              <span class="flyer-dj-tag headliner">★ DJ NOVA</span>
+              <span class="flyer-dj-tag">RAVEN</span>
+              <span class="flyer-dj-tag">K.LUX</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLUB INFO ÉLARGI -->
+    <div style="margin:.5rem .65rem .55rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:1.5rem;overflow:hidden;backdrop-filter:blur(20px)">
+      <div style="display:flex;align-items:center;gap:.65rem;padding:.75rem">
+        <!-- Bouton partager 80px -->
+        <button id="share-pos-btn" onclick="shareVenuePosition()" style="width:80px;height:80px;border-radius:16px;border:1px solid rgba(139,92,246,.35);background:rgba(139,92,246,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;flex-shrink:0;transition:all .2s">
+          <span style="font-size:1.8rem">📍</span>
+          <span style="font-size:.52rem;font-weight:700;color:#C4B5FD;font-family:'Outfit',sans-serif;letter-spacing:.05em;text-transform:uppercase">Partager</span>
+        </button>
+        <!-- Infos club -->
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.04em;color:#fff;line-height:1" id="club-name-strip">Warehouse 42</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:.35rem;margin-top:4px">
+            <span>📍</span><span>32 Av. Corentin Cariou</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.35rem;margin-top:.35rem">
+            <div class="live-blink"></div>
+            <span style="font-size:.62rem;color:#34C759;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Ouvert</span>
+            <span style="color:rgba(255,255,255,.2);font-size:.62rem">·</span>
+            <span style="font-size:.62rem;color:rgba(255,255,255,.35)">22h → 6h</span>
+          </div>
+        </div>
+        <!-- Bouton QR 80px avec aperçu -->
+        <button onclick="openQRModal()" style="width:80px;height:80px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex-shrink:0;padding:.4rem;transition:all .2s">
+          <div id="club-qr-mini" style="width:56px;height:56px"></div>
+          <span style="font-size:.5rem;font-weight:700;color:#1D1D1F;font-family:'Outfit',sans-serif;letter-spacing:.06em;text-transform:uppercase">Scanner</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="list-hdr"><span style="font-size:.75rem;font-weight:700;color:#fff;letter-spacing:.02em">Propositions</span><span class="vote-cnt" id="cli-total" style="color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15)">0 votes</span></div>
+    <div id="cli-list"></div>
+
+    <!-- NOW PLAYING -->
+    <div style="height:4rem"></div>
+  </div>
+  <div class="now-bar">
+    <div class="now-disc"></div>
+    <div style="flex:1;min-width:0"><div class="now-lbl">▶ En cours</div><div class="now-title" id="cli-now">En attente…</div></div>
+    <div class="waves"><div class="wv"></div><div class="wv"></div><div class="wv"></div><div class="wv"></div><div class="wv"></div></div>
+  </div>
+  <button class="fab" onclick="openModal('modal-propose')">＋ Proposer</button>
+</div>
+
+<!-- PROFILE -->
+<div class="page has-nav" id="pg-profile">
+  <div class="scroll" id="prof-scroll">
+
+    <!-- PHOTO CENTRÉE en haut sans bandeau -->
+    <div style="display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 0;margin-bottom:.85rem">
+      <div style="width:150px;height:150px;border-radius:50%;border:3px solid rgba(139,92,246,.5);box-shadow:0 0 32px rgba(139,92,246,.4);overflow:hidden;background:linear-gradient(135deg,#8B5CF6,#D946EF);position:relative;margin-bottom:.85rem">
+        <img src="https://i.pravatar.cc/150?img=8" alt="Photo profil" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
+        <div id="prof-av" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3.5rem"></div>
+      </div>
+      <!-- Boutons Modifier + Partager -->
+      <div style="position:absolute;top:1.2rem;right:1rem;display:flex;gap:6px">
+        <button style="padding:5px 11px;border-radius:18px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);font-size:.7rem;font-weight:600;font-family:Outfit,sans-serif">Modifier</button>
+        <button onclick="shareVenuePosition()" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);font-size:.88rem;display:flex;align-items:center;justify-content:center">↗</button>
+      </div>
+      <!-- Nom + statut -->
+      <div id="prof-name" style="font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.04em;color:#fff;line-height:1;text-align:center"></div>
+      <div style="display:flex;align-items:center;gap:.35rem;margin-top:.4rem">
+        <div style="width:6px;height:6px;border-radius:50%;background:#34C759;animation:pdot 1.4s infinite"></div>
+        <span style="font-size:.65rem;color:#34C759;font-weight:700;letter-spacing:.06em;text-transform:uppercase">Actif ce soir</span>
+      </div>
+    </div>
+
+    <div style="padding:0 1rem 1rem;position:relative">
+
+      <!-- BIO + POSITION + BADGE (badge span 2 lignes à droite) -->
+      <div style="display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:.5rem;margin-bottom:.75rem;align-items:stretch">
+        <!-- À propos -->
+        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:.85rem 1rem">
+          <div style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">À propos</div>
+          <div style="font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.6;font-weight:300">Passionné de musique électronique · Toujours en première ligne pour voter 🎵</div>
+        </div>
+        <!-- Badge niveau — span 2 lignes -->
+        <div id="prof-badge-card" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:1.25rem;padding:.85rem .75rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;min-width:74px;text-align:center;grid-row:1/3">
+          <div id="prof-badge-ico" style="font-size:2.2rem;line-height:1">💎</div>
+          <div id="prof-badge-name" style="font-size:.6rem;font-weight:700;color:rgba(139,92,246,.9);text-transform:uppercase;letter-spacing:.06em;line-height:1.2">VIP</div>
+        </div>
+        <!-- Partager ma position -->
+        <div id="location-card" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:.85rem 1rem">
+          <div style="display:flex;align-items:center;gap:.65rem">
+            <div style="flex:1">
+              <div style="font-size:.85rem;font-weight:700;color:#fff">📍 Ma position</div>
+              <div id="loc-status" style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:2px">Partager dans la salle</div>
+            </div>
+            <div id="loc-toggle" onclick="toggleLocation()" style="width:44px;height:26px;border-radius:13px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);position:relative;cursor:pointer;transition:all .3s;flex-shrink:0">
+              <div id="loc-knob" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:9px;background:rgba(255,255,255,.5);transition:all .3s"></div>
+            </div>
+          </div>
+          <div id="loc-zone-selector" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.07)">
+            <div style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Où es-tu ?</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem">
+              <button onclick="selectZone(this,'Piste')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-size:.75rem;font-family:Outfit,sans-serif;text-align:left;transition:all .2s">🕺 Piste</button>
+              <button onclick="selectZone(this,'Bar')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-size:.75rem;font-family:Outfit,sans-serif;text-align:left;transition:all .2s">🍹 Bar</button>
+              <button onclick="selectZone(this,'Lounge')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-size:.75rem;font-family:Outfit,sans-serif;text-align:left;transition:all .2s">🛋️ Lounge</button>
+              <button onclick="selectZone(this,'Entrée')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-size:.75rem;font-family:Outfit,sans-serif;text-align:left;transition:all .2s">🚪 Entrée</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS 2x2 avec barres -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
+        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:.85rem .9rem">
+          <div id="pst-ev" style="font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;color:#8B5CF6;line-height:1">0</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:3px">Soirées</div>
+          <div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-ev" style="height:3px;background:#8B5CF6;border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        </div>
+        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:.85rem .9rem">
+          <div id="pst-vt" style="font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;color:#F59E0B;line-height:1">0</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:3px">Votes</div>
+          <div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-vt" style="height:3px;background:#F59E0B;border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        </div>
+        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:.85rem .9rem">
+          <div id="pst-pr" style="font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;color:#60A5FA;line-height:1">0</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:3px">Propositions</div>
+          <div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-pr" style="height:3px;background:#60A5FA;border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        </div>
+        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:.85rem .9rem">
+          <div id="pst-pl" style="font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;color:#34C759;line-height:1">0</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:3px">Joués</div>
+          <div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-pl" style="height:3px;background:#34C759;border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        </div>
+      </div>
+
+      <!-- AMIS CE SOIR -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.75rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem">
+          <div style="font-size:1.1rem;font-weight:700;color:#fff">Amis ce soir</div>
+          <button onclick="openAddFriend()" style="font-size:.72rem;font-weight:700;color:var(--vi);background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:20px;padding:4px 12px">+ Ajouter</button>
+        </div>
+        <div style="display:flex;margin-bottom:.85rem">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#D946EF);display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:2px solid #08080B;margin-right:-10px">😎</div>
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0891B2,#34C759);display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:2px solid #08080B;margin-right:-10px">💃</div>
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#D946EF,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:2px solid #08080B;margin-right:-10px">🕺</div>
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:rgba(255,255,255,.5);border:2px solid #08080B">+5</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <div style="display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;background:rgba(255,255,255,.04);border-radius:1rem;border:1px solid rgba(255,255,255,.07)">
+            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#D946EF);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">😎</div>
+            <div style="flex:1"><div style="font-size:.9rem;font-weight:600;color:#fff">Marie K.</div><div style="font-size:.7rem;color:#34C759;margin-top:2px">● Présente ce soir</div></div>
+            <button onclick="navTo('chat');toast('💬 Chat avec Marie')" style="font-size:.72rem;color:var(--vi);background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:9px;padding:5px 11px;font-weight:600">Chat</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;background:rgba(255,255,255,.04);border-radius:1rem;border:1px solid rgba(255,255,255,.07)">
+            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#0891B2,#34C759);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">💃</div>
+            <div style="flex:1"><div style="font-size:.9rem;font-weight:600;color:#fff">Thomas R.</div><div style="font-size:.7rem;color:#34C759;margin-top:2px">● 8 votes ce soir</div></div>
+            <button onclick="navTo('chat');toast('💬 Chat avec Thomas')" style="font-size:.72rem;color:var(--vi);background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:9px;padding:5px 11px;font-weight:600">Chat</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- XP / NIVEAU -->
+      <div class="xp-card" style="border-radius:1.25rem;margin-bottom:.75rem">
+        <div class="xp-top"><div class="sec-lbl">Niveau d'implication</div><div id="xp-lv-txt" style="font-family:'Space Mono',monospace;font-size:.72rem;color:var(--vi)">Niveau 3</div></div>
+        <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+        <div class="xp-lbls"><div class="xp-pts" id="xp-pts">0 pts</div><div style="font-size:.65rem;color:var(--tx4)" id="xp-next">prochain : —</div></div>
+        <div class="levels-strip" id="levels-strip"></div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tab-row" style="margin-bottom:.75rem;border-radius:1rem">
+        <div class="tr-tab act" onclick="switchProfTab('events',this)">Soirées</div>
+        <div class="tr-tab" onclick="switchProfTab('ach',this)">Badges</div>
+      </div>
+
+      <!-- EVENTS LIST -->
+      <div id="prof-tab-events">
+        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;overflow:hidden">
+          <div class="ev-list" id="prof-ev-list"></div>
+        </div>
+      </div>
+
+      <!-- ACHIEVEMENTS -->
+      <div id="prof-tab-ach" style="display:none">
+        <div class="ach-grid" id="prof-ach-grid"></div>
+      </div>
+
+      <div style="height:.5rem"></div>
+
+      <!-- ACCÈS ORGANISATEUR -->
+      <div id="orga-access-btn" style="margin-bottom:.5rem">
+        <button onclick="djLoggedIn?navTo('dj'):showPage('dj-login')" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(139,92,246,.2);background:rgba(139,92,246,.07);cursor:pointer;transition:all .2s">
+          <div style="width:42px;height:42px;border-radius:12px;background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🎛️</div>
+          <div style="text-align:left;flex:1">
+            <div style="font-size:.88rem;font-weight:700;color:#C4B5FD">Espace Organisateur</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:2px">Gérer la soirée, le chat, le press kit</div>
+          </div>
+          <div style="color:rgba(139,92,246,.6);font-size:1rem">→</div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL QR CODE -->
+<div class="modal-ov" id="modal-qr" onclick="closeModalOut('modal-qr',event)">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.04em;color:#fff;margin-bottom:.25rem">Scanner pour rejoindre</div>
+      <div style="font-size:.8rem;color:rgba(255,255,255,.45)">Partagez ce QR code pour inviter vos amis</div>
+    </div>
+    <div style="display:flex;justify-content:center;margin:.5rem 0 1rem">
+      <div style="background:white;padding:16px;border-radius:16px;display:inline-block">
+        <div id="modal-qr-box"></div>
+      </div>
+    </div>
+    <div id="modal-qr-url" style="font-size:.7rem;color:rgba(255,255,255,.35);text-align:center;word-break:break-all;margin-bottom:.85rem;padding:0 1rem"></div>
+    <button class="btn-g" onclick="copyUrl();closeModal('modal-qr')">📋 Copier le lien</button>
+    <button class="btn-outline" onclick="closeModal('modal-qr')" style="margin-top:.4rem">Fermer</button>
+  </div>
+</div>
+<!-- DJ LOGIN -->
+<!-- ORGANISATEUR LOGIN -->
+<div class="page" id="pg-dj-login">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;position:relative;z-index:1">
+    <div class="dj-login-card">
+      <div style="text-align:center;margin-bottom:1.25rem">
+        <div style="width:60px;height:60px;border-radius:50%;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto .65rem">🎛️</div>
+        <div class="dj-login-title">Espace Organisateur</div>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.4)">DJ · Promoteur · Club manager</div>
+      </div>
+      <div class="fl"><label>Nom de la soirée</label><input class="fi" id="dj-ev-name" type="text" placeholder="Ex: Nuit Électrique" maxlength="40"></div>
+      <div class="fl"><label>Mot de passe</label><input class="fi" id="dj-pwd" type="password" placeholder="••••••••"></div>
+      <button class="btn-g" onclick="djLogin()">Accéder →</button>
+      <div class="auth-err" id="dj-err" style="margin-top:.5rem"></div>
+      <button onclick="showPage('auth')" style="display:block;text-align:center;margin-top:.85rem;background:none;border:none;color:var(--tx4);font-size:.8rem;width:100%">← Retour</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORGANISATEUR DASHBOARD -->
+<div class="page has-nav" id="pg-dj">
+  <!-- Topbar -->
+  <div class="tb">
+    <div style="width:34px"></div>
+    <div class="tb-title">🎛️ Organisateur</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:.5rem">
+      <div class="tb-live"><div class="pdot"></div>Live</div>
+      <button onclick="djLogout()" style="font-size:.65rem;padding:3px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.4)">Quitter</button>
+    </div>
+  </div>
+
+  <!-- Sous-onglets -->
+  <div style="display:flex;gap:0;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;overflow-x:auto;scrollbar-width:none">
+    <button class="orga-tab active" id="otab-live" onclick="switchOrgaTab('live',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:700;color:#8B5CF6;background:none;border:none;border-bottom:2px solid #8B5CF6;font-family:Outfit,sans-serif;white-space:nowrap;min-width:0">🎵 Live</button>
+    <button class="orga-tab" id="otab-modo" onclick="switchOrgaTab('modo',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:rgba(255,255,255,.4);background:none;border:none;border-bottom:2px solid transparent;font-family:Outfit,sans-serif;white-space:nowrap;min-width:0;position:relative">
+      🚨 Modération
+      <span id="dj-report-badge" style="display:none;position:absolute;top:6px;right:4px;background:#F87171;color:white;font-size:.48rem;font-weight:700;min-width:14px;height:14px;border-radius:7px;align-items:center;justify-content:center;padding:0 3px">0</span>
+    </button>
+    <button class="orga-tab" id="otab-pk" onclick="switchOrgaTab('pk',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:rgba(255,255,255,.4);background:none;border:none;border-bottom:2px solid transparent;font-family:Outfit,sans-serif;white-space:nowrap;min-width:0">🎧 Press Kit</button>
+    <button class="orga-tab" id="otab-settings" onclick="switchOrgaTab('settings',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:rgba(255,255,255,.4);background:none;border:none;border-bottom:2px solid transparent;font-family:Outfit,sans-serif;white-space:nowrap;min-width:0">⚙️ Réglages</button>
+  </div>
+
+  <!-- ONGLET LIVE -->
+  <div class="scroll" id="orga-live">
+    <div class="dj-stats">
+      <div class="dj-st"><div class="dj-st-n" id="dj-s1">0</div><div class="dj-st-l">Demandes</div></div>
+      <div class="dj-st"><div class="dj-st-n" id="dj-s2">0</div><div class="dj-st-l">Votes</div></div>
+      <div class="dj-st"><div class="dj-st-n" id="dj-s3">0</div><div class="dj-st-l">Votants</div></div>
+    </div>
+    <div class="np-dj"><div class="np-dj-glow"></div><div class="np-tag">▶ En cours</div><div class="np-t" id="dj-np-t">En attente…</div><div class="np-a" id="dj-np-a"></div><div class="prog-trk"><div class="prog-fill" id="dj-prog" style="width:0%"></div></div></div>
+    <div class="qr-card"><div class="qr-box"><div id="dj-qr"></div></div><div class="qr-info"><div class="qr-evname" id="dj-qr-evname">—</div><div class="qr-url" id="dj-qr-url"></div><div class="qr-acts"><button class="qr-btn" onclick="copyUrl()">📋 Copier</button><button class="qr-btn new" onclick="createNewEvent()">＋ Nouvelle</button><button class="qr-btn" onclick="showPage('bigscreen')">📺 Écran</button></div></div></div>
+    <div style="padding:.3rem .75rem .3rem;display:flex;justify-content:space-between;align-items:center"><span class="sec-lbl">File d'attente</span><span style="font-size:.62rem;color:var(--tx4)">par votes</span></div>
+    <div style="padding:0 .75rem .75rem" id="dj-queue"></div>
+  </div>
+
+  <!-- ONGLET MODÉRATION -->
+  <div class="scroll" id="orga-modo" style="display:none">
+    <div style="padding:.85rem .75rem .35rem;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:.88rem;font-weight:700;color:#fff">Messages signalés</div>
+      <button onclick="renderDJReports(null);toast('✓ Tous ignorés')" style="font-size:.68rem;padding:3px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.4)">Tout ignorer</button>
+    </div>
+    <div id="dj-reports-section" style="padding:.1rem .75rem .75rem"><div id="dj-reports-list"><div style="text-align:center;padding:2rem;font-size:.82rem;color:rgba(255,255,255,.3)">Aucun signalement pour le moment</div></div></div>
+    <div style="padding:.35rem .75rem .35rem;border-top:1px solid rgba(255,255,255,.07)">
+      <div style="font-size:.88rem;font-weight:700;color:#fff;margin-bottom:.65rem">Historique du chat</div>
+      <div id="orga-chat-list" style="display:flex;flex-direction:column;gap:.35rem;max-height:320px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <!-- ONGLET PRESS KIT (résumé organisateur) -->
+  <div class="scroll" id="orga-pk" style="display:none;padding:.85rem .75rem">
+    <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;text-align:center">
+      <div style="font-size:.62rem;color:rgba(139,92,246,.7);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;font-weight:700">Votre press kit public</div>
+      <div style="font-size:.88rem;color:rgba(255,255,255,.7);margin-bottom:.65rem">Partagez ce lien avec les promoteurs et clubs pour qu'ils consultent votre profil</div>
+      <button onclick="navTo('presskit')" style="width:100%;padding:.75rem;border-radius:1rem;border:none;background:#8B5CF6;color:white;font-size:.88rem;font-weight:700;font-family:Outfit,sans-serif">Voir mon Press Kit →</button>
+    </div>
+    <!-- Stats abonnés -->
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem">
+      <div style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem">Statistiques</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <div style="text-align:center;padding:.6rem;background:rgba(255,255,255,.04);border-radius:.85rem">
+          <div style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:#8B5CF6" id="orga-subs">1 284</div>
+          <div style="font-size:.62rem;color:rgba(255,255,255,.35);margin-top:2px">Abonnés</div>
+        </div>
+        <div style="text-align:center;padding:.6rem;background:rgba(255,255,255,.04);border-radius:.85rem">
+          <div style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:#34C759">320+</div>
+          <div style="font-size:.62rem;color:rgba(255,255,255,.35);margin-top:2px">Soirées</div>
+        </div>
+      </div>
+    </div>
+    <!-- Prochaines dates -->
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:1rem">
+      <div style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem">Prochaines dates</div>
+      <div class="up-list">
+        <div class="up-item feat"><div class="up-dt"><div class="up-d">17</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Warehouse Night Vol.12</div><div class="up-v">📍 La Clairière, Paris</div></div></div>
+        <div class="up-item"><div class="up-dt"><div class="up-d">31</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Club Friday — Gate Club</div><div class="up-v">📍 Gate Club, Paris</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONGLET RÉGLAGES -->
+  <div class="scroll" id="orga-settings" style="display:none;padding:.85rem .75rem">
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem">
+      <div style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Soirée en cours</div>
+      <div class="fl"><label>Nom de l'événement</label><input class="fi" id="settings-ev-name" type="text" placeholder="Nuit Électrique" value="Nuit Électrique"></div>
+      <div class="fl"><label>Nom du club</label><input class="fi" id="settings-club" type="text" placeholder="Warehouse 42" value="Warehouse 42"></div>
+      <div class="fl" style="margin-bottom:0"><label>Horaires</label><input class="fi" id="settings-hours" type="text" placeholder="22h → 6h" value="22h → 6h"></div>
+    </div>
+    <button onclick="saveSettings()" style="width:100%;padding:.85rem;border-radius:1rem;border:none;background:#8B5CF6;color:white;font-size:.88rem;font-weight:700;font-family:Outfit,sans-serif;margin-bottom:.75rem">Enregistrer les réglages</button>
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem">
+      <div style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Danger zone</div>
+      <button onclick="if(confirm('Vider toute la file ?')){proposals={};renderAll();toast('File vidée')}" style="width:100%;padding:.75rem;border-radius:1rem;border:1px solid rgba(248,113,113,.25);background:rgba(248,113,113,.08);color:#F87171;font-size:.85rem;font-weight:600;font-family:Outfit,sans-serif;margin-bottom:.4rem">🗑️ Vider la file d'attente</button>
+      <button onclick="djLogout()" style="width:100%;padding:.75rem;border-radius:1rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);font-size:.85rem;font-weight:600;font-family:Outfit,sans-serif">Déconnexion organisateur</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- PRESS KIT (DJ Profile public) -->
+<div class="page" id="pg-presskit">
+  <div class="tb"><div class="tb-back" onclick="showPage('client')">←</div><div class="tb-title">Press Kit</div></div>
+  <div class="scroll">
+
+    <!-- HERO PHOTO -->
+    <div class="pk-hero" style="margin-bottom:0">
+      <div class="pk-hero-bg" style="height:200px"><div class="pk-grid"></div></div>
+      <div style="display:flex;justify-content:center;position:relative;margin-top:-75px;z-index:2">
+        <div style="width:150px;height:150px;border-radius:50%;overflow:hidden;border:4px solid rgba(255,255,255,.15);box-shadow:0 0 50px rgba(139,92,246,.6);background:linear-gradient(135deg,#1a0030,#3b0764);position:relative">
+          <img src="https://i.pravatar.cc/150?img=3" alt="DJ NOVA" style="width:100%;height:100%;object-fit:cover">
+        </div>
+        <div class="pk-verified" style="position:absolute;bottom:6px;right:calc(50% - 63px)">✓</div>
+      </div>
+    </div>
+
+    <!-- IDENTITÉ -->
+    <div style="text-align:center;padding:1rem 1rem .5rem">
+      <div style="display:flex;justify-content:center;gap:.35rem;margin-bottom:.5rem">
+        <span class="tag tag-vi">Techno</span>
+        <span class="tag pill-pk">House</span>
+        <span class="tag" style="background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.25);color:#67E8F9">Électro</span>
+      </div>
+      <div class="pk-name" style="font-size:2.6rem">DJ NOVA</div>
+      <div style="font-size:.78rem;color:rgba(255,255,255,.45);margin-top:3px">Alexandre Moreau · Paris, France</div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.6);font-style:italic;margin:.6rem 0 .85rem;line-height:1.5;font-weight:300">"La musique n'est pas un bruit — c'est une conversation."</div>
+    </div>
+
+    <!-- STATS CLÉS -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.06);margin:.5rem 1rem;border-radius:1.25rem;overflow:hidden;border:1px solid rgba(255,255,255,.08)">
+      <div style="background:#0D0D12;padding:.7rem .45rem;text-align:center"><div style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;color:#fff">8</div><div style="font-size:.55rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Ans</div></div>
+      <div style="background:#0D0D12;padding:.7rem .45rem;text-align:center"><div style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;color:#fff">320+</div><div style="font-size:.55rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Soirées</div></div>
+      <div style="background:#0D0D12;padding:.7rem .45rem;text-align:center"><div style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;color:#fff">24</div><div style="font-size:.55rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Villes</div></div>
+      <div style="background:#0D0D12;padding:.7rem .45rem;text-align:center"><div style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;color:#8B5CF6" id="pk-subs-n">1 284</div><div style="font-size:.55rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Abonnés</div></div>
+    </div>
+
+    <!-- CTA ABONNEMENT -->
+    <div style="padding:.25rem 1rem .75rem">
+      <button class="pk-sub-btn" id="pk-sub-btn" onclick="openModal('modal-sub')" style="width:100%"><span id="pk-sub-ico">+</span> <span id="pk-sub-txt">S'abonner à DJ NOVA</span></button>
+    </div>
+
+    <!-- BIOGRAPHIE -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Biographie</div>
+      <div class="bio-txt">DJ NOVA s'impose depuis <em>2016</em> comme l'une des figures montantes de la scène électronique parisienne. Formé à l'école de <em>musique électronique de Lyon</em>, il développe un style mêlant <em>techno mélodie</em> et <em>house progressif</em>.<br><br>Ses sets l'ont amené à jouer dans des clubs emblématiques comme le <em>Rex Club</em>, la <em>Machine du Moulin Rouge</em> et <em>Djoon</em>, partageant la scène avec Laurent Garnier, Peggy Gou et Nina Kraviz.</div>
+      <div class="socials" style="margin-top:.85rem">
+        <button class="soc-btn" onclick="toast('📷 Instagram')">📷 Instagram</button>
+        <button class="soc-btn" onclick="toast('☁️ SoundCloud')">☁️ SoundCloud</button>
+        <button class="soc-btn" onclick="toast('⚫ RA')">⚫ Resident Advisor</button>
+      </div>
+    </div>
+
+    <!-- CLUBS & FESTIVALS (logos) -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Scènes <span class="badge">Sélection</span></div>
+      <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:.75rem .5rem">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.6rem">👑</div>
+          <div style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.7);text-align:center">Rex Club</div>
+          <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Paris</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🌿</div>
+          <div style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.7);text-align:center">La Clairière</div>
+          <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Paris</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🎵</div>
+          <div style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.7);text-align:center">Djoon</div>
+          <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Paris</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🏭</div>
+          <div style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.7);text-align:center">Warehouse</div>
+          <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Paris</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.6rem">⚡</div>
+          <div style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.7);text-align:center">Fabric</div>
+          <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Londres</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🎭</div>
+          <div style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.7);text-align:center">Berghain</div>
+          <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Berlin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCHAINS SETS -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Prochains sets <span class="badge">À venir</span></div>
+      <div class="up-list">
+        <div class="up-item feat"><div class="up-dt"><div class="up-d">17</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Warehouse Night Vol.12</div><div class="up-v">📍 La Clairière, Paris · 23h→6h</div></div><button class="up-tkt" onclick="toast('🎟 Shotgun')">🎟</button></div>
+        <div class="up-item"><div class="up-dt"><div class="up-d">31</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Club Friday — Gate Club</div><div class="up-v">📍 Gate Club, Paris</div></div><button class="up-tkt" onclick="toast('🎟 Shotgun')">🎟</button></div>
+        <div class="up-item"><div class="up-dt"><div class="up-d">14</div><div class="up-m">Jun</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Festival Électronique Lyon</div><div class="up-v">📍 Halle Tony Garnier</div></div><button class="up-tkt" onclick="toast('🎟 Shotgun')">🎟</button></div>
+      </div>
+    </div>
+
+    <!-- MIXES -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Mixes & Sets <span class="badge">Récents</span></div>
+      <div class="mix-list">
+        <div class="mix-item"><div class="mix-cov" style="background:rgba(147,51,234,.12)">🎛️<div class="mix-play-ov">▶</div></div><div class="mix-inf"><div class="mix-n">La Clairière Live Set — Avr 2026</div><div class="mix-m"><span class="mix-dur">1h 42min</span><span class="mix-plat">SoundCloud</span><span class="mix-plays">12.4K</span></div></div><button class="mix-btn" onclick="toast('☁️ SoundCloud')">Écouter</button></div>
+        <div class="mix-item"><div class="mix-cov" style="background:rgba(59,130,246,.12)">🎚️<div class="mix-play-ov">▶</div></div><div class="mix-inf"><div class="mix-n">Rex Club Closing — Déc 2025</div><div class="mix-m"><span class="mix-dur">2h 15min</span><span class="mix-plat">YouTube</span><span class="mix-plays">24.1K</span></div></div><button class="mix-btn" onclick="toast('▶ YouTube')">Regarder</button></div>
+      </div>
+    </div>
+
+    <!-- AVIS ORGANISATEURS -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Avis <span class="badge">Organisateurs</span></div>
+      <div class="rv-list">
+        <div class="rv"><div class="rv-head"><div class="rv-av" style="background:rgba(147,51,234,.12)">🏭</div><div class="rv-who"><div class="rv-n">Thomas L.</div><div class="rv-r">Directeur — Warehouse 42</div></div></div><div class="rv-stars">⭐⭐⭐⭐⭐</div><div class="rv-txt">"Nova a une lecture du public exceptionnelle. La piste était pleine du début à la fin."</div><div class="rv-dt">Mai 2026</div></div>
+        <div class="rv"><div class="rv-head"><div class="rv-av" style="background:rgba(6,182,212,.1)">🌿</div><div class="rv-who"><div class="rv-n">Camille R.</div><div class="rv-r">Programmatrice — La Clairière</div></div></div><div class="rv-stars">⭐⭐⭐⭐⭐</div><div class="rv-txt">"Professionnel, ponctuel, un set qui a mis le feu. Exactement ce qu'on cherche."</div><div class="rv-dt">Avril 2026</div></div>
+      </div>
+    </div>
+
+    <!-- DISPONIBILITÉS BOOKING -->
+    <div class="pk-sec" style="border-bottom:none;padding-bottom:2rem">
+      <div class="pk-sec-t">Booking <span class="badge">Disponibilités</span></div>
+
+      <!-- Statut général -->
+      <div style="background:rgba(52,199,89,.08);border:1px solid rgba(52,199,89,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.65rem;display:flex;align-items:center;gap:.75rem">
+        <div style="width:42px;height:42px;border-radius:50%;background:rgba(52,199,89,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">✅</div>
+        <div>
+          <div style="font-size:.88rem;font-weight:700;color:#34C759">Disponible pour booking</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.45);margin-top:2px">France & Europe · Réponse sous 48h</div>
+        </div>
+      </div>
+
+      <!-- Calendrier dispo -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.65rem">
+        <div style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem">Calendrier</div>
+        <div style="display:flex;flex-direction:column;gap:.45rem">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:rgba(255,255,255,.7)">Mai 2026</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(52,199,89,.12);border:1px solid rgba(52,199,89,.25);color:#34C759">✓ Quelques dates</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:rgba(255,255,255,.7)">Juin 2026</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(52,199,89,.12);border:1px solid rgba(52,199,89,.25);color:#34C759">✓ Disponible</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:rgba(255,255,255,.7)">Juillet 2026</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(52,199,89,.12);border:1px solid rgba(52,199,89,.25);color:#34C759">✓ Disponible</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:rgba(255,255,255,.7)">14 – 21 Août</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.18);color:#F87171">✗ Indisponible</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:rgba(255,255,255,.7)">Septembre 2026</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(52,199,89,.12);border:1px solid rgba(52,199,89,.25);color:#34C759">✓ Disponible</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact + CTA -->
+      <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.65rem">
+        <div style="font-size:.62rem;font-weight:700;color:rgba(139,92,246,.7);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.45rem">Contact booking</div>
+        <div style="font-size:.9rem;color:#C4B5FD;font-weight:600;cursor:pointer;margin-bottom:.25rem" onclick="toast('📧 booking@djnova.fr copié')">📧 booking@djnova.fr</div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.35)">Réponse garantie sous 48h</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <button onclick="toast('📧 Demande envoyée !')" style="padding:.88rem;border-radius:1rem;border:none;background:#8B5CF6;color:white;font-size:.88rem;font-weight:700;font-family:Outfit,sans-serif;min-height:52px">📧 Demande</button>
+        <button onclick="toast('📥 EPK téléchargé !')" style="padding:.88rem;border-radius:1rem;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.8);font-size:.88rem;font-weight:600;font-family:Outfit,sans-serif;min-height:52px">📥 Press Kit</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BIGSCREEN -->
+<div class="page" id="pg-bigscreen">
+  <div class="tb"><div class="tb-back" onclick="showPage('dj')">←</div><div class="tb-title">Écran Géant</div><div style="margin-left:auto"><div class="tb-live"><div class="pdot"></div>Live</div></div></div>
+  <div class="bs-wrap">
+    <div class="bs-head">
+      <div class="bs-ev-lbl" id="bs-ev-lbl">DJ Request Live</div>
+      <div class="bs-headline">Quel sera le<br>prochain morceau ?</div>
+      <div class="bs-sub">Scannez et votez depuis votre téléphone</div>
+      <div class="bs-live"><div class="pdot"></div>&nbsp;Live</div>
+    </div>
+    <div class="bs-now"><div class="bs-now-tag">▶ En cours</div><div class="bs-now-t" id="bs-np-t">En attente…</div><div class="bs-now-a" id="bs-np-a"></div><div class="bs-prog"><div class="bs-prog-f" id="bs-prog-f" style="width:0%"></div></div></div>
+    <div class="bs-chart-lbl">Classement en direct</div>
+    <div class="bs-chart" id="bs-chart"></div>
+    <div class="bs-foot">
+      <div class="bs-ft-st"><div class="bs-ft-n" id="bs-votes">0</div><div class="bs-ft-l">Votes</div></div>
+      <div class="bs-qr-wrap"><div class="bs-qr-img"><div id="bs-qr"></div></div><div class="bs-qr-txt">Scanner</div></div>
+      <div class="bs-ft-st"><div class="bs-ft-n" id="bs-tracks">0</div><div class="bs-ft-l">Titres</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- CHAT -->
+<div class="page has-nav" id="pg-chat">
+  <div class="tb"><div style="width:34px"></div><div class="tb-title">💬 Chat Club</div><div style="margin-left:auto"><div class="tb-live"><div class="pdot"></div>Live</div></div></div>
+
+  <!-- Messages list -->
+  <div class="scroll" id="chat-scroll" style="padding:.75rem .75rem 0">
+    <div id="chat-messages" style="display:flex;flex-direction:column;gap:.55rem;padding-bottom:.5rem">
+      <div style="text-align:center;padding:1rem 0">
+        <div style="font-size:.68rem;color:var(--tx4);background:var(--ink3);border:1px solid var(--bdr);border-radius:18px;padding:.3rem .85rem;display:inline-block">Bienvenue dans le chat de la soirée 🎵</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input bar -->
+  <div style="flex-shrink:0;padding:.65rem .75rem;background:rgba(8,8,11,.92);backdrop-filter:blur(30px);border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:flex-end;gap:.5rem">
+    <button onclick="document.getElementById('chat-photo-input').click()" style="width:44px;height:44px;border-radius:11px;border:1px solid var(--bdr);background:var(--ink3);font-size:1.2rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s" title="Photo">📷</button>
+    <input type="file" id="chat-photo-input" accept="image/*" style="display:none" onchange="sendPhoto(this)">
+    <textarea id="chat-input" placeholder="Message…" rows="1"
+      style="flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:.65rem .9rem;color:var(--tx);font-size:16px;font-family:'Outfit',sans-serif;outline:none;resize:none;max-height:100px;transition:border-color .2s;line-height:1.4;-webkit-appearance:none"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';chatInputChanged()"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
+    <button id="chat-send-btn" onclick="sendChatMsg()" style="width:44px;height:44px;border-radius:11px;border:none;background:#6E3FF3;font-size:1.1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.4;transition:all .18s" disabled>↑</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottom-nav">
+  <button class="nav-tab active" id="nav-vote" onclick="navTo('client')">
+    <div class="nav-tab-box"><div class="nav-tab-ico">🎵</div></div>
+    <div class="nav-tab-lbl">Voter</div>
+  </button>
+  <button class="nav-tab" id="nav-chat" onclick="navTo('chat')">
+    <div class="nav-tab-box"><div class="nav-tab-ico">💬</div></div>
+    <div class="nav-tab-lbl">Chat</div>
+    <div class="nav-tab-badge" id="chat-badge" style="display:none">0</div>
+  </button>
+  <button class="nav-tab" id="nav-profile" onclick="navTo('profile')">
+    <div class="nav-tab-box"><div class="nav-tab-ico">👤</div></div>
+    <div class="nav-tab-lbl">Profil</div>
+  </button>
+  <button class="nav-tab" id="nav-dj" onclick="navTo('presskit')">
+    <div class="nav-tab-box"><div class="nav-tab-ico">🎧</div></div>
+    <div class="nav-tab-lbl">DJ Nova</div>
+  </button>
+</div>
+
+<script>
+// ══ CATALOG ══════════════════════════════════════════════════════════
+// ── CONFIG SOIRÉE & CLUB (personnalisable par le DJ) ─────────────────
+const CLUB_INFO = {
+  name: "Warehouse 42",
+  address: "32 Av. Corentin Cariou, Paris 19e",
+  logo: "🏭",
+  instagram: "@warehouse42paris",
+};
+const EVENT_INFO = {
+  name: "Nuit Électrique",
+  date: "Sam 17 mai 2026",
+  hours: "22h → 6h",
+  location: "Paris 19e",
+  lineup: ["★ DJ NOVA", "RAVEN", "K.LUX"],
+};
+const CAT=[
+  {id:"bl",n:"Blinding Lights",a:"The Weeknd",e:"🔴",c:"#E040FB"},
+  {id:"omt",n:"One More Time",a:"Daft Punk",e:"🤖",c:"#3B82F6"},
+  {id:"ti",n:"Titanium",a:"David Guetta ft. Sia",e:"💎",c:"#F59E0B"},
+  {id:"lv",n:"Levels",a:"Avicii",e:"✨",c:"#10B981"},
+  {id:"wu",n:"Wake Me Up",a:"Avicii",e:"☀️",c:"#FBBF24"},
+  {id:"an",n:"Animals",a:"Martin Garrix",e:"🐾",c:"#F43F5E"},
+  {id:"atw",n:"Around The World",a:"Daft Punk",e:"🌍",c:"#06B6D4"},
+  {id:"gs",n:"Gangnam Style",a:"PSY",e:"🕺",c:"#A855F7"},
+  {id:"it",n:"In The Air Tonight",a:"Phil Collins",e:"🥁",c:"#F97316"},
+  {id:"sm",n:"Smells Like Teen Spirit",a:"Nirvana",e:"🎸",c:"#8B5CF6"},
+  {id:"br",n:"Bohemian Rhapsody",a:"Queen",e:"👑",c:"#EC4899"},
+  {id:"gl",n:"Get Lucky",a:"Daft Punk ft. Pharrell",e:"🍀",c:"#10B981"},
+  {id:"st",n:"Strobe",a:"Deadmau5",e:"⚡",c:"#6366F1"},
+  {id:"np",n:"One Dance",a:"Drake",e:"🎭",c:"#F59E0B"},
+  {id:"dc",n:"Don't You Worry Child",a:"Swedish House Mafia",e:"🙏",c:"#22D3EE"},
+  {id:"fc",n:"Feel So Close",a:"Calvin Harris",e:"💙",c:"#3B82F6"},
+  {id:"sg",n:"Sunflower",a:"Post Malone",e:"🌻",c:"#F59E0B"},
+  {id:"sh",n:"Shake It Off",a:"Taylor Swift",e:"🩷",c:"#EC4899"},
+];
+
+// ══ STATE ════════════════════════════════════════════════════════════
+let auth=null,db=null,isFirebase=false;
+let currentUser=null,confirmResult=null,otpPhase=false,resendTimer=null,resendCD=30;
+let eid=null,ename="Soirée DJ Request";
+let proposals={},myVotes=new Set(),nowPlaying={t:"Strobe",a:"Deadmau5"};
+let prog=0,selModal=null,selectedPlan='free',subscribed=false,subCount=1284;
+let djLoggedIn=false;
+
+// User events (local demo data)
+const USER_EVENTS=[
+  {id:"e1",name:"Nuit Électrique",venue:"Warehouse 42",date:"3 mai 2026",e:"🏭",c:"rgba(147,51,234,.12)",votes:14,proposals:3,played:2,first:true},
+  {id:"e2",name:"La Clairière Open Air",venue:"La Clairière",date:"12 avr. 2026",e:"🌿",c:"rgba(6,182,212,.1)",votes:9,proposals:2,played:1,first:false},
+  {id:"e3",name:"Club Friday Night",venue:"Rex Club",date:"28 mar. 2026",e:"👑",c:"rgba(245,158,11,.1)",votes:7,proposals:1,played:0,first:false},
+  {id:"e4",name:"Afterwork DJ Set",venue:"Movida Club",date:"5 mar. 2026",e:"🎵",c:"rgba(16,185,129,.1)",votes:3,proposals:0,played:0,first:false},
+];
+const LEVELS=[{name:"Découvreur",ico:"🌱",min:0},{name:"Fan",ico:"🎵",color:"#3B82F6",min:50},{name:"Actif",ico:"🔥",color:"#8B5CF6",min:150},{name:"VIP",ico:"💎",color:"#EC4899",min:350},{name:"Légende",ico:"👑",color:"#F59E0B",min:700}];
+const ACHIEVEMENTS=[
+  {ico:"🗳️",n:"Premier vote",d:"Voter pour la 1ère fois",ok:true},
+  {ico:"🎤",n:"Proposeur",d:"Proposer 3 morceaux",ok:true},
+  {ico:"🏆",n:"MVP Soirée",d:"Morceau proposé joué",ok:true},
+  {ico:"🔥",n:"En feu",d:"5 votes en 1 soirée",ok:true},
+  {ico:"⭐",n:"Régulier",d:"3 soirées minimum",ok:true},
+  {ico:"🎧",n:"Mélomane",d:"5 soirées minimum",ok:false},
+  {ico:"👑",n:"Légende",d:"Atteindre 700 pts",ok:false},
+  {ico:"🚀",n:"Premier",d:"1er votant d'une soirée",ok:true},
+  {ico:"💎",n:"VIP",d:"Atteindre niveau 4",ok:false},
+];
+
+// ══ SUPABASE CLIENT ══════════════════════════════════════════════
+let _sb = null, _sbSession = null;
+try {
+  _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+} catch(e) { console.warn('Supabase init failed:', e.message); }
+
+let _djPassword = null;
+let _loggedIn = false;
+
+// Helper API vers le serveur Node.js
+async function api(method, path, body, { dj } = {}) {
+  const h = { 'Content-Type': 'application/json' };
+  if (_sbSession?.access_token) h['Authorization'] = 'Bearer ' + _sbSession.access_token;
+  if (dj && _djPassword) h['x-organizer-password'] = _djPassword;
+  const r = await fetch('/api' + path, { method, headers: h, body: body ? JSON.stringify(body) : undefined });
+  if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e.error||'Erreur'); }
+  return r.json();
+}
+
+// Realtime Supabase
+function subscribeToEvent(evId) {
+  if (!_sb) return;
+  _sb.channel('proposals:'+evId).on('postgres_changes',
+    {event:'*', schema:'public', table:'proposals', filter:'event_id=eq.'+evId},
+    async () => { const p = await api('GET','/proposals/'+evId); proposals=Object.fromEntries(p.map(x=>[x.id,x])); renderAll(); }
+  ).subscribe();
+  _sb.channel('messages:'+evId).on('postgres_changes',
+    {event:'INSERT', schema:'public', table:'messages', filter:'event_id=eq.'+evId},
+    p => appendChatMsg(p.new, p.new.id)
+  ).subscribe();
+  _sb.channel('np:'+evId).on('postgres_changes',
+    {event:'UPDATE', schema:'public', table:'now_playing', filter:'event_id=eq.'+evId},
+    p => { nowPlaying={t:p.new.title,a:p.new.artist}; updateNP(); }
+  ).subscribe();
+}
+
+// Chargement de l'événement depuis l'URL ou localStorage
+async function loadEvent(evId) {
+  try {
+    const ev = await api('GET', '/events/' + evId);
+    eid = ev.id; ename = ev.name;
+    localStorage.setItem('djr_eid', eid);
+    localStorage.setItem('djr_ename', ename);
+    const ps = await api('GET', '/proposals/' + eid);
+    proposals = Object.fromEntries(ps.map(x => [x.id, x]));
+    const np = await api('GET', '/now-playing/' + eid);
+    if (np?.title) nowPlaying = { t: np.title, a: np.artist || '' };
+    renderAll();
+    subscribeToEvent(eid);
+  } catch(e) {}
+}
+
+window.addEventListener('load', async () => {
+  if (!_sb) { showPage('auth'); return; }
+
+  // Écouter les changements de session Supabase
+  _sb.auth.onAuthStateChange(async (event, session) => {
+    if (session) {
+      _sbSession = session;
+      const u = session.user;
+      currentUser = {
+        displayName: u.user_metadata?.display_name || u.phone || u.email || 'Invité',
+        uid: u.id,
+        phoneNumber: u.phone || null,
+        email: u.email || null,
+      };
+      afterLogin();
+      const urlEid = new URLSearchParams(window.location.search).get('event');
+      const storageEid = localStorage.getItem('djr_eid');
+      const targetEid = urlEid || storageEid;
+      if (targetEid && targetEid !== eid) {
+        ename = localStorage.getItem('djr_ename') || ename;
+        await loadEvent(targetEid);
+      }
+    } else if (event !== 'INITIAL_SESSION' && !_loggedIn) {
+      showPage('auth');
+    }
+  });
+
+  // Vérifier la session existante
+  try {
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) {
+      const urlEid = new URLSearchParams(window.location.search).get('event');
+      if (urlEid) { eid = urlEid; ename = localStorage.getItem('djr_ename') || ename; }
+      showPage('auth');
+    }
+  } catch(e) { showPage('auth'); }
+});
+
+function demoMode(){
+  nowPlaying={t:"Strobe",a:"Deadmau5"};
+  proposals={"bl":{id:"bl",votes:24,approved:true},"omt":{id:"omt",votes:17,approved:true},"ti":{id:"ti",votes:12,approved:true},"lv":{id:"lv",votes:8,approved:true},"wu":{id:"wu",votes:5,approved:true}};
+  currentUser={displayName:'Invité Démo',phoneNumber:null,uid:'demo',photoURL:null};
+  afterLogin();
+  toast('🎮 Mode démo — connexion requise pour voter');
+}
+
+function fbw(){}
+function fbt(){}
+
+// ══ AUTH ══════════════════════════════════════════════════════════════
+async function signInGoogle(){
+  if (!_sb) { demoLogin(); return; }
+  try {
+    const { data, error } = await _sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href, skipBrowserRedirect: true }
+    });
+    if (error || !data?.url) { demoLogin(); return; }
+    window.location.href = data.url;
+  } catch(e) { demoLogin(); }
+}
+
+let _pendingPhone = null;
+async function sendSMS(){
+  const cc=document.getElementById('cc').value;
+  const num=document.getElementById('phone-inp').value.replace(/\s/g,'');
+  if(num.length<9){setErr('Numéro invalide');return;}
+  const full=cc+(num.startsWith('0')?num.slice(1):num);
+  _pendingPhone = full;
+  document.getElementById('otp-num').textContent=cc+' '+document.getElementById('phone-inp').value;
+  if (!_sb) { _pendingPhone='__demo__'; toast('📱 SMS simulé — entrez 123456'); showOTP(); return; }
+  try {
+    const { error } = await _sb.auth.signInWithOtp({ phone: full });
+    if (error) throw error;
+    showOTP(); toast('📱 Code envoyé !');
+  } catch(e) {
+    _pendingPhone = '__demo__';
+    toast('📱 SMS simulé — entrez 123456');
+    showOTP();
+  }
+}
+async function verifyOTP(){
+  const code=[...document.querySelectorAll('.otp-b')].map(b=>b.value).join('');
+  if(code.length<6){setErr('Entrez les 6 chiffres');return;}
+  if(_pendingPhone==='__demo__'){demoVerify(code);return;}
+  try {
+    const { error } = await _sb.auth.verifyOtp({ phone: _pendingPhone, token: code, type: 'sms' });
+    if (error) throw error;
+    // onAuthStateChange gère la suite
+  } catch(e) {
+    setErr('Code incorrect');
+    document.querySelectorAll('.otp-b').forEach(b=>{b.value='';b.classList.remove('filled');});
+    document.querySelectorAll('.otp-b')[0].focus();
+  }
+}
+function phoneAction(){if(!otpPhase)sendSMS();else verifyOTP();}
+function showOTP(){
+  otpPhase=true;
+  document.getElementById('otp-wrap').classList.add('show');
+  document.getElementById('phone-inp').disabled=true;
+  document.getElementById('phone-btn-txt').textContent='Confirmer le code';
+  document.querySelectorAll('.otp-b')[0].focus();
+  startResendTimer();
+}
+function backToPhone(){
+  otpPhase=false;confirmResult=null;
+  document.getElementById('otp-wrap').classList.remove('show');
+  document.getElementById('phone-inp').disabled=false;
+  document.getElementById('phone-btn-txt').textContent='Recevoir le code SMS';
+  document.querySelectorAll('.otp-b').forEach(b=>{b.value='';b.classList.remove('filled');});
+  clearInterval(resendTimer);setErr('');
+}
+function startResendTimer(){
+  resendCD=30;const b=document.getElementById('resend-btn');const t=document.getElementById('rtimer');
+  b.disabled=true;clearInterval(resendTimer);
+  resendTimer=setInterval(()=>{resendCD--;t.textContent=resendCD;if(resendCD<=0){clearInterval(resendTimer);b.disabled=false;b.textContent='Renvoyer le code';}},1000);
+}
+function resendSMS(){backToPhone();sendSMS();}
+function fmtPhone(inp){let v=inp.value.replace(/\D/g,'');if(v.length>1)v=v.replace(/(\d{2})(?=\d)/g,'$1 ').trim();inp.value=v;setErr('');}
+function otpIn(el,idx){const v=el.value.replace(/\D/g,'');el.value=v;el.classList.toggle('filled',v.length>0);if(v&&idx<5)document.querySelectorAll('.otp-b')[idx+1].focus();if([...document.querySelectorAll('.otp-b')].every(b=>b.value))verifyOTP();}
+function otpKey(e,idx){if(e.key==='Backspace'&&!e.target.value&&idx>0){const bs=document.querySelectorAll('.otp-b');bs[idx-1].value='';bs[idx-1].classList.remove('filled');bs[idx-1].focus();}}
+async function guestLogin(){
+  demoLogin();
+}
+async function demoLogin(){
+  currentUser={displayName:'Invité',uid:'demo'};
+  afterLogin();
+  // Charger l'événement réel si disponible (lecture seule sans auth)
+  const urlEid = new URLSearchParams(window.location.search).get('event');
+  const targetEid = urlEid || localStorage.getItem('djr_eid');
+  if (targetEid) {
+    try {
+      const ev = await api('GET', '/events/' + targetEid);
+      eid = ev.id; ename = ev.name;
+      const ps = await api('GET', '/proposals/' + eid);
+      proposals = Object.fromEntries(ps.map(x => [x.id, x]));
+      const np = await api('GET', '/now-playing/' + eid);
+      if (np?.title) nowPlaying = { t: np.title, a: np.artist || '' };
+      renderAll();
+      subscribeToEvent(eid);
+    } catch(e) {}
+  }
+}
+function demoVerify(code){if(code==='123456'||code.length===6){currentUser={displayName:'Invité',uid:'demo'};afterLogin();}else setErr('Code incorrect (démo: 123456)');}
+function setErr(msg){const e=document.getElementById('auth-err');if(e)e.textContent=msg;}
+
+function openAddFriend(){ openModal('modal-friend'); }
+
+function openQRModal(){
+  const base = window.location.href.split('?')[0];
+  const url = eid ? base+'?event='+eid : base;
+  // Générer le QR dans la modal
+  const box = document.getElementById('modal-qr-box');
+  const urlEl = document.getElementById('modal-qr-url');
+  if(box){ box.innerHTML=''; try{ new QRCode(box,{text:url,width:180,height:180,colorDark:'#000',colorLight:'#fff'}); }catch(e){box.innerHTML='<div style="width:180px;height:180px;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#333">QR Code</div>';} }
+  if(urlEl) urlEl.textContent = url;
+  openModal('modal-qr');
+}
+
+function shareVenuePosition() {
+  const btn = document.getElementById('share-pos-btn');
+  const venueName = document.getElementById('club-name-strip')?.textContent || CLUB_INFO.name;
+  const venueAddr = CLUB_INFO.address;
+  const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(venueAddr)}`;
+  const shareText = `Je suis à ${venueName} ce soir ! 🎵\n📍 ${venueAddr}\n${mapsUrl}`;
+  if (navigator.share) {
+    navigator.share({
+      title: `Je suis à ${venueName} 🎵`,
+      text: shareText,
+      url: mapsUrl
+    }).then(() => {
+      toast('📍 Position partagée !');
+      if (btn) { btn.style.background='rgba(52,199,89,.2)'; btn.style.borderColor='rgba(52,199,89,.4)'; btn.style.color='#34C759'; btn.innerHTML='<span>✓</span> Partagé'; }
+    }).catch(() => {});
+  } else {
+    navigator.clipboard?.writeText(shareText).then(() => toast('📋 Lien copié !'));
+    if (btn) { btn.style.background='rgba(52,199,89,.2)'; btn.style.borderColor='rgba(52,199,89,.4)'; btn.style.color='#34C759'; btn.innerHTML='<span>✓</span> Copié'; }
+  }
+}
+
+let locActive = false;
+let selectedZone = '';
+function toggleLocation() {
+  locActive = !locActive;
+  const toggle = document.getElementById('loc-toggle');
+  const knob = document.getElementById('loc-knob');
+  const status = document.getElementById('loc-status');
+  const zoneSelector = document.getElementById('loc-zone-selector');
+  if (locActive) {
+    toggle.style.background = '#8B5CF6';
+    toggle.style.borderColor = '#8B5CF6';
+    knob.style.left = '23px';
+    knob.style.background = '#fff';
+    status.textContent = 'Position partagée avec vos amis ✓';
+    status.style.color = '#34C759';
+    zoneSelector.style.display = 'block';
+    toast('📍 Position partagée !');
+    if (isFirebase && eid && currentUser) {
+      fbw('locations/'+getUid(), {name: currentUser.displayName||'Invité', zone: selectedZone||'Piste', ts: Date.now()});
+    }
+  } else {
+    toggle.style.background = 'rgba(255,255,255,.1)';
+    toggle.style.borderColor = 'rgba(255,255,255,.15)';
+    knob.style.left = '3px';
+    knob.style.background = 'rgba(255,255,255,.5)';
+    status.textContent = 'Dites à vos amis où vous êtes dans la salle';
+    status.style.color = 'rgba(255,255,255,.45)';
+    zoneSelector.style.display = 'none';
+    if (isFirebase && eid) fbw('locations/'+getUid(), null);
+    toast('📍 Position masquée');
+  }
+}
+function selectZone(btn, zone) {
+  selectedZone = zone;
+  document.querySelectorAll('.zone-btn').forEach(b => {
+    b.style.background = 'rgba(255,255,255,.05)';
+    b.style.borderColor = 'rgba(255,255,255,.1)';
+    b.style.color = 'rgba(255,255,255,.7)';
+  });
+  btn.style.background = 'rgba(139,92,246,.2)';
+  btn.style.borderColor = 'rgba(139,92,246,.4)';
+  btn.style.color = '#fff';
+  if (isFirebase && eid && locActive) fbw('locations/'+getUid(), {name: currentUser?.displayName||'Invité', zone, ts: Date.now()});
+  toast('📍 Zone : '+zone);
+}
+
+function afterLogin(){
+  _loggedIn = true;
+  const name=currentUser?.displayName||currentUser?.phoneNumber||'Invité';
+  const init=name[0]?.toUpperCase()||'🎵';
+  const avEl2=document.getElementById('prof-av'); if(avEl2)avEl2.textContent=init;
+  document.getElementById('prof-name').textContent=name;
+  const subEl=document.getElementById('prof-sub'); if(subEl)subEl.textContent=currentUser?.phoneNumber||currentUser?.email||'';
+  document.getElementById('bottom-nav').classList.add('show');
+  renderProfile();
+  showPage('client');
+  renderAll();
+  // Init chat + mini QR
+  setTimeout(() => {
+    initChat();
+    loadDemoChat();
+    initReportsListener();
+    // Mini QR dans la bande club
+    const miniQR = document.getElementById('club-qr-mini');
+    if(miniQR){ miniQR.innerHTML=''; const base=window.location.href.split('?')[0]; const url=eid?base+'?event='+eid:base; try{new QRCode(miniQR,{text:url,width:56,height:56,colorDark:'#1D1D1F',colorLight:'#ffffff'});}catch(e){} }
+  }, 600);
+}
+
+// ══ DJ ════════════════════════════════════════════════════════════════
+const DJ_PWD = 'dj1234';
+async function djLogin(){
+  const n=document.getElementById('dj-ev-name').value.trim();
+  const p=document.getElementById('dj-pwd').value;
+  const err=document.getElementById('dj-err');
+  if(!n){err.textContent='Saisissez un nom de soirée';return;}
+  if(!p){err.textContent='Mot de passe requis';return;}
+  err.textContent='';
+  try {
+    if(eid){
+      await api('POST','/events/'+eid+'/auth',{password:p});
+    } else {
+      const ev = await api('POST','/events',{name:n,password:p});
+      eid=ev.id; localStorage.setItem('djr_eid',eid); localStorage.setItem('djr_ename',n);
+      subscribeToEvent(eid);
+    }
+    _djPassword=p; ename=n; djLoggedIn=true;
+    document.getElementById('nav-dj').onclick=()=>navTo('dj');
+    document.querySelector('#nav-dj .nav-tab-ico').textContent='🎛️';
+    document.querySelector('#nav-dj .nav-tab-lbl').textContent='DJ';
+    showPage('dj');renderAll();generateQR();
+  } catch(e){
+    // Fallback démo : mot de passe local "dj1234"
+    if(p===DJ_PWD){
+      ename=n; djLoggedIn=true; _djPassword=p;
+      document.getElementById('nav-dj').onclick=()=>navTo('dj');
+      document.querySelector('#nav-dj .nav-tab-ico').textContent='🎛️';
+      document.querySelector('#nav-dj .nav-tab-lbl').textContent='DJ';
+      showPage('dj');renderAll();generateQR();
+      toast('🎛️ Mode DJ démo');
+    } else {
+      err.textContent=e.message||'Mot de passe incorrect';
+    }
+  }
+}
+function switchOrgaTab(tab, btn) {
+  ['live','modo','pk','settings'].forEach(t => {
+    const el = document.getElementById('orga-'+t);
+    if (el) el.style.display = 'none';
+    const tb = document.getElementById('otab-'+t);
+    if (tb) { tb.style.color='rgba(255,255,255,.4)'; tb.style.borderBottom='2px solid transparent'; tb.style.fontWeight='600'; }
+  });
+  const el = document.getElementById('orga-'+tab);
+  if (el) el.style.display = 'flex';
+  if (btn) { btn.style.color='#8B5CF6'; btn.style.borderBottom='2px solid #8B5CF6'; btn.style.fontWeight='700'; }
+  if (tab === 'modo') loadOrgaChatList();
+}
+
+function loadOrgaChatList() {
+  const list = document.getElementById('orga-chat-list'); if (!list) return;
+  const msgs = [...document.querySelectorAll('#chat-messages > div')];
+  list.innerHTML = '';
+  msgs.slice(-20).reverse().forEach(wrapper => {
+    const bubble = wrapper.querySelector('div[style*="border-radius"]');
+    const txt = bubble?.querySelector('div')?.textContent;
+    const name = wrapper.querySelector('div:first-child')?.textContent;
+    if (!txt) return;
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:.5rem;padding:.45rem .65rem;background:rgba(255,255,255,.03);border-radius:.75rem;border:1px solid rgba(255,255,255,.06)';
+    div.innerHTML = `<div style="flex:1;min-width:0"><div style="font-size:.65rem;color:rgba(255,255,255,.35);margin-bottom:1px">${name||'Moi'}</div><div style="font-size:.8rem;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${txt}</div></div>`;
+    list.appendChild(div);
+  });
+  if (!list.children.length) list.innerHTML = '<div style="text-align:center;padding:1rem;font-size:.78rem;color:rgba(255,255,255,.25)">Aucun message</div>';
+}
+
+function saveSettings() {
+  const evName = document.getElementById('settings-ev-name')?.value.trim();
+  const clubName = document.getElementById('settings-club')?.value.trim();
+  if (evName) { ename = evName; const fn = document.getElementById('flyer-ev-name'); if(fn) fn.textContent = evName; }
+  if (clubName) { const cn = document.getElementById('club-name-strip'); if(cn) cn.textContent = clubName; const fc = document.getElementById('flyer-club-name'); if(fc) fc.textContent = clubName; }
+  if (eid && evName) api('PATCH','/events/'+eid,{name:evName},{dj:true}).catch(()=>{});
+  toast('✅ Réglages enregistrés');
+}
+
+function djLogout(){
+  djLoggedIn=false;
+  document.getElementById('nav-dj').onclick=()=>navTo('presskit');
+  document.querySelector('#nav-dj .nav-tab-ico').textContent='🎧';
+  document.querySelector('#nav-dj .nav-tab-lbl').textContent='DJ Nova';
+  showPage('client');
+}
+async function createNewEvent(n){
+  const name=n||ename;
+  const pwd=_djPassword||prompt('Mot de passe pour cette soirée :');
+  if(!pwd)return;
+  try {
+    const ev=await api('POST','/events',{name,password:pwd});
+    eid=ev.id;ename=ev.name;_djPassword=pwd;
+    localStorage.setItem('djr_eid',eid);localStorage.setItem('djr_ename',ename);
+    subscribeToEvent(eid);generateQR();toast(`✅ "${name}" créée !`);
+  } catch(e){toast('Erreur: '+e.message);}
+}
+
+// ══ VOTE & PROPOSE ════════════════════════════════════════════════════
+function vote(id){
+  if(!proposals[id])return;
+  if(myVotes.has(id)){
+    myVotes.delete(id);
+    proposals[id].votes=Math.max(0,(proposals[id].votes||0)-1);
+    renderAll();toast('Vote retiré');
+    if(eid&&_sbSession)api('DELETE','/votes/'+eid+'/'+id).catch(()=>{});
+  } else {
+    myVotes.add(id);
+    proposals[id].votes=(proposals[id].votes||0)+1;
+    renderAll();toast('Voté ! 🎵');
+    if(eid&&_sbSession)api('POST','/votes',{proposal_id:id,event_id:eid}).catch(()=>{});
+  }
+}
+async function submitProposal(){
+  if(!selModal)return;
+  const s=CAT.find(x=>x.id===selModal);if(!s)return;
+  proposals[s.id]={id:s.id,votes:1,approved:false};
+  myVotes.add(s.id);renderAll();
+  closeModal('modal-propose');toast(`🎵 "${s.n}" proposé !`);
+  if(eid&&_sbSession)api('POST','/proposals',{song_id:s.id,event_id:eid}).catch(()=>{});
+}
+async function djPlay(id){
+  const s=CAT.find(x=>x.id===id);if(!s)return;
+  nowPlaying={t:s.n,a:s.a};prog=0;
+  delete proposals[id];renderAll();toast(`▶ ${s.n}`);
+  if(eid){
+    api('PUT','/now-playing/'+eid,{title:s.n,artist:s.a},{dj:true}).catch(()=>{});
+    api('DELETE','/proposals/'+eid+'/'+id,null,{dj:true}).catch(()=>{});
+  }
+}
+function djApprove(id){
+  if(proposals[id])proposals[id].approved=true;renderAll();toast('✓ Approuvé');
+  if(eid)api('PATCH','/proposals/'+eid+'/'+id,{approved:true},{dj:true}).catch(()=>{});
+}
+function djReject(id){
+  delete proposals[id];renderAll();toast('✕ Retiré');
+  if(eid)api('DELETE','/proposals/'+eid+'/'+id,null,{dj:true}).catch(()=>{});
+}
+
+// ══ RENDER ════════════════════════════════════════════════════════════
+function sorted(){return Object.entries(proposals).map(([id,p])=>({id,...p})).sort((a,b)=>(b.votes||0)-(a.votes||0));}
+function totalVotes(){return Object.values(proposals).reduce((s,p)=>s+(p.votes||0),0);}
+function totalVoters(){const s=new Set();Object.values(proposals).forEach(p=>Object.keys(p.voters||{}).forEach(v=>s.add(v)));return s.size;}
+function renderAll(){renderClient();renderDJ();renderBS();updateNP();updateDJStats();}
+
+// ── ALBUM ART CACHE ──────────────────────────────────────────────
+const artCache = {};
+async function fetchAlbumArt(songName, artist) {
+  const key = songName + artist;
+  if (artCache[key] !== undefined) return artCache[key];
+  artCache[key] = null; // optimistic null pour éviter doubles requêtes
+  try {
+    const q = encodeURIComponent(`${songName} ${artist}`);
+    const res = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&limit=1&country=fr`);
+    const data = await res.json();
+    if (data.results && data.results[0]) {
+      // Passer de 100×100 à 300×300 pour meilleure qualité
+      const url = data.results[0].artworkUrl100.replace('100x100', '300x300');
+      artCache[key] = url;
+    }
+  } catch(e) {}
+  return artCache[key];
+}
+
+function renderClient(){
+  const f='';
+  const s=sorted();
+  const t=totalVotes();
+  elt('cli-total',t?`${t} vote${t>1?'s':''}`:'-');
+  // Flyer sync
+  const fn=document.getElementById('flyer-ev-name'); if(fn) fn.textContent=ename;
+  const fc=document.getElementById('flyer-club-name'); if(fc&&CLUB_INFO.name) fc.textContent=CLUB_INFO.name;
+  const cs=document.getElementById('club-name-strip'); if(cs&&CLUB_INFO.name) cs.textContent=CLUB_INFO.name;
+  const list=document.getElementById('cli-list');if(!list)return;
+  const vis=s.filter(p=>{const c=CAT.find(x=>x.id===p.id);return c&&(!f||c.n.toLowerCase().includes(f)||c.a.toLowerCase().includes(f));});
+  if(!vis.length){list.innerHTML=`<div class="empty-state"><div class="ei">🎵</div><p>Aucune proposition pour l'instant.<br>Soyez le premier à proposer !</p></div>`;return;}
+  const mx=vis[0]?.votes||1;const medals=['🥇','🥈','🥉'];
+  list.innerHTML='';
+  vis.forEach((p,i)=>{
+    const c=CAT.find(x=>x.id===p.id);if(!c)return;
+    const voted=myVotes.has(p.id);
+    const pct=Math.max(6,Math.round(((p.votes||0)/mx)*100));
+    const bcol=i===0?'linear-gradient(90deg,var(--vi),var(--pk))':i===1?'rgba(147,51,234,.55)':'rgba(147,51,234,.3)';
+    const div=document.createElement('div');
+    div.className=`song-card${voted?' voted':''}${i===0?' r1':''}`;
+    div.id=`sc-${p.id}`;
+    // Album art : image si disponible, sinon emoji
+    const hasArt = artCache[c.n+c.a];
+    const coverHTML = hasArt
+      ? `<img src="${hasArt}" alt="${c.n}" loading="lazy" onerror="this.style.display='none'">`
+      : '';
+    div.innerHTML=`
+      <div class="s-cover" style="${!hasArt?'background:'+c.c+'28':''}" id="cov-${p.id}">
+        ${coverHTML}
+        <div class="s-cover-fallback" style="${hasArt?'display:none':''}">${c.e}</div>
+        ${i<3?`<div class="s-rank-badge">${medals[i]}</div>`:''}
+      </div>
+      <div class="s-body">
+        <div class="s-name">${c.n}</div>
+        <div class="s-artist">${c.a}</div>
+        <div class="s-bar"><div class="s-bar-f" style="width:${pct}%;background:${bcol}"></div></div>
+      </div>
+      <div class="vote-col">
+        <button class="vup${voted?' on':''}" onclick="vote('${p.id}')">▲</button>
+        <div class="vnum${voted?' on':''}">${p.votes||0}</div>
+      </div>`;
+    list.appendChild(div);
+    // Charger l'art en async si pas encore en cache
+    if (!hasArt) {
+      fetchAlbumArt(c.n, c.a).then(url => {
+        if (!url) return;
+        const cov = document.getElementById(`cov-${p.id}`);
+        if (!cov) return;
+        const fb = cov.querySelector('.s-cover-fallback');
+        cov.style.background = '';
+        let img = cov.querySelector('img');
+        if (!img) {
+          img = document.createElement('img');
+          img.alt = c.n;
+          img.loading = 'lazy';
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:10px;position:absolute;inset:0';
+          img.onerror = () => img.style.display = 'none';
+          cov.insertBefore(img, cov.firstChild);
+        }
+        img.src = url;
+        if (fb) fb.style.display = 'none';
+      });
+    }
+  });
+}
+
+function renderDJ(){
+  const queue=document.getElementById('dj-queue');if(!queue)return;
+  const s=sorted();queue.innerHTML='';
+  if(!s.length){queue.innerHTML='<div class="empty-state"><div class="ei">🎶</div><p>Aucune proposition</p></div>';return;}
+  const rCls=['g','s','b'];const medals=['🥇','🥈','🥉'];
+  s.forEach((p,i)=>{
+    const c=CAT.find(x=>x.id===p.id);if(!c)return;
+    const card=document.createElement('div');
+    card.className=`q-card${i===0?' q1':''}`;
+    card.innerHTML=`<div class="q-rk${i<3?' '+rCls[i]:''}">${medals[i]||'#'+(i+1)}</div><div class="q-cv" style="background:${c.c}18">${c.e}</div><div class="q-bd"><div class="q-n">${c.n}</div><div class="q-s"><span class="q-v">▲ ${p.votes||0} vote${(p.votes||0)>1?'s':''}</span><span class="q-ar">· ${c.a}</span></div></div><div class="q-acts"><div class="qa play" onclick="djPlay('${p.id}')">▶</div><div class="qa ok" onclick="djApprove('${p.id}')">✓</div><div class="qa no" onclick="djReject('${p.id}')">✕</div></div>`;
+    queue.appendChild(card);
+  });
+}
+
+const BCOLS=['linear-gradient(90deg,#9333EA,#EC4899)','#7C3AED','#6D28D9','#4C1D95','#2E1065'];
+function renderBS(){
+  const s=sorted().slice(0,5);
+  const mx=s.length?Math.max(...s.map(p=>p.votes||0)):1;
+  const chart=document.getElementById('bs-chart');if(!chart)return;
+  chart.innerHTML='';
+  if(!s.length){chart.innerHTML='<div class="empty-state"><div class="ei">🎶</div><p>En attente…</p></div>';return;}
+  const medals=['🥇','🥈','🥉'];
+  s.forEach((p,i)=>{
+    const c=CAT.find(x=>x.id===p.id);if(!c)return;
+    const pct=Math.max(5,Math.round(((p.votes||0)/mx)*100));
+    const row=document.createElement('div');row.className='bs-row';
+    row.innerHTML=`<div class="bs-row-top"><div class="bs-sname${i===0?' top':''}">${medals[i]||''} ${c.n}</div><div class="bs-vc${i===0?' top':''}">${p.votes||0}</div></div><div class="bs-bar-trk"><div class="bs-bar-f" style="width:${pct}%;background:${BCOLS[i]||BCOLS[4]}"></div></div><div class="bs-by">${c.a}</div>`;
+    chart.appendChild(row);
+  });
+  elt('bs-votes',totalVotes());elt('bs-tracks',s.length);
+}
+function updateNP(){
+  const t=nowPlaying.t||'En attente…';const a=nowPlaying.a||'';
+  elt('cli-now',t+(a?' — '+a:''));elt('dj-np-t',t);elt('dj-np-a',a);elt('bs-np-t',t);elt('bs-np-a',a);
+}
+function updateDJStats(){elt('dj-s1',sorted().length);elt('dj-s2',totalVotes());elt('dj-s3',totalVoters());}
+
+// ══ MODAL LIST ════════════════════════════════════════════════════════
+function renderModalList(){
+  const f=(document.getElementById('modal-q')?.value||'').toLowerCase();
+  const exist=new Set(Object.keys(proposals));
+  const items=CAT.filter(c=>!exist.has(c.id)&&(!f||c.n.toLowerCase().includes(f)||c.a.toLowerCase().includes(f))).slice(0,10);
+  const list=document.getElementById('modal-list');list.innerHTML='';
+  if(!items.length){list.innerHTML='<div style="text-align:center;color:var(--tx4);padding:.85rem;font-size:.82rem">Aucun résultat</div>';return;}
+  items.forEach(c=>{
+    const div=document.createElement('div');
+    div.style.cssText=`display:flex;align-items:center;gap:.65rem;padding:.55rem .8rem;background:var(--ink3);border:1px solid ${selModal===c.id?'rgba(147,51,234,.35)':'var(--bdr)'};border-radius:10px;cursor:pointer;transition:all .18s;${selModal===c.id?'background:rgba(147,51,234,.07)':''}`;
+    div.innerHTML=`<div style="width:34px;height:34px;border-radius:8px;background:${c.c}18;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0">${c.e}</div><div style="flex:1;min-width:0"><div style="font-size:.84rem;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.n}</div><div style="font-size:.7rem;color:var(--tx3)">${c.a}</div></div><div style="width:18px;height:18px;border-radius:5px;border:1.5px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;${selModal===c.id?'background:#6E3FF3;border-color:transparent;color:white;font-size:.68rem':''}">${selModal===c.id?'✓':''}</div>`;
+    div.onclick=()=>{selModal=c.id;document.getElementById('modal-ok').disabled=false;renderModalList();};
+    list.appendChild(div);
+  });
+}
+
+// ══ QR CODE ═══════════════════════════════════════════════════════════
+function generateQR(){
+  const base=window.location.href.split('?')[0];
+  const url=eid?`${base}?event=${eid}`:base;
+  ['dj-qr','bs-qr'].forEach((id,i)=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML='';
+    try{new QRCode(el,{text:url,width:i===0?86:50,height:i===0?86:50,colorDark:"#000",colorLight:"#fff"});}catch(e){}
+  });
+  elt('dj-qr-url',url);elt('dj-qr-evname',ename);elt('bs-ev-lbl',ename);
+}
+function copyUrl(){
+  const url=(eid?`${window.location.href.split('?')[0]}?event=${eid}`:window.location.href);
+  navigator.clipboard?.writeText(url).then(()=>toast('📋 URL copiée !')).catch(()=>toast(url));
+}
+
+// ══ PROFILE ═══════════════════════════════════════════════════════════
+function score(ev){return ev.votes*3+ev.proposals*10+ev.played*20+(ev.first?5:0);}
+function totalXP(){return USER_EVENTS.reduce((s,e)=>s+score(e),0);}
+function curLevel(xp){let l=0;for(let i=LEVELS.length-1;i>=0;i--){if(xp>=LEVELS[i].min){l=i;break;}}return l;}
+
+function renderProfile(){
+  const xp=totalXP();const lvIdx=curLevel(xp);const lv=LEVELS[lvIdx];const next=LEVELS[lvIdx+1];
+  const pct=next?Math.round(((xp-lv.min)/(next.min-lv.min))*100):100;
+  elt('xp-lv-txt','Niv.'+(lvIdx+1)+' — '+lv.name);
+  elt('xp-pts',xp+' pts');
+  elt('xp-next',next?'→ '+next.min+' pts':'🏆 Max !');
+  const name=currentUser?.displayName||currentUser?.phoneNumber||'Invité';
+  const init=name[0]?.toUpperCase()||'🎵';
+  elt('prof-name',name);
+  const bd=document.getElementById('prof-badges');
+  if(bd)bd.innerHTML='<span class="tag pill-vi">'+lv.ico+' '+lv.name+'</span>';
+  // Badge card à droite
+  const bico=document.getElementById('prof-badge-ico'); if(bico)bico.textContent=lv.ico;
+  const bnm=document.getElementById('prof-badge-name'); if(bnm)bnm.textContent=lv.name;
+  setTimeout(()=>{const f=document.getElementById('xp-fill');if(f)f.style.width=pct+'%';},300);
+  // Levels strip
+  const ls=document.getElementById('levels-strip');
+  if(ls){ls.innerHTML='';LEVELS.forEach((l,i)=>{const done=i<=lvIdx;const cur=i===lvIdx;const div=document.createElement('div');div.className='lv-step';div.innerHTML='<div class="lv-dot'+(done?' done':'')+(cur?' cur':'')+'" style="'+(done?'background:rgba(139,92,246,.2);border-color:var(--vi);':'')+'">'+(l.ico)+'</div><div class="lv-lbl'+(done?' done':'')+(cur?' cur':'')+'" style="'+(cur?'color:var(--vi);':'')+'">'+(l.name)+'</div>';ls.appendChild(div);});}
+  // Stats + barres animées
+  const totEv=USER_EVENTS.length;
+  const totVt=USER_EVENTS.reduce((s,e)=>s+e.votes,0);
+  const totPr=USER_EVENTS.reduce((s,e)=>s+e.proposals,0);
+  const totPl=USER_EVENTS.reduce((s,e)=>s+e.played,0);
+  animCount('pst-ev',totEv);
+  animCount('pst-vt',totVt);
+  animCount('pst-pr',totPr);
+  animCount('pst-pl',totPl);
+  setTimeout(()=>{
+    const bev=document.getElementById('bar-ev'); if(bev) bev.style.width=Math.min(100,totEv*20)+'%';
+    const bvt=document.getElementById('bar-vt'); if(bvt) bvt.style.width=Math.min(100,totVt*2.5)+'%';
+    const bpr=document.getElementById('bar-pr'); if(bpr) bpr.style.width=Math.min(100,totPr*12)+'%';
+    const bpl=document.getElementById('bar-pl'); if(bpl) bpl.style.width=Math.min(100,totPl*25)+'%';
+  },400);
+  renderProfileEvents();renderAch();
+}
+
+function renderProfileEvents(){
+  const sorted=[...USER_EVENTS].sort((a,b)=>score(b)-score(a));
+  const list=document.getElementById('prof-ev-list');if(!list)return;
+  const medals=['🥇','🥈','🥉'];
+  list.innerHTML='';
+  sorted.forEach((ev,i)=>{
+    const sc=score(ev);
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:.7rem;padding:.72rem .9rem;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .2s';
+    row.onmouseenter=()=>row.style.background='rgba(255,255,255,.03)';
+    row.onmouseleave=()=>row.style.background='';
+    if(i===sorted.length-1) row.style.borderBottom='none';
+    row.innerHTML='<div style="width:40px;height:40px;border-radius:.85rem;background:'+ev.c+';display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">'+ev.e+'</div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:.86rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+ev.name+'</div>'
+      +'<div style="font-size:.68rem;color:rgba(255,255,255,.4);margin-top:2px">'+ev.date+' · '+ev.venue+'</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0">'
+      '<div style="font-family:Space Mono,monospace;font-size:.85rem;font-weight:700;color:#8B5CF6">'+sc+' pts</div>'
+      +'<div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:1px">'+(medals[i]||'#'+(i+1))+'</div>'
+      +'</div>';
+    list.appendChild(row);
+  });
+}
+
+function renderAch(){
+  const grid=document.getElementById('prof-ach-grid');if(!grid)return;
+  grid.innerHTML='';
+  ACHIEVEMENTS.forEach(a=>{
+    const div=document.createElement('div');div.className=`ach${a.ok?' ok':' locked'}`;
+    if(a.ok){div.style.borderColor='rgba(147,51,234,.18)';const bar=document.createElement('div');bar.style.cssText='position:absolute;top:0;left:0;right:0;height:2px;background:#6E3FF3;border-radius:11px 11px 0 0';div.appendChild(bar);}
+    div.innerHTML+=`<div class="ach-ico">${a.ico}${!a.ok?'<span class="lk">🔒</span>':''}</div><div class="ach-n">${a.n}</div><div class="ach-d">${a.d}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+function switchProfTab(tab,el){
+  document.querySelectorAll('.tr-tab').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+  document.getElementById('prof-tab-events').style.display=tab==='events'?'block':'none';
+  document.getElementById('prof-tab-ach').style.display=tab==='ach'?'block':'none';
+}
+
+// ══ SUBSCRIBE ════════════════════════════════════════════════════════
+function selPlan(el){document.querySelectorAll('.plan').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');selectedPlan=el.dataset.plan;}
+function doSubscribe(){
+  subscribed=true;subCount++;
+  const names={free:'Gratuit',fan:'Fan ⭐',vip:'VIP 💎'};
+  closeModal('modal-sub');
+  // Update pk button
+  const btn=document.getElementById('pk-sub-btn');
+  if(btn){btn.classList.add('done');document.getElementById('pk-sub-ico').textContent='✓';document.getElementById('pk-sub-txt').textContent='Abonné';}
+  elt('pk-subs-n',subCount.toLocaleString('fr-FR'));
+  toast(`🎉 Abonnement ${names[selectedPlan]} activé !`);
+}
+
+// ══ PROGRESS BAR ══════════════════════════════════════════════════════
+setInterval(()=>{
+  prog=(prog+.1)%100;const p=prog.toFixed(1)+'%';
+  ['dj-prog','bs-prog-f'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.width=p;});
+},200);
+
+// ══ NAVIGATION ════════════════════════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('pg-'+id);
+  if(!pg)return;
+  pg.classList.add('active','pe');
+  setTimeout(()=>pg.classList.remove('pe'),400);
+  if(id==='dj'||id==='bigscreen')generateQR();
+  if(id==='bigscreen')renderBS();
+  if(id==='profile')renderProfile();
+  if(id==='dj')renderAll();
+  if(id==='chat'){chatMarkRead();scrollChatBottom();}
+}
+
+function navTo(id){
+  if(id==='dj'&&!djLoggedIn){showPage('dj-login');return;}
+  showPage(id);
+  ['vote','chat','profile','dj'].forEach(t=>{document.getElementById('nav-'+t)?.classList.remove('active');});
+  const map={client:'vote',chat:'chat',profile:'profile',presskit:'dj',dj:'dj'};
+  const navId=map[id];
+  if(navId) document.getElementById('nav-'+navId)?.classList.add('active');
+}
+
+// ══ MODALS ════════════════════════════════════════════════════════════
+function openModal(id){
+  if(id==='modal-propose'){selModal=null;document.getElementById('modal-q').value='';document.getElementById('modal-ok').disabled=true;renderModalList();}
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeModalOut(id,e){if(e.target===document.getElementById(id))closeModal(id);}
+
+// ══ UTILS ════════════════════════════════════════════════════════════
+function elt(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function getUid(){let u=localStorage.getItem('djr_uid');if(!u){u=Math.random().toString(36).slice(2);localStorage.setItem('djr_uid',u);}return u;}
+function animCount(id,target){const el=document.getElementById(id);if(!el)return;let c=0;const step=Math.max(1,Math.floor(target/20));const iv=setInterval(()=>{c=Math.min(c+step,target);el.textContent=c;if(c>=target)clearInterval(iv);},40);}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ══════════════════════════════════════════════════════════════════════
+// 💬 CHAT
+// ══════════════════════════════════════════════════════════════════════
+let chatUnread = 0;
+let chatActive = false;
+let chatInitialized = false;
+
+function initChat() {
+  if (chatInitialized) return;
+  chatInitialized = true;
+  if (isFirebase && db && eid) {
+    db.ref(`events/${eid}/chat`).limitToLast(60).on('child_added', snap => {
+      const msg = snap.val(); if (!msg) return;
+      appendChatMsg(msg, snap.key);
+      const onChat = document.getElementById('pg-chat')?.classList.contains('active');
+      if (!onChat) {
+        chatUnread++;
+        const badge = document.getElementById('chat-badge');
+        if (badge) { badge.textContent = chatUnread > 9 ? '9+' : chatUnread; badge.style.display = 'flex'; }
+      }
+      scrollChatBottom();
+    });
+  }
+}
+
+function appendChatMsg(msg, msgKey) {
+  const uid = getUid();
+  const isMe = msg.uid === uid;
+  const container = document.getElementById('chat-messages'); if (!container) return;
+  const wrapper = document.createElement('div');
+  wrapper.id = 'msg-'+msgKey;
+  wrapper.style.cssText = `display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'};gap:2px`;
+
+  const name = document.createElement('div');
+  name.style.cssText = `font-size:.6rem;color:rgba(255,255,255,.4);margin:0 .5rem;font-weight:600`;
+  name.textContent = isMe ? '' : msg.name || 'Invité';
+
+  // Row = bulle + bouton action
+  const row = document.createElement('div');
+  row.style.cssText = `display:flex;align-items:flex-end;gap:.4rem;flex-direction:${isMe?'row-reverse':'row'}`;
+
+  const bubble = document.createElement('div');
+  bubble.style.cssText = `max-width:78%;padding:.6rem .9rem;border-radius:${isMe?'18px 18px 4px 18px':'18px 18px 18px 4px'};background:${isMe?'#8B5CF6':'rgba(255,255,255,.1)'};border:${isMe?'none':'1px solid rgba(255,255,255,.12)'};backdrop-filter:blur(10px);position:relative;word-break:break-word`;
+  if (msg.reported) bubble.style.opacity = '.5';
+
+  if (msg.photo) {
+    const img = document.createElement('img');
+    img.src = msg.photo;
+    img.style.cssText = 'max-width:220px;max-height:200px;border-radius:10px;display:block;object-fit:cover';
+    img.onclick = () => { const w=window.open(); w.document.write(`<img src="${msg.photo}" style="max-width:100%;max-height:100vh">`); };
+    bubble.appendChild(img);
+  }
+  if (msg.text) {
+    const txt = document.createElement('div');
+    txt.style.cssText = `font-size:.88rem;color:#ffffff;line-height:1.4`;
+    txt.textContent = msg.text;
+    bubble.appendChild(txt);
+  }
+  const time = document.createElement('div');
+  const d = new Date(msg.ts || Date.now());
+  time.style.cssText = `font-size:.58rem;color:rgba(255,255,255,.4);margin-top:3px;text-align:${isMe?'right':'left'}`;
+  time.textContent = d.getHours()+':'+(d.getMinutes()+'').padStart(2,'0');
+  bubble.appendChild(time);
+
+  // Bouton signaler (utilisateurs) ou supprimer (DJ)
+  const actionBtn = document.createElement('button');
+  if (djLoggedIn && !isMe) {
+    // DJ : supprimer
+    actionBtn.style.cssText = 'background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:4px 7px;font-size:.7rem;color:#F87171;flex-shrink:0;opacity:.7;transition:opacity .2s';
+    actionBtn.textContent = '🗑️';
+    actionBtn.title = 'Supprimer';
+    actionBtn.onclick = () => {
+      if(isFirebase && eid && msgKey) db.ref(`events/${eid}/chat/${msgKey}`).remove();
+      wrapper.remove();
+      toast('🗑️ Message supprimé');
+    };
+  } else if (!isMe) {
+    // Utilisateur : signaler
+    const alreadyReported = msg.reported;
+    actionBtn.style.cssText = `background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:4px 7px;font-size:.7rem;color:${alreadyReported?'#F59E0B':'rgba(255,255,255,.35)'};flex-shrink:0;opacity:.7;transition:all .2s`;
+    actionBtn.textContent = alreadyReported ? '⚑' : '⚐';
+    actionBtn.title = 'Signaler';
+    actionBtn.onclick = () => {
+      if (alreadyReported) return;
+      if (isFirebase && eid && msgKey) {
+        db.ref(`events/${eid}/chat/${msgKey}/reported`).set(true);
+        db.ref(`events/${eid}/reports/${msgKey}`).set({...msg, msgKey, reportedAt: Date.now()});
+      }
+      actionBtn.textContent = '⚑';
+      actionBtn.style.color = '#F59E0B';
+      bubble.style.opacity = '.5';
+      toast('🚩 Message signalé au DJ');
+      updateReportBadge();
+    };
+  }
+
+  row.appendChild(bubble);
+  if (!isMe) row.appendChild(actionBtn);
+  else if (djLoggedIn) row.appendChild(actionBtn);
+  if (!isMe) wrapper.appendChild(name);
+  wrapper.appendChild(row);
+  container.appendChild(wrapper);
+}
+
+function updateReportBadge() {
+  if (!db || !eid) return;
+  db.ref(`events/${eid}/reports`).once('value', snap => {
+    const count = snap.numChildren();
+    const badge = document.getElementById('dj-report-badge');
+    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+    if (count > 0) renderDJReports(snap.val());
+  });
+}
+
+function renderDJReports(reports) {
+  const section = document.getElementById('dj-reports-section');
+  const list = document.getElementById('dj-reports-list');
+  if (!section || !list) return;
+  if (!reports || Object.keys(reports).length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = '';
+  Object.entries(reports).forEach(([key, msg]) => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:flex-start;gap:.65rem;padding:.7rem .85rem;background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.2);border-radius:1rem;margin-bottom:.4rem';
+    div.innerHTML = `<div style="flex:1;min-width:0">
+      <div style="font-size:.7rem;font-weight:700;color:#F87171;margin-bottom:2px">⚑ ${msg.name||'Invité'}</div>
+      <div style="font-size:.82rem;color:rgba(255,255,255,.7)">${msg.text||'[photo]'}</div>
+    </div>
+    <div style="display:flex;gap:.3rem;flex-shrink:0">
+      <button onclick="djIgnoreReport('${key}')" style="font-size:.7rem;padding:4px 8px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.5)">Ignorer</button>
+      <button onclick="djDeleteReport('${key}','${msg.msgKey||key}')" style="font-size:.7rem;padding:4px 8px;border-radius:7px;border:1px solid rgba(248,113,113,.25);background:rgba(248,113,113,.1);color:#F87171">Supprimer</button>
+    </div>`;
+    list.appendChild(div);
+  });
+}
+
+function djIgnoreReport(key) {
+  if (isFirebase && eid) db.ref(`events/${eid}/reports/${key}`).remove();
+  updateReportBadge(); toast('✓ Signalement ignoré');
+}
+function djDeleteReport(key, msgKey) {
+  if (isFirebase && eid) {
+    db.ref(`events/${eid}/reports/${key}`).remove();
+    db.ref(`events/${eid}/chat/${msgKey}`).remove();
+  }
+  updateReportBadge(); toast('🗑️ Message supprimé');
+}
+
+function initReportsListener() {
+  if (!db || !eid) return;
+  db.ref(`events/${eid}/reports`).on('value', snap => {
+    const count = snap.numChildren();
+    const badge = document.getElementById('dj-report-badge');
+    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+    renderDJReports(snap.val());
+  });
+}
+
+function sendChatMsg() {
+  const inp = document.getElementById('chat-input');
+  const text = inp?.value.trim(); if (!text) return;
+  const uid = getUid();
+  const name = currentUser?.displayName || currentUser?.phoneNumber || 'Invité';
+  const msg = {uid, name, text, ts: Date.now()};
+  if (isFirebase && eid) {
+    db.ref(`events/${eid}/chat`).push(msg);
+  } else {
+    appendChatMsg(msg);
+  }
+  if (inp) { inp.value = ''; inp.style.height = 'auto'; }
+  document.getElementById('chat-send-btn').disabled = true;
+  document.getElementById('chat-send-btn').style.opacity = '.4';
+  scrollChatBottom();
+}
+
+function chatInputChanged() {
+  const inp = document.getElementById('chat-input');
+  const btn = document.getElementById('chat-send-btn');
+  const hasText = inp?.value.trim().length > 0;
+  if (btn) { btn.disabled = !hasText; btn.style.opacity = hasText ? '1' : '.4'; }
+}
+
+async function sendPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  toast('📷 Compression de la photo…');
+  try {
+    const dataUrl = await compressImage(file, 800, 0.65);
+    const uid = getUid();
+    const name = currentUser?.displayName || currentUser?.phoneNumber || 'Invité';
+    const msg = {uid, name, photo: dataUrl, ts: Date.now()};
+    if (isFirebase && eid) {
+      db.ref(`events/${eid}/chat`).push(msg);
+    } else {
+      appendChatMsg(msg);
+      scrollChatBottom();
+    }
+    input.value = '';
+  } catch(e) { toast('❌ Erreur photo'); }
+}
+
+function compressImage(file, maxW, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, maxW / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+function scrollChatBottom() {
+  const s = document.getElementById('chat-scroll');
+  if (s) setTimeout(() => s.scrollTop = s.scrollHeight, 100);
+}
+
+function chatMarkRead() {
+  chatUnread = 0;
+  const badge = document.getElementById('chat-badge');
+  if (badge) badge.style.display = 'none';
+}
+
+// Demo chat messages
+function loadDemoChat() {
+  if (!isFirebase) {
+    const demos = [
+      {uid:'u1',name:'Marie 🌹',text:'C\'est trop bien ce soir 🔥',ts:Date.now()-300000},
+      {uid:'u2',name:'Thomas',text:'Quelqu\'un a vu le DJ warm-up ?',ts:Date.now()-240000},
+      {uid:'u1',name:'Marie 🌹',text:'Ouii il était incroyable !',ts:Date.now()-180000},
+      {uid:'u3',name:'Alex',text:'Votez pour Blinding Lights svp 🎵',ts:Date.now()-120000},
+    ];
+    demos.forEach(m => appendChatMsg(m));
+  }
+}
+
+</script>
+</body>
+</html>
