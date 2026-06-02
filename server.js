@@ -19,12 +19,13 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc:  ["'self'"],
-      scriptSrc:   ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com"],
-      styleSrc:    ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
-      fontSrc:     ["'self'", "fonts.gstatic.com"],
-      imgSrc:      ["'self'", "data:", "*.supabase.co", "i.pravatar.cc", "*.itunes.apple.com"],
-      connectSrc:  ["'self'", "*.supabase.co", "itunes.apple.com"],
-      mediaSrc:    ["'self'", "*.itunes.apple.com", "*.supabase.co"],
+      scriptSrc:     ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc:      ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
+      fontSrc:       ["'self'", "fonts.gstatic.com"],
+      imgSrc:        ["'self'", "data:", "*.supabase.co", "i.pravatar.cc", "*.itunes.apple.com"],
+      connectSrc:    ["'self'", "*.supabase.co", "itunes.apple.com"],
+      mediaSrc:      ["'self'", "*.itunes.apple.com", "*.supabase.co"],
     },
   },
 }));

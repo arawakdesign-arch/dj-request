@@ -25,10 +25,10 @@
   <div class="modal-sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Proposer un morceau</div>
-    <input class="fi" id="modal-q" type="text" placeholder="Chercher artiste, titre…" oninput="renderModalList()" style="margin-bottom:.65rem">
+    <input class="fi" id="modal-q" type="text" placeholder="Chercher artiste, titre…" style="margin-bottom:.65rem">
     <div id="modal-list" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:.38rem;margin-bottom:.75rem"></div>
-    <button class="btn-g" id="modal-ok" disabled onclick="submitProposal()"><span>Envoyer la proposition ↗</span></button>
-    <button class="btn-outline" onclick="closeModal('modal-propose')" style="margin-top:.4rem">Annuler</button>
+    <button class="btn-g" id="modal-ok" disabled><span>Envoyer la proposition ↗</span></button>
+    <button class="btn-outline" id="btn-modal-cancel" style="margin-top:.4rem">Annuler</button>
   </div>
 </div>
 
@@ -200,7 +200,7 @@
     <div style="flex:1;min-width:0"><div class="now-lbl">▶ En cours</div><div class="now-title" id="cli-now">En attente…</div></div>
     <div class="waves"><div class="wv"></div><div class="wv"></div><div class="wv"></div><div class="wv"></div><div class="wv"></div></div>
   </div>
-  <button class="fab" onclick="openModal('modal-propose')">＋ Proposer</button>
+  <button class="fab" id="btn-fab-propose">＋ Proposer</button>
 </div>
 
 <!-- PROFILE -->

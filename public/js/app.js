@@ -253,15 +253,36 @@ setInterval(() => {
 
 // ══ LISTENERS CENTRALISÉS ════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  let e;
-  e = document.getElementById('btn-google');       if (e) e.addEventListener('click', signInGoogle);
-  e = document.getElementById('btn-phone-action'); if (e) e.addEventListener('click', phoneAction);
-  e = document.getElementById('btn-orga');         if (e) e.addEventListener('click', () => showPage('dj-login'));
-  e = document.getElementById('btn-guest');        if (e) e.addEventListener('click', guestLogin);
-  e = document.getElementById('nav-vote');         if (e) e.addEventListener('click', () => navTo('client'));
-  e = document.getElementById('nav-chat');         if (e) e.addEventListener('click', () => navTo('chat'));
-  e = document.getElementById('nav-profile');      if (e) e.addEventListener('click', () => navTo('profile'));
-  e = document.getElementById('nav-dj');           if (e) e.addEventListener('click', () => navTo('presskit'));
-  e = document.getElementById('btn-dj-login');     if (e) e.addEventListener('click', djLogin);
-  e = document.getElementById('btn-dj-back');      if (e) e.addEventListener('click', () => showPage('auth'));
+  const on = (id, fn) => { const e = document.getElementById(id); if (e) e.addEventListener('click', fn); };
+
+  // Auth
+  on('btn-google',       signInGoogle);
+  on('btn-phone-action', phoneAction);
+  on('btn-orga',         () => showPage('dj-login'));
+  on('btn-guest',        guestLogin);
+
+  // Nav
+  on('nav-vote',    () => navTo('client'));
+  on('nav-chat',    () => navTo('chat'));
+  on('nav-profile', () => navTo('profile'));
+  on('nav-dj',      () => navTo('presskit'));
+
+  // DJ login
+  on('btn-dj-login', djLogin);
+  on('btn-dj-back',  () => showPage('auth'));
+
+  // Modal Proposer
+  on('btn-fab-propose', () => openModal('modal-propose'));
+  on('modal-ok',        submitProposal);
+  on('btn-modal-cancel', () => closeModal('modal-propose'));
+  const mq = document.getElementById('modal-q');
+  if (mq) mq.addEventListener('input', renderModalList);
+
+  // Modal Subscribe
+  on('btn-modal-sub-cancel', () => closeModal('modal-sub'));
+  on('btn-modal-sub-ok',     doSubscribe);
+
+  // Modal QR
+  on('btn-modal-qr-copy',  () => { copyUrl(); closeModal('modal-qr'); });
+  on('btn-modal-qr-close', () => closeModal('modal-qr'));
 });
