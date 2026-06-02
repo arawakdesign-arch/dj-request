@@ -1,0 +1,2 @@
+au lieu d'avoir tout dans un gros bloc html peut etre qui'il refractoriser le fichier en plusieur ficher plus SOC (separation of converne) par module sujet metier different et facilement maintenable 
+la regle d'or c'est surtout du clean code avec les bonne pratique de dev et pas trop de fichier surchargé mais des fichier maintenable et lisible 

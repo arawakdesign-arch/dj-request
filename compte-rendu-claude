@@ -1,0 +1,303 @@
+RAPPORT D'AUDIT TECHNIQUE — DJ REQUEST
+Date : 14 mai 2026 | Auditeur : Claude Code | Rôle : Analyse uniquement
+
+1. RÉSUMÉ EXÉCUTIF
+DJ Request est une application web mobile-first permettant à des invités de soirée de proposer et voter pour des morceaux musicaux en temps réel. Le projet dispose d'une base fonctionnelle solide côté infrastructure (Node.js + Supabase + Nginx + PM2) et d'une UI soignée. Cependant, plusieurs fonctionnalités sont incomplètes ou non connectées, des données sont hardcodées en production, et des risques de sécurité critiques existent. Le projet est présentable en démo mais pas encore prêt pour une mise en production réelle avec de vraies soirées.
+
+2. COMPRÉHENSION DU PROJET
+Application de playlist collaborative en live pour soirées/clubs. Les invités s'authentifient (Google ou SMS OTP), proposent des morceaux depuis un catalogue, votent pour leurs préférés. Le DJ voit la file d'attente triée par votes et peut jouer, approuver ou rejeter les propositions. Un chat temps réel permet aux invités d'interagir. L'organisateur a un espace dédié avec modération et QR code d'accès.
+
+3. VISION PRODUIT SUPPOSÉE
+L'application vise plusieurs personas simultanément :
+
+Invité de soirée : voter, proposer, chatter, partager sa position
+DJ/Organisateur : gérer la file live, modérer le chat, afficher un QR code
+Grand écran de salle : affichage public du classement (BigScreen)
+DJ en tant que profil public : Press Kit avec biographie, mixes, booking
+La vision semble vouloir devenir une plateforme complète autour de l'expérience musicale en soirée, dépassant le simple outil de vote.
+
+4. STACK TECHNIQUE DÉTECTÉE
+Composant	Technologie
+Backend	Node.js 20 + Express 4
+Base de données	Supabase (PostgreSQL)
+Temps réel	Supabase Realtime (WebSocket)
+Auth	Supabase Auth (Google OAuth + SMS OTP)
+Storage	Supabase Storage (photos chat)
+Frontend	HTML/CSS/JS vanilla — un seul fichier
+Process manager	PM2 (cluster mode)
+Proxy	Nginx + SSL Let's Encrypt
+Sécurité HTTP	Helmet.js, CORS, Rate limiting
+Image processing	Sharp (compression côté serveur)
+QR Code	QRCode.js (CDN)
+Fonts	Google Fonts (Bebas Neue, Outfit, Space Mono)
+5. ARCHITECTURE ACTUELLE
+
+Client (mobile browser)
+        ↓  HTTPS
+      Nginx (reverse proxy, SSL)
+        ↓
+   Node.js Express (server.js)
+        ↓
+   Supabase (PostgreSQL + Auth + Realtime + Storage)
+Flux de données :
+
+L'API REST (Node.js) utilise la service_role key de Supabase (accès total, bypass RLS)
+Le frontend utilise la anon key pour les souscriptions Realtime et l'auth
+Le JWT Supabase de l'utilisateur est envoyé dans le header Authorization pour les routes protégées
+Le mot de passe organisateur est envoyé dans le header x-organizer-password (pas de JWT dédié DJ)
+6. ARBORESCENCE COMMENTÉE
+
+dj-request/
+├── server.js              ✅ Serveur Express complet (387 lignes)
+├── package.json           ✅ Dépendances correctement définies
+├── ecosystem.config.js    ✅ Configuration PM2 cluster
+├── .env.example           ✅ Template variables d'environnement
+├── .gitignore             ✅ Présent
+├── README.md              ✅ Documentation complète
+├── public/
+│   └── index.html         ⚠️ SPA monolithique (~2000+ lignes — CSS + HTML + JS dans un fichier)
+├── supabase/
+│   └── schema.sql         ✅ Schéma complet avec RLS, triggers, Realtime
+├── nginx/
+│   └── djrequest.conf     ✅ Configuration Nginx production correcte
+└── scripts/
+    └── deploy.sh          ✅ Script de déploiement Ubuntu 22.04
+7. PAGES / ROUTES / ENDPOINTS IDENTIFIÉS
+Pages frontend (SPA)
+ID Page	Rôle
+pg-auth	Authentification (Google + SMS OTP + invité)
+pg-client	Vue principale invité (vote + propositions)
+pg-profile	Profil utilisateur (stats, badges, XP, amis)
+pg-dj-login	Login organisateur par mot de passe
+pg-dj	Dashboard organisateur (4 onglets : Live, Modération, Press Kit, Réglages)
+pg-presskit	Press Kit public du DJ (biographie, mixes, booking)
+pg-bigscreen	Vue grand écran (classement projeté en salle)
+pg-chat	Chat en temps réel de la soirée
+Endpoints API (server.js)
+Méthode	Route	Auth	Description
+GET	/api/health	—	Santé du serveur
+GET	/api/events/:id	—	Détails d'un événement
+POST	/api/events	—	Créer un événement
+POST	/api/events/:id/auth	—	Vérifier mot de passe orga
+PATCH	/api/events/:id	Orga	Modifier un événement
+GET	/api/proposals/:eventId	—	Liste des propositions
+POST	/api/proposals	JWT	Proposer un morceau
+DELETE	/api/proposals/:eid/:sid	Orga	Supprimer une proposition
+PATCH	/api/proposals/:eid/:sid	Orga	Approuver une proposition
+POST	/api/votes	JWT	Voter
+DELETE	/api/votes/:eid/:pid	JWT	Retirer son vote
+GET	/api/messages/:eventId	—	Historique du chat
+POST	/api/messages	JWT	Envoyer un message
+DELETE	/api/messages/:id	JWT	Supprimer un message
+POST	/api/reports	JWT	Signaler un message
+GET	/api/reports/:eventId	—	Lire les signalements
+DELETE	/api/reports/:id	—	Supprimer un signalement
+GET	/api/now-playing/:eventId	—	Morceau en cours
+PUT	/api/now-playing/:eventId	Orga	Mettre à jour le morceau
+POST	/api/upload	JWT	Upload photo chat
+GET	/api/locations/:eventId	—	Positions des invités
+PUT	/api/locations/:eventId	JWT	Partager sa position
+GET	/api/scores/:eventId	—	Scores blind test
+PUT	/api/scores/:eventId	JWT	Mettre à jour son score
+GET	/api/profile	JWT	Lire son profil
+PATCH	/api/profile	JWT	Modifier son profil
+GET	*	—	Fallback SPA
+8. FICHIERS CLÉS
+Fichier	Taille estimée	Rôle
+public/index.html	~2000+ lignes	Toute la logique frontend
+server.js	387 lignes	Toute la logique backend
+supabase/schema.sql	231 lignes	Schéma complet de la BDD
+ecosystem.config.js	24 lignes	Config PM2
+nginx/djrequest.conf	71 lignes	Config Nginx
+scripts/deploy.sh	143 lignes	Script de déploiement
+9. FLUX MÉTIER PRINCIPAUX
+Flux invité (vote)
+Arrivée → Auth (Google / SMS / Invité) → Page Client
+Lecture du flyer soirée et du morceau en cours
+Recherche dans le catalogue → Proposition d'un morceau
+Vote pour d'autres propositions → Classement mis à jour en temps réel (Supabase Realtime)
+Participation au chat
+Flux organisateur (DJ)
+Login avec nom de soirée + mot de passe
+Création d'un événement Supabase (si nouveau) ou connexion à un existant
+Génération QR Code → Partage avec les invités
+Suivi de la file d'attente triée par votes
+Actions : Jouer (met à jour now_playing + supprime la proposition), Approuver, Rejeter
+Modération du chat (messages signalés)
+Affichage grand écran (BigScreen)
+Flux temps réel
+Supabase Realtime souscrit aux tables proposals, messages, now_playing
+Mise à jour instantanée du classement, du chat, du morceau en cours
+10. FONCTIONNALITÉS EXISTANTES
+Réellement fonctionnelles (connectées à Supabase) :
+
+Authentification Google OAuth et SMS OTP
+Mode invité (sans compte, lecture seule)
+Création et gestion d'événements
+Proposition de morceaux (depuis un catalogue hardcodé de 18 titres)
+Votes avec compteur temps réel (Supabase Realtime)
+Now Playing mis à jour par l'organisateur
+Chat texte avec photos (upload Supabase Storage)
+Signalement de messages
+Tableau de bord organisateur (file, stats, QR)
+Génération QR Code d'accès à l'événement
+Page grand écran (BigScreen)
+Partage de position (zone dans la salle) — partiellement
+Upload et compression d'images (Sharp)
+Rate limiting, Helmet, CORS
+Présentes en UI mais non fonctionnelles :
+
+Profil utilisateur (données hardcodées, non liées à Supabase)
+Amis ce soir (faux amis hardcodés)
+Badges et achievements (calculés sur données fictives)
+XP / Niveau (calculés sur données fictives)
+Scores blind test (routes API existent, pas d'UI de jeu)
+Press Kit DJ (données fictives : DJ NOVA, mixes, avis, booking)
+Abonnement au DJ (modal UI sans backend de paiement)
+Localisation des invités dans la salle (bloquée par isFirebase = false)
+11. FONCTIONNALITÉS INCOMPLÈTES OU FLOUES
+Fonctionnalité	État	Problème
+Catalogue de morceaux	Hardcodé	18 titres fixes, pas de recherche réelle (Spotify/Deezer)
+Profil utilisateur	UI fictive	USER_EVENTS hardcodé, pas de synchronisation Supabase
+Localisation salle	Stub	isFirebase = false, fbw() = fonction vide
+Blind test	Partiel	Routes API + table BDD présentes, pas d'UI de jeu
+Abonnement DJ	UI seulement	Pas de backend Stripe/paiement
+Press Kit	Fictif	Données hardcodées (DJ NOVA fictif)
+Amis ce soir	Fictif	Marie K. et Thomas R. ne viennent pas de la BDD
+Modération chat (orga)	Partiel	Lit le DOM du chat local au lieu de la BDD
+Suppression de signalement	Non sécurisé	Route DELETE /api/reports/:id sans auth
+totalVoters()	Bug	Calcule sur p.voters qui n'existe pas → toujours 0
+12. QUALITÉ GLOBALE DU CODE
+Backend (server.js) : Bonne qualité générale. Code clair, structuré, commenté. Les middlewares sont bien séparés. Les routes sont lisibles.
+
+Frontend (index.html) : Qualité inégale. Le CSS est très soigné et cohérent. Le JS est fonctionnel mais monolithique, avec beaucoup d'état global mutable. Présence de vestiges (références Firebase, isFirebase, fbw(), fbt()). Du HTML est généré par concatenation de strings (risque XSS).
+
+Base de données (schema.sql) : Bonne qualité. RLS activé sur toutes les tables, triggers bien écrits, Realtime configuré.
+
+13. POINTS SOLIDES
+Infrastructure de déploiement bien pensée (PM2 cluster, Nginx, SSL, firewall)
+Schéma BDD solide avec RLS, triggers automatiques et Realtime
+Design UI/UX mobile-first soigné, dark mode, animations fluides
+Support des safe areas iOS (notch, Dynamic Island, home indicator)
+Rate limiting et Helmet en place
+Mode démo/invité permettant de tester sans compte
+Script de déploiement automatisé complet
+Documentation README complète
+Gestion du cache HTTP correcte (HTML no-cache, assets 1 jour)
+Compression d'images côté serveur (Sharp)
+Récupération des pochettes d'albums via iTunes API (async avec cache)
+14. POINTS FAIBLES
+SPA monolithique (~2000 lignes dans un seul fichier HTML) : maintenabilité très difficile
+Catalogue de morceaux hardcodé (18 titres fixes)
+Données de profil fictives non synchronisées avec la BDD
+Vestige Firebase : code mort qui crée de la confusion
+Pas de tests (unitaires, intégration, e2e)
+Hachage SHA-256 sans sel pour les mots de passe organisateurs
+Credentials Supabase visibles dans le source HTML
+Mot de passe démo hardcodé (dj1234) dans le frontend
+XSS potentiel : du HTML est injecté via innerHTML avec des données de la BDD non sanitisées
+Génération HTML par concatenation de strings dans les render functions
+15. DETTES TECHNIQUES
+DT-01 — Fichier HTML monolithique : Tout le frontend dans public/index.html. Impossible à tester unitairement, difficile à faire évoluer en équipe.
+DT-02 — Code Firebase mort : isFirebase, fbw(), fbt(), db.ref(...) — vestiges non nettoyés d'une version antérieure.
+DT-03 — Données fictives hardcodées : USER_EVENTS, amis, Press Kit, blind test scores — intégrés dans la logique au lieu d'être dans la BDD.
+DT-04 — Catalogue de morceaux statique : const CAT = [...] à 18 titres. Pas extensible.
+DT-05 — Absence totale de tests : Pas de test runner, pas de fichier de test.
+DT-06 — Double état (local + BDD) : Les votes et propositions sont mis à jour localement puis synchronisés, sans gestion des conflits ni rollback en cas d'échec API.
+DT-07 — require() inline dans les routes : require('crypto') et require('multer') sont appelés à chaque requête au lieu d'être déclarés en haut du fichier.
+DT-08 — Pas de migration système : Le schéma SQL est un script unique. Pas de versionning des migrations (pas d'Alembic/Flyway/supabase migrations).
+16. RISQUES TECHNIQUES
+Priorité	Risque	Description
+CRITIQUE	Credentials exposés	SUPABASE_URL et SUPABASE_ANON hardcodés dans le HTML (visible de tous dans les devtools) — le projet Supabase jpthpyfndvqchyowasex est exposé
+CRITIQUE	Mot de passe démo frontend	const DJ_PWD = 'dj1234' hardcodé dans le JS public — n'importe qui peut devenir organisateur en démo
+CRITIQUE	Hachage SHA-256 sans sel	Les mots de passe organisateurs sont hashés avec SHA-256 (pas bcrypt). Vulnérable aux attaques par tables arc-en-ciel
+CRITIQUE	XSS potentiel	Plusieurs innerHTML utilisent des données provenant de la BDD sans sanitisation (noms d'utilisateurs, titres de morceaux dans renderClient, renderDJ, etc.)
+IMPORTANT	Route reports non sécurisée	DELETE /api/reports/:id n'a aucune authentification — n'importe qui peut supprimer des signalements
+IMPORTANT	Suppression de message partielle	La vérification "est organisateur" dans DELETE /api/messages/:id vérifie uniquement la présence du header x-organizer-password sans le valider contre la BDD
+IMPORTANT	Divergence état local/BDD	Les votes et propositions sont modifiés localement avant la confirmation serveur. Un échec réseau laisse l'état UI incohérent avec la BDD
+MOYEN	require() dans les handlers	require('crypto') et require('multer') appelés à chaque requête — overhead inutile (Node.js le cache, mais c'est une mauvaise pratique)
+MOYEN	Pas de timeout sur loadEvent	Si Supabase est lent, l'app reste bloquée sans feedback utilisateur
+MOYEN	CORS trop permissif	`cors({ origin: process.env.APP_URL
+17. RISQUES PRODUIT
+Priorité	Risque	Description
+CRITIQUE	Catalogue de 18 morceaux	Une vraie soirée ne peut pas fonctionner avec 18 titres fixes. Les invités voudront proposer n'importe quel morceau
+CRITIQUE	Profil fictif en production	Si déployé tel quel, le profil affichera de fausses stats (USER_EVENTS hardcodés), des faux amis, un faux badge
+IMPORTANT	Press Kit fictif	"DJ NOVA" est un personnage fictif avec 1284 abonnés hardcodés. Si utilisé par un vrai DJ, il verra le profil d'un autre
+IMPORTANT	Abonnement sans backend	La modal d'abonnement (Free/Fan/VIP) n'a aucun backend Stripe — promesse d'une feature non livrée
+IMPORTANT	Localisation non fonctionnelle	La feature "Ma position dans la salle" est bloquée sur isFirebase = false
+MOYEN	Un seul DJ par app	L'app est conçue pour un DJ fixe (DJ NOVA). Pas de multi-tenant clair pour plusieurs organisateurs
+MOYEN	Chat en mode invité	Un invité non authentifié peut lire le chat mais pas envoyer — le bouton est là mais l'action échoue silencieusement
+18. AXES D'AMÉLIORATION PROGRESSIFS
+Axe A — Corriger les risques critiques (sécurité + données fictives)
+Déplacer les credentials Supabase dans la config serveur ou via endpoint protégé
+Remplacer SHA-256 par bcrypt pour les mots de passe organisateurs
+Supprimer DJ_PWD = 'dj1234' du frontend
+Sécuriser DELETE /api/reports/:id avec auth organisateur
+Nettoyer le code Firebase mort
+Axe B — Rendre le profil réel
+Connecter la page profil aux données réelles Supabase (votes_count, proposals_count, events_count)
+Supprimer USER_EVENTS hardcodé
+Supprimer les faux amis hardcodés
+Axe C — Enrichir le catalogue de morceaux
+Intégrer une API de recherche musicale (iTunes Search API déjà utilisée pour les pochettes, ou Deezer/Spotify)
+Permettre aux invités de chercher n'importe quel morceau
+Stocker les métadonnées dans la BDD à la proposition
+Axe D — Compléter les features existantes
+Finaliser la localisation (migrer vers Supabase Realtime, abandonner isFirebase)
+Créer une vraie UI de blind test
+Rendre le Press Kit dynamique (éditable par le DJ)
+Axe E — Architecture (long terme)
+Découper index.html en modules JS (ou migrer vers un build tool léger)
+Ajouter des tests (au minimum sur les routes API)
+Ajouter un système de migrations BDD
+19. PRIORITÉS RECOMMANDÉES
+🔴 CRITIQUE — À traiter avant toute mise en production réelle
+ Credentials Supabase hardcodés dans index.html
+ DJ_PWD = 'dj1234' exposé dans le frontend
+ SHA-256 sans sel pour les mots de passe organisateurs
+ XSS potentiel via innerHTML non sanitisé
+ Route DELETE /api/reports/:id sans auth
+ Catalogue de 18 morceaux fixe (bloquant l'usage réel)
+🟠 IMPORTANT — À traiter pour une version stable
+ Profil utilisateur avec données réelles (supprimer USER_EVENTS hardcodé)
+ Supprimer le code Firebase mort (isFirebase, fbw, fbt)
+ Sécuriser la suppression de message organisateur
+ Gérer la divergence état local / BDD sur les votes
+ Press Kit dynamique (éditable)
+🟡 MOYEN — À traiter pour une version complète
+ Localisation en salle (migrer vers Supabase Realtime)
+ UI Blind test (routes API et table BDD déjà prêtes)
+ Modal abonnement avec vrai backend (Stripe ou autre)
+ CORS configuré correctement avec APP_URL obligatoire
+🔵 PLUS TARD — Amélioration qualité / scalabilité
+ Découpage du fichier HTML monolithique
+ Tests unitaires et d'intégration
+ Système de migrations BDD versionné
+ Multi-DJ / multi-tenant
+20. QUESTIONS OUVERTES POUR LE LEAD DEVELOPER
+Catalogue de morceaux : Quelle approche est envisagée ? iTunes Search API (déjà partiellement intégrée pour les pochettes), Deezer, Spotify, ou catalogue personnalisé par soirée ?
+
+Multi-organisateur : L'app est-elle prévue pour un seul DJ (DJ NOVA hardcodé) ou pour n'importe quel organisateur ? Le Press Kit doit-il être dynamique ?
+
+Credentials frontend : Le projet Supabase réel (jpthpyfndvqchyowasex) est actuellement exposé dans le code public. S'agit-il d'un projet de dev/test ou de production ? Des données sensibles y sont-elles ?
+
+Firebase : La présence de code Firebase mort indique une migration passée ou avortée. Peut-on confirmer que Firebase est définitivement abandonné et que Supabase est la seule source de vérité ?
+
+Abonnement DJ : La feature est-elle dans la roadmap active ? Si oui, quel prestataire de paiement est envisagé ?
+
+Déploiement actuel : L'application est-elle déployée sur un VPS en ce moment ? Des vraies soirées l'utilisent-elles ?
+
+Identité du DJ : Le Press Kit est celui de "DJ NOVA" (fictif). Qui sera le premier vrai utilisateur organisateur ?
+
+require() dans les handlers : Décision acceptable (Node cache les modules) ou à corriger pour la clarté ?
+
+21. CONCLUSION
+DJ Request est un projet bien architecturé dans ses fondations (infrastructure, BDD, API) avec une UI mobile-first de qualité remarquable pour un prototype. Le soin apporté aux détails iOS (safe areas, no-zoom, feedback tactile) et à l'esthétique est un vrai atout.
+
+Cependant, l'application souffre d'un décalage important entre ce que l'UI promet et ce qui est réellement fonctionnel : profil fictif, amis fictifs, abonnement sans backend, catalogue de 18 morceaux fixe, localisation non opérationnelle. Ce gap doit être comblé avant toute utilisation en conditions réelles.
+
+Les risques de sécurité critiques (credentials exposés, SHA-256, route non sécurisée) sont prioritaires sur tout développement de nouvelle feature.
+
+Le fichier HTML monolithique de 2000+ lignes est la dette technique principale qui limitera la capacité à évoluer rapidement — mais son refactoring peut attendre une phase de stabilisation.
+
+Rapport établi sur la base du code source uniquement. Aucune modification n'a été apportée.
