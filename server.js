@@ -57,7 +57,12 @@ app.use('/api', liveRouter);
 app.use('/api', profileRouter);
 
 // ══ SPA FALLBACK ══════════════════════════════════════════════════════
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('*', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // ══ DÉMARRAGE ═════════════════════════════════════════════════════════
 app.listen(PORT, () => {
