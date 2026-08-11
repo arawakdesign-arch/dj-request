@@ -22,11 +22,12 @@ router.post('/messages', requireAuth, async (req, res) => {
   const { event_id, text, photo_url } = req.body;
   if (!event_id || (!text && !photo_url)) return res.status(400).json({ error: 'Champs manquants' });
 
-  const profile  = await supabase.from('user_profiles').select('display_name').eq('id', req.user.id).single();
-  const userName = profile.data?.display_name || req.user.phone || 'Invité';
+  const profile   = await supabase.from('user_profiles').select('display_name, photo_url').eq('id', req.user.id).single();
+  const userName  = profile.data?.display_name || req.user.phone || 'Invité';
+  const userPhoto = profile.data?.photo_url || null;
 
   const { data, error } = await supabase.from('messages').insert({
-    event_id, user_id: req.user.id, user_name: userName, text, photo_url,
+    event_id, user_id: req.user.id, user_name: userName, user_photo: userPhoto, text, photo_url,
   }).select().single();
   if (error) return res.status(500).json({ error: error.message });
   res.status(201).json(data);

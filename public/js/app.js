@@ -230,7 +230,24 @@ async function saveProfile() {
   closeModal('modal-profile-edit');
   toast('✅ Profil mis à jour !');
   // Sync backend
-  if (_sbSession) api('PATCH', '/profile', { display_name: name, bio, friend_code: getFriendCode() }).catch(() => {});
+  if (_authToken || _sbSession) api('PATCH', '/profile', { display_name: name, bio, friend_code: getFriendCode() }).catch(() => {});
+}
+
+// Le profil (nom, bio, photo) est sauvegardé côté serveur via saveProfile()/
+// uploadProfilePhoto(), mais uniquement lu depuis localStorage jusqu'ici —
+// donc invisible sur un autre appareil/navigateur, ou après un vidage du
+// cache. On le recharge depuis le serveur à la connexion, qui fait autorité.
+async function loadRemoteProfile() {
+  if (!(_authToken || _sbSession)) return;
+  try {
+    const p = await api('GET', '/profile');
+    if (!p || !p.id) return; // rien enregistré côté serveur pour l'instant
+    const saved  = JSON.parse(localStorage.getItem('djr_profile') || '{}');
+    const merged = { ...saved, name: p.display_name || saved.name, photo: p.photo_url || saved.photo, bio: p.bio || saved.bio };
+    localStorage.setItem('djr_profile', JSON.stringify(merged));
+    if (currentUser && p.display_name) currentUser.displayName = p.display_name;
+    applyProfileToUI(merged);
+  } catch(e) { /* profil local conservé en repli */ }
 }
 
 async function uploadProfilePhoto(input) {

@@ -103,6 +103,7 @@ function afterLogin() {
   showPage('client');
   renderAll();
   applyProfileToUI(); // initiale / photo dès la connexion (localStorage si présent, sinon fallback sur le nom du compte)
+  loadRemoteProfile(); // le serveur fait autorité — écrase le cache local si le profil a été modifié ailleurs
   loadFlyerFromStorage();
   setTimeout(loadProfileStats, 1000); // charge les vraies stats en arrière-plan
   setTimeout(() => {

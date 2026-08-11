@@ -41,6 +41,8 @@ function appendChatMsg(msg, msgKey) {
   avatar.className = 'chat-avatar' + (isDJ ? ' dj' : '');
   if (isDJ) {
     avatar.style.backgroundImage = "url('/images/dj-avatar.png')";
+  } else if (msg.avatarUrl) {
+    avatar.style.backgroundImage = `url('${msg.avatarUrl}')`;
   } else {
     avatar.style.background = avatarColor(name);
     avatar.textContent = name[0]?.toUpperCase() || '?';
@@ -202,7 +204,9 @@ function renderPinnedMessage(msg) {
   const time = d.getHours() + ':' + (d.getMinutes()+'').padStart(2,'0');
   const avatarHTML = isDJ
     ? `<img class="chat-pinned-av" src="/images/dj-avatar.png" alt="">`
-    : `<div class="chat-pinned-av" style="background:${avatarColor(msg.user_name)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">${(msg.user_name||'?')[0].toUpperCase()}</div>`;
+    : msg.user_photo
+      ? `<img class="chat-pinned-av" src="${msg.user_photo}" alt="">`
+      : `<div class="chat-pinned-av" style="background:${avatarColor(msg.user_name)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">${(msg.user_name||'?')[0].toUpperCase()}</div>`;
   box.innerHTML = `
     ${avatarHTML}
     <div class="chat-pinned-body">
@@ -274,6 +278,7 @@ async function loadChatHistory() {
       name: m.user_name || 'Invité',
       text: m.text,
       photo: m.photo_url || null,
+      avatarUrl: m.user_photo || null,
       ts:   new Date(m.created_at).getTime(),
       reported: m.reported,
       reactions: m.reactions || {},
@@ -335,10 +340,11 @@ async function sendChatMsg() {
   const text = inp?.value.trim(); if (!text) return;
   const uid  = getUid();
   const name = currentUser?.displayName || currentUser?.phoneNumber || 'Invité';
+  const avatarUrl = JSON.parse(localStorage.getItem('djr_profile') || '{}').photo || null;
 
   // Affichage optimiste immédiat
   const tmpId = 'tmp_' + Date.now();
-  appendChatMsg({uid, name, text, ts: Date.now()}, tmpId);
+  appendChatMsg({uid, name, text, avatarUrl, ts: Date.now()}, tmpId);
   if (djLoggedIn) {
     updateDjBubble(text);
     renderPinnedMessage({ id: tmpId, text, user_name: name, created_at: new Date().toISOString() });
@@ -377,7 +383,8 @@ async function sendPhoto(input) {
     const dataUrl = await compressImage(file, 800, 0.65);
     const uid  = getUid();
     const name = currentUser?.displayName || currentUser?.phoneNumber || 'Invité';
-    appendChatMsg({uid, name, photo: dataUrl, ts: Date.now()}, tmpId);
+    const avatarUrl = JSON.parse(localStorage.getItem('djr_profile') || '{}').photo || null;
+    appendChatMsg({uid, name, photo: dataUrl, avatarUrl, ts: Date.now()}, tmpId);
     scrollChatBottom();
     input.value = '';
   } catch(e) { toast('❌ Erreur photo'); return; }
