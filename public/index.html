@@ -1386,7 +1386,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <!-- CHAT -->
 <div class="page has-nav" id="pg-chat">
-  <div class="tb"><button class="tb-menu" style="width:34px;height:34px" onclick="toggleTopMenu()">☰</button><div class="tb-title">💬 Chat Club</div><div style="margin-left:auto"><div class="tb-live"><div class="pdot"></div>Live</div></div></div>
+  <div class="tb"><button class="tb-menu" style="width:34px;height:34px" onclick="toggleTopMenu()">☰</button><div class="tb-title">💬 Chat Club</div><div style="margin-left:auto;display:flex;align-items:center;gap:.6rem"><div class="tb-live"><div class="pdot"></div>Live</div><div class="tb-avatar" onclick="navTo('profile')"></div></div></div>
 
   <!-- Message épinglé -->
   <div class="chat-pinned" id="chat-pinned" style="display:none"></div>
@@ -1438,7 +1438,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/api.js?v=4"></script>
 <script src="/js/app.js?v=11"></script>
 <script src="/js/render.js?v=4"></script>
-<script src="/js/chat.js?v=9"></script>
+<script src="/js/chat.js?v=10"></script>
 <script src="/js/auth.js?v=5"></script>
 </body>
 </html>

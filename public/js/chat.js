@@ -260,8 +260,11 @@ async function loadChatHistory() {
   try {
     const messages = await api('GET', '/messages/' + eid);
     updateDjBubbleFromMessages(messages);
-    const pinned = messages.find(m => m.pinned);
-    renderPinnedMessage(pinned || null);
+    // Le pin manuel de l'organisateur est prioritaire ; à défaut, le dernier
+    // message du DJ reste épinglé automatiquement dans le cadre.
+    const pinned  = messages.find(m => m.pinned);
+    const djMsgs  = messages.filter(m => isDjName(m.user_name));
+    renderPinnedMessage(pinned || djMsgs[djMsgs.length - 1] || null);
     const container = document.getElementById('chat-messages');
     if (!container || !messages.length) return;
     // Vider les messages de démo avant d'afficher l'historique réel
@@ -294,6 +297,9 @@ function updateDjBubble(text) {
 // ── Réception temps réel (autres participants) ─────────────────────────
 function handleRealtimeMessage(m) {
   if (!m || m.deleted) return;
+  // Le dernier message du DJ reste épinglé dans le cadre, indépendamment
+  // de l'affichage/dédoublonnage de la liste de messages ci-dessous.
+  if (isDjName(m.user_name)) renderPinnedMessage(m);
   if (document.getElementById('msg-' + m.id)) return; // déjà affiché
 
   if (m.user_id === currentUser?.uid) {
@@ -333,7 +339,10 @@ async function sendChatMsg() {
   // Affichage optimiste immédiat
   const tmpId = 'tmp_' + Date.now();
   appendChatMsg({uid, name, text, ts: Date.now()}, tmpId);
-  if (djLoggedIn) updateDjBubble(text);
+  if (djLoggedIn) {
+    updateDjBubble(text);
+    renderPinnedMessage({ id: tmpId, text, user_name: name, created_at: new Date().toISOString() });
+  }
   if (inp) { inp.value = ''; inp.style.height = 'auto'; }
   document.getElementById('chat-send-btn').disabled = true;
   document.getElementById('chat-send-btn').style.opacity = '.4';
