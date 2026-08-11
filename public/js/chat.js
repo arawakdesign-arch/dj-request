@@ -370,14 +370,38 @@ function chatInputChanged() {
 async function sendPhoto(input) {
   const file = input.files[0]; if (!file) return;
   toast('📷 Compression de la photo…');
+
+  // Affichage optimiste immédiat (comme pour les messages texte)
+  const tmpId = 'tmp_' + Date.now();
   try {
     const dataUrl = await compressImage(file, 800, 0.65);
     const uid  = getUid();
     const name = currentUser?.displayName || currentUser?.phoneNumber || 'Invité';
-    appendChatMsg({uid, name, photo: dataUrl, ts: Date.now()});
+    appendChatMsg({uid, name, photo: dataUrl, ts: Date.now()}, tmpId);
     scrollChatBottom();
     input.value = '';
-  } catch(e) { toast('❌ Erreur photo'); }
+  } catch(e) { toast('❌ Erreur photo'); return; }
+
+  // Upload réel + persistance : sans ça la photo ne quitte jamais l'écran
+  // de l'expéditeur (les autres participants ne la reçoivent jamais).
+  if (!eid || !(_authToken || _sbSession)) return;
+  try {
+    const form = new FormData();
+    form.append('photo', file);
+    const r = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + (_authToken || _sbSession.access_token) },
+      body: form,
+    });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Échec upload');
+    const { url } = await r.json();
+    await api('POST', '/messages', { event_id: eid, photo_url: url });
+    // Le message persisté arrivera via l'abonnement Realtime (handleRealtimeMessage)
+    // avec la vraie URL — le tmp optimiste reste affiché tel quel entre-temps.
+  } catch(e) {
+    console.error('[pullup] Échec envoi photo :', e.message);
+    toast('⚠️ Photo non envoyée aux autres — ' + e.message);
+  }
 }
 
 function compressImage(file, maxW, quality) {
