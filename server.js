@@ -30,6 +30,10 @@ app.use(helmet({
       imgSrc:        ["'self'", "data:", "blob:", "*.supabase.co", "i.pravatar.cc", "*.itunes.apple.com", "*.mzstatic.com", "*.dzcdn.net", "*.deezer.com"],
       connectSrc:    ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "itunes.apple.com", "api.deezer.com"],
       mediaSrc:      ["'self'", "*.itunes.apple.com", "*.supabase.co"],
+      // Désactivé : force sinon le navigateur à charger tous les sous-fichiers en HTTPS,
+      // ce qui casse tout tant qu'il n'y a pas de certificat SSL (déploiement en IP nue).
+      // Nginx gère déjà la redirection HTTP → HTTPS une fois un domaine + certbot en place.
+      upgradeInsecureRequests: null,
     },
   },
 }));

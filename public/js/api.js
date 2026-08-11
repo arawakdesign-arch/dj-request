@@ -58,7 +58,20 @@ function subscribeToEvent(evId) {
       })
     .subscribe(status => console.log('[pullup] Canal proposals:' + evId, '→', status));
 
-  // Canal messages désactivé — table non incluse dans le schéma MVP Core.
+  let _messagesEverSubscribed = false;
+  _sb.channel('messages:' + evId)
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'messages', filter:'event_id=eq.'+evId},
+      payload => { if (typeof handleRealtimeMessage === 'function') handleRealtimeMessage(payload.new); })
+    .subscribe(status => {
+      console.log('[pullup] Canal messages:' + evId, '→', status);
+      // Rattrapage : si le canal se re-souscrit après une coupure (verrouillage
+      // téléphone, changement réseau), on recharge l'historique pour récupérer
+      // les messages manqués pendant la déconnexion.
+      if (status === 'SUBSCRIBED') {
+        if (_messagesEverSubscribed && typeof loadChatHistory === 'function') loadChatHistory();
+        _messagesEverSubscribed = true;
+      }
+    });
 
   _sb.channel('np:' + evId)
     .on('postgres_changes', {event:'UPDATE', schema:'public', table:'now_playing', filter:'event_id=eq.'+evId},

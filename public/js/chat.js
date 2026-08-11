@@ -11,6 +11,13 @@ function initChat() {
   loadChatHistory(); // charger l'historique depuis le backend
 }
 
+// Rattrapage des messages manqués : le websocket Realtime se coupe quand le
+// téléphone se verrouille ou change de réseau (fréquent en soirée) sans que
+// l'app le détecte autrement — on recharge l'historique au retour au premier plan.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && chatInitialized && eid) loadChatHistory();
+});
+
 function isDjName(name) { return (name || '').toLowerCase().includes('nova'); }
 
 function avatarColor(name) {
@@ -284,6 +291,38 @@ function updateDjBubble(text) {
   if (el && text) el.textContent = text;
 }
 
+// ── Réception temps réel (autres participants) ─────────────────────────
+function handleRealtimeMessage(m) {
+  if (!m || m.deleted) return;
+  if (document.getElementById('msg-' + m.id)) return; // déjà affiché
+
+  if (m.user_id === currentUser?.uid) {
+    // Notre propre message est déjà affiché en optimiste (id tmp_…) — on ne le
+    // duplique pas. Le tmp reste tel quel, ce qui suffit visuellement.
+    return;
+  }
+
+  appendChatMsg({
+    uid:  m.user_id,
+    name: m.user_name || 'Invité',
+    text: m.text,
+    photo: m.photo_url || null,
+    ts:   new Date(m.created_at).getTime(),
+    reported: m.reported,
+    reactions: m.reactions || {},
+  }, m.id);
+
+  if (isDjName(m.user_name)) updateDjBubble(m.text);
+  scrollChatBottom();
+
+  const chatPage = document.getElementById('pg-chat');
+  if (!chatPage || !chatPage.classList.contains('active')) {
+    chatUnread++;
+    const badge = document.getElementById('chat-badge');
+    if (badge) { badge.textContent = chatUnread; badge.style.display = 'flex'; }
+  }
+}
+
 // ── Envoi d'un message ────────────────────────────────────────────────
 async function sendChatMsg() {
   const inp  = document.getElementById('chat-input');
@@ -300,13 +339,14 @@ async function sendChatMsg() {
   document.getElementById('chat-send-btn').style.opacity = '.4';
   scrollChatBottom();
 
-  // Envoi au backend si connecté à un événement
-  if (eid && _sbSession) {
+  // Envoi au backend si connecté à un événement (invité, téléphone ou Google —
+  // toute session authentifiée, pas seulement Supabase)
+  if (eid && (_authToken || _sbSession)) {
     try {
       await api('POST', '/messages', { event_id: eid, text });
-      // Le Realtime Supabase retournera le vrai message — on retire le tmp
-      const tmpEl = document.getElementById('msg-' + tmpId);
-      if (tmpEl) tmpEl.remove();
+      // Le message persisté arrivera via l'abonnement Realtime (handleRealtimeMessage),
+      // qui retire ce message optimiste et l'affiche avec son vrai id. On ne le retire
+      // pas ici pour éviter qu'il disparaisse si le Realtime met du temps à arriver.
     } catch(e) { /* message local gardé */ }
   }
 }
