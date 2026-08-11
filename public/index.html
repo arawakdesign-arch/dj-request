@@ -1,0 +1,1447 @@
+<!-- v6-top-menu -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PULL UP!">
+<meta name="mobile-web-app-capable" content="yes">
+<title>PULL UP!</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ══ RESET & VARS ══════════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+:root{
+  /* Design system PULL UP — cf. PULL_UP_DESIGN_SYSTEM.md */
+  --ink:#FFFFFF;--ink2:#FFFFFF;--ink3:#FFFFFF;--ink4:#FFFFFF;--ink5:#FAFAFC;
+  --vi:#6F22FF;--vi2:#4C00D8;--pk:#FF1C8E;--pk2:#C4127A;
+  --cyan:#0071E3;--amber:#FF9500;--green:#16C96B;--red:#FF3B57;--blue:#0071E3;
+  --grd:linear-gradient(135deg,#6F22FF 0%,#8D2CFF 45%,#FF1C8E 100%);
+  --grd-gold:linear-gradient(135deg,#FF9500,#FF3B30);
+  --grd-blue:linear-gradient(135deg,#0071E3,#16C96B);
+  --grd-green:linear-gradient(135deg,#16C96B,#0071E3);
+  --tx:#101014;--tx2:#33333D;--tx3:#646474;--tx4:#8A8A9A;
+  --bdr:#ECECF3;--bdr2:rgba(111,34,255,.32);
+  --glass:rgba(255,255,255,.88);
+  --shadow:0 8px 30px rgba(55,30,100,.10);
+  --dj-card:#101014;
+  --nav-h:90px;   /* inclut la zone bulle (30px) + barre (60px) */
+  /* Safe area pour iPhone avec encoche / Dynamic Island / barre home */
+  --safe-top:env(safe-area-inset-top, 0px);
+  --safe-bot:env(safe-area-inset-bottom, 0px);
+  --safe-left:env(safe-area-inset-left, 0px);
+  --safe-right:env(safe-area-inset-right, 0px);
+  --nav-total:calc(var(--nav-h) + var(--safe-bot));
+}
+html{height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  height:100%;overflow:hidden;
+  background:var(--ink);color:var(--tx);
+  font-family:'Inter',-apple-system,'SF Pro Display',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overscroll-behavior:none;
+  /* Prevent rubber-band scroll en mode PWA */
+  position:fixed;width:100%;
+}
+button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+input,select{font-family:'Inter',sans-serif;font-size:16px /* iOS: empêche le zoom auto au focus */}
+a{color:inherit;text-decoration:none}
+/* Active state visuel pour tous les boutons (feedback tactile) */
+button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform .08s}
+
+/* ══ PAGES ════════════════════════════════════════════════════════ */
+.page{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;overflow:hidden;
+  /* Respecter l'encoche / Dynamic Island en haut */
+  padding-top:var(--safe-top);
+}
+.page.active{display:flex}
+.page.has-nav{bottom:0}
+.pe{animation:pe .34s cubic-bezier(.16,1,.3,1) both}
+@keyframes pe{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+.scroll::-webkit-scrollbar{width:0}
+#pg-client .scroll{position:relative;z-index:1;padding-bottom:calc(var(--safe-bot) + 5rem)}
+/* Padding en bas de chaque scroll pour ne pas être caché par la nav */
+.scroll>*:last-child{padding-bottom:.5rem}
+/* Si la page a une FAB, laisser de l'espace en bas */
+.page.has-nav .scroll{padding-bottom:.25rem}
+
+/* ══ TOPBAR ════════════════════════════════════════════════════════ */
+.tb{display:flex;align-items:center;gap:.6rem;padding:.68rem 1rem;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);flex-shrink:0;z-index:10;position:relative;
+  /* Pas de padding-top additionnel ici : le .page parent gère déjà le safe-top */
+  padding-left:max(1rem, var(--safe-left));
+  padding-right:max(1rem, var(--safe-right));
+  /* Cible tactile minimum */
+  min-height:52px;
+}
+.tb-back{width:44px;height:44px;border-radius:10px;border:1px solid var(--bdr);background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--tx2);flex-shrink:0;transition:all .18s}
+.tb-back:hover{border-color:var(--bdr2);background:rgba(111,34,255,.06)}
+.tb-title{font-family:'Inter',sans-serif;font-weight:800;font-size:1.15rem;letter-spacing:0;color:var(--tx);position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none}
+.tb-live{display:flex;align-items:center;gap:4px;background:#FFFFFF;border:1px solid var(--green);border-radius:20px;padding:3px 10px;font-size:.62rem;color:var(--green);font-weight:700;letter-spacing:.08em;text-transform:uppercase;flex-shrink:0}
+.pdot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pdot 1.4s infinite}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
+/* Topbar app principale : menu + gros logo + live/avatar */
+.tb-app{min-height:104px;padding-top:0;padding-bottom:0;border-bottom:none;background:transparent;backdrop-filter:none}
+.tb-menu{width:38px;height:38px;border:none;background:none;color:var(--tx);font-size:1.35rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1}
+.app-logo-tb{height:100px;object-fit:contain;position:absolute;left:50%;transform:translateX(-50%);pointer-events:none}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:.5rem;flex-shrink:0;position:relative;z-index:1}
+.tb-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--bdr);cursor:pointer;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.85rem;font-family:'Inter',sans-serif;background-color:var(--vi)}
+
+/* ══ MENU DÉROULANT (haut gauche) ════════════════════════════════════ */
+.top-menu-overlay{position:fixed;inset:0;background:rgba(16,16,20,.32);z-index:199;opacity:0;pointer-events:none;transition:opacity .2s}
+.top-menu-overlay.open{opacity:1;pointer-events:auto}
+.top-menu{
+  position:fixed;top:calc(var(--safe-top) + 4.6rem);left:max(.65rem, var(--safe-left));
+  width:200px;
+  background:#FFFFFF;
+  border:1px solid var(--bdr);
+  border-radius:18px;
+  box-shadow:0 16px 40px rgba(30,15,60,.22);
+  z-index:200;
+  padding:.4rem;
+  display:flex;flex-direction:column;gap:2px;
+  opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;
+  transition:opacity .18s,transform .18s;
+}
+.top-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.top-menu-item{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.65rem .7rem;border-radius:12px;
+  border:none;background:none;cursor:pointer;
+  position:relative;text-align:left;width:100%;
+  touch-action:manipulation;
+}
+.top-menu-item:hover{background:var(--ink5)}
+.top-menu-item.active{background:rgba(111,34,255,.08)}
+.top-menu-item .nav-tab-ico{font-size:1.1rem;line-height:1;opacity:.55;filter:grayscale(1);flex-shrink:0;width:22px;text-align:center;transition:opacity .2s}
+.top-menu-item.active .nav-tab-ico{opacity:1;filter:none}
+.nav-tab-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;display:block}
+.top-menu-item .nav-tab-lbl{font-size:.85rem;font-weight:600;color:var(--tx2);text-transform:none;letter-spacing:0;transition:color .2s}
+.top-menu-item.active .nav-tab-lbl{color:var(--vi);font-weight:700}
+.nav-tab-badge{margin-left:auto;background:var(--pk);color:white;font-size:.62rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+
+/* ══ SHARED COMPONENTS ════════════════════════════════════════════ */
+.btn-g{width:100%;padding:.88rem;border-radius:18px;border:none;background:var(--grd);color:#fff;font-size:1rem;font-weight:700;transition:opacity .2s,transform .2s;min-height:56px;letter-spacing:-.01em;box-shadow:0 8px 24px rgba(111,34,255,.32)}
+.btn-g:hover{opacity:.92;transform:translateY(-1px)} .btn-g:disabled{opacity:.35;box-shadow:none}
+.btn-outline{background:#FFFFFF;border:1px solid var(--bdr);border-radius:12px;padding:.78rem;color:var(--tx2);font-size:.9rem;font-weight:600;transition:all .2s;width:100%;min-height:48px}
+.btn-outline:hover{border-color:var(--bdr2);color:var(--vi)}
+.card{background:#FFFFFF;border:1px solid var(--bdr);border-radius:20px;box-shadow:var(--shadow)}
+.sec-lbl{font-size:.63rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em}
+.tag{font-size:.6rem;font-weight:700;padding:3px 9px;border-radius:8px;border:1px solid;display:inline-flex;align-items:center;gap:3px;min-height:22px}
+.pill-vi{background:rgba(111,34,255,.1);border-color:rgba(111,34,255,.22);color:var(--vi)}
+.pill-green{background:rgba(22,201,107,.1);border-color:rgba(22,201,107,.25);color:var(--green)}
+.pill-amber{background:rgba(255,149,0,.1);border-color:rgba(255,149,0,.25);color:var(--amber)}
+.pill-pk{background:rgba(255,28,142,.1);border-color:rgba(255,28,142,.22);color:var(--pk)}
+.grd-txt{color:var(--vi);background:none;-webkit-text-fill-color:unset}
+/* CRITIQUE iOS: font-size 16px minimum sur tous les inputs pour éviter le zoom auto */
+.fi{width:100%;background:#FFFFFF;border:1px solid var(--bdr);border-radius:12px;padding:.72rem .9rem;color:var(--tx);font-size:16px;outline:none;transition:all .2s;min-height:50px;-webkit-appearance:none}
+.fi:focus{border-color:var(--bdr2);background:rgba(111,34,255,.03)}
+.fi::placeholder{color:var(--tx4);font-size:14px}
+.fl{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem}
+.fl label{font-size:.68rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.08em}
+
+/* Toast */
+.toast{position:fixed;bottom:calc(var(--safe-bot) + .75rem);left:50%;transform:translateX(-50%) translateY(8px);background:var(--dj-card);border:1px solid rgba(255,255,255,.1);color:#fff;padding:.55rem 1.2rem;border-radius:20px;font-size:.82rem;font-weight:500;z-index:500;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 30px rgba(16,16,20,.35)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Modal */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(16,16,20,.45);z-index:300;align-items:flex-end;backdrop-filter:blur(4px)}
+.modal-ov.open{display:flex}
+.modal-sheet{background:#FFFFFF;border-radius:28px 28px 0 0;border:1px solid var(--bdr);border-bottom:none;padding:1.25rem;width:100%;max-height:88vh;overflow-y:auto;animation:shu .3s cubic-bezier(.16,1,.3,1);box-shadow:0 -8px 40px rgba(55,30,100,.16)}
+@keyframes shu{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:36px;height:3px;background:var(--bdr);border-radius:2px;margin:0 auto 1rem}
+.sheet-title{font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:0;margin-bottom:1rem;color:var(--tx)}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — AUTH
+══════════════════════════════════════════════════════════════════ */
+#pg-auth{justify-content:flex-start;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:clamp(.75rem,4vw,1.75rem);background:#FFFFFF}
+.auth-wrap{width:100%;max-width:360px;display:flex;flex-direction:column;gap:1.25rem;padding:clamp(.4rem,2vh,.75rem) 0}
+.auth-hero{text-align:center}
+.auth-ring{width:74px;height:74px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto .6rem;box-shadow:0 8px 30px rgba(111,34,255,.3)}
+/* Logo PULL UP! */
+.app-logo-hero{width:280px;max-width:80%;object-fit:contain;display:block;margin:0 auto .75rem}
+.auth-appname{font-family:'Inter',sans-serif;font-weight:800;font-size:2.4rem;letter-spacing:-.02em;line-height:1;color:var(--tx)}
+.auth-tagline{font-size:.82rem;color:var(--tx3);font-weight:400;margin-top:.25rem}
+.auth-card{background:#FFFFFF;border:1px solid var(--bdr);border-radius:20px;padding:1.5rem;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grd)}
+.auth-card-ttl{font-size:.68rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1rem;text-align:center}
+.btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:.7rem;padding:.85rem;border-radius:12px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx);font-size:.9rem;font-weight:600;transition:all .2s}
+.btn-google:hover{border-color:var(--bdr2);transform:translateY(-1px)}
+.div-or{display:flex;align-items:center;gap:.65rem;margin:.85rem 0}
+.div-line{flex:1;height:1px;background:var(--bdr)}
+.div-txt{font-size:.7rem;color:var(--tx4)}
+.phone-row{display:flex;gap:.4rem;margin-bottom:.65rem}
+.cc-sel{background:#FFFFFF;border:1px solid var(--bdr);border-radius:10px;padding:.68rem .65rem;color:var(--tx);font-size:16px;outline:none;width:95px;flex-shrink:0;appearance:none;-webkit-appearance:none;text-align:center;transition:border-color .2s;min-height:50px}
+.cc-sel:focus{border-color:var(--bdr2)}
+.phone-inp{flex:1;background:#FFFFFF;border:1px solid var(--bdr);border-radius:10px;padding:.68rem .9rem;color:var(--tx);font-size:16px;font-family:'Inter',sans-serif;outline:none;transition:all .2s;letter-spacing:.02em;min-height:50px;-webkit-appearance:none}
+.phone-inp:focus{border-color:var(--bdr2);background:rgba(111,34,255,.03)}
+.phone-inp::placeholder{color:var(--tx4);font-family:'Inter',sans-serif;letter-spacing:0;font-size:14px}
+.otp-wrap{display:none;flex-direction:column;gap:.6rem}
+.otp-wrap.show{display:flex}
+.otp-hint{font-size:.78rem;color:var(--tx3);text-align:center;line-height:1.5}
+.otp-hint strong{color:var(--tx2)}
+.otp-boxes{display:flex;gap:.4rem;justify-content:center}
+.otp-b{width:46px;height:56px;border-radius:10px;border:1.5px solid var(--bdr);background:#FFFFFF;color:var(--tx);font-size:20px;font-family:'Inter',sans-serif;font-weight:700;text-align:center;outline:none;transition:all .2s;caret-color:var(--vi)}
+.otp-b:focus{border-color:var(--vi);background:rgba(111,34,255,.04);box-shadow:0 0 0 3px rgba(111,34,255,.1)}
+.otp-b.filled{border-color:rgba(111,34,255,.35);background:rgba(111,34,255,.04)}
+.resend-btn{background:none;border:none;color:var(--vi);font-size:.78rem;text-align:center;padding:.2rem;transition:color .2s}
+.resend-btn:disabled{color:var(--tx4)}
+.auth-err{font-size:.75rem;color:var(--red);text-align:center;min-height:.9rem}
+.auth-terms{font-size:.67rem;color:var(--tx4);text-align:center;line-height:1.5}
+.auth-terms a{color:var(--tx3);text-decoration:underline}
+.otp-back-btn{background:none;border:none;color:var(--tx4);font-size:.78rem;text-align:center;display:block;margin:.4rem auto 0;padding:.3rem}
+#btn-orga{min-height:52px}
+#btn-guest{min-height:44px}
+@media (max-width:430px){
+  .auth-card{padding:1.25rem 1rem}
+  .otp-b{flex:1;min-width:32px;height:50px;font-size:18px}
+  .otp-boxes{gap:.2rem}
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — CLIENT (VOTE)
+══════════════════════════════════════════════════════════════════ */
+#pg-client{background:var(--ink)}
+/* ── VENUE CARD ───────────────────────────────────────────────────── */
+.venue-card{margin:0 .65rem .5rem;background:#FFFFFF;border-radius:20px;box-shadow:var(--shadow);padding:.7rem;display:flex;align-items:center;gap:.55rem}
+.venue-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.venue-name{font-family:'Inter',sans-serif;font-weight:800;font-size:1.05rem;letter-spacing:0;color:var(--tx);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.venue-addr{font-size:.66rem;color:var(--tx3);display:flex;align-items:center;gap:.25rem;min-width:0}
+.venue-addr-ico{width:11px;height:11px;flex-shrink:0;color:var(--vi)}
+.venue-addr-txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.venue-addr-share{flex-shrink:0;width:18px;height:18px;padding:0;border:none;background:none;color:var(--tx4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:color .18s}
+.venue-addr-share:hover{color:var(--vi)}
+.venue-addr-share svg{width:13px;height:13px}
+.venue-status-row{display:flex;align-items:center;gap:.4rem;margin-top:2px}
+.venue-pill-open{font-size:.6rem;font-weight:700;color:var(--green);border:1px solid var(--green);border-radius:20px;padding:1px 8px;text-transform:uppercase;letter-spacing:.04em}
+.venue-hours{font-size:.66rem;color:var(--tx3);white-space:nowrap}
+.venue-stats-row{display:flex;align-items:center;gap:.25rem;margin-top:2px;font-size:.5rem;color:var(--tx3);flex-wrap:nowrap;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.venue-photo{width:92px;height:76px;border-radius:16px;flex-shrink:0;position:relative;overflow:hidden;background:var(--dj-card)}
+.venue-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.venue-qr{background:#FFFFFF;border:none;box-shadow:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;width:58px;height:58px;padding:.25rem}
+.venue-qr-box{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#FFFFFF}
+.venue-qr-box canvas,.venue-qr-box img{width:100%!important;height:100%!important}
+.venue-qr-info{flex-shrink:0;max-width:58px}
+.venue-qr-title{font-family:'Inter',sans-serif;font-weight:800;font-size:.66rem;color:var(--vi);text-transform:uppercase;letter-spacing:.02em;line-height:1.15}
+.venue-qr-slogan{font-size:.56rem;color:var(--tx3);line-height:1.25;margin-top:1px}
+
+/* ── SONG CARDS — Pochette carrée toujours ───────────────────────── */
+.song-card{display:flex;align-items:center;gap:.6rem;padding:.65rem .75rem;margin:0 .65rem .5rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:20px;position:relative;overflow:hidden;transition:all .22s;box-shadow:0 2px 10px rgba(55,30,100,.05)}
+.song-card.voted{border-color:rgba(111,34,255,.35);background:rgba(111,34,255,.04)}
+.song-card.voted::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--vi);border-radius:2px}
+.song-card.r1{border-color:rgba(255,149,0,.3);background:rgba(255,149,0,.03)}
+.song-card.r1::before{background:linear-gradient(#F59E0B,#EF4444)}
+.s-rank{width:20px;flex-shrink:0;text-align:center}
+.s-rank-num{font-family:'Inter',sans-serif;font-size:1.15rem;font-weight:800;color:var(--tx)}
+.s-rank-trend{font-size:.6rem;font-weight:700;line-height:1}
+.s-rank-trend.up{color:var(--green)}.s-rank-trend.down{color:var(--red)}.s-rank-trend.same{color:var(--tx4)}
+/* Pochette carrée */
+.s-cover{width:52px;height:52px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;position:relative;overflow:hidden;background:var(--bdr)}
+.s-cover img{width:100%;height:100%;object-fit:cover;border-radius:10px;position:absolute;inset:0}
+.s-cover-fallback{position:relative;z-index:1;font-size:1.5rem;line-height:1}
+.s-body{flex:1;min-width:0}
+.s-name{font-size:.92rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.s-artist{font-size:.74rem;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-bar{height:4px;background:var(--bdr);border-radius:2px;overflow:hidden;margin-top:.45rem}
+.s-bar-f{height:4px;border-radius:2px;transition:width .7s ease}
+.s-votes{flex-shrink:0;text-align:right}
+.s-votes-n{font-family:'Inter',sans-serif;font-size:1rem;font-weight:800;color:var(--tx);line-height:1}
+.s-votes-l{font-size:.6rem;color:var(--tx4)}
+.s-delta{flex-shrink:0;font-size:.72rem;font-weight:700;color:var(--green);min-width:1.6rem;text-align:right}
+.vote-pill{flex-shrink:0;border:none;background:var(--grd);color:#fff;font-size:.78rem;font-weight:700;border-radius:14px;padding:.55rem .85rem;display:flex;align-items:center;gap:2px;box-shadow:0 4px 14px rgba(111,34,255,.35);transition:all .18s}
+.vote-pill:hover{opacity:.9;transform:scale(1.03)}
+.sbox{position:relative}
+.sico{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:.95rem;color:var(--tx4);pointer-events:none}
+.si{width:100%;background:#FFFFFF;border:1px solid var(--bdr);border-radius:11px;padding:.62rem .9rem .62rem 2.4rem;color:var(--tx);font-size:16px;outline:none;transition:all .2s;-webkit-appearance:none}
+.si:focus{border-color:var(--bdr2);background:rgba(111,34,255,.03)}
+.si::placeholder{color:var(--tx4)}
+.list-hdr{display:flex;justify-content:space-between;align-items:center;padding:.35rem 1rem;flex-shrink:0}
+.vote-cnt{font-family:'Inter',sans-serif;font-weight:700;font-size:.68rem;color:var(--vi);background:rgba(111,34,255,.08);border:1px solid rgba(111,34,255,.18);border-radius:18px;padding:2px 8px}
+@keyframes spins{to{transform:rotate(360deg)}}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;gap:.6rem;text-align:center}
+.empty-state .ei{font-size:2.8rem}
+.empty-state p{font-size:.83rem;color:var(--tx3);line-height:1.6}
+
+/* ── PROPOSE TON SON ──────────────────────────────────────────────── */
+.propose-card{position:fixed;left:.65rem;right:.65rem;bottom:calc(var(--safe-bot) + .65rem);z-index:150;background:rgba(255,255,255,.3);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,28,142,.35);border-radius:20px;box-shadow:0 0 0 1px rgba(141,44,255,.12),0 8px 26px rgba(141,44,255,.28),0 4px 18px rgba(255,28,142,.18);padding:.75rem .9rem;display:flex;align-items:center;gap:.65rem;cursor:pointer}
+@keyframes propose-shake{
+  0%,100%{transform:translateX(0) rotate(0)}
+  15%{transform:translateX(-6px) rotate(-1.5deg)}
+  30%{transform:translateX(5px) rotate(1.5deg)}
+  45%{transform:translateX(-4px) rotate(-1deg)}
+  60%{transform:translateX(3px) rotate(1deg)}
+  75%{transform:translateX(-2px) rotate(-.5deg)}
+  90%{transform:translateX(1px)}
+}
+.propose-card.shake{animation:propose-shake .5s ease}
+.propose-ico{width:50px;height:50px;border-radius:50%;background:#0F0A1D;border:1.5px solid #B24CFF;box-shadow:0 0 12px rgba(178,76,255,.55),inset 0 0 8px rgba(178,76,255,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.propose-ico svg{width:22px;height:22px;filter:drop-shadow(0 0 3px rgba(178,76,255,.8))}
+.propose-txt{flex:1;min-width:0;text-align:center}
+.propose-title{font-family:'Inter',sans-serif;font-weight:800;font-style:italic;font-size:1.05rem;letter-spacing:-.01em;color:#101014;white-space:nowrap}
+.propose-sub{font-size:.74rem;font-weight:600;color:#101014;margin-top:1px}
+.propose-sub2{font-size:.68rem;color:var(--tx3)}
+.propose-plus-wrap{position:relative;width:52px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end}
+.propose-arrow{position:absolute;left:-34px;top:-22px;width:50px;height:34px;pointer-events:none}
+.propose-spark{position:absolute;color:#FF1C8E;font-size:.7rem;pointer-events:none}
+.propose-spark-a{top:-10px;left:2px}
+.propose-spark-b{bottom:-6px;right:-2px;color:#8D2CFF;font-size:.55rem}
+.propose-plus{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,#FF9500,#FF1C8E 55%,#8D2CFF);color:#fff;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 14px rgba(255,28,142,.4);position:relative}
+.propose-plus::before{content:'';position:absolute;inset:-7px;border-radius:50%;border:1.5px dashed rgba(255,28,142,.4)}
+
+/* ── CHAT ──────────────────────────────────────────────────────────── */
+.chat-msg{display:flex;align-items:flex-start;gap:.55rem;width:100%}
+.chat-avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.85rem;font-family:'Inter',sans-serif;border:2px solid rgba(111,34,255,.35);position:relative;object-fit:cover;background-size:cover;background-position:center}
+.chat-avatar::after{content:'';position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:#6F22FF;border:2px solid #fff}
+.chat-avatar.dj{border-color:rgba(255,28,142,.5)}
+.chat-avatar.dj::after{background:#FF1C8E}
+.chat-msg-col{flex:1;min-width:0}
+.chat-msg-head{display:flex;align-items:center;gap:.4rem;margin-bottom:2px}
+.chat-msg-name{font-size:.78rem;font-weight:700;color:#6F22FF;font-family:'Inter',sans-serif}
+.chat-msg-name.dj{color:#FF1C8E}
+.chat-admin-badge{font-size:.6rem;font-weight:700;color:#6F22FF;background:rgba(111,34,255,.1);border-radius:8px;padding:1px 7px}
+.chat-bubble-row{display:flex;align-items:flex-end;gap:.4rem}
+.chat-bubble{flex:1;min-width:0;padding:.55rem .8rem;border-radius:14px 14px 14px 4px;background:#FFFFFF;border:1px solid var(--bdr);box-shadow:0 2px 8px rgba(55,30,100,.05);word-break:break-word;font-size:.88rem;color:var(--tx);line-height:1.4;font-family:'Inter',sans-serif}
+.chat-bubble.dj{background:rgba(255,28,142,.06);border-color:rgba(255,28,142,.22)}
+.chat-bubble img{max-width:200px;max-height:180px;border-radius:10px;display:block;object-fit:cover;cursor:pointer}
+.chat-msg-time{font-size:.62rem;color:var(--tx4);flex-shrink:0;padding-bottom:2px}
+.chat-reactions{display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;margin-top:.35rem;position:relative}
+.chat-reaction-pill{display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:700;color:var(--tx2);background:#FFFFFF;border:1px solid var(--bdr);border-radius:20px;padding:2px 8px;cursor:pointer;transition:all .15s}
+.chat-reaction-pill:hover{border-color:rgba(111,34,255,.35)}
+.chat-reaction-pill.mine{background:rgba(111,34,255,.08);border-color:rgba(111,34,255,.35);color:#6F22FF}
+.chat-react-add{width:22px;height:22px;border-radius:50%;border:1px dashed var(--bdr);background:none;color:var(--tx4);font-size:.75rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.chat-react-picker{position:absolute;bottom:100%;left:0;margin-bottom:4px;background:#FFFFFF;border:1px solid var(--bdr);border-radius:14px;box-shadow:0 8px 24px rgba(30,15,60,.18);padding:.3rem;display:none;gap:2px;z-index:20}
+.chat-react-picker.open{display:flex}
+.chat-react-picker button{width:30px;height:30px;border:none;background:none;font-size:1.05rem;border-radius:8px;cursor:pointer}
+.chat-react-picker button:hover{background:var(--ink5)}
+.chat-msg-actions{flex-shrink:0;display:flex;flex-direction:column;gap:4px;padding-top:1.6rem}
+
+.chat-pinned{margin:.65rem .75rem 0;background:#FFFFFF;border:1px solid rgba(255,28,142,.3);border-radius:18px;box-shadow:0 0 0 1px rgba(141,44,255,.08),0 8px 22px rgba(141,44,255,.16);padding:.75rem .8rem;display:flex;align-items:flex-start;gap:.65rem}
+.chat-pinned-av{width:44px;height:44px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid #FF1C8E;box-shadow:0 0 0 2px rgba(255,28,142,.15)}
+.chat-pinned-tag{width:44px;height:26px;margin-top:-13px;border-radius:9px;background:linear-gradient(135deg,#8D2CFF,#FF1C8E);color:#fff;font-size:.5rem;font-weight:800;text-align:center;line-height:26px;letter-spacing:.02em}
+.chat-pinned-body{flex:1;min-width:0}
+.chat-pinned-lbl{display:flex;align-items:center;gap:4px;font-size:.68rem;font-weight:800;color:#8D2CFF;text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
+.chat-pinned-txt{font-size:.86rem;color:var(--tx);line-height:1.4;font-family:'Inter',sans-serif}
+.chat-pinned-time{font-size:.64rem;color:var(--tx4);margin-top:3px}
+.chat-pinned-ico{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#8D2CFF,#FF1C8E);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;box-shadow:0 4px 12px rgba(255,28,142,.35);cursor:pointer}
+
+/* ── DJ BANNER — signature visuelle (bannière sombre) ────────────── */
+.dj-banner{margin:.5rem .65rem;background:var(--dj-card);border-radius:20px;padding:.9rem 4rem .9rem 7.2rem;position:relative;overflow:visible;display:flex;align-items:center;gap:.6rem;min-height:130px}
+.dj-banner::before{content:'';position:absolute;inset:0;border-radius:20px;background:radial-gradient(circle at 90% 0%,rgba(255,28,142,.28),transparent 55%),radial-gradient(circle at 0% 100%,rgba(111,34,255,.35),transparent 55%)}
+.dj-banner-avatar{position:absolute;left:-1rem;bottom:0;width:168px;height:auto;z-index:2;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
+.dj-banner-body{position:relative;z-index:2;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center}
+.dj-name-tag{display:inline-block;font-size:.62rem;font-weight:800;color:#fff;background:rgba(255,28,142,.35);border:1px solid rgba(255,28,142,.6);border-radius:8px;padding:1px 7px;letter-spacing:.04em;margin-bottom:.35rem}
+.dj-bubble{display:inline-flex;align-items:center;gap:.35rem;background:#FFFFFF;color:var(--tx);font-size:.72rem;font-weight:600;padding:.3rem .7rem;border-radius:14px 14px 14px 4px;margin-bottom:.5rem;max-width:100%}
+.dj-tag{font-size:.6rem;font-weight:700;color:var(--pk);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;justify-content:center;gap:.3rem;margin-bottom:2px}
+.dj-track-t{font-size:1rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dj-track-a{font-size:.78rem;color:rgba(255,255,255,.65);margin-bottom:.4rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dj-waves{display:flex;gap:2px;align-items:center;justify-content:center;height:14px}
+.dj-wv{width:3px;border-radius:2px;background:var(--pk);animation:wva 1s ease-in-out infinite}
+.dj-wv:nth-child(1){animation-delay:0s;height:35%}.dj-wv:nth-child(2){animation-delay:.14s;height:100%}.dj-wv:nth-child(3){animation-delay:.28s;height:60%}.dj-wv:nth-child(4){animation-delay:.14s;height:80%}.dj-wv:nth-child(5){animation-delay:0s;height:30%}
+@keyframes wva{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.dj-cover-wrap{position:relative;z-index:2;flex-shrink:0;width:110px;height:110px}
+.dj-vinyl-half{position:absolute;top:50%;right:-42px;transform:translateY(-50%);width:96px;height:96px;z-index:1}
+.dj-vinyl-half-spin{position:relative;width:100%;height:100%;border-radius:50%;background:repeating-radial-gradient(circle,#1a1a1a 0 2px,#000 2px 4px);box-shadow:0 4px 14px rgba(0,0,0,.5);animation:spins 6s linear infinite}
+.dj-vinyl-half-spin::after{content:'';position:absolute;inset:0;margin:auto;width:12px;height:12px;border-radius:50%;background:var(--pk)}
+.dj-cover{width:110px;height:110px;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.4);position:relative;z-index:2;background:rgba(111,34,255,.3);display:flex;align-items:center;justify-content:center;font-size:2.1rem}
+.dj-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.dj-vinyl{position:absolute;top:50%;right:-28px;transform:translateY(-50%);width:80px;height:80px;border-radius:50%;background:repeating-radial-gradient(circle,#1a1a1a 0 2px,#000 2px 4px);box-shadow:0 4px 12px rgba(0,0,0,.5);animation:spins 6s linear infinite;z-index:1}
+.dj-vinyl::after{content:'';position:absolute;inset:0;margin:auto;width:10px;height:10px;border-radius:50%;background:var(--pk)}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — PROFIL
+══════════════════════════════════════════════════════════════════ */
+#pg-profile{background:var(--ink)}
+.prof-hero{position:relative;overflow:hidden}
+.prof-banner{height:72px;background:var(--grd)}
+.prof-banner::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(255,255,255,.06) 10px,rgba(255,255,255,.06) 20px)}
+.prof-body{padding:0 1rem 1rem;margin-top:-34px;position:relative}
+.prof-av{width:68px;height:68px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:1.85rem;color:#fff;border:3px solid #FFFFFF;margin-bottom:.5rem;box-shadow:var(--shadow)}
+.prof-name{font-size:1.05rem;font-weight:700;color:var(--tx)}
+.prof-sub{font-size:.75rem;color:var(--tx3);margin-top:1px}
+.prof-badges{display:flex;gap:.4rem;margin-top:.55rem;flex-wrap:wrap}
+.stats4{display:grid;grid-template-columns:repeat(2,1fr);gap:.45rem;margin:.85rem 0}
+.st-card{background:#FFFFFF;border:1px solid var(--bdr);border-radius:16px;padding:.75rem .8rem;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.st-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.st-card.vi::before{background:var(--vi)}.st-card.gold::before{background:var(--grd-gold)}.st-card.blue::before{background:var(--grd-blue)}.st-card.grn::before{background:var(--grd-green)}
+.st-n{font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;line-height:1}
+.st-card.vi .st-n{color:var(--vi)}.st-card.gold .st-n{color:var(--amber)}.st-card.blue .st-n{color:var(--blue)}.st-card.grn .st-n{color:var(--green)}
+.st-l{font-size:.6rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+.st-ico{position:absolute;right:.75rem;top:.65rem;font-size:1.3rem;opacity:.28}
+.xp-card{background:#FFFFFF;border:1px solid var(--bdr);border-radius:16px;padding:.9rem 1rem;margin-bottom:.85rem;box-shadow:var(--shadow)}
+.xp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.65rem}
+.xp-track{height:7px;background:var(--bdr);border-radius:4px;overflow:hidden;margin-bottom:.45rem}
+.xp-fill{height:7px;border-radius:4px;background:var(--grd);transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.xp-lbls{display:flex;justify-content:space-between}
+.xp-pts{font-family:'Inter',sans-serif;font-size:.68rem;color:var(--tx3)}
+.levels-strip{display:flex;justify-content:space-between;margin-top:.8rem;padding-top:.75rem;border-top:1px solid var(--bdr)}
+.lv-step{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.lv-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--bdr);background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:.72rem;transition:all .25s}
+.lv-dot.done{border-color:transparent}.lv-dot.cur{box-shadow:0 0 0 4px rgba(111,34,255,.15)}
+.lv-lbl{font-size:.52rem;color:var(--tx4);text-align:center}
+.lv-lbl.done{color:var(--tx3)}.lv-lbl.cur{color:var(--vi)}
+/* events list in profile */
+.ev-list{display:flex;flex-direction:column;gap:.45rem}
+.ev-row{background:#FFFFFF;border:1px solid var(--bdr);border-radius:16px;padding:.75rem .9rem;display:flex;align-items:center;gap:.7rem;cursor:pointer;transition:border-color .2s}
+.ev-row:hover{border-color:var(--bdr2)}
+.ev-row.top1{border-color:rgba(255,149,0,.3)} .ev-row.top2{border-color:rgba(148,163,184,.3)} .ev-row.top3{border-color:rgba(205,124,84,.3)}
+.ev-rnk{font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;color:var(--tx4);width:24px;text-align:center;flex-shrink:0}
+.ev-rnk.g{color:var(--amber)}.ev-rnk.s{color:#94A3B8}.ev-rnk.b{color:#CD7C54}
+.ev-ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.ev-inf{flex:1;min-width:0}
+.ev-n{font-size:.86rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-m{font-size:.67rem;color:var(--tx4);margin-top:1px}
+.ev-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+.ev-sc{font-family:'Inter',sans-serif;font-size:.88rem;font-weight:700;color:var(--vi)}
+.impl-wrap{display:flex;align-items:center;gap:.3rem}
+.impl-bar{width:48px;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.impl-fill{height:4px;border-radius:2px;background:var(--vi)}
+.impl-pct{font-family:'Inter',sans-serif;font-size:.6rem;color:var(--tx4)}
+/* achievements */
+.ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}
+.ach{background:#FFFFFF;border:1px solid var(--bdr);border-radius:16px;padding:.7rem .55rem;display:flex;flex-direction:column;align-items:center;gap:.35rem;text-align:center;position:relative;overflow:hidden;transition:border-color .2s;box-shadow:var(--shadow)}
+.ach.ok{border-color:rgba(111,34,255,.25)}.ach.locked{opacity:.42;box-shadow:none}
+.ach-ico{font-size:1.55rem;position:relative}
+.ach-ico .lk{position:absolute;bottom:-2px;right:-2px;font-size:.65rem}
+.ach-n{font-size:.62rem;font-weight:700;color:var(--tx2);line-height:1.2}
+.ach.locked .ach-n{color:var(--tx4)}
+.ach-d{font-size:.56rem;color:var(--tx4);line-height:1.3}
+/* tab row */
+.tab-row{display:flex;gap:.3rem;background:var(--bdr);border:1px solid var(--bdr);border-radius:14px;padding:.28rem}
+.tr-tab{flex:1;text-align:center;padding:.42rem .4rem;border-radius:10px;font-size:.73rem;font-weight:600;color:var(--tx3);cursor:pointer;transition:all .2s}
+.tr-tab.act{background:#FFFFFF;color:var(--vi);border:1px solid var(--bdr);box-shadow:0 2px 8px rgba(55,30,100,.1)}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — DJ LOGIN
+══════════════════════════════════════════════════════════════════ */
+#pg-dj-login{justify-content:flex-start;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:clamp(.75rem,4vw,1.5rem);background:#FFFFFF}
+.dj-login-card{background:#FFFFFF;border:1px solid var(--bdr);border-radius:20px;padding:1.6rem;width:100%;max-width:340px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.dj-login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grd)}
+.dj-login-title{font-family:'Inter',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:0;text-align:center;margin-bottom:1.4rem;color:var(--tx)}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — DJ DASHBOARD
+══════════════════════════════════════════════════════════════════ */
+#pg-dj{background:var(--ink)}
+.dj-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;padding:.75rem}
+.dj-st{background:#FFFFFF;border:1px solid var(--bdr);border-radius:12px;padding:.68rem .6rem;text-align:center;box-shadow:var(--shadow)}
+.dj-st-n{font-family:'Inter',sans-serif;font-size:1.4rem;font-weight:800;color:var(--vi)}
+.dj-st-l{font-size:.58rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.np-dj{margin:.2rem .75rem .65rem;background:var(--dj-card);border-radius:16px;padding:.85rem 1rem;position:relative;overflow:hidden}
+.np-dj::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grd)}
+.np-dj-glow{position:absolute;right:-10px;top:50%;width:100px;height:100px;background:rgba(255,28,142,.3);border-radius:50%;filter:blur(30px);transform:translateY(-50%)}
+.np-tag{font-size:.58rem;color:rgba(255,255,255,.8);font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3px}
+.np-t{font-size:1rem;font-weight:700;color:#fff;position:relative}
+.np-a{font-size:.72rem;color:rgba(255,255,255,.7);position:relative;margin-bottom:.5rem}
+.prog-trk{height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden}
+.prog-fill{height:4px;border-radius:2px;background:var(--grd);transition:width .8s linear}
+/* QR card */
+.qr-card{margin:.2rem .75rem .65rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:16px;padding:.85rem 1rem;display:flex;gap:.85rem;align-items:center;box-shadow:var(--shadow)}
+.qr-box{background:white;border-radius:8px;padding:6px;flex-shrink:0;border:1px solid var(--bdr)}
+.qr-info{flex:1;min-width:0}
+.qr-evname{font-weight:700;font-size:.88rem;color:var(--tx);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qr-url{font-size:.62rem;color:var(--tx4);word-break:break-all;line-height:1.4;margin-bottom:.5rem}
+.qr-acts{display:flex;gap:.35rem}
+.qr-btn{font-size:.68rem;padding:.28rem .6rem;border-radius:7px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);transition:all .15s}
+.qr-btn:hover{border-color:var(--bdr2);color:var(--vi)}
+.qr-btn.new{border-color:rgba(111,34,255,.3);color:var(--vi)}
+/* Queue */
+.q-card{background:#FFFFFF;border:1px solid var(--bdr);border-radius:18px;padding:.7rem .85rem;display:flex;align-items:center;gap:.65rem;margin-bottom:.4rem;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(55,30,100,.05)}
+.q-card.q1{border-color:rgba(111,34,255,.4);background:rgba(111,34,255,.04)}
+.q-card.q1::after{content:'NEXT';position:absolute;right:0;top:0;background:var(--grd);color:white;font-size:.5rem;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:0 12px 0 7px}
+.q-rk{font-family:'Inter',sans-serif;font-size:.82rem;font-weight:700;color:var(--tx4);width:22px;text-align:center;flex-shrink:0}
+.q-rk.g{color:var(--amber)}.q-rk.s{color:#94A3B8}.q-rk.b{color:#CD7C54}
+.q-cv{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.q-bd{flex:1;min-width:0}
+.q-n{font-size:.86rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-s{display:flex;align-items:center;gap:.4rem;margin-top:1px;font-size:.67rem}
+.q-v{font-family:'Inter',sans-serif;font-weight:700;color:var(--vi)}
+.q-ar{color:var(--tx4)}
+.q-acts{display:flex;gap:.28rem;flex-shrink:0}
+.qa{width:36px;height:36px;border-radius:9px;border:1px solid var(--bdr);background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:.88rem;transition:all .18s}
+.qa.play{border-color:rgba(111,34,255,.3);color:var(--vi)}.qa.play:hover{background:rgba(111,34,255,.08)}
+.qa.ok{border-color:rgba(22,201,107,.3);color:var(--green)}.qa.ok:hover{background:rgba(22,201,107,.08)}
+.qa.no{border-color:rgba(255,59,87,.25);color:var(--red)}.qa.no:hover{background:rgba(255,59,87,.08)}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — PRESS KIT
+══════════════════════════════════════════════════════════════════ */
+#pg-presskit{background:var(--ink)}
+.pk-hero{position:relative;overflow:hidden;flex-shrink:0}
+.pk-hero-bg{height:180px;background:var(--dj-card);position:relative}
+.pk-hero-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(111,34,255,.35),transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(255,28,142,.25),transparent 50%)}
+.pk-scan{position:absolute;top:0;left:0;right:0;height:2px;background:var(--pk);opacity:.6;animation:scan 4s ease-in-out infinite}
+@keyframes scan{0%,100%{top:0;opacity:.6}50%{top:100%;opacity:.15}}
+.pk-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:36px 36px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%)}
+.pk-avatar{position:absolute;bottom:-36px;left:1rem;width:72px;height:72px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid #FFFFFF;z-index:2;box-shadow:var(--shadow)}
+.pk-verified{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--vi);display:flex;align-items:center;justify-content:center;font-size:.62rem;border:2px solid #FFFFFF;color:#fff}
+.pk-info{padding:2.75rem 1rem 1rem;position:relative}
+.pk-genres{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.4rem}
+.pk-name{font-family:'Inter',sans-serif;font-weight:800;font-size:2rem;letter-spacing:-.01em;line-height:1;color:var(--tx)}
+.pk-realname{font-size:.78rem;color:var(--tx3);font-weight:400;margin-top:1px}
+.pk-tagline{font-size:.85rem;color:var(--tx2);margin:.4rem 0 .85rem;font-weight:400;font-style:italic;line-height:1.4}
+.pk-hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bdr);border-radius:14px;overflow:hidden;border:1px solid var(--bdr);margin-bottom:.85rem}
+.pk-hs{background:#FFFFFF;padding:.6rem .45rem;text-align:center}
+.pk-hs-n{font-family:'Inter',sans-serif;font-size:.95rem;font-weight:700;color:var(--tx)}
+.pk-hs-l{font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.pk-cta{display:flex;gap:.45rem}
+.pk-sub-btn{flex:1;padding:.82rem;border-radius:14px;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .2s;box-shadow:0 6px 18px rgba(111,34,255,.3)}
+.pk-sub-btn.done{background:rgba(111,34,255,.1);border:1px solid rgba(111,34,255,.25);color:var(--vi);box-shadow:none}
+.pk-book-btn{padding:.82rem 1rem;border-radius:14px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.88rem;font-weight:600;transition:all .2s}
+.pk-book-btn:hover{border-color:var(--bdr2)}
+/* pk sections */
+.pk-sec{padding:.85rem 1rem;border-bottom:1px solid var(--bdr)}
+.pk-sec:last-child{border-bottom:none;padding-bottom:2rem}
+.pk-sec-t{font-family:'Inter',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:0;color:var(--tx);margin-bottom:.7rem;display:flex;align-items:center;gap:.5rem}
+.pk-sec-t .badge{font-size:.62rem;font-family:'Inter',sans-serif;font-weight:700;color:var(--vi);background:rgba(111,34,255,.08);border:1px solid rgba(111,34,255,.2);border-radius:18px;padding:2px 8px;letter-spacing:.03em}
+.bio-txt{font-size:.85rem;color:var(--tx2);line-height:1.75;font-weight:400}
+.bio-txt em{color:var(--vi);font-style:normal;font-weight:600}
+.socials{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem}
+.soc-btn{display:flex;align-items:center;gap:.35rem;padding:.35rem .8rem;border-radius:18px;border:1px solid var(--bdr);background:#FFFFFF;font-size:.73rem;color:var(--tx2);cursor:pointer;transition:all .2s}
+.soc-btn:hover{border-color:var(--bdr2);color:var(--vi)}
+/* upcoming sets */
+.up-list{display:flex;flex-direction:column;gap:.45rem}
+.up-item{background:#FFFFFF;border:1px solid var(--bdr);border-radius:14px;padding:.78rem .9rem;display:flex;align-items:center;gap:.75rem;transition:border-color .2s;position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(55,30,100,.05)}
+.up-item.feat{border-color:rgba(111,34,255,.35);background:rgba(111,34,255,.03)}
+.up-item.feat::after{content:'PROCHAINEMENT';position:absolute;top:0;right:0;background:var(--grd);color:white;font-size:.48rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:0 12px 0 7px}
+.up-dt{width:42px;text-align:center;flex-shrink:0}
+.up-d{font-family:'Inter',sans-serif;font-size:1.15rem;font-weight:800;color:var(--tx);line-height:1}
+.up-m{font-size:.58rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em}
+.up-sep{width:1px;height:34px;background:var(--bdr);flex-shrink:0}
+.up-inf{flex:1;min-width:0}
+.up-n{font-size:.86rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up-v{font-size:.7rem;color:var(--tx3);margin-top:2px}
+.up-tkt{padding:.35rem .65rem;border-radius:8px;background:rgba(111,34,255,.1);border:1px solid rgba(111,34,255,.22);color:var(--vi);font-size:.7rem;font-weight:700;cursor:pointer;flex-shrink:0;transition:all .2s}
+.up-tkt:hover{background:rgba(111,34,255,.18)}
+/* mixes */
+.mix-list{display:flex;flex-direction:column;gap:.45rem}
+.mix-item{background:#FFFFFF;border:1px solid var(--bdr);border-radius:14px;padding:.78rem .9rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .2s;box-shadow:0 2px 10px rgba(55,30,100,.05)}
+.mix-item:hover{border-color:var(--bdr2);transform:translateY(-1px)}
+.mix-cov{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;position:relative;overflow:hidden}
+.mix-play-ov{position:absolute;inset:0;border-radius:10px;background:rgba(16,16,20,.5);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:white;opacity:0;transition:opacity .2s}
+.mix-item:hover .mix-play-ov{opacity:1}
+.mix-inf{flex:1;min-width:0}
+.mix-n{font-size:.86rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mix-m{display:flex;align-items:center;gap:.4rem;margin-top:2px;font-size:.67rem}
+.mix-dur{font-family:'Inter',sans-serif;color:var(--tx4)}
+.mix-plat{color:var(--tx3)}
+.mix-plays{font-family:'Inter',sans-serif;font-weight:700;color:var(--vi)}
+.mix-btn{padding:.32rem .65rem;border-radius:8px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.7rem;flex-shrink:0;transition:all .2s}
+.mix-btn:hover{border-color:var(--bdr2);color:var(--vi)}
+/* booking */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.bk-val.link{color:var(--vi);cursor:pointer;text-decoration:underline}
+
+
+
+
+
+.bk-btn.p:hover{opacity:.9}
+.bk-btn.s:hover{border-color:var(--bdr2)}
+/* reviews */
+.rv-list{display:flex;flex-direction:column;gap:.45rem}
+.rv{background:#FFFFFF;border:1px solid var(--bdr);border-radius:14px;padding:.8rem .9rem;box-shadow:0 2px 10px rgba(55,30,100,.05)}
+.rv-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem}
+.rv-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.rv-who{flex:1}.rv-n{font-size:.83rem;font-weight:600;color:var(--tx)}.rv-r{font-size:.66rem;color:var(--tx4)}
+.rv-stars{margin-bottom:.35rem;font-size:.7rem}
+.rv-txt{font-size:.78rem;color:var(--tx2);line-height:1.6;font-style:italic;font-weight:400}
+.rv-dt{font-size:.63rem;color:var(--tx4);margin-top:.35rem}
+/* subscribe plans */
+.plan-list{display:flex;flex-direction:column;gap:.45rem;margin-bottom:.85rem}
+.plan{background:#FFFFFF;border:1.5px solid var(--bdr);border-radius:16px;padding:.85rem .95rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.plan:hover{border-color:var(--bdr2)}
+.plan.sel{border-color:var(--vi);background:rgba(111,34,255,.05)}
+.plan.pop::after{content:'POPULAIRE';position:absolute;top:0;right:0;background:var(--grd);color:white;font-size:.5rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:0 13px 0 7px}
+.plan-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem}
+.plan-nm{font-size:.9rem;font-weight:700;color:var(--tx)}
+.plan-pr{font-family:'Inter',sans-serif;font-size:.95rem;font-weight:700;color:var(--vi)}
+.plan-pr span{font-size:.63rem;color:var(--tx3);font-family:'Inter',sans-serif;font-weight:400}
+.plan-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--bdr);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.plan.sel .plan-radio{border-color:var(--vi);background:var(--vi)}
+.plan.sel .plan-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:white}
+.plan-feats{display:flex;flex-direction:column;gap:.22rem;margin-top:.35rem}
+.pf{font-size:.73rem;color:var(--tx3);display:flex;align-items:center;gap:.3rem}
+.pf::before{content:'✓';color:var(--green);font-size:.66rem;font-weight:700;flex-shrink:0}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE — BIGSCREEN
+══════════════════════════════════════════════════════════════════ */
+#pg-bigscreen{background:var(--dj-card)}
+.bs-wrap{padding:1.1rem 1rem 1.5rem;display:flex;flex-direction:column;gap:.85rem;height:100%;overflow:hidden}
+.bs-head{text-align:center}
+.bs-ev-lbl{font-size:.6rem;letter-spacing:.16em;color:rgba(255,255,255,.5);text-transform:uppercase}
+.bs-headline{font-family:'Inter',sans-serif;font-weight:800;font-size:1.7rem;letter-spacing:-.01em;line-height:1.1;color:#fff;margin:.2rem 0}
+.bs-sub{font-size:.7rem;color:rgba(255,255,255,.5)}
+.bs-live{display:inline-flex;align-items:center;gap:4px;background:rgba(22,201,107,.18);border:1px solid rgba(22,201,107,.4);border-radius:18px;padding:3px 11px;margin-top:.4rem;font-size:.6rem;color:#3DE28A;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.bs-now{background:rgba(255,255,255,.06);border:1px solid rgba(255,28,142,.3);border-radius:16px;padding:.8rem .9rem;position:relative;overflow:hidden;flex-shrink:0}
+.bs-now::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grd)}
+.bs-now-tag{font-size:.58rem;color:var(--pk);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
+.bs-now-t{font-size:.95rem;font-weight:700;color:#fff}
+.bs-now-a{font-size:.72rem;color:rgba(255,255,255,.6);margin-bottom:.45rem}
+.bs-prog{height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden}
+.bs-prog-f{height:4px;border-radius:2px;background:var(--grd);transition:width .8s linear}
+.bs-chart-lbl{font-size:.6rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;flex-shrink:0}
+.bs-chart{display:flex;flex-direction:column;gap:.55rem;flex:1;overflow:hidden}
+.bs-row{display:flex;flex-direction:column;gap:3px}
+.bs-row-top{display:flex;justify-content:space-between;align-items:center}
+.bs-sname{font-family:'Inter',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:0;color:#fff;display:flex;align-items:center;gap:.38rem}
+.bs-sname.top{color:#FF7DC4}
+.bs-vc{font-family:'Inter',sans-serif;font-size:.95rem;font-weight:700;color:#D6BBFF}
+.bs-vc.top{color:#FF7DC4}
+.bs-bar-trk{height:7px;background:rgba(255,255,255,.12);border-radius:4px;overflow:hidden}
+.bs-bar-f{height:7px;border-radius:4px;transition:width .75s cubic-bezier(.4,0,.2,1)}
+.bs-by{font-size:.66rem;color:rgba(255,255,255,.4)}
+.bs-foot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid rgba(255,255,255,.12);padding-top:.7rem;flex-shrink:0}
+.bs-ft-st{text-align:center}
+.bs-ft-n{font-family:'Inter',sans-serif;font-size:1.2rem;font-weight:800;color:#fff}
+.bs-ft-l{font-size:.56rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.bs-qr-wrap{text-align:center}
+.bs-qr-img{background:white;padding:5px;border-radius:7px;display:inline-block}
+.bs-qr-txt{font-size:.56rem;color:rgba(255,255,255,.4);margin-top:2px}
+
+
+/* Prevent content jump when iOS keyboard opens */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .fab{margin-bottom:calc(.5rem + var(--safe-bot))}
+}
+/* Pull-to-refresh off in standalone PWA */
+@media (display-mode: standalone){
+  body{overscroll-behavior-y:none}
+  .page{padding-top:max(var(--safe-top), 20px)}
+}
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ MODALS ══════════════════════════════════════════════════════ -->
+<!-- Propose modal -->
+<div class="modal-ov" id="modal-propose" onclick="closeModalOut('modal-propose',event)">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Proposer un morceau</div>
+    <input class="fi" id="modal-q" type="text" placeholder="Chercher artiste, titre…" style="margin-bottom:.65rem">
+    <div id="modal-list" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:.38rem;margin-bottom:.75rem"></div>
+    <button class="btn-g" id="modal-ok" disabled><span>Envoyer la proposition ↗</span></button>
+    <button class="btn-outline" id="btn-modal-cancel" style="margin-top:.4rem">Annuler</button>
+  </div>
+</div>
+
+<!-- Subscribe modal -->
+<div class="modal-ov" id="modal-sub" onclick="closeModalOut('modal-sub',event)">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:1.45rem;margin:0 auto .55rem">🎧</div>
+      <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:0;color:var(--tx)">S'abonner à DJ NOVA</div>
+      <div style="font-size:.78rem;color:var(--tx3);margin-top:.2rem">Restez informé de tous les prochains sets</div>
+    </div>
+    <div class="plan-list" id="plan-list">
+      <div class="plan sel" data-plan="free" onclick="selPlan(this)">
+        <div class="plan-top"><div class="plan-nm">🆓 Gratuit</div><div class="plan-pr">0€ <span>/mois</span></div><div class="plan-radio"></div></div>
+        <div class="plan-feats"><div class="pf">Notifications des prochains sets</div><div class="pf">Accès aux mixes publics</div></div>
+      </div>
+      <div class="plan pop" data-plan="fan" onclick="selPlan(this)">
+        <div class="plan-top"><div class="plan-nm">⭐ Fan</div><div class="plan-pr">2,99€ <span>/mois</span></div><div class="plan-radio"></div></div>
+        <div class="plan-feats"><div class="pf">Accès prioritaire aux billets</div><div class="pf">Sets exclusifs réservés fans</div><div class="pf">Playlist mensuelle curatée</div></div>
+      </div>
+      <div class="plan" data-plan="vip" onclick="selPlan(this)">
+        <div class="plan-top"><div class="plan-nm">💎 VIP</div><div class="plan-pr">7,99€ <span>/mois</span></div><div class="plan-radio"></div></div>
+        <div class="plan-feats"><div class="pf">Entrée gratuite 2×/mois</div><div class="pf">Meet & Greet backstage</div><div class="pf">Badge VIP + demandes prioritaires</div></div>
+      </div>
+    </div>
+    <button class="btn-g" onclick="doSubscribe()">Confirmer l'abonnement →</button>
+    <button class="btn-outline" onclick="closeModal('modal-sub')" style="margin-top:.4rem">Plus tard</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+   PAGES
+══════════════════════════════════════════════════════════════════ -->
+
+<!-- AUTH -->
+<div class="page active" id="pg-auth">
+  <div class="auth-wrap" style="position:relative;margin:auto">
+    <div class="auth-hero" style="text-align:center">
+      <img src="/images/logo.png" alt="PULL UP!" class="app-logo-hero">
+      <div class="auth-tagline">Votez pour les prochains morceaux</div>
+    </div>
+    <div class="auth-card">
+      <div class="auth-card-ttl">Connectez-vous pour voter</div>
+      <button class="btn-google" id="btn-google">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continuer avec Google
+      </button>
+      <div class="div-or"><div class="div-line"></div><div class="div-txt">ou par téléphone</div><div class="div-line"></div></div>
+      <div id="auth-phone-form">
+        <div class="phone-row">
+          <select class="cc-sel" id="cc">
+            <option value="+33">🇫🇷 +33</option><option value="+32">🇧🇪 +32</option><option value="+41">🇨🇭 +41</option>
+            <option value="+1">🇺🇸 +1</option><option value="+44">🇬🇧 +44</option><option value="+212">🇲🇦 +212</option>
+            <option value="+221">🇸🇳 +221</option><option value="+225">🇨🇮 +225</option>
+          </select>
+          <input class="phone-inp" id="phone-inp" type="tel" placeholder="06 12 34 56 78" maxlength="14" oninput="fmtPhone(this)">
+        </div>
+        <div class="otp-wrap" id="otp-wrap">
+          <div class="otp-hint">Code envoyé au <strong id="otp-num"></strong></div>
+          <div class="otp-boxes" id="otp-boxes">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,0)" onkeydown="otpKey(event,0)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,1)" onkeydown="otpKey(event,1)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,2)" onkeydown="otpKey(event,2)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,3)" onkeydown="otpKey(event,3)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,4)" onkeydown="otpKey(event,4)">
+            <input class="otp-b" type="tel" maxlength="1" oninput="otpIn(this,5)" onkeydown="otpKey(event,5)">
+          </div>
+          <button class="resend-btn" id="resend-btn" disabled onclick="resendSMS()">
+            Renvoyer le code (<span id="rtimer">30</span>s)
+          </button>
+          <button class="otp-back-btn" onclick="backToPhone()">← Changer de numéro</button>
+        </div>
+        <div class="auth-err" id="auth-err"></div>
+        <button class="btn-g" id="btn-phone-action" style="margin-top:.2rem"><span id="phone-btn-txt">Recevoir le code SMS</span></button>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <button id="btn-orga" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-radius:1.25rem;border:1px solid var(--bdr);background:#FFFFFF;cursor:pointer;transition:all .2s">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(111,34,255,.1);border:1px solid rgba(111,34,255,.22);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">🎛️</div>
+        <div style="text-align:left">
+          <div style="font-size:.85rem;font-weight:600;color:var(--tx)">Espace Organisateur</div>
+          <div style="font-size:.68rem;color:var(--tx4);margin-top:1px">DJ · Promoteur · Club manager</div>
+        </div>
+        <div style="margin-left:auto;color:var(--tx4);font-size:.9rem">→</div>
+      </button>
+    </div>
+    <button id="btn-guest" style="width:100%;margin-top:.5rem;padding:.72rem;border-radius:12px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx4);font-size:.82rem;font-family:Inter,sans-serif;cursor:pointer;transition:all .2s" onmouseover="this.style.color='var(--tx2)'" onmouseout="this.style.color='var(--tx4)'">
+      Tester sans compte →
+    </button>
+    <div class="auth-terms">En continuant, vous acceptez nos <a href="/cgu.html" target="_blank">CGU</a> et <a href="/confidentialite.html" target="_blank">Politique de confidentialité</a></div>
+  </div>
+  <div id="recaptcha-container"></div>
+</div>
+
+<!-- CLIENT -->
+<div class="page has-nav" id="pg-client">
+  <div class="tb tb-app">
+    <button class="tb-menu" onclick="toggleTopMenu()">☰</button>
+    <img src="/images/logo.png" alt="PULL UP!" class="app-logo-tb">
+    <div class="tb-right">
+      <div class="tb-live"><div class="pdot"></div>Live</div>
+      <div class="tb-avatar" id="tb-avatar" onclick="navTo('profile')"></div>
+    </div>
+  </div>
+  <!-- VENUE CARD (fixe, ne défile pas) -->
+  <div class="venue-card">
+    <div class="venue-photo"><img src="/images/venue-photo.jpg" alt="Warehouse 42"></div>
+    <div class="venue-info">
+      <div class="venue-name" id="club-name-strip">Warehouse 42</div>
+      <div class="venue-addr">
+        <svg class="venue-addr-ico" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s7-7.58 7-13A7 7 0 0 0 5 9c0 5.42 7 13 7 13Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+        <span class="venue-addr-txt">32 Av. Corentin Cariou</span>
+        <button class="venue-addr-share" id="share-pos-btn" onclick="shareVenuePosition()" title="Partager l'adresse">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="5" r="2.5" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="12" r="2.5" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="19" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8.2 10.8 15.8 6.2M8.2 13.2l7.6 4.6" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+      </div>
+      <div class="venue-status-row">
+        <span class="venue-pill-open">Ouvert</span>
+        <span class="venue-hours">22h → 6h</span>
+      </div>
+      <div class="venue-stats-row">
+        <span>👥 <span id="venue-connected">0</span> connectés</span>
+        <span>⚡ <span id="venue-recent-votes">0</span> votes/min</span>
+      </div>
+    </div>
+    <button class="venue-qr" onclick="openQRModal()">
+      <div class="venue-qr-box"><div id="club-qr-mini"></div></div>
+    </button>
+    <div class="venue-qr-info">
+      <div class="venue-qr-title">Partage</div>
+      <div class="venue-qr-slogan">Influe la playlist en temps réel</div>
+    </div>
+  </div>
+
+  <!-- DJ BANNER (fixe, ne défile pas) -->
+  <div class="dj-banner">
+    <img class="dj-banner-avatar" id="dj-banner-avatar" src="/images/dj-avatar.png?v=1" alt="DJ Nova">
+    <div class="dj-banner-body">
+      <div class="dj-name-tag">DJ NOVA</div>
+      <div class="dj-bubble"><span id="dj-bubble-text">On est en feu ce soir 🔥</span></div>
+      <div class="dj-tag">● En lecture maintenant</div>
+      <div class="dj-track-t" id="cli-now-t">En attente…</div>
+      <div class="dj-track-a" id="cli-now-a"></div>
+      <div class="dj-waves"><div class="dj-wv"></div><div class="dj-wv"></div><div class="dj-wv"></div><div class="dj-wv"></div><div class="dj-wv"></div></div>
+    </div>
+    <div class="dj-cover-wrap">
+      <div class="dj-vinyl-half"><div class="dj-vinyl-half-spin"></div></div>
+      <div class="dj-cover" id="dj-cover">
+        <img id="dj-cover-img" alt="" style="display:none">
+        <span id="dj-cover-fallback">🎵</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll">
+    <div class="list-hdr"><span style="font-size:.75rem;font-weight:700;color:var(--tx);letter-spacing:.02em">Propositions</span><span class="vote-cnt" id="cli-total">0 votes</span></div>
+    <div id="cli-list"></div>
+
+    <!-- PROPOSE TON SON -->
+    <div class="propose-card" id="btn-fab-propose">
+      <div class="propose-ico">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 18V6l11-2v12" stroke="url(#pgrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18.5" r="2.5" stroke="url(#pgrad)" stroke-width="1.6"/><circle cx="17.5" cy="16.5" r="2.5" stroke="url(#pgrad)" stroke-width="1.6"/><defs><linearGradient id="pgrad" x1="0" y1="0" x2="24" y2="24"><stop offset="0" stop-color="#8D2CFF"/><stop offset="1" stop-color="#FF1C8E"/></linearGradient></defs></svg>
+      </div>
+      <div class="propose-txt">
+        <div class="propose-title">PROPOSE TON SON</div>
+        <div class="propose-sub">Fais entendre ton morceau</div>
+        <div class="propose-sub2">Ajoute un titre à la playlist 🔥</div>
+      </div>
+      <div class="propose-plus-wrap">
+        <svg class="propose-arrow" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 30C20 34 40 26 52 10" stroke="#8D2CFF" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 5"/><path d="M44 8L53 9L50 18" stroke="#8D2CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="propose-spark propose-spark-a">✦</span>
+        <span class="propose-spark propose-spark-b">✦</span>
+        <button class="propose-plus" tabindex="-1">+</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page has-nav" id="pg-profile">
+  <div class="tb"><button class="tb-menu" style="width:34px;height:34px" onclick="toggleTopMenu()">☰</button><div class="tb-title">Profil</div></div>
+  <div class="scroll" id="prof-scroll">
+
+    <!-- PHOTO CENTRÉE en haut sans bandeau -->
+    <div style="display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 0;margin-bottom:.85rem;position:relative">
+      <div style="width:150px;height:150px;border-radius:50%;border:4px solid #FFFFFF;box-shadow:var(--shadow);overflow:hidden;background:var(--grd);position:relative;margin-bottom:.85rem">
+        <img id="prof-photo-display" src="" alt="Photo profil" style="width:100%;height:100%;object-fit:cover;display:none">
+        <div id="prof-av" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3.5rem;color:#fff"></div>
+      </div>
+      <!-- Boutons Modifier + Partager -->
+      <div style="position:absolute;top:1.5rem;right:1rem;display:flex;gap:6px">
+        <button id="btn-edit-profile" style="padding:5px 11px;border-radius:18px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.7rem;font-weight:600;font-family:Inter,sans-serif">Modifier</button>
+        <button onclick="shareVenuePosition()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.88rem;display:flex;align-items:center;justify-content:center">↗</button>
+      </div>
+      <!-- Nom + statut -->
+      <div id="prof-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:0;color:var(--tx);line-height:1;text-align:center"></div>
+      <div style="display:flex;align-items:center;gap:.35rem;margin-top:.4rem">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:pdot 1.4s infinite"></div>
+        <span style="font-size:.65rem;color:var(--green);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Actif ce soir</span>
+      </div>
+    </div>
+
+    <div style="padding:0 1rem 1rem;position:relative">
+
+      <!-- BIO + POSITION + BADGE (badge span 2 lignes à droite) -->
+      <div style="display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:.5rem;margin-bottom:.75rem;align-items:stretch">
+        <!-- À propos -->
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem 1rem;box-shadow:var(--shadow)">
+          <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">À propos</div>
+          <div id="prof-bio-display" style="font-size:.85rem;color:var(--tx2);line-height:1.6;font-weight:400">Passionné de musique électronique · Toujours en première ligne pour voter 🎵</div>
+        </div>
+        <!-- Badge niveau — span 2 lignes -->
+        <div id="prof-badge-card" style="background:rgba(111,34,255,.08);border:1px solid rgba(111,34,255,.22);border-radius:1.25rem;padding:.85rem .75rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;min-width:74px;text-align:center;grid-row:1/3">
+          <div id="prof-badge-ico" style="font-size:2.2rem;line-height:1">💎</div>
+          <div id="prof-badge-name" style="font-size:.6rem;font-weight:700;color:var(--vi);text-transform:uppercase;letter-spacing:.06em;line-height:1.2">VIP</div>
+        </div>
+        <!-- Partager ma position -->
+        <div id="location-card" style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem 1rem;box-shadow:var(--shadow)">
+          <div style="display:flex;align-items:center;gap:.65rem">
+            <div style="flex:1">
+              <div style="font-size:.85rem;font-weight:700;color:var(--tx)">📍 Ma position</div>
+              <div id="loc-status" style="font-size:.7rem;color:var(--tx3);margin-top:2px">Partager dans la salle</div>
+            </div>
+            <div id="loc-toggle" onclick="toggleLocation()" style="width:44px;height:26px;border-radius:13px;background:var(--bdr);border:1px solid var(--bdr);position:relative;cursor:pointer;transition:all .3s;flex-shrink:0">
+              <div id="loc-knob" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:9px;background:#FFFFFF;box-shadow:0 1px 3px rgba(55,30,100,.25);transition:all .3s"></div>
+            </div>
+          </div>
+          <div id="loc-zone-selector" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--bdr)">
+            <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Où es-tu ?</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem">
+              <button onclick="selectZone(this,'Piste')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🕺 Piste</button>
+              <button onclick="selectZone(this,'Bar')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🍹 Bar</button>
+              <button onclick="selectZone(this,'Lounge')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🛋️ Lounge</button>
+              <button onclick="selectZone(this,'Entrée')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🚪 Entrée</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS 2x2 avec barres -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem .9rem;box-shadow:var(--shadow)">
+          <div id="pst-ev" style="font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;color:var(--vi);line-height:1">0</div>
+          <div style="font-size:.7rem;color:var(--tx3);margin-top:3px">Soirées</div>
+          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-ev" style="height:3px;background:var(--vi);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem .9rem;box-shadow:var(--shadow)">
+          <div id="pst-vt" style="font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;color:var(--amber);line-height:1">0</div>
+          <div style="font-size:.7rem;color:var(--tx3);margin-top:3px">Votes</div>
+          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-vt" style="height:3px;background:var(--amber);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem .9rem;box-shadow:var(--shadow)">
+          <div id="pst-pr" style="font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;color:var(--blue);line-height:1">0</div>
+          <div style="font-size:.7rem;color:var(--tx3);margin-top:3px">Propositions</div>
+          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-pr" style="height:3px;background:var(--blue);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem .9rem;box-shadow:var(--shadow)">
+          <div id="pst-pl" style="font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;color:var(--green);line-height:1">0</div>
+          <div style="font-size:.7rem;color:var(--tx3);margin-top:3px">Joués</div>
+          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-pl" style="height:3px;background:var(--green);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        </div>
+      </div>
+
+      <!-- AMIS CE SOIR -->
+      <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+          <div style="font-size:1rem;font-weight:700;color:var(--tx)">Amis ce soir</div>
+          <button onclick="openAddFriend()" style="font-size:.72rem;font-weight:700;color:var(--vi);background:rgba(111,34,255,.08);border:1px solid rgba(111,34,255,.22);border-radius:20px;padding:4px 12px">+ Ajouter</button>
+        </div>
+        <div id="profile-friends-list" style="display:flex;flex-direction:column;gap:.4rem">
+          <div style="text-align:center;padding:.75rem;font-size:.78rem;color:var(--tx4)">Aucun ami · appuie sur + Ajouter</div>
+        </div>
+      </div>
+
+      <!-- XP / NIVEAU -->
+      <div class="xp-card" style="border-radius:1.25rem;margin-bottom:.75rem">
+        <div class="xp-top"><div class="sec-lbl">Niveau d'implication</div><div id="xp-lv-txt" style="font-family:'Inter',sans-serif;font-weight:700;font-size:.72rem;color:var(--vi)">Niveau 3</div></div>
+        <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+        <div class="xp-lbls"><div class="xp-pts" id="xp-pts">0 pts</div><div style="font-size:.65rem;color:var(--tx4)" id="xp-next">prochain : —</div></div>
+        <div class="levels-strip" id="levels-strip"></div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tab-row" style="margin-bottom:.75rem;border-radius:1rem">
+        <div class="tr-tab act" onclick="switchProfTab('events',this)">Soirées</div>
+        <div class="tr-tab" onclick="switchProfTab('ach',this)">Badges</div>
+      </div>
+
+      <!-- EVENTS LIST -->
+      <div id="prof-tab-events">
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;overflow:hidden;box-shadow:var(--shadow)">
+          <div class="ev-list" id="prof-ev-list"></div>
+        </div>
+      </div>
+
+      <!-- ACHIEVEMENTS -->
+      <div id="prof-tab-ach" style="display:none">
+        <div class="ach-grid" id="prof-ach-grid"></div>
+      </div>
+
+      <div style="height:.5rem"></div>
+
+      <!-- ACCÈS ORGANISATEUR -->
+      <div id="orga-access-btn" style="margin-bottom:.5rem">
+        <button onclick="djLoggedIn?navTo('dj'):showPage('dj-login')" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;transition:all .2s">
+          <div style="width:42px;height:42px;border-radius:12px;background:rgba(111,34,255,.15);border:1px solid rgba(111,34,255,.28);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🎛️</div>
+          <div style="text-align:left;flex:1">
+            <div style="font-size:.88rem;font-weight:700;color:var(--vi)">Espace Organisateur</div>
+            <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">Gérer la soirée, le chat, le press kit</div>
+          </div>
+          <div style="color:var(--vi);font-size:1rem">→</div>
+        </button>
+      </div>
+
+      <!-- Déconnexion utilisateur -->
+      <button id="btn-user-logout" style="width:100%;padding:.72rem;border-radius:1rem;border:1px solid rgba(255,59,87,.2);background:rgba(255,59,87,.05);color:var(--red);font-size:.82rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.5rem">
+        Se déconnecter
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL QR CODE -->
+<div class="modal-ov" id="modal-qr" onclick="closeModalOut('modal-qr',event)">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:0;color:var(--tx);margin-bottom:.25rem">Scanner pour rejoindre</div>
+      <div style="font-size:.8rem;color:var(--tx3)">Partagez ce QR code pour inviter vos amis</div>
+    </div>
+    <div style="display:flex;justify-content:center;margin:.5rem 0 1rem">
+      <div style="background:white;padding:16px;border-radius:16px;display:inline-block;border:1px solid var(--bdr)">
+        <div id="modal-qr-box"></div>
+      </div>
+    </div>
+    <div id="modal-qr-url" style="font-size:.7rem;color:var(--tx4);text-align:center;word-break:break-all;margin-bottom:.85rem;padding:0 1rem"></div>
+    <button class="btn-g" onclick="copyUrl();closeModal('modal-qr')">📋 Copier le lien</button>
+    <button class="btn-outline" onclick="closeModal('modal-qr')" style="margin-top:.4rem">Fermer</button>
+  </div>
+</div>
+<!-- MODAL AMIS -->
+<div class="modal-ov" id="modal-friend" onclick="closeModalOut('modal-friend',event)">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Amis ce soir</div>
+
+    <!-- Mon code -->
+    <div style="background:rgba(111,34,255,.06);border:1px solid rgba(111,34,255,.22);border-radius:1.25rem;padding:1rem;margin-bottom:1rem">
+      <div style="font-size:.62rem;font-weight:700;color:var(--vi);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Mon code d'ami</div>
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div id="my-friend-code" style="font-family:'Inter',sans-serif;font-size:1.6rem;font-weight:700;color:var(--vi);letter-spacing:.15em;flex:1">——</div>
+        <button id="btn-copy-friend-code" style="padding:.5rem .9rem;border-radius:.85rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.1);color:var(--vi);font-size:.78rem;font-weight:700;font-family:Inter,sans-serif">Copier</button>
+      </div>
+      <div style="font-size:.68rem;color:var(--tx4);margin-top:.35rem">Partage ce code à tes amis pour qu'ils t'ajoutent</div>
+    </div>
+
+    <!-- Ajouter par code -->
+    <div class="fl">
+      <label>Code de ton ami</label>
+      <div style="display:flex;gap:.5rem">
+        <input class="fi" id="friend-code-input" type="text" placeholder="Ex : A3F7B2C1" maxlength="8" style="flex:1;text-transform:uppercase;letter-spacing:.1em;font-family:'Inter',sans-serif">
+        <button id="btn-add-friend" class="btn-g" style="width:auto;padding:.72rem 1rem;white-space:nowrap">Ajouter</button>
+      </div>
+      <div id="friend-add-err" style="font-size:.72rem;color:var(--red);min-height:.9rem;margin-top:.2rem"></div>
+    </div>
+
+    <!-- Liste amis -->
+    <div style="margin-top:.5rem">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Mes amis (<span id="friends-count">0</span>)</div>
+      <div id="friends-list" style="display:flex;flex-direction:column;gap:.4rem;max-height:200px;overflow-y:auto"></div>
+    </div>
+
+    <button class="btn-outline" onclick="closeModal('modal-friend')" style="margin-top:1rem">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL ÉDITION PROFIL -->
+<div class="modal-ov" id="modal-profile-edit" onclick="closeModalOut('modal-profile-edit',event)">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Mon profil</div>
+
+    <!-- Photo -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:1.25rem">
+      <div id="prof-edit-avatar" onclick="document.getElementById('prof-photo-input').click()" style="width:90px;height:90px;border-radius:50%;background:var(--grd);overflow:hidden;position:relative;cursor:pointer;border:2px solid #FFFFFF;box-shadow:var(--shadow);margin-bottom:.6rem">
+        <img id="prof-edit-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none">
+        <div id="prof-edit-initials" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff"></div>
+        <div style="position:absolute;inset:0;background:rgba(16,16,20,.35);display:flex;align-items:center;justify-content:center;font-size:1.2rem;border-radius:50%;color:#fff">📷</div>
+      </div>
+      <input type="file" id="prof-photo-input" accept="image/*" style="display:none" onchange="uploadProfilePhoto(this)">
+      <div style="font-size:.7rem;color:var(--tx4)">Appuyer pour changer</div>
+    </div>
+
+    <!-- Nom -->
+    <div class="fl">
+      <label>Nom d'affichage</label>
+      <input class="fi" id="prof-edit-name" type="text" placeholder="Ton prénom ou pseudo" maxlength="30">
+    </div>
+
+    <!-- Bio -->
+    <div class="fl" style="margin-bottom:1.25rem">
+      <label>À propos</label>
+      <textarea class="fi" id="prof-edit-bio" placeholder="Passionné de musique…" maxlength="120" rows="3" style="resize:none;height:auto;line-height:1.5"></textarea>
+    </div>
+
+    <button class="btn-g" id="btn-save-profile">Enregistrer</button>
+    <button class="btn-outline" onclick="closeModal('modal-profile-edit')" style="margin-top:.4rem">Annuler</button>
+  </div>
+</div>
+
+<!-- DJ LOGIN -->
+<!-- ORGANISATEUR LOGIN -->
+<div class="page" id="pg-dj-login">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;position:relative;z-index:1">
+    <div class="dj-login-card">
+      <div style="text-align:center;margin-bottom:1.25rem">
+        <div style="width:60px;height:60px;border-radius:50%;background:rgba(111,34,255,.1);border:1px solid rgba(111,34,255,.25);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto .65rem">🎛️</div>
+        <div class="dj-login-title">Espace Organisateur</div>
+        <div style="font-size:.78rem;color:var(--tx3)">DJ · Promoteur · Club manager</div>
+      </div>
+      <div class="fl"><label>Nom de la soirée</label><input class="fi" id="dj-ev-name" type="text" placeholder="Ex: Nuit Électrique" maxlength="40"></div>
+      <div class="fl"><label>Mot de passe</label><input class="fi" id="dj-pwd" type="password" placeholder="••••••••"></div>
+      <button class="btn-g" id="btn-dj-login">Accéder →</button>
+      <div class="auth-err" id="dj-err" style="margin-top:.5rem"></div>
+      <button id="btn-dj-back" style="display:block;text-align:center;margin-top:.85rem;background:none;border:none;color:var(--tx4);font-size:.8rem;width:100%">← Retour</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORGANISATEUR DASHBOARD -->
+<div class="page has-nav" id="pg-dj">
+  <!-- Topbar -->
+  <div class="tb">
+    <div style="width:34px"></div>
+    <div class="tb-title">🎛️ Organisateur</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:.5rem">
+      <div class="tb-live"><div class="pdot"></div>Live</div>
+      <button onclick="djLogout()" style="font-size:.65rem;padding:3px 8px;border-radius:8px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3)">Quitter</button>
+    </div>
+  </div>
+
+  <!-- Sous-onglets -->
+  <div style="display:flex;gap:0;background:#FFFFFF;border-bottom:1px solid var(--bdr);flex-shrink:0;overflow-x:auto;scrollbar-width:none">
+    <button class="orga-tab active" id="otab-live" onclick="switchOrgaTab('live',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:700;color:var(--vi);background:none;border:none;border-bottom:2px solid var(--vi);font-family:Inter,sans-serif;white-space:nowrap;min-width:0">🎵 Live</button>
+    <button class="orga-tab" id="otab-modo" onclick="switchOrgaTab('modo',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:var(--tx3);background:none;border:none;border-bottom:2px solid transparent;font-family:Inter,sans-serif;white-space:nowrap;min-width:0;position:relative">
+      🚨 Modération
+      <span id="dj-report-badge" style="display:none;position:absolute;top:6px;right:4px;background:var(--red);color:white;font-size:.48rem;font-weight:700;min-width:14px;height:14px;border-radius:7px;align-items:center;justify-content:center;padding:0 3px">0</span>
+    </button>
+    <button class="orga-tab" id="otab-pk" onclick="switchOrgaTab('pk',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:var(--tx3);background:none;border:none;border-bottom:2px solid transparent;font-family:Inter,sans-serif;white-space:nowrap;min-width:0">🎧 Press Kit</button>
+    <button class="orga-tab" id="otab-settings" onclick="switchOrgaTab('settings',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:var(--tx3);background:none;border:none;border-bottom:2px solid transparent;font-family:Inter,sans-serif;white-space:nowrap;min-width:0">⚙️ Réglages</button>
+  </div>
+
+  <!-- ONGLET LIVE -->
+  <div class="scroll" id="orga-live">
+    <div class="dj-stats">
+      <div class="dj-st"><div class="dj-st-n" id="dj-s1">0</div><div class="dj-st-l">Demandes</div></div>
+      <div class="dj-st"><div class="dj-st-n" id="dj-s2">0</div><div class="dj-st-l">Votes</div></div>
+      <div class="dj-st"><div class="dj-st-n" id="dj-s3">0</div><div class="dj-st-l">Votants</div></div>
+    </div>
+    <div class="np-dj"><div class="np-dj-glow"></div><div class="np-tag">▶ En cours</div><div class="np-t" id="dj-np-t">En attente…</div><div class="np-a" id="dj-np-a"></div></div>
+    <div class="qr-card"><div class="qr-box"><div id="dj-qr"></div></div><div class="qr-info"><div class="qr-evname" id="dj-qr-evname">—</div><div class="qr-url" id="dj-qr-url"></div><div class="qr-acts"><button class="qr-btn" onclick="copyUrl()">📋 Copier</button><button class="qr-btn new" onclick="createNewEvent()">＋ Nouvelle</button><button class="qr-btn" onclick="showPage('bigscreen')">📺 Écran</button></div></div></div>
+    <div style="padding:.3rem .75rem .3rem;display:flex;justify-content:space-between;align-items:center"><span class="sec-lbl">File d'attente</span><span style="font-size:.62rem;color:var(--tx4)">par votes</span></div>
+    <div style="padding:0 .75rem .75rem" id="dj-queue"></div>
+  </div>
+
+  <!-- ONGLET MODÉRATION -->
+  <div class="scroll" id="orga-modo" style="display:none">
+    <div style="padding:.85rem .75rem .35rem;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:.88rem;font-weight:700;color:var(--tx)">Messages signalés</div>
+      <button onclick="renderDJReports(null);toast('✓ Tous ignorés')" style="font-size:.68rem;padding:3px 9px;border-radius:8px;border:1px solid var(--bdr);background:none;color:var(--tx3)">Tout ignorer</button>
+    </div>
+    <div id="dj-reports-section" style="padding:.1rem .75rem .75rem"><div id="dj-reports-list"><div style="text-align:center;padding:2rem;font-size:.82rem;color:var(--tx4)">Aucun signalement pour le moment</div></div></div>
+    <div style="padding:.35rem .75rem .35rem;border-top:1px solid var(--bdr)">
+      <div style="font-size:.88rem;font-weight:700;color:var(--tx);margin-bottom:.65rem">Historique du chat</div>
+      <div id="orga-chat-list" style="display:flex;flex-direction:column;gap:.35rem;max-height:320px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <!-- ONGLET PRESS KIT (résumé organisateur) -->
+  <div class="scroll" id="orga-pk" style="display:none;padding:.85rem .75rem">
+    <div style="background:rgba(111,34,255,.06);border:1px solid rgba(111,34,255,.2);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;text-align:center">
+      <div style="font-size:.62rem;color:var(--vi);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;font-weight:700">Votre press kit public</div>
+      <div style="font-size:.88rem;color:var(--tx2);margin-bottom:.65rem">Partagez ce lien avec les promoteurs et clubs pour qu'ils consultent votre profil</div>
+      <button onclick="navTo('presskit')" style="width:100%;padding:.75rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif">Voir mon Press Kit →</button>
+    </div>
+    <!-- Stats abonnés -->
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem">Statistiques</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <div style="text-align:center;padding:.6rem;background:var(--ink5);border-radius:.85rem">
+          <div style="font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:700;color:var(--vi)" id="orga-subs">1 284</div>
+          <div style="font-size:.62rem;color:var(--tx4);margin-top:2px">Abonnés</div>
+        </div>
+        <div style="text-align:center;padding:.6rem;background:var(--ink5);border-radius:.85rem">
+          <div style="font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:700;color:var(--green)">320+</div>
+          <div style="font-size:.62rem;color:var(--tx4);margin-top:2px">Soirées</div>
+        </div>
+      </div>
+    </div>
+    <!-- Prochaines dates -->
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;box-shadow:var(--shadow)">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem">Prochaines dates</div>
+      <div class="up-list">
+        <div class="up-item feat"><div class="up-dt"><div class="up-d">17</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Warehouse Night Vol.12</div><div class="up-v">📍 La Clairière, Paris</div></div></div>
+        <div class="up-item"><div class="up-dt"><div class="up-d">31</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Club Friday — Gate Club</div><div class="up-v">📍 Gate Club, Paris</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONGLET RÉGLAGES -->
+  <div class="scroll" id="orga-settings" style="display:none;padding:.85rem .75rem">
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Soirée en cours</div>
+      <div class="fl"><label>Nom de l'événement</label><input class="fi" id="settings-ev-name" type="text" placeholder="Nuit Électrique" value="Nuit Électrique"></div>
+      <div class="fl"><label>Nom du club</label><input class="fi" id="settings-club" type="text" placeholder="Warehouse 42" value="Warehouse 42"></div>
+      <div class="fl" style="margin-bottom:0"><label>Horaires</label><input class="fi" id="settings-hours" type="text" placeholder="22h → 6h" value="22h → 6h"></div>
+    </div>
+
+    <!-- Flyer de la soirée -->
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Flyer de la soirée</div>
+      <div id="flyer-preview-dj" style="width:100%;height:140px;border-radius:1rem;background:var(--dj-card);background-size:cover;background-position:center;margin-bottom:.75rem;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr)">
+        <span style="font-size:.78rem;color:rgba(255,255,255,.4)" id="flyer-preview-hint">Aucun flyer uploadé</span>
+      </div>
+      <input type="file" id="flyer-input" accept="image/*" style="display:none" onchange="uploadFlyer(this)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <button onclick="document.getElementById('flyer-input').click()" style="padding:.75rem;border-radius:1rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif">📸 Choisir</button>
+        <button onclick="removeFlyer()" style="padding:.75rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif">🗑️ Retirer</button>
+      </div>
+    </div>
+
+    <button onclick="saveSettings()" style="width:100%;padding:.85rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif;margin-bottom:.75rem">Enregistrer les réglages</button>
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Danger zone</div>
+      <button onclick="if(confirm('Vider toute la file ?')){proposals={};renderAll();toast('File vidée')}" style="width:100%;padding:.75rem;border-radius:1rem;border:1px solid rgba(255,59,87,.25);background:rgba(255,59,87,.06);color:var(--red);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.4rem">🗑️ Vider la file d'attente</button>
+      <button onclick="djLogout()" style="width:100%;padding:.75rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif">Déconnexion organisateur</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- PRESS KIT (DJ Profile public) -->
+<div class="page" id="pg-presskit">
+  <div class="tb"><div class="tb-back" onclick="showPage('client')">←</div><div class="tb-title">Press Kit</div></div>
+  <div class="scroll">
+
+    <!-- HERO PHOTO -->
+    <div class="pk-hero" style="margin-bottom:0">
+      <div class="pk-hero-bg" style="height:180px"><div class="pk-grid"></div></div>
+      <div style="display:flex;justify-content:center;position:relative;margin-top:-75px;z-index:2">
+        <div style="width:150px;height:150px;border-radius:50%;overflow:hidden;border:4px solid #FFFFFF;box-shadow:var(--shadow);background:var(--dj-card);position:relative">
+          <img src="https://i.pravatar.cc/150?img=3" alt="DJ NOVA" style="width:100%;height:100%;object-fit:cover">
+        </div>
+        <div class="pk-verified" style="position:absolute;bottom:6px;right:calc(50% - 63px)">✓</div>
+      </div>
+    </div>
+
+    <!-- IDENTITÉ -->
+    <div style="text-align:center;padding:1rem 1rem .5rem">
+      <div style="display:flex;justify-content:center;gap:.35rem;margin-bottom:.5rem">
+        <span class="tag pill-vi">Techno</span>
+        <span class="tag pill-pk">House</span>
+        <span class="tag" style="background:rgba(0,113,227,.08);border-color:rgba(0,113,227,.22);color:var(--blue)">Électro</span>
+      </div>
+      <div class="pk-name" style="font-size:2rem">DJ NOVA</div>
+      <div style="font-size:.78rem;color:var(--tx3);margin-top:3px">Alexandre Moreau · Paris, France</div>
+      <div style="font-size:.85rem;color:var(--tx2);font-style:italic;margin:.6rem 0 .85rem;line-height:1.5;font-weight:400">"La musique n'est pas un bruit — c'est une conversation."</div>
+    </div>
+
+    <!-- STATS CLÉS -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bdr);margin:.5rem 1rem;border-radius:1.25rem;overflow:hidden;border:1px solid var(--bdr)">
+      <div style="background:#FFFFFF;padding:.7rem .45rem;text-align:center"><div style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;color:var(--tx)">8</div><div style="font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Ans</div></div>
+      <div style="background:#FFFFFF;padding:.7rem .45rem;text-align:center"><div style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;color:var(--tx)">320+</div><div style="font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Soirées</div></div>
+      <div style="background:#FFFFFF;padding:.7rem .45rem;text-align:center"><div style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;color:var(--tx)">24</div><div style="font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Villes</div></div>
+      <div style="background:#FFFFFF;padding:.7rem .45rem;text-align:center"><div style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;color:var(--vi)" id="pk-subs-n">1 284</div><div style="font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Abonnés</div></div>
+    </div>
+
+    <!-- CTA ABONNEMENT -->
+    <div style="padding:.25rem 1rem .75rem">
+      <button class="pk-sub-btn" id="pk-sub-btn" onclick="openModal('modal-sub')" style="width:100%"><span id="pk-sub-ico">+</span> <span id="pk-sub-txt">S'abonner à DJ NOVA</span></button>
+    </div>
+
+    <!-- BIOGRAPHIE -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Biographie</div>
+      <div class="bio-txt">DJ NOVA s'impose depuis <em>2016</em> comme l'une des figures montantes de la scène électronique parisienne. Formé à l'école de <em>musique électronique de Lyon</em>, il développe un style mêlant <em>techno mélodie</em> et <em>house progressif</em>.<br><br>Ses sets l'ont amené à jouer dans des clubs emblématiques comme le <em>Rex Club</em>, la <em>Machine du Moulin Rouge</em> et <em>Djoon</em>, partageant la scène avec Laurent Garnier, Peggy Gou et Nina Kraviz.</div>
+      <div class="socials" style="margin-top:.85rem">
+        <button class="soc-btn" onclick="toast('📷 Instagram')">📷 Instagram</button>
+        <button class="soc-btn" onclick="toast('☁️ SoundCloud')">☁️ SoundCloud</button>
+        <button class="soc-btn" onclick="toast('⚫ RA')">⚫ Resident Advisor</button>
+      </div>
+    </div>
+
+    <!-- CLUBS & FESTIVALS (logos) -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Scènes <span class="badge">Sélection</span></div>
+      <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:.75rem .5rem">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">👑</div>
+          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Rex Club</div>
+          <div style="font-size:.58rem;color:var(--tx4)">Paris</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🌿</div>
+          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">La Clairière</div>
+          <div style="font-size:.58rem;color:var(--tx4)">Paris</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🎵</div>
+          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Djoon</div>
+          <div style="font-size:.58rem;color:var(--tx4)">Paris</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🏭</div>
+          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Warehouse</div>
+          <div style="font-size:.58rem;color:var(--tx4)">Paris</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">⚡</div>
+          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Fabric</div>
+          <div style="font-size:.58rem;color:var(--tx4)">Londres</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🎭</div>
+          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Berghain</div>
+          <div style="font-size:.58rem;color:var(--tx4)">Berlin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCHAINS SETS -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Prochains sets <span class="badge">À venir</span></div>
+      <div class="up-list">
+        <div class="up-item feat"><div class="up-dt"><div class="up-d">17</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Warehouse Night Vol.12</div><div class="up-v">📍 La Clairière, Paris · 23h→6h</div></div><button class="up-tkt" onclick="toast('🎟 Shotgun')">🎟</button></div>
+        <div class="up-item"><div class="up-dt"><div class="up-d">31</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Club Friday — Gate Club</div><div class="up-v">📍 Gate Club, Paris</div></div><button class="up-tkt" onclick="toast('🎟 Shotgun')">🎟</button></div>
+        <div class="up-item"><div class="up-dt"><div class="up-d">14</div><div class="up-m">Jun</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Festival Électronique Lyon</div><div class="up-v">📍 Halle Tony Garnier</div></div><button class="up-tkt" onclick="toast('🎟 Shotgun')">🎟</button></div>
+      </div>
+    </div>
+
+    <!-- MIXES -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Mixes & Sets <span class="badge">Récents</span></div>
+      <div class="mix-list">
+        <div class="mix-item"><div class="mix-cov" style="background:rgba(111,34,255,.1)">🎛️<div class="mix-play-ov">▶</div></div><div class="mix-inf"><div class="mix-n">La Clairière Live Set — Avr 2026</div><div class="mix-m"><span class="mix-dur">1h 42min</span><span class="mix-plat">SoundCloud</span><span class="mix-plays">12.4K</span></div></div><button class="mix-btn" onclick="toast('☁️ SoundCloud')">Écouter</button></div>
+        <div class="mix-item"><div class="mix-cov" style="background:rgba(0,113,227,.1)">🎚️<div class="mix-play-ov">▶</div></div><div class="mix-inf"><div class="mix-n">Rex Club Closing — Déc 2025</div><div class="mix-m"><span class="mix-dur">2h 15min</span><span class="mix-plat">YouTube</span><span class="mix-plays">24.1K</span></div></div><button class="mix-btn" onclick="toast('▶ YouTube')">Regarder</button></div>
+      </div>
+    </div>
+
+    <!-- AVIS ORGANISATEURS -->
+    <div class="pk-sec">
+      <div class="pk-sec-t">Avis <span class="badge">Organisateurs</span></div>
+      <div class="rv-list">
+        <div class="rv"><div class="rv-head"><div class="rv-av" style="background:rgba(111,34,255,.1)">🏭</div><div class="rv-who"><div class="rv-n">Thomas L.</div><div class="rv-r">Directeur — Warehouse 42</div></div></div><div class="rv-stars">⭐⭐⭐⭐⭐</div><div class="rv-txt">"Nova a une lecture du public exceptionnelle. La piste était pleine du début à la fin."</div><div class="rv-dt">Mai 2026</div></div>
+        <div class="rv"><div class="rv-head"><div class="rv-av" style="background:rgba(0,113,227,.1)">🌿</div><div class="rv-who"><div class="rv-n">Camille R.</div><div class="rv-r">Programmatrice — La Clairière</div></div></div><div class="rv-stars">⭐⭐⭐⭐⭐</div><div class="rv-txt">"Professionnel, ponctuel, un set qui a mis le feu. Exactement ce qu'on cherche."</div><div class="rv-dt">Avril 2026</div></div>
+      </div>
+    </div>
+
+    <!-- DISPONIBILITÉS BOOKING -->
+    <div class="pk-sec" style="border-bottom:none;padding-bottom:2rem">
+      <div class="pk-sec-t">Booking <span class="badge">Disponibilités</span></div>
+
+      <!-- Statut général -->
+      <div style="background:rgba(22,201,107,.06);border:1px solid rgba(22,201,107,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.65rem;display:flex;align-items:center;gap:.75rem">
+        <div style="width:42px;height:42px;border-radius:50%;background:rgba(22,201,107,.12);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">✅</div>
+        <div>
+          <div style="font-size:.88rem;font-weight:700;color:var(--green)">Disponible pour booking</div>
+          <div style="font-size:.72rem;color:var(--tx3);margin-top:2px">France & Europe · Réponse sous 48h</div>
+        </div>
+      </div>
+
+      <!-- Calendrier dispo -->
+      <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.65rem;box-shadow:var(--shadow)">
+        <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem">Calendrier</div>
+        <div style="display:flex;flex-direction:column;gap:.45rem">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:var(--tx2)">Mai 2026</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(22,201,107,.1);border:1px solid rgba(22,201,107,.25);color:var(--green)">✓ Quelques dates</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:var(--tx2)">Juin 2026</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(22,201,107,.1);border:1px solid rgba(22,201,107,.25);color:var(--green)">✓ Disponible</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:var(--tx2)">Juillet 2026</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(22,201,107,.1);border:1px solid rgba(22,201,107,.25);color:var(--green)">✓ Disponible</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:var(--tx2)">14 – 21 Août</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,59,87,.06);border:1px solid rgba(255,59,87,.2);color:var(--red)">✗ Indisponible</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.85rem;color:var(--tx2)">Septembre 2026</span>
+            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(22,201,107,.1);border:1px solid rgba(22,201,107,.25);color:var(--green)">✓ Disponible</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact + CTA -->
+      <div style="background:rgba(111,34,255,.06);border:1px solid rgba(111,34,255,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.65rem">
+        <div style="font-size:.62rem;font-weight:700;color:var(--vi);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.45rem">Contact booking</div>
+        <div style="font-size:.9rem;color:var(--vi);font-weight:600;cursor:pointer;margin-bottom:.25rem" onclick="toast('📧 booking@djnova.fr copié')">📧 booking@djnova.fr</div>
+        <div style="font-size:.72rem;color:var(--tx4)">Réponse garantie sous 48h</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <button onclick="toast('📧 Demande envoyée !')" style="padding:.88rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif;min-height:52px">📧 Demande</button>
+        <button onclick="toast('📥 EPK téléchargé !')" style="padding:.88rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.88rem;font-weight:600;font-family:Inter,sans-serif;min-height:52px">📥 Press Kit</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BIGSCREEN -->
+<div class="page" id="pg-bigscreen">
+  <div class="tb"><div class="tb-back" onclick="showPage('dj')">←</div><div class="tb-title">Écran Géant</div><div style="margin-left:auto"><div class="tb-live"><div class="pdot"></div>Live</div></div></div>
+  <div class="bs-wrap">
+    <div class="bs-head">
+      <div class="bs-ev-lbl" id="bs-ev-lbl">PULL UP! Live</div>
+      <div class="bs-headline">Quel sera le<br>prochain morceau ?</div>
+      <div class="bs-sub">Scannez et votez depuis votre téléphone</div>
+      <div class="bs-live"><div class="pdot"></div>&nbsp;Live</div>
+    </div>
+    <div class="bs-now"><div class="bs-now-tag">▶ En cours</div><div class="bs-now-t" id="bs-np-t">En attente…</div><div class="bs-now-a" id="bs-np-a"></div></div>
+    <div class="bs-chart-lbl">Classement en direct</div>
+    <div class="bs-chart" id="bs-chart"></div>
+    <div class="bs-foot">
+      <div class="bs-ft-st"><div class="bs-ft-n" id="bs-votes">0</div><div class="bs-ft-l">Votes</div></div>
+      <div class="bs-qr-wrap"><div class="bs-qr-img"><div id="bs-qr"></div></div><div class="bs-qr-txt">Scanner</div></div>
+      <div class="bs-ft-st"><div class="bs-ft-n" id="bs-tracks">0</div><div class="bs-ft-l">Titres</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- CHAT -->
+<div class="page has-nav" id="pg-chat">
+  <div class="tb"><button class="tb-menu" style="width:34px;height:34px" onclick="toggleTopMenu()">☰</button><div class="tb-title">💬 Chat Club</div><div style="margin-left:auto"><div class="tb-live"><div class="pdot"></div>Live</div></div></div>
+
+  <!-- Message épinglé -->
+  <div class="chat-pinned" id="chat-pinned" style="display:none"></div>
+
+  <!-- Messages list -->
+  <div class="scroll" id="chat-scroll" style="padding:.75rem .75rem 0">
+    <div id="chat-messages" style="display:flex;flex-direction:column;gap:.85rem;padding-bottom:.5rem">
+      <div style="text-align:center;padding:1rem 0">
+        <div style="font-size:.68rem;color:var(--tx3);background:var(--ink5);border:1px solid var(--bdr);border-radius:18px;padding:.3rem .85rem;display:inline-block">Bienvenue dans le chat de la soirée 🎵</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input bar -->
+  <div style="flex-shrink:0;padding:.65rem .75rem;background:#FFFFFF;border-top:1px solid var(--bdr);display:flex;align-items:flex-end;gap:.5rem">
+    <button onclick="document.getElementById('chat-photo-input').click()" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--bdr);background:var(--ink5);font-size:1.15rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s" title="Photo">📷</button>
+    <input type="file" id="chat-photo-input" accept="image/*" style="display:none" onchange="sendPhoto(this)">
+    <textarea id="chat-input" placeholder="Message…" rows="1"
+      style="flex:1;background:var(--ink5);border:1px solid var(--bdr);border-radius:14px;padding:.65rem .9rem;color:var(--tx);font-size:16px;font-family:'Inter',sans-serif;outline:none;resize:none;max-height:100px;transition:border-color .2s;line-height:1.4;-webkit-appearance:none"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';chatInputChanged()"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
+    <button id="chat-send-btn" onclick="sendChatMsg()" style="width:44px;height:44px;border-radius:50%;border:none;background:var(--grd);color:#fff;font-size:1.1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.4;transition:all .18s" disabled>↑</button>
+  </div>
+</div>
+
+<!-- MENU DÉROULANT (remplace l'ancien menu du bas) -->
+<div class="top-menu-overlay" id="top-menu-overlay" onclick="closeTopMenu()"></div>
+<div class="top-menu" id="top-menu">
+  <button class="top-menu-item active" id="nav-vote">
+    <div class="nav-tab-ico">🎵</div>
+    <div class="nav-tab-lbl">Voter</div>
+  </button>
+  <button class="top-menu-item" id="nav-chat">
+    <div class="nav-tab-ico">💬</div>
+    <div class="nav-tab-lbl">Chat</div>
+    <div class="nav-tab-badge" id="chat-badge" style="display:none">0</div>
+  </button>
+  <button class="top-menu-item" id="nav-profile">
+    <div class="nav-tab-ico">👤</div>
+    <div class="nav-tab-lbl">Profil</div>
+  </button>
+  <button class="top-menu-item" id="nav-dj">
+    <div class="nav-tab-ico"><img class="nav-tab-avatar" src="https://i.pravatar.cc/64?img=13" alt=""></div>
+    <div class="nav-tab-lbl">DJ Nova</div>
+  </button>
+</div>
+
+<script src="/js/config.js?v=2"></script>
+<script src="/js/api.js?v=3"></script>
+<script src="/js/app.js?v=11"></script>
+<script src="/js/render.js?v=4"></script>
+<script src="/js/chat.js?v=8"></script>
+<script src="/js/auth.js?v=5"></script>
+</body>
+</html>

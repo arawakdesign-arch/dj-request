@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes skills add https://github.com/anthropics/skills --skill theme-factory)",
+      "Bash(grep -on \"background:#[0-9A-Fa-f]\\\\{6\\\\}\\\\|background:rgba\\([0-9]*,[0-9]*,[0-9]*\" index.html)",
+      "Bash(curl -sf http://localhost:3000)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(npx --yes playwright screenshot --browser=chromium http://localhost:3000 /private/tmp/claude-501/-Users-enzolameynardie-Downloads-web-app-2/3b93f5da-a85c-4570-bcf0-f6a75fd6600e/scratchpad/pullup-theme.png)",
+      "Bash(npx --yes playwright install chromium)",
+      "Bash(npx --yes playwright screenshot --browser=chromium --viewport-size=430,932 http://localhost:3000 /private/tmp/claude-501/-Users-enzolameynardie-Downloads-web-app-2/3b93f5da-a85c-4570-bcf0-f6a75fd6600e/scratchpad/pullup-theme.png)",
+      "Read(//Users/enzolameynardie/Downloads/web-app 2/.agents/skills/**)",
+      "Bash(find / -maxdepth 6 -ipath \"*mcp-server-guide*\")",
+      "Bash(claude mcp *)"
+    ]
+  }
+}

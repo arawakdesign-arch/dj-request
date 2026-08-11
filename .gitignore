@@ -1,0 +1,46 @@
+# macOS
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dépendances Node.js
+node_modules/
+
+# Build / production
+dist/
+build/
+.next/
+out/
+
+# Variables d'environnement
+.env
+.env.local
+.env.*.local
+
+# fichier locaux
+compte-rendu-claude
+
+# IDE
+.vscode/
+.idea/
+
+# Fichiers temporaires
+.tmp/
+.cache/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.env/
+
+# Coverage
+coverage/
+
+# Fichiers système
+Thumbs.db
