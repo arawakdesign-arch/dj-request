@@ -160,7 +160,7 @@ function djLogout() {
   djLoggedIn = false;
   document.getElementById('nav-dj').onclick = () => navTo('presskit');
   document.querySelector('#nav-dj .nav-tab-ico').innerHTML = '<img class="nav-tab-avatar" src="https://i.pravatar.cc/64?img=13" alt="">';
-  document.querySelector('#nav-dj .nav-tab-lbl').textContent = 'DJ Nova';
+  document.querySelector('#nav-dj .nav-tab-lbl').textContent = "DJ's";
   showPage('client');
 }
 async function createNewEvent(n) {
