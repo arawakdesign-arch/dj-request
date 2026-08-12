@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS events (
   id           UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   name         TEXT NOT NULL DEFAULT 'Soirée DJ Request',
   club_name    TEXT DEFAULT 'Club',
+  orga         TEXT DEFAULT '',
   address      TEXT DEFAULT '',
   hours        TEXT DEFAULT '22h → 6h',
   lineup       JSONB DEFAULT '[]',

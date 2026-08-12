@@ -425,6 +425,7 @@ function loadFlyerFromStorage() {
 function saveSettings() {
   const evName   = document.getElementById('settings-ev-name')?.value.trim();
   const clubName = document.getElementById('settings-club')?.value.trim();
+  const orga     = document.getElementById('settings-orga')?.value.trim();
   const address  = document.getElementById('settings-address')?.value.trim();
   const hours    = document.getElementById('settings-hours')?.value.trim();
   if (evName)   { ename = evName; const fn = document.getElementById('flyer-ev-name'); if(fn) fn.textContent = evName;
@@ -436,6 +437,7 @@ function saveSettings() {
     const updates = {};
     if (evName)   updates.name      = evName;
     if (clubName) updates.club_name = clubName;
+    if (orga)     updates.orga      = orga;
     if (address)  updates.address   = address;
     if (hours)    updates.hours     = hours;
     if (Object.keys(updates).length) {

@@ -33,20 +33,20 @@ router.get('/events/by-name', async (req, res) => {
 router.get('/events/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, club_name, address, hours, lineup, flyer_url, is_active, created_at')
+    .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at')
     .eq('id', req.params.id).single();
   if (error || !data) return res.status(404).json({ error: 'Événement introuvable' });
   res.json(data);
 });
 
 router.post('/events', async (req, res) => {
-  const { name, club_name, address, hours, password } = req.body;
+  const { name, club_name, orga, address, hours, password } = req.body;
   if (!name || !password) return res.status(400).json({ error: 'Champs manquants' });
 
   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
   const { data, error } = await supabase.from('events').insert({
-    name, club_name, address, hours, password: hashedPassword,
-  }).select('id, name, club_name, address, hours, created_at').single();
+    name, club_name, orga, address, hours, password: hashedPassword,
+  }).select('id, name, club_name, orga, address, hours, created_at').single();
   if (error) return res.status(500).json({ error: error.message });
 
   await supabase.from('now_playing').insert({ event_id: data.id, title: 'En attente…', artist: '' });
@@ -54,9 +54,9 @@ router.post('/events', async (req, res) => {
 });
 
 router.patch('/events/:id', requireOrganizer, async (req, res) => {
-  const { name, club_name, address, hours } = req.body;
+  const { name, club_name, orga, address, hours } = req.body;
   const { data, error } = await supabase.from('events')
-    .update({ name, club_name, address, hours })
+    .update({ name, club_name, orga, address, hours })
     .eq('id', req.params.id).select().single();
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
