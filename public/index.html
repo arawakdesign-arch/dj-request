@@ -1209,171 +1209,107 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <!-- PRESS KIT (DJ Profile public) -->
 <div class="page" id="pg-presskit">
-  <div class="tb"><div class="tb-back" onclick="showPage('client')">←</div><div class="tb-title">Press Kit</div></div>
+  <div class="tb">
+    <div class="tb-back" onclick="showPage('client')">←</div>
+    <div class="tb-title">Press Kit</div>
+    <button onclick="toast('🔗 Lien copié !')" style="margin-left:auto;width:44px;height:44px;border-radius:10px;border:1px solid var(--bdr);background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--tx2);flex-shrink:0">⬆</button>
+  </div>
   <div class="scroll">
 
-    <!-- HERO PHOTO -->
-    <div class="pk-hero" style="margin-bottom:0">
-      <div class="pk-hero-bg" style="height:180px"><div class="pk-grid"></div></div>
-      <div style="display:flex;justify-content:center;position:relative;margin-top:-75px;z-index:2">
-        <div style="width:150px;height:150px;border-radius:50%;overflow:hidden;border:4px solid #FFFFFF;box-shadow:var(--shadow);background:var(--dj-card);position:relative">
-          <img src="https://i.pravatar.cc/150?img=3" alt="DJ NOVA" style="width:100%;height:100%;object-fit:cover">
-        </div>
-        <div class="pk-verified" style="position:absolute;bottom:6px;right:calc(50% - 63px)">✓</div>
+    <!-- HERO -->
+    <div style="margin:0 1rem;border-radius:1.5rem;overflow:hidden;position:relative;height:320px;background:var(--dj-card)">
+      <img src="/images/dj-avatar.png?v=1" alt="DJ Nova" style="position:absolute;right:-10px;bottom:0;height:104%;object-fit:contain;object-position:bottom right">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,16,20,.94) 0%,rgba(16,16,20,.8) 42%,rgba(16,16,20,.2) 75%,transparent 100%)"></div>
+      <div style="position:absolute;left:1.25rem;right:2.5rem;top:1.5rem">
+        <div id="pk-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:2.1rem;letter-spacing:-.01em;line-height:1;color:#fff">DJ NOVA</div>
+        <div style="font-size:.8rem;color:rgba(255,255,255,.75);line-height:1.55;margin-top:.65rem;max-width:210px">Producteur et DJ français, DJ Nova délivre une house élégante, euphorique et percutante.</div>
       </div>
+      <div style="position:absolute;left:1.25rem;bottom:1.25rem;display:flex;align-items:center;gap:.3rem;font-size:.78rem;color:rgba(255,255,255,.85)">📍 Paris, France</div>
     </div>
 
-    <!-- IDENTITÉ -->
-    <div style="text-align:center;padding:1rem 1rem .5rem">
-      <div style="display:flex;justify-content:center;gap:.35rem;margin-bottom:.5rem">
-        <span class="tag pill-vi">Techno</span>
-        <span class="tag pill-pk">House</span>
-        <span class="tag" style="background:rgba(0,113,227,.08);border-color:rgba(0,113,227,.22);color:var(--blue)">Électro</span>
+    <!-- RÉSEAUX -->
+    <div style="display:flex;gap:.5rem;padding:1rem 1rem 0">
+      <button onclick="toast('📷 Instagram')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">📷 Instagram</button>
+      <button onclick="toast('☁️ SoundCloud')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">☁️ SoundCloud</button>
+      <button onclick="toast('⚫ Resident Advisor')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">⚫ RA</button>
+    </div>
+
+    <!-- LIVE SUR PULL UP -->
+    <div style="margin:1rem 1rem 0;background:rgba(111,34,255,.05);border:1px solid rgba(111,34,255,.18);border-radius:1.5rem;padding:1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(111,34,255,.12);display:flex;align-items:center;justify-content:center;font-size:.9rem">📶</div>
+          <div style="font-size:1rem;font-weight:800;color:var(--tx)">Live sur Pull Up</div>
+        </div>
+        <span style="font-size:.6rem;font-weight:700;color:var(--vi);border:1px solid rgba(111,34,255,.3);border-radius:20px;padding:3px 10px;display:flex;align-items:center;gap:4px;flex-shrink:0">EN DIRECT <span style="width:5px;height:5px;border-radius:50%;background:var(--pk);display:inline-block"></span></span>
       </div>
-      <div class="pk-name" style="font-size:2rem">DJ NOVA</div>
-      <div style="font-size:.78rem;color:var(--tx3);margin-top:3px">Alexandre Moreau · Paris, France</div>
-      <div style="font-size:.85rem;color:var(--tx2);font-style:italic;margin:.6rem 0 .85rem;line-height:1.5;font-weight:400">"La musique n'est pas un bruit — c'est une conversation."</div>
-    </div>
 
-    <!-- STATS CLÉS -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bdr);margin:.5rem 1rem;border-radius:1.25rem;overflow:hidden;border:1px solid var(--bdr)">
-      <div style="background:#FFFFFF;padding:.7rem .45rem;text-align:center"><div style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;color:var(--tx)">8</div><div style="font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Ans</div></div>
-      <div style="background:#FFFFFF;padding:.7rem .45rem;text-align:center"><div style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;color:var(--tx)">320+</div><div style="font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Soirées</div></div>
-      <div style="background:#FFFFFF;padding:.7rem .45rem;text-align:center"><div style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;color:var(--tx)">24</div><div style="font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Villes</div></div>
-      <div style="background:#FFFFFF;padding:.7rem .45rem;text-align:center"><div style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;color:var(--vi)" id="pk-subs-n">1 284</div><div style="font-size:.55rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Abonnés</div></div>
-    </div>
-
-    <!-- CTA ABONNEMENT -->
-    <div style="padding:.25rem 1rem .75rem">
-      <button class="pk-sub-btn" id="pk-sub-btn" onclick="openModal('modal-sub')" style="width:100%"><span id="pk-sub-ico">+</span> <span id="pk-sub-txt">S'abonner à DJ NOVA</span></button>
-    </div>
-
-    <!-- BIOGRAPHIE -->
-    <div class="pk-sec">
-      <div class="pk-sec-t">Biographie</div>
-      <div class="bio-txt">DJ NOVA s'impose depuis <em>2016</em> comme l'une des figures montantes de la scène électronique parisienne. Formé à l'école de <em>musique électronique de Lyon</em>, il développe un style mêlant <em>techno mélodie</em> et <em>house progressif</em>.<br><br>Ses sets l'ont amené à jouer dans des clubs emblématiques comme le <em>Rex Club</em>, la <em>Machine du Moulin Rouge</em> et <em>Djoon</em>, partageant la scène avec Laurent Garnier, Peggy Gou et Nina Kraviz.</div>
-      <div class="socials" style="margin-top:.85rem">
-        <button class="soc-btn" onclick="toast('📷 Instagram')">📷 Instagram</button>
-        <button class="soc-btn" onclick="toast('☁️ SoundCloud')">☁️ SoundCloud</button>
-        <button class="soc-btn" onclick="toast('⚫ RA')">⚫ Resident Advisor</button>
+      <div style="display:flex;align-items:center;gap:.7rem;background:#FFFFFF;border-radius:1rem;padding:.7rem .8rem;margin-bottom:.5rem">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(111,34,255,.12);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">🎵</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.6rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.05em">Prochain son</div>
+          <div id="pk-np-t" style="font-size:.85rem;font-weight:700;color:var(--tx);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">En attente…</div>
+        </div>
+        <button onclick="navTo('vote')" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">▶</button>
       </div>
-    </div>
 
-    <!-- CLUBS & FESTIVALS (logos) -->
-    <div class="pk-sec">
-      <div class="pk-sec-t">Scènes <span class="badge">Sélection</span></div>
-      <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:.75rem .5rem">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
-          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">👑</div>
-          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Rex Club</div>
-          <div style="font-size:.58rem;color:var(--tx4)">Paris</div>
+      <div style="display:flex;align-items:center;gap:.7rem;background:#FFFFFF;border-radius:1rem;padding:.7rem .8rem;margin-bottom:.5rem">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(111,34,255,.08);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">💬</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.6rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.05em">Dernier commentaire</div>
+          <div style="font-size:.82rem;font-weight:600;color:var(--tx);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Ambiance de folie ce soir 🔥</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
-          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🌿</div>
-          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">La Clairière</div>
-          <div style="font-size:.58rem;color:var(--tx4)">Paris</div>
+        <div style="font-size:.64rem;color:var(--tx4);flex-shrink:0">Il y a 2 min</div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:.7rem;background:#FFFFFF;border-radius:1rem;padding:.7rem .8rem">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,28,142,.1);color:var(--pk);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">💸</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.84rem;font-weight:700;color:var(--tx)">Money Pull Up</div>
+          <div style="font-size:.66rem;color:var(--tx3);margin-top:1px">Envoie de l'argent au DJ en direct</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
-          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🎵</div>
-          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Djoon</div>
-          <div style="font-size:.58rem;color:var(--tx4)">Paris</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
-          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🏭</div>
-          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Warehouse</div>
-          <div style="font-size:.58rem;color:var(--tx4)">Paris</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
-          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">⚡</div>
-          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Fabric</div>
-          <div style="font-size:.58rem;color:var(--tx4)">Londres</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
-          <div style="width:64px;height:64px;border-radius:50%;background:var(--ink5);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🎭</div>
-          <div style="font-size:.68rem;font-weight:600;color:var(--tx2);text-align:center">Berghain</div>
-          <div style="font-size:.58rem;color:var(--tx4)">Berlin</div>
-        </div>
+        <button onclick="toast('💸 Bientôt disponible')" style="padding:.5rem 1.05rem;border-radius:20px;border:none;background:linear-gradient(135deg,#8D2CFF,#FF1C8E);color:#fff;font-size:.85rem;font-weight:800;flex-shrink:0">2€</button>
       </div>
     </div>
 
     <!-- PROCHAINS SETS -->
     <div class="pk-sec">
-      <div class="pk-sec-t">Prochains sets <span class="badge">À venir</span></div>
+      <div class="pk-sec-t" style="justify-content:space-between">
+        <span>Prochains sets</span>
+        <span onclick="toast('📅 Bientôt disponible')" style="font-size:.75rem;font-weight:700;color:var(--vi);cursor:pointer">Voir tout ›</span>
+      </div>
       <div class="up-list">
-        <div class="up-item feat"><div class="up-dt"><div class="up-d">17</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Warehouse Night Vol.12</div><div class="up-v">📍 La Clairière, Paris · 23h→6h</div></div><button class="up-tkt" onclick="toast('🎟 Shotgun')">🎟</button></div>
-        <div class="up-item"><div class="up-dt"><div class="up-d">31</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Club Friday — Gate Club</div><div class="up-v">📍 Gate Club, Paris</div></div><button class="up-tkt" onclick="toast('🎟 Shotgun')">🎟</button></div>
-        <div class="up-item"><div class="up-dt"><div class="up-d">14</div><div class="up-m">Jun</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Festival Électronique Lyon</div><div class="up-v">📍 Halle Tony Garnier</div></div><button class="up-tkt" onclick="toast('🎟 Shotgun')">🎟</button></div>
+        <div class="up-item"><div class="up-dt"><div class="up-d">17</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Warehouse Night Vol.12</div><div class="up-v">📍 La Clairière, Paris</div><div class="up-v">🕐 23h – 06h</div></div><button onclick="toast('📅 Ajouté au calendrier')" style="width:34px;height:34px;border-radius:10px;padding:0;flex-shrink:0;background:rgba(111,34,255,.1);border:1px solid rgba(111,34,255,.22);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:.85rem">📅</button></div>
+        <div class="up-item"><div class="up-dt"><div class="up-d">31</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Club Friday — Gate Club</div><div class="up-v">📍 Gate Club, Paris</div><div class="up-v">🕐 23h – 05h</div></div><button onclick="toast('📅 Ajouté au calendrier')" style="width:34px;height:34px;border-radius:10px;padding:0;flex-shrink:0;background:rgba(111,34,255,.1);border:1px solid rgba(111,34,255,.22);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:.85rem">📅</button></div>
       </div>
     </div>
 
-    <!-- MIXES -->
-    <div class="pk-sec">
-      <div class="pk-sec-t">Mixes & Sets <span class="badge">Récents</span></div>
-      <div class="mix-list">
-        <div class="mix-item"><div class="mix-cov" style="background:rgba(111,34,255,.1)">🎛️<div class="mix-play-ov">▶</div></div><div class="mix-inf"><div class="mix-n">La Clairière Live Set — Avr 2026</div><div class="mix-m"><span class="mix-dur">1h 42min</span><span class="mix-plat">SoundCloud</span><span class="mix-plays">12.4K</span></div></div><button class="mix-btn" onclick="toast('☁️ SoundCloud')">Écouter</button></div>
-        <div class="mix-item"><div class="mix-cov" style="background:rgba(0,113,227,.1)">🎚️<div class="mix-play-ov">▶</div></div><div class="mix-inf"><div class="mix-n">Rex Club Closing — Déc 2025</div><div class="mix-m"><span class="mix-dur">2h 15min</span><span class="mix-plat">YouTube</span><span class="mix-plays">24.1K</span></div></div><button class="mix-btn" onclick="toast('▶ YouTube')">Regarder</button></div>
-      </div>
-    </div>
-
-    <!-- AVIS ORGANISATEURS -->
-    <div class="pk-sec">
-      <div class="pk-sec-t">Avis <span class="badge">Organisateurs</span></div>
-      <div class="rv-list">
-        <div class="rv"><div class="rv-head"><div class="rv-av" style="background:rgba(111,34,255,.1)">🏭</div><div class="rv-who"><div class="rv-n">Thomas L.</div><div class="rv-r">Directeur — Warehouse 42</div></div></div><div class="rv-stars">⭐⭐⭐⭐⭐</div><div class="rv-txt">"Nova a une lecture du public exceptionnelle. La piste était pleine du début à la fin."</div><div class="rv-dt">Mai 2026</div></div>
-        <div class="rv"><div class="rv-head"><div class="rv-av" style="background:rgba(0,113,227,.1)">🌿</div><div class="rv-who"><div class="rv-n">Camille R.</div><div class="rv-r">Programmatrice — La Clairière</div></div></div><div class="rv-stars">⭐⭐⭐⭐⭐</div><div class="rv-txt">"Professionnel, ponctuel, un set qui a mis le feu. Exactement ce qu'on cherche."</div><div class="rv-dt">Avril 2026</div></div>
-      </div>
-    </div>
-
-    <!-- DISPONIBILITÉS BOOKING -->
+    <!-- BOOKING -->
     <div class="pk-sec" style="border-bottom:none;padding-bottom:2rem">
-      <div class="pk-sec-t">Booking <span class="badge">Disponibilités</span></div>
+      <div class="pk-sec-t">Booking</div>
 
-      <!-- Statut général -->
-      <div style="background:rgba(22,201,107,.06);border:1px solid rgba(22,201,107,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.65rem;display:flex;align-items:center;gap:.75rem">
-        <div style="width:42px;height:42px;border-radius:50%;background:rgba(22,201,107,.12);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">✅</div>
-        <div>
-          <div style="font-size:.88rem;font-weight:700;color:var(--green)">Disponible pour booking</div>
-          <div style="font-size:.72rem;color:var(--tx3);margin-top:2px">France & Europe · Réponse sous 48h</div>
+      <div style="background:rgba(22,201,107,.06);border:1px solid rgba(22,201,107,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.75rem">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(22,201,107,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;color:var(--green)">✓</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.85rem;font-weight:700;color:var(--green)">Disponible pour booking</div>
+          <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">France & Europe · Réponse sous 48h</div>
         </div>
+        <div style="color:var(--green);font-size:1.15rem;flex-shrink:0">🌐</div>
       </div>
 
-      <!-- Calendrier dispo -->
-      <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.65rem;box-shadow:var(--shadow)">
-        <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem">Calendrier</div>
-        <div style="display:flex;flex-direction:column;gap:.45rem">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:.85rem;color:var(--tx2)">Mai 2026</span>
-            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(22,201,107,.1);border:1px solid rgba(22,201,107,.25);color:var(--green)">✓ Quelques dates</span>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:.85rem;color:var(--tx2)">Juin 2026</span>
-            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(22,201,107,.1);border:1px solid rgba(22,201,107,.25);color:var(--green)">✓ Disponible</span>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:.85rem;color:var(--tx2)">Juillet 2026</span>
-            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(22,201,107,.1);border:1px solid rgba(22,201,107,.25);color:var(--green)">✓ Disponible</span>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:.85rem;color:var(--tx2)">14 – 21 Août</span>
-            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,59,87,.06);border:1px solid rgba(255,59,87,.2);color:var(--red)">✗ Indisponible</span>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:.85rem;color:var(--tx2)">Septembre 2026</span>
-            <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(22,201,107,.1);border:1px solid rgba(22,201,107,.25);color:var(--green)">✓ Disponible</span>
-          </div>
+      <div style="background:rgba(111,34,255,.06);border:1px solid rgba(111,34,255,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem;cursor:pointer" onclick="toast('📧 booking@djnova.fr copié')">
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(111,34,255,.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;color:var(--vi)">✉️</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.85rem;font-weight:700;color:var(--tx)">Contact booking</div>
+          <div style="font-size:.82rem;color:var(--vi);font-weight:600;margin-top:1px">booking@djnova.fr</div>
+          <div style="font-size:.66rem;color:var(--tx4);margin-top:1px">Réponse garantie sous 48h</div>
         </div>
-      </div>
-
-      <!-- Contact + CTA -->
-      <div style="background:rgba(111,34,255,.06);border:1px solid rgba(111,34,255,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.65rem">
-        <div style="font-size:.62rem;font-weight:700;color:var(--vi);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.45rem">Contact booking</div>
-        <div style="font-size:.9rem;color:var(--vi);font-weight:600;cursor:pointer;margin-bottom:.25rem" onclick="toast('📧 booking@djnova.fr copié')">📧 booking@djnova.fr</div>
-        <div style="font-size:.72rem;color:var(--tx4)">Réponse garantie sous 48h</div>
+        <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">›</div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
-        <button onclick="toast('📧 Demande envoyée !')" style="padding:.88rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif;min-height:52px">📧 Demande</button>
-        <button onclick="toast('📥 EPK téléchargé !')" style="padding:.88rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.88rem;font-weight:600;font-family:Inter,sans-serif;min-height:52px">📥 Press Kit</button>
+        <button onclick="toast('📧 Demande envoyée !')" style="padding:.88rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif;min-height:52px">✉️ Demande</button>
+        <button onclick="toast('📥 EPK téléchargé !')" style="padding:.88rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.88rem;font-weight:600;font-family:Inter,sans-serif;min-height:52px">⬇ Press Kit</button>
       </div>
     </div>
 
@@ -1453,7 +1389,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=11"></script>
 <script src="/js/app.js?v=26"></script>
-<script src="/js/render.js?v=8"></script>
+<script src="/js/render.js?v=9"></script>
 <script src="/js/chat.js?v=13"></script>
 <script src="/js/auth.js?v=6"></script>
 </body>

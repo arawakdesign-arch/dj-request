@@ -189,6 +189,7 @@ function updateNP() {
   const a = nowPlaying.a || '';
   elt('cli-now-t', t); elt('cli-now-a', a);
   elt('dj-np-t',  t); elt('dj-np-a', a);
+  elt('pk-np-t',  a ? t + ' — ' + a : t);
   elt('bs-np-t',  t); elt('bs-np-a', a);
 
   const coverImg = document.getElementById('dj-cover-img');
