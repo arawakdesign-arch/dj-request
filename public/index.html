@@ -844,94 +844,125 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   <div class="tb"><button class="tb-menu" style="width:34px;height:34px" onclick="toggleTopMenu()">☰</button><div class="tb-title">Profil</div></div>
   <div class="scroll" id="prof-scroll">
 
-    <!-- PHOTO CENTRÉE en haut sans bandeau -->
-    <div style="display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 0;margin-bottom:.85rem;position:relative">
-      <div style="width:150px;height:150px;border-radius:50%;border:4px solid #FFFFFF;box-shadow:var(--shadow);overflow:hidden;background:var(--grd);position:relative;margin-bottom:.85rem">
-        <img id="prof-photo-display" src="" alt="Photo profil" style="width:100%;height:100%;object-fit:cover;display:none">
-        <div id="prof-av" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3.5rem;color:#fff"></div>
+    <!-- PHOTO + NOM/STATUT/STATS EN LIGNE -->
+    <div style="display:flex;gap:.9rem;padding:1.1rem 1rem 0;position:relative">
+      <div style="position:relative;flex-shrink:0">
+        <div style="width:112px;height:112px;border-radius:1.1rem;overflow:hidden;background:var(--grd);box-shadow:var(--shadow);position:relative">
+          <img id="prof-photo-display" src="" alt="Photo profil" style="width:100%;height:100%;object-fit:cover;display:none">
+          <div id="prof-av" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.3rem;color:#fff"></div>
+        </div>
+        <button onclick="openProfileEdit()" title="Changer la photo" style="position:absolute;bottom:-6px;right:-6px;width:30px;height:30px;border-radius:50%;background:#FFFFFF;border:1px solid var(--bdr);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer">📷</button>
       </div>
-      <!-- Boutons Modifier + Partager -->
-      <div style="position:absolute;top:1.5rem;right:1rem;display:flex;gap:6px">
-        <button id="btn-edit-profile" style="padding:5px 11px;border-radius:18px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.7rem;font-weight:600;font-family:Inter,sans-serif">Modifier</button>
-        <button onclick="shareVenuePosition()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.88rem;display:flex;align-items:center;justify-content:center">↗</button>
+      <div style="flex:1;min-width:0;padding-top:.15rem;padding-right:4.2rem">
+        <div id="prof-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.2rem;letter-spacing:0;color:var(--tx);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+        <div style="display:flex;align-items:center;gap:.35rem;margin-top:.3rem">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:pdot 1.4s infinite"></div>
+          <span style="font-size:.6rem;color:var(--green);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Actif ce soir</span>
+        </div>
+        <div style="display:flex;gap:.8rem;margin-top:.7rem;flex-wrap:wrap">
+          <div><div id="hst-ev" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1rem;color:var(--vi);line-height:1">0</div><div style="font-size:.54rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Soirées</div></div>
+          <div><div id="hst-vt" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1rem;color:var(--amber);line-height:1">0</div><div style="font-size:.54rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Votes</div></div>
+          <div><div id="hst-pr" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1rem;color:var(--blue);line-height:1">0</div><div style="font-size:.54rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Props.</div></div>
+          <div><div id="hst-pl" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1rem;color:var(--green);line-height:1">0</div><div style="font-size:.54rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Joués</div></div>
+        </div>
       </div>
-      <!-- Nom + statut -->
-      <div id="prof-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:0;color:var(--tx);line-height:1;text-align:center"></div>
-      <div style="display:flex;align-items:center;gap:.35rem;margin-top:.4rem">
-        <div style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:pdot 1.4s infinite"></div>
-        <span style="font-size:.65rem;color:var(--green);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Actif ce soir</span>
+      <!-- Boutons Partager + Modifier -->
+      <div style="position:absolute;top:1.1rem;right:1rem;display:flex;gap:6px">
+        <button onclick="shareVenuePosition()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.85rem;display:flex;align-items:center;justify-content:center">↗</button>
+        <button id="btn-edit-profile" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.8rem;display:flex;align-items:center;justify-content:center">✎</button>
       </div>
     </div>
 
-    <div style="padding:0 1rem 1rem;position:relative">
+    <div style="padding:1.1rem 1rem 1rem;position:relative">
 
-      <!-- BIO + POSITION + BADGE (badge span 2 lignes à droite) -->
-      <div style="display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:.5rem;margin-bottom:.75rem;align-items:stretch">
-        <!-- À propos -->
-        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem 1rem;box-shadow:var(--shadow)">
-          <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">À propos</div>
-          <div id="prof-bio-display" style="font-size:.85rem;color:var(--tx2);line-height:1.6;font-weight:400">Passionné de musique électronique · Toujours en première ligne pour voter 🎵</div>
+      <!-- À PROPOS -->
+      <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.8rem 1rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;cursor:pointer" onclick="openProfileEdit()">
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(111,34,255,.1);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0">👤</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.6rem;font-weight:700;color:var(--vi);text-transform:uppercase;letter-spacing:.08em">À propos</div>
+          <div id="prof-bio-display" style="font-size:.8rem;color:var(--tx2);line-height:1.5;margin-top:2px">Passionné de musique électronique · Toujours en première ligne pour voter 🎵</div>
         </div>
-        <!-- Badge niveau — span 2 lignes -->
-        <div id="prof-badge-card" style="background:rgba(111,34,255,.08);border:1px solid rgba(111,34,255,.22);border-radius:1.25rem;padding:.85rem .75rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;min-width:74px;text-align:center;grid-row:1/3">
-          <div id="prof-badge-ico" style="font-size:2.2rem;line-height:1">💎</div>
-          <div id="prof-badge-name" style="font-size:.6rem;font-weight:700;color:var(--vi);text-transform:uppercase;letter-spacing:.06em;line-height:1.2">VIP</div>
+        <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">›</div>
+      </div>
+
+      <!-- STATUT -->
+      <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.8rem 1rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem">
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,149,0,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0">🔥</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.6rem;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.08em">Statut</div>
+          <div style="font-size:.85rem;font-weight:700;color:var(--tx);margin-top:1px">Actif</div>
+          <div style="font-size:.68rem;color:var(--tx3)">Prêt à ambiancer</div>
         </div>
-        <!-- Partager ma position -->
-        <div id="location-card" style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem 1rem;box-shadow:var(--shadow)">
-          <div style="display:flex;align-items:center;gap:.65rem">
-            <div style="flex:1">
-              <div style="font-size:.85rem;font-weight:700;color:var(--tx)">📍 Ma position</div>
-              <div id="loc-status" style="font-size:.7rem;color:var(--tx3);margin-top:2px">Partager dans la salle</div>
-            </div>
-            <div id="loc-toggle" onclick="toggleLocation()" style="width:44px;height:26px;border-radius:13px;background:var(--bdr);border:1px solid var(--bdr);position:relative;cursor:pointer;transition:all .3s;flex-shrink:0">
-              <div id="loc-knob" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:9px;background:#FFFFFF;box-shadow:0 1px 3px rgba(55,30,100,.25);transition:all .3s"></div>
-            </div>
+        <div class="dj-waves" style="position:relative;left:0;right:0;bottom:0;height:16px;flex-shrink:0"><div class="dj-wv" style="background:var(--vi)"></div><div class="dj-wv" style="background:var(--vi)"></div><div class="dj-wv" style="background:var(--vi)"></div><div class="dj-wv" style="background:var(--vi)"></div><div class="dj-wv" style="background:var(--vi)"></div></div>
+      </div>
+
+      <!-- MA POSITION -->
+      <div id="location-card" style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.8rem 1rem;box-shadow:var(--shadow);margin-bottom:.75rem">
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(111,34,255,.1);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0">📍</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.6rem;font-weight:700;color:var(--vi);text-transform:uppercase;letter-spacing:.08em">Ma position</div>
+            <div id="loc-status" style="font-size:.8rem;font-weight:700;color:var(--tx);margin-top:1px">Partager dans la salle</div>
           </div>
-          <div id="loc-zone-selector" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--bdr)">
-            <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Où es-tu ?</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem">
-              <button onclick="selectZone(this,'Piste')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🕺 Piste</button>
-              <button onclick="selectZone(this,'Bar')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🍹 Bar</button>
-              <button onclick="selectZone(this,'Lounge')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🛋️ Lounge</button>
-              <button onclick="selectZone(this,'Entrée')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🚪 Entrée</button>
-            </div>
+          <div id="loc-toggle" onclick="toggleLocation()" style="width:44px;height:26px;border-radius:13px;background:var(--bdr);border:1px solid var(--bdr);position:relative;cursor:pointer;transition:all .3s;flex-shrink:0">
+            <div id="loc-knob" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:9px;background:#FFFFFF;box-shadow:0 1px 3px rgba(55,30,100,.25);transition:all .3s"></div>
+          </div>
+        </div>
+        <div id="loc-zone-selector" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--bdr)">
+          <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Où es-tu ?</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem">
+            <button onclick="selectZone(this,'Piste')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🕺 Piste</button>
+            <button onclick="selectZone(this,'Bar')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🍹 Bar</button>
+            <button onclick="selectZone(this,'Lounge')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🛋️ Lounge</button>
+            <button onclick="selectZone(this,'Entrée')" class="zone-btn" style="padding:.5rem .6rem;border-radius:.75rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.75rem;font-family:Inter,sans-serif;text-align:left;transition:all .2s">🚪 Entrée</button>
           </div>
         </div>
       </div>
 
-      <!-- STATS 2x2 avec barres -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
-        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem .9rem;box-shadow:var(--shadow)">
-          <div id="pst-ev" style="font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;color:var(--vi);line-height:1">0</div>
-          <div style="font-size:.7rem;color:var(--tx3);margin-top:3px">Soirées</div>
-          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-ev" style="height:3px;background:var(--vi);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+      <!-- MON ACTIVITÉ -->
+      <div style="font-size:.95rem;font-weight:700;color:var(--tx);margin-bottom:.6rem">Mon activité</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-bottom:.75rem">
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1rem;padding:.6rem .4rem;box-shadow:var(--shadow);text-align:center">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(111,34,255,.1);display:flex;align-items:center;justify-content:center;font-size:.95rem;margin:0 auto .4rem">📅</div>
+          <div id="pst-ev" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.1rem;color:var(--tx);line-height:1">0</div>
+          <div style="font-size:.6rem;color:var(--tx2);font-weight:600;margin-top:2px">Soirées</div>
+          <div style="font-size:.53rem;color:var(--tx4)">participées</div>
+          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.5rem;overflow:hidden"><div id="bar-ev" style="height:3px;background:var(--vi);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
         </div>
-        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem .9rem;box-shadow:var(--shadow)">
-          <div id="pst-vt" style="font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;color:var(--amber);line-height:1">0</div>
-          <div style="font-size:.7rem;color:var(--tx3);margin-top:3px">Votes</div>
-          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-vt" style="height:3px;background:var(--amber);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1rem;padding:.6rem .4rem;box-shadow:var(--shadow);text-align:center">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,149,0,.12);display:flex;align-items:center;justify-content:center;font-size:.95rem;margin:0 auto .4rem">❤️</div>
+          <div id="pst-vt" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.1rem;color:var(--tx);line-height:1">0</div>
+          <div style="font-size:.6rem;color:var(--tx2);font-weight:600;margin-top:2px">Votes</div>
+          <div style="font-size:.53rem;color:var(--tx4)">exprimés</div>
+          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.5rem;overflow:hidden"><div id="bar-vt" style="height:3px;background:var(--amber);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
         </div>
-        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem .9rem;box-shadow:var(--shadow)">
-          <div id="pst-pr" style="font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;color:var(--blue);line-height:1">0</div>
-          <div style="font-size:.7rem;color:var(--tx3);margin-top:3px">Propositions</div>
-          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-pr" style="height:3px;background:var(--blue);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1rem;padding:.6rem .4rem;box-shadow:var(--shadow);text-align:center">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(0,113,227,.1);display:flex;align-items:center;justify-content:center;font-size:.95rem;margin:0 auto .4rem">🎵</div>
+          <div id="pst-pr" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.1rem;color:var(--tx);line-height:1">0</div>
+          <div style="font-size:.6rem;color:var(--tx2);font-weight:600;margin-top:2px">Props.</div>
+          <div style="font-size:.53rem;color:var(--tx4)">faites</div>
+          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.5rem;overflow:hidden"><div id="bar-pr" style="height:3px;background:var(--blue);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
         </div>
-        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem .9rem;box-shadow:var(--shadow)">
-          <div id="pst-pl" style="font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:800;color:var(--green);line-height:1">0</div>
-          <div style="font-size:.7rem;color:var(--tx3);margin-top:3px">Joués</div>
-          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.55rem;overflow:hidden"><div id="bar-pl" style="height:3px;background:var(--green);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
+        <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1rem;padding:.6rem .4rem;box-shadow:var(--shadow);text-align:center">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(22,201,107,.12);display:flex;align-items:center;justify-content:center;font-size:.95rem;margin:0 auto .4rem">▶️</div>
+          <div id="pst-pl" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.1rem;color:var(--tx);line-height:1">0</div>
+          <div style="font-size:.6rem;color:var(--tx2);font-weight:600;margin-top:2px">Joués</div>
+          <div style="font-size:.53rem;color:var(--tx4)">dans la salle</div>
+          <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:.5rem;overflow:hidden"><div id="bar-pl" style="height:3px;background:var(--green);border-radius:2px;width:0%;transition:width 1s ease"></div></div>
         </div>
       </div>
 
       <!-- AMIS CE SOIR -->
-      <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
-          <div style="font-size:1rem;font-weight:700;color:var(--tx)">Amis ce soir</div>
-          <button onclick="openAddFriend()" style="font-size:.72rem;font-weight:700;color:var(--vi);background:rgba(111,34,255,.08);border:1px solid rgba(111,34,255,.22);border-radius:20px;padding:4px 12px">+ Ajouter</button>
+      <div style="margin-bottom:.75rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">
+          <div style="font-size:.95rem;font-weight:700;color:var(--tx)">Amis ce soir</div>
+          <button onclick="openAddFriend()" style="font-size:.72rem;font-weight:700;color:var(--vi);background:none;border:none">Voir tout</button>
         </div>
-        <div id="profile-friends-list" style="display:flex;flex-direction:column;gap:.4rem">
-          <div style="text-align:center;padding:.75rem;font-size:.78rem;color:var(--tx4)">Aucun ami · appuie sur + Ajouter</div>
+        <div id="profile-friends-list" style="display:flex;gap:.75rem;overflow-x:auto;padding-bottom:2px">
+          <div onclick="openAddFriend()" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer">
+            <div style="width:52px;height:52px;border-radius:50%;border:2px dashed var(--bdr2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--vi)">+</div>
+            <div style="font-size:.62rem;color:var(--tx3)">Ajouter</div>
+          </div>
         </div>
       </div>
 
@@ -1452,8 +1483,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=11"></script>
-<script src="/js/app.js?v=21"></script>
-<script src="/js/render.js?v=6"></script>
+<script src="/js/app.js?v=22"></script>
+<script src="/js/render.js?v=7"></script>
 <script src="/js/chat.js?v=13"></script>
 <script src="/js/auth.js?v=6"></script>
 </body>

@@ -624,23 +624,21 @@ function renderFriendsOnProfile() {
   const list    = document.getElementById('profile-friends-list');
   if (!list) return;
 
-  if (!friends.length) {
-    list.innerHTML = '<div style="text-align:center;padding:.75rem;font-size:.78rem;color:var(--tx4)">Aucun ami · appuie sur + Ajouter</div>';
-    return;
-  }
+  // Le 1er enfant est la tuile statique "+ Ajouter" (cf. index.html) — on ne
+  // touche qu'aux avatars ajoutés dynamiquement après elle.
+  Array.from(list.children).slice(1).forEach(el => el.remove());
 
   const colors = ['linear-gradient(135deg,#6F22FF,#FF1C8E)','linear-gradient(135deg,#0071E3,#16C96B)','linear-gradient(135deg,#FF1C8E,#FF9500)','linear-gradient(135deg,#FF9500,#FF3B30)'];
-  list.innerHTML = '';
   friends.forEach((f, i) => {
     const div = document.createElement('div');
-    div.style.cssText = 'display:flex;align-items:center;gap:.65rem;padding:.6rem .75rem;background:#FFFFFF;border-radius:1rem;border:1px solid var(--bdr)';
+    div.onclick = () => navTo('chat');
+    div.style.cssText = 'flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer';
     div.innerHTML = `
-      <div style="width:38px;height:38px;border-radius:50%;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff;flex-shrink:0">${(f.name||'?')[0].toUpperCase()}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:.88rem;font-weight:600;color:var(--tx)">${f.name}</div>
-        <div style="font-size:.62rem;color:var(--tx4);font-family:'Inter',sans-serif">${f.code}</div>
+      <div style="position:relative">
+        <div style="width:52px;height:52px;border-radius:50%;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:700;color:#fff">${(f.name||'?')[0].toUpperCase()}</div>
+        <div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid #fff"></div>
       </div>
-      <button onclick="navTo('chat')" style="font-size:.7rem;color:var(--vi);background:rgba(111,34,255,.08);border:1px solid rgba(111,34,255,.2);border-radius:9px;padding:4px 10px;font-weight:600;font-family:Inter,sans-serif">Chat</button>`;
+      <div style="font-size:.66rem;color:var(--tx2);font-weight:600;max-width:56px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div>`;
     list.appendChild(div);
   });
 }
