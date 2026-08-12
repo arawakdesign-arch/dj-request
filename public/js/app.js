@@ -704,7 +704,6 @@ document.addEventListener('DOMContentLoaded', () => {
   on('btn-google',       signInGoogle);
   on('btn-phone-action', phoneAction);
   on('btn-orga',         () => showPage('dj-login'));
-  on('btn-guest',        guestLogin);
 
   // Nav
   on('nav-vote',    () => navTo('client'));
