@@ -84,7 +84,18 @@ router.get('/proposals/:eventId', async (req, res) => {
     .eq('event_id', req.params.eventId)
     .order('votes', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
-  res.json(data || []);
+
+  // Attache la liste des votants par proposition : le frontend (totalVoters()
+  // dans render.js) en a besoin pour le compteur "connectés" de la bannière,
+  // qui restait bloqué à 0 faute de cette donnée.
+  const { data: allVotes } = await supabase
+    .from('votes').select('proposal_id, user_id').eq('event_id', req.params.eventId);
+  const votersByProposal = {};
+  (allVotes || []).forEach(v => {
+    (votersByProposal[v.proposal_id] ??= {})[v.user_id] = true;
+  });
+  const enriched = (data || []).map(p => ({ ...p, voters: votersByProposal[p.id] || {} }));
+  res.json(enriched);
 });
 
 router.post('/proposals', requireAuth, async (req, res) => {
