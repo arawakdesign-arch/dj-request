@@ -46,14 +46,30 @@ router.delete('/messages/:id', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
-// ── Réactions ─────────────────────────────────────────────────────────
+// ── Réactions (une seule par utilisateur et par message) ───────────────
 router.patch('/messages/:id/react', requireAuth, async (req, res) => {
   const { emoji } = req.body;
   if (!ALLOWED_REACTIONS.includes(emoji)) return res.status(400).json({ error: 'Réaction invalide' });
 
-  const { data, error } = await supabase.rpc('increment_reaction', { msg_id: req.params.id, emoji });
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ reactions: data });
+  const { data: existing } = await supabase.from('message_reactions')
+    .select('emoji').eq('message_id', req.params.id).eq('user_id', req.user.id).single();
+
+  if (existing?.emoji === emoji) {
+    // Même emoji re-cliqué → on retire la réaction (bascule off)
+    const { error } = await supabase.from('message_reactions')
+      .delete().eq('message_id', req.params.id).eq('user_id', req.user.id);
+    if (error) return res.status(500).json({ error: error.message });
+  } else {
+    // Premier choix ou changement d'emoji → remplace l'éventuelle réaction précédente
+    const { error } = await supabase.from('message_reactions')
+      .upsert({ message_id: req.params.id, user_id: req.user.id, emoji });
+    if (error) return res.status(500).json({ error: error.message });
+  }
+
+  const { data: msg, error: msgError } = await supabase.from('messages')
+    .select('reactions').eq('id', req.params.id).single();
+  if (msgError) return res.status(500).json({ error: msgError.message });
+  res.json({ reactions: msg.reactions });
 });
 
 // ── Message épinglé ──────────────────────────────────────────────────
