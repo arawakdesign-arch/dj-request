@@ -661,15 +661,22 @@ function doSubscribe() {
 document.addEventListener('DOMContentLoaded', () => {
   const on = (id, fn) => { const e = document.getElementById(id); if (e) e.addEventListener('click', fn); };
 
-  // Bannière DJ : se réduit dès qu'on scrolle dans la liste de propositions,
-  // pour laisser plus de place à l'écran — revient dès qu'on remonte en haut.
-  const cliScroll = document.getElementById('cli-scroll');
+  // Bannière DJ : bouton pour la replier/déplier à la main et laisser plus
+  // de place à la liste de propositions — état mémorisé entre les visites.
   const djBanner  = document.getElementById('dj-banner');
-  if (cliScroll && djBanner) {
-    cliScroll.addEventListener('scroll', () => {
-      if (cliScroll.scrollTop > 24)      djBanner.classList.add('collapsed');
-      else if (cliScroll.scrollTop < 8)  djBanner.classList.remove('collapsed');
-    }, { passive: true });
+  const djToggle  = document.getElementById('dj-banner-toggle');
+  if (djBanner && djToggle) {
+    const applyDjBannerState = (collapsed) => {
+      djBanner.classList.toggle('collapsed', collapsed);
+      djToggle.textContent = collapsed ? '⌃' : '⌄';
+      djToggle.setAttribute('aria-label', collapsed ? 'Afficher la bannière DJ' : 'Réduire la bannière DJ');
+    };
+    applyDjBannerState(localStorage.getItem('djr_dj_banner_collapsed') === '1');
+    djToggle.addEventListener('click', () => {
+      const collapsed = !djBanner.classList.contains('collapsed');
+      applyDjBannerState(collapsed);
+      localStorage.setItem('djr_dj_banner_collapsed', collapsed ? '1' : '0');
+    });
   }
 
   // Bannière "Ajouter à l'écran d'accueil" : seule façon d'éliminer les barres
