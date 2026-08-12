@@ -901,15 +901,12 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">›</div>
       </div>
 
-      <!-- STATUT -->
-      <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:.8rem 1rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem">
-        <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,149,0,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0">🔥</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.6rem;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.08em">Statut</div>
-          <div style="font-size:.85rem;font-weight:700;color:var(--tx);margin-top:1px">Actif</div>
-          <div style="font-size:.68rem;color:var(--tx3)">Prêt à ambiancer</div>
-        </div>
-        <div class="dj-waves" style="position:relative;left:0;right:0;bottom:0;height:16px;flex-shrink:0"><div class="dj-wv" style="background:var(--vi)"></div><div class="dj-wv" style="background:var(--vi)"></div><div class="dj-wv" style="background:var(--vi)"></div><div class="dj-wv" style="background:var(--vi)"></div><div class="dj-wv" style="background:var(--vi)"></div></div>
+      <!-- XP / NIVEAU -->
+      <div class="xp-card" style="border-radius:1.25rem;margin-bottom:.6rem">
+        <div class="xp-top"><div class="sec-lbl">Niveau d'implication</div><div id="xp-lv-txt" style="font-family:'Inter',sans-serif;font-weight:700;font-size:.72rem;color:var(--vi)">Niveau 3</div></div>
+        <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+        <div class="xp-lbls"><div class="xp-pts" id="xp-pts">0 pts</div><div style="font-size:.65rem;color:var(--tx4)" id="xp-next">prochain : —</div></div>
+        <div class="levels-strip" id="levels-strip"></div>
       </div>
 
       <!-- MA POSITION -->
@@ -947,14 +944,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
             <div style="font-size:.62rem;color:var(--tx3)">Ajouter</div>
           </div>
         </div>
-      </div>
-
-      <!-- XP / NIVEAU -->
-      <div class="xp-card" style="border-radius:1.25rem;margin-bottom:.75rem">
-        <div class="xp-top"><div class="sec-lbl">Niveau d'implication</div><div id="xp-lv-txt" style="font-family:'Inter',sans-serif;font-weight:700;font-size:.72rem;color:var(--vi)">Niveau 3</div></div>
-        <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
-        <div class="xp-lbls"><div class="xp-pts" id="xp-pts">0 pts</div><div style="font-size:.65rem;color:var(--tx4)" id="xp-next">prochain : —</div></div>
-        <div class="levels-strip" id="levels-strip"></div>
       </div>
 
       <!-- TABS -->
