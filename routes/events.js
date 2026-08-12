@@ -98,6 +98,23 @@ router.get('/proposals/:eventId', async (req, res) => {
   res.json(enriched);
 });
 
+// Noms des derniers votants (bannière de l'événement) ────────────────
+router.get('/events/:id/recent-voters', async (req, res) => {
+  const { data: votes } = await supabase
+    .from('votes').select('user_id, created_at')
+    .eq('event_id', req.params.id)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  const uniqueIds = [...new Set((votes || []).map(v => v.user_id))].slice(0, 8);
+  if (!uniqueIds.length) return res.json([]);
+
+  const { data: profiles } = await supabase
+    .from('user_profiles').select('id, display_name').in('id', uniqueIds);
+  const nameById = Object.fromEntries((profiles || []).map(p => [p.id, p.display_name]));
+  res.json(uniqueIds.map(id => nameById[id] || 'Invité'));
+});
+
 router.post('/proposals', requireAuth, async (req, res) => {
   const { song_id, event_id, title, artist, cover_url } = req.body;
   if (!song_id || !event_id) return res.status(400).json({ error: 'Champs manquants' });

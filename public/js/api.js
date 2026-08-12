@@ -55,6 +55,7 @@ function subscribeToEvent(evId) {
         });
         proposals = fetched;
         renderAll();
+        loadRecentVoters(evId);
       })
     .subscribe(status => console.log('[pullup] Canal proposals:' + evId, '→', status));
 
@@ -101,6 +102,7 @@ async function loadEvent(evId) {
     // téléphone qui l'a uploadé) — sinon les autres invités ne le voient jamais.
     // Alimente aussi la vignette venue-photo de la venue-card (cf. applyFlyer).
     if (typeof applyFlyer === 'function') applyFlyer(ev.flyer_url || null);
+    loadRecentVoters(localEid);
     const ps = await api('GET', '/proposals/' + localEid);
     console.log('[pullup] loadEvent() proposals reçus :', ps.length, 'items pour localEid=', localEid);
     // Normalise cover_url (DB snake_case) → coverUrl (camelCase utilisé par render.js)
@@ -138,4 +140,17 @@ async function loadEvent(evId) {
     toast('Soirée introuvable ou supprimée.');
     renderAll();
   }
+}
+
+// ── Noms des derniers votants (bannière de l'événement) ────────────────
+async function loadRecentVoters(evId) {
+  const row = document.getElementById('venue-recent-voters-row');
+  const txt = document.getElementById('venue-recent-voters-txt');
+  if (!row || !txt) return;
+  try {
+    const names = await api('GET', '/events/' + evId + '/recent-voters');
+    if (!names.length) { row.style.display = 'none'; return; }
+    txt.textContent = names.join(', ');
+    row.style.display = 'block';
+  } catch(e) { row.style.display = 'none'; }
 }
