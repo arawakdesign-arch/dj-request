@@ -52,7 +52,6 @@ function renderClient() {
     const id = child.id?.replace(/^sc-/, '');
     if (child.classList?.contains('song-card') && !keepIds.has(id)) child.remove();
   });
-  let recentVotes = 0;
   const nextState = {};
   s.forEach((p, i) => {
     // Cherche dans CAT sinon utilise les métadonnées stockées dans proposals
@@ -70,7 +69,6 @@ function renderClient() {
       else if (i > prev.rank) { trendCls = 'down'; trendTxt = '▼' + (i - prev.rank); }
     }
     const delta = prev ? votes - prev.votes : 0;
-    if (delta > 0) recentVotes += delta;
     nextState[p.id] = { rank: i, votes };
 
     // Réutilise le nœud existant s'il y en a un (même bouton VOTER, même id) plutôt que
@@ -142,7 +140,6 @@ function renderClient() {
     }
   });
   _prevSongState = nextState;
-  elt('venue-recent-votes', recentVotes);
 }
 
 // ── DJ Queue ─────────────────────────────────────────────────────────

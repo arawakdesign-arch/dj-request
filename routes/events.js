@@ -98,21 +98,16 @@ router.get('/proposals/:eventId', async (req, res) => {
   res.json(enriched);
 });
 
-// Noms des derniers votants (bannière de l'événement) ────────────────
-router.get('/events/:id/recent-voters', async (req, res) => {
-  const { data: votes } = await supabase
-    .from('votes').select('user_id, created_at')
+// Votes/minute réel (bannière de l'événement) — compte les votes des 60
+// dernières secondes, plutôt que le delta de rendu client précédemment
+// utilisé (pas un vrai taux temporel).
+router.get('/events/:id/vote-rate', async (req, res) => {
+  const since = new Date(Date.now() - 60_000).toISOString();
+  const { count } = await supabase
+    .from('votes').select('*', { count: 'exact', head: true })
     .eq('event_id', req.params.id)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  const uniqueIds = [...new Set((votes || []).map(v => v.user_id))].slice(0, 8);
-  if (!uniqueIds.length) return res.json([]);
-
-  const { data: profiles } = await supabase
-    .from('user_profiles').select('id, display_name').in('id', uniqueIds);
-  const nameById = Object.fromEntries((profiles || []).map(p => [p.id, p.display_name]));
-  res.json(uniqueIds.map(id => nameById[id] || 'Invité'));
+    .gte('created_at', since);
+  res.json({ perMinute: count || 0 });
 });
 
 router.post('/proposals', requireAuth, async (req, res) => {

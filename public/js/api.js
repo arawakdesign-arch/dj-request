@@ -55,7 +55,7 @@ function subscribeToEvent(evId) {
         });
         proposals = fetched;
         renderAll();
-        loadRecentVoters(evId);
+        loadVoteRate(evId);
       })
     .subscribe(status => console.log('[pullup] Canal proposals:' + evId, '→', status));
 
@@ -102,7 +102,7 @@ async function loadEvent(evId) {
     // téléphone qui l'a uploadé) — sinon les autres invités ne le voient jamais.
     // Alimente aussi la vignette venue-photo de la venue-card (cf. applyFlyer).
     if (typeof applyFlyer === 'function') applyFlyer(ev.flyer_url || null);
-    loadRecentVoters(localEid);
+    loadVoteRate(localEid);
     const ps = await api('GET', '/proposals/' + localEid);
     console.log('[pullup] loadEvent() proposals reçus :', ps.length, 'items pour localEid=', localEid);
     // Normalise cover_url (DB snake_case) → coverUrl (camelCase utilisé par render.js)
@@ -142,15 +142,12 @@ async function loadEvent(evId) {
   }
 }
 
-// ── Noms des derniers votants (bannière de l'événement) ────────────────
-async function loadRecentVoters(evId) {
-  const row = document.getElementById('venue-recent-voters-row');
-  const txt = document.getElementById('venue-recent-voters-txt');
-  if (!row || !txt) return;
+// ── Votes/minute (bannière de l'événement) ──────────────────────────────
+// Remplace l'ancien calcul client (delta entre deux rendus, pas un vrai
+// taux temporel) par un vrai compte des votes de la dernière minute.
+async function loadVoteRate(evId) {
   try {
-    const names = await api('GET', '/events/' + evId + '/recent-voters');
-    if (!names.length) { row.style.display = 'none'; return; }
-    txt.textContent = names.join(', ');
-    row.style.display = 'block';
-  } catch(e) { row.style.display = 'none'; }
+    const { perMinute } = await api('GET', '/events/' + evId + '/vote-rate');
+    elt('venue-recent-votes', perMinute ?? 0);
+  } catch(e) {}
 }
