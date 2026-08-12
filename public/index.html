@@ -85,9 +85,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .pdot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pdot 1.4s infinite}
 @keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
 /* Topbar app principale : menu + gros logo + live/avatar */
-.tb-app{min-height:104px;padding-top:0;padding-bottom:0;border-bottom:none;background:transparent;backdrop-filter:none}
+.tb-app{min-height:48px;padding-top:0;padding-bottom:0;border-bottom:none;background:transparent;backdrop-filter:none}
 .tb-menu{width:38px;height:38px;border:none;background:none;color:var(--tx);font-size:1.35rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1}
-.app-logo-tb{height:100px;object-fit:contain;position:absolute;left:50%;transform:translateX(-50%);pointer-events:none}
+.app-logo-tb{height:38px;object-fit:contain;position:absolute;left:50%;transform:translateX(-50%);pointer-events:none}
 .tb-right{margin-left:auto;display:flex;align-items:center;gap:.5rem;flex-shrink:0;position:relative;z-index:1}
 .tb-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--bdr);cursor:pointer;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.85rem;font-family:'Inter',sans-serif;background-color:var(--vi)}
 
@@ -762,7 +762,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     <button class="tb-menu" onclick="toggleTopMenu()">☰</button>
     <img src="/images/logo.png" alt="PULL UP!" class="app-logo-tb">
     <div class="tb-right">
-      <div class="tb-live"><div class="pdot"></div>Live</div>
       <div class="tb-avatar" id="tb-avatar" onclick="navTo('profile')"></div>
     </div>
   </div>
