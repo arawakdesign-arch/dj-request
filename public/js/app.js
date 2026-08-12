@@ -415,14 +415,17 @@ function loadFlyerFromStorage() {
 function saveSettings() {
   const evName   = document.getElementById('settings-ev-name')?.value.trim();
   const clubName = document.getElementById('settings-club')?.value.trim();
+  const address  = document.getElementById('settings-address')?.value.trim();
   const hours    = document.getElementById('settings-hours')?.value.trim();
   if (evName)   { ename = evName; const fn = document.getElementById('flyer-ev-name'); if(fn) fn.textContent = evName; }
   if (clubName) { const cn = document.getElementById('club-name-strip'); if(cn) cn.textContent = clubName; }
+  if (address)  { const ad = document.getElementById('venue-addr-txt'); if(ad) ad.textContent = address; }
   if (hours)    { const hs = document.getElementById('venue-hours-txt'); if(hs) hs.textContent = hours; }
   if (eid) {
     const updates = {};
     if (evName)   updates.name      = evName;
     if (clubName) updates.club_name = clubName;
+    if (address)  updates.address   = address;
     if (hours)    updates.hours     = hours;
     if (Object.keys(updates).length) {
       api('PATCH', '/events/' + eid, updates, {dj: true}).catch(e => {
