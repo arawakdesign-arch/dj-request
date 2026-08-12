@@ -33,7 +33,7 @@ router.get('/events/by-name', async (req, res) => {
 router.get('/events/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, club_name, address, hours, lineup, is_active, created_at')
+    .select('id, name, club_name, address, hours, lineup, flyer_url, is_active, created_at')
     .eq('id', req.params.id).single();
   if (error || !data) return res.status(404).json({ error: 'Événement introuvable' });
   res.json(data);

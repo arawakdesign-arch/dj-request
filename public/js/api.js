@@ -97,6 +97,9 @@ async function loadEvent(evId) {
     const cn = document.getElementById('club-name-strip');   if (cn && ev.club_name) cn.textContent = ev.club_name;
     const ad = document.getElementById('venue-addr-txt');    if (ad && ev.address)   ad.textContent = ev.address;
     const hr = document.getElementById('venue-hours-txt');   if (hr && ev.hours)     hr.textContent = ev.hours;
+    // Flyer : le serveur fait autorité (pas seulement le cache local du
+    // téléphone qui l'a uploadé) — sinon les autres invités ne le voient jamais.
+    if (typeof applyFlyer === 'function') applyFlyer(ev.flyer_url || null);
     const ps = await api('GET', '/proposals/' + localEid);
     console.log('[pullup] loadEvent() proposals reçus :', ps.length, 'items pour localEid=', localEid);
     // Normalise cover_url (DB snake_case) → coverUrl (camelCase utilisé par render.js)

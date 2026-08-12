@@ -329,30 +329,44 @@ function applyProfileToUI(profile) {
 // ══ FLYER ════════════════════════════════════════════════════════════
 async function uploadFlyer(input) {
   const file = input.files[0]; if (!file) return;
-  toast('🖼️ Upload flyer…');
+  toast('🖼️ Compression du flyer…');
+
+  let dataUrl;
+  try {
+    dataUrl = await compressImage(file, 1200, 0.8);
+  } catch(e) { toast('❌ Erreur photo'); return; }
 
   // Preview locale immédiate
-  const reader = new FileReader();
-  reader.onload = e => { localStorage.setItem('djr_flyer', e.target.result); applyFlyer(e.target.result); };
-  reader.readAsDataURL(file);
+  localStorage.setItem('djr_flyer', dataUrl);
+  applyFlyer(dataUrl);
 
-  // Upload backend si organisateur connecté à un événement
-  if (eid && _djPassword) {
+  // Upload backend si organisateur connecté à un événement. _djPassword n'est
+  // rempli qu'au moment de la saisie du mot de passe et ne survit pas à un
+  // rechargement de page — on envoie donc aussi le JWT organisateur restauré
+  // (_authToken), sans quoi l'upload échouait silencieusement après un refresh.
+  if (eid && (_authToken || _djPassword)) {
     try {
+      const blob = await (await fetch(dataUrl)).blob();
       const form = new FormData();
-      form.append('flyer', file);
-      const r = await fetch(`/api/events/${eid}/flyer`, {
-        method: 'POST',
-        headers: { 'x-organizer-password': _djPassword },
-        body: form,
-      });
+      form.append('flyer', blob, 'flyer.jpg');
+      const headers = {};
+      if (_authToken)  headers['Authorization']        = 'Bearer ' + _authToken;
+      if (_djPassword) headers['x-organizer-password'] = _djPassword;
+      const r = await fetch(`/api/events/${eid}/flyer`, { method: 'POST', headers, body: form });
       if (r.ok) {
         const { url } = await r.json();
         localStorage.setItem('djr_flyer', url);
         applyFlyer(url);
         toast('✅ Flyer sauvegardé !');
+      } else {
+        const err = await r.json().catch(() => ({}));
+        console.error('[pullup] Échec upload flyer :', err.error || r.status);
+        toast('⚠️ Flyer gardé en local seulement — ' + (err.error || 'échec serveur'));
       }
-    } catch(e) {}
+    } catch(e) {
+      console.error('[pullup] Échec upload flyer :', e.message);
+      toast('⚠️ Flyer gardé en local seulement — ' + e.message);
+    }
   }
 }
 
