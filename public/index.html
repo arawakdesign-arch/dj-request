@@ -220,6 +220,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .venue-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;align-self:stretch}
 .venue-event-name{font-family:'Inter',sans-serif;font-weight:800;font-size:1.15rem;letter-spacing:0;color:var(--tx);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;margin-top:.75rem}
 .venue-event-name:empty{display:none}
+.venue-orga{font-size:.66rem;color:var(--tx3);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.venue-orga:empty{display:none}
 .venue-name{font-family:'Inter',sans-serif;font-weight:700;font-size:.62rem;letter-spacing:.05em;color:var(--vi);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;margin-top:auto}
 .venue-addr{font-size:.66rem;color:var(--tx3);display:flex;align-items:center;gap:.25rem;min-width:0}
 .venue-addr-ico{width:11px;height:11px;flex-shrink:0;color:var(--vi)}
@@ -772,6 +774,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     <div class="venue-photo"><img id="venue-photo-img" src="/images/venue-photo.jpg" alt=""></div>
     <div class="venue-info">
       <div class="venue-event-name" id="venue-event-name"></div>
+      <div class="venue-orga" id="venue-orga"></div>
       <div class="venue-name" id="club-name-strip">Warehouse 42</div>
       <div class="venue-addr">
         <svg class="venue-addr-ico" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s7-7.58 7-13A7 7 0 0 0 5 9c0 5.42 7 13 7 13Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
@@ -1448,8 +1451,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </div>
 
 <script src="/js/config.js?v=2"></script>
-<script src="/js/api.js?v=10"></script>
-<script src="/js/app.js?v=20"></script>
+<script src="/js/api.js?v=11"></script>
+<script src="/js/app.js?v=21"></script>
 <script src="/js/render.js?v=6"></script>
 <script src="/js/chat.js?v=13"></script>
 <script src="/js/auth.js?v=6"></script>

@@ -431,6 +431,7 @@ function saveSettings() {
   if (evName)   { ename = evName; const fn = document.getElementById('flyer-ev-name'); if(fn) fn.textContent = evName;
                   const en = document.getElementById('venue-event-name'); if(en) en.textContent = evName; }
   if (clubName) { const cn = document.getElementById('club-name-strip'); if(cn) cn.textContent = clubName; }
+  if (orga)     { const og = document.getElementById('venue-orga'); if(og) og.textContent = orga; }
   if (address)  { const ad = document.getElementById('venue-addr-txt'); if(ad) ad.textContent = address; }
   if (hours)    { const hs = document.getElementById('venue-hours-txt'); if(hs) hs.textContent = hours; }
   if (eid) {
