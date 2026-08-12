@@ -341,7 +341,8 @@ function refreshDjRegisterButton() {
 }
 
 async function openDjRegister() {
-  if (!(_authToken || _sbSession)) { toast('⚠️ Connecte-toi pour créer ton profil DJ'); return; }
+  showPage('dj-register');
+  if (!(_authToken || _sbSession)) return; // formulaire consultable ; connexion requise seulement à l'enregistrement
   if (!_djProfileCache) await loadDjProfile();
   const p = _djProfileCache || {};
   elt2val('dj-edit-stage-name',     p.stage_name);
@@ -357,11 +358,11 @@ async function openDjRegister() {
   const ini = document.getElementById('dj-edit-initials');
   if (p.photo_url) { img.src = p.photo_url; img.style.display = 'block'; ini.style.display = 'none'; }
   else              { img.style.display = 'none'; ini.style.display = 'flex'; }
-  openModal('modal-dj-register');
 }
 function elt2val(id, v) { const e = document.getElementById(id); if (e) e.value = v || ''; }
 
 async function saveDjProfile() {
+  if (!(_authToken || _sbSession)) { toast('⚠️ Connecte-toi (Google) pour enregistrer ton profil DJ'); return; }
   const stage_name = document.getElementById('dj-edit-stage-name')?.value.trim();
   if (!stage_name) { toast('⚠️ Le nom de scène est requis'); return; }
   const payload = {
@@ -379,7 +380,7 @@ async function saveDjProfile() {
     _djProfileCache = await api('POST', '/dj/profile', payload);
     refreshDjRegisterButton();
     applyDjProfileToPresskit();
-    closeModal('modal-dj-register');
+    showPage(currentUser ? 'profile' : 'auth');
     toast('✅ Profil DJ enregistré !');
   } catch(e) {
     console.error('[pullup] Échec enregistrement profil DJ :', e.message);
