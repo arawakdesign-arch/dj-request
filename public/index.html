@@ -167,7 +167,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 /* ══════════════════════════════════════════════════════════════════
    PAGE — AUTH
 ══════════════════════════════════════════════════════════════════ */
-#pg-auth{justify-content:flex-start;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:clamp(.75rem,4vw,1.75rem);background:#FFFFFF}
+#pg-auth{justify-content:flex-start;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:clamp(.75rem,4vw,1.75rem);background:url('/images/auth-hero-bg.jpg?v=2') center top/cover no-repeat,#FFFFFF;position:relative}
+#pg-auth::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.94) 48%,#FFFFFF 68%);pointer-events:none;z-index:0}
+#pg-auth>*{position:relative;z-index:1}
 .auth-wrap{width:100%;max-width:360px;display:flex;flex-direction:column;gap:1.25rem;padding:clamp(.4rem,2vh,.75rem) 0}
 .auth-hero{text-align:center}
 .auth-ring{width:74px;height:74px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto .6rem;box-shadow:0 8px 30px rgba(111,34,255,.3)}
