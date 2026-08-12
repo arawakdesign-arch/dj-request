@@ -331,7 +331,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .chat-pinned-ico{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#8D2CFF,#FF1C8E);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;box-shadow:0 4px 12px rgba(255,28,142,.35);cursor:pointer}
 
 /* ── DJ BANNER — signature visuelle (bannière sombre) ────────────── */
-.dj-banner{margin:0 .65rem .5rem;background:var(--dj-card);border-radius:20px;padding:.4rem 0 .4rem 6rem;position:relative;overflow:visible;display:flex;align-items:flex-start;gap:.5rem;min-height:60px}
+.dj-banner{margin:0 .65rem .5rem;background:var(--dj-card);border-radius:20px;padding:.4rem 0 .4rem 6rem;position:relative;overflow:visible;display:flex;align-items:flex-start;gap:.5rem;min-height:60px;max-height:200px;opacity:1;transition:max-height .28s ease,opacity .22s ease,margin .28s ease}
+.dj-banner.collapsed{max-height:0;min-height:0;opacity:0;margin:0 .65rem;overflow:hidden;pointer-events:none}
 .dj-banner::before{content:'';position:absolute;inset:0;border-radius:20px;background:radial-gradient(circle at 90% 0%,rgba(255,28,142,.28),transparent 55%),radial-gradient(circle at 0% 100%,rgba(111,34,255,.35),transparent 55%)}
 .dj-banner-avatar{position:absolute;left:-1rem;top:-.6rem;width:140px;height:auto;z-index:2;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
 .dj-banner-body{position:relative;z-index:2;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:1rem;padding-bottom:1rem}
@@ -782,8 +783,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     </div>
   </div>
 
-  <!-- DJ BANNER (fixe, ne défile pas) -->
-  <div class="dj-banner">
+  <!-- DJ BANNER (se réduit au scroll pour laisser plus de place à la liste) -->
+  <div class="dj-banner" id="dj-banner">
     <img class="dj-banner-avatar" id="dj-banner-avatar" src="/images/dj-avatar.png?v=1" alt="DJ Nova">
     <div class="dj-banner-body">
       <div class="dj-name-tag">DJ NOVA</div>
@@ -801,7 +802,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     </div>
   </div>
 
-  <div class="scroll">
+  <div class="scroll" id="cli-scroll">
     <div class="list-hdr"><span style="font-size:.75rem;font-weight:700;color:var(--tx);letter-spacing:.02em">Propositions</span><span class="vote-cnt" id="cli-total">0 votes</span></div>
     <div id="cli-list"></div>
 
