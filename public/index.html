@@ -339,22 +339,21 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .chat-pinned-ico{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#8D2CFF,#FF1C8E);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;box-shadow:0 4px 12px rgba(255,28,142,.35);cursor:pointer}
 
 /* ── DJ BANNER — signature visuelle (bannière sombre) ────────────── */
-.dj-banner{margin:0 .65rem .5rem;background:var(--dj-card);border-radius:20px;padding:.4rem 0 .4rem 6rem;position:relative;overflow:visible;display:flex;align-items:flex-start;gap:.5rem;min-height:60px;max-height:200px;opacity:1;transition:max-height .28s ease,opacity .22s ease,margin .28s ease}
-.dj-banner.collapsed{max-height:0;min-height:0;opacity:0;margin:0 .65rem;overflow:hidden;pointer-events:none}
-.dj-banner::before{content:'';position:absolute;inset:0;border-radius:20px;background:radial-gradient(circle at 90% 0%,rgba(255,28,142,.28),transparent 55%),radial-gradient(circle at 0% 100%,rgba(111,34,255,.35),transparent 55%)}
-.dj-banner-avatar{position:absolute;left:-1rem;top:-.6rem;width:140px;height:auto;z-index:2;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
-.dj-banner-body{position:relative;z-index:2;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:1rem;padding-bottom:1rem}
-.dj-name-tag{position:absolute;top:.1rem;left:50%;transform:translateX(-50%);z-index:4;display:inline-block;font-size:.62rem;font-weight:800;color:#fff;background:rgba(255,28,142,.6);border:1px solid rgba(255,28,142,.8);border-radius:8px;padding:1px 7px;letter-spacing:.04em;white-space:nowrap}
-.dj-bubble{position:relative;left:.9rem;display:inline-flex;align-items:center;gap:.35rem;background:#FFFFFF;color:var(--tx);font-size:.68rem;font-weight:600;padding:.25rem .65rem;border-radius:14px 14px 14px 4px;margin-bottom:.35rem;max-width:100%}
-.dj-tag{font-size:.56rem;font-weight:700;color:var(--pk);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:.3rem;margin-top:.3rem}
-.dj-track-t{font-size:.88rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dj-track-a{font-size:.7rem;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dj-waves{position:absolute;bottom:-.35rem;left:50%;transform:translateX(-50%);z-index:4;display:flex;gap:3px;align-items:flex-end;justify-content:center;height:16px}
+.dj-banner{margin:0 .65rem .5rem;background:var(--dj-card);border-radius:16px;padding:.3rem 0 .3rem 4rem;position:relative;overflow:visible;display:flex;align-items:flex-start;gap:.4rem;min-height:40px}
+.dj-banner::before{content:'';position:absolute;inset:0;border-radius:16px;background:radial-gradient(circle at 90% 0%,rgba(255,28,142,.28),transparent 55%),radial-gradient(circle at 0% 100%,rgba(111,34,255,.35),transparent 55%)}
+.dj-banner-avatar{position:absolute;left:-.7rem;top:-.35rem;width:88px;height:auto;z-index:2;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
+.dj-banner-body{position:relative;z-index:2;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:.55rem;padding-bottom:.55rem}
+.dj-name-tag{position:absolute;top:.1rem;left:50%;transform:translateX(-50%);z-index:4;display:inline-block;font-size:.58rem;font-weight:800;color:#fff;background:rgba(255,28,142,.6);border:1px solid rgba(255,28,142,.8);border-radius:8px;padding:1px 7px;letter-spacing:.04em;white-space:nowrap}
+.dj-bubble{position:relative;left:.9rem;display:inline-flex;align-items:center;gap:.35rem;background:#FFFFFF;color:var(--tx);font-size:.64rem;font-weight:600;padding:.2rem .6rem;border-radius:14px 14px 14px 4px;margin-bottom:.25rem;max-width:100%}
+.dj-tag{font-size:.56rem;font-weight:700;color:var(--pk);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:.3rem;margin-top:.2rem}
+.dj-track-t{font-size:.8rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dj-track-a{font-size:.66rem;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dj-waves{position:absolute;bottom:-.3rem;left:50%;transform:translateX(-50%);z-index:4;display:flex;gap:3px;align-items:flex-end;justify-content:center;height:14px}
 .dj-wv{width:3px;border-radius:2px 2px 0 0;background:var(--pk);animation:wva 1s ease-in-out infinite;transform-origin:bottom}
 .dj-wv:nth-child(1){animation-delay:0s;height:35%}.dj-wv:nth-child(2){animation-delay:.14s;height:100%}.dj-wv:nth-child(3){animation-delay:.28s;height:60%}.dj-wv:nth-child(4){animation-delay:.14s;height:80%}.dj-wv:nth-child(5){animation-delay:0s;height:30%}
 @keyframes wva{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
-.dj-cover-wrap{position:relative;z-index:2;flex-shrink:0;width:100px;display:flex;flex-direction:column;align-items:center}
-.dj-cover{width:100px;height:100px;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.4);position:relative;z-index:2;background:rgba(111,34,255,.3);display:flex;align-items:center;justify-content:center;font-size:2rem}
+.dj-cover-wrap{position:relative;z-index:2;flex-shrink:0;width:64px;display:flex;flex-direction:column;align-items:center}
+.dj-cover{width:64px;height:64px;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.4);position:relative;z-index:2;background:rgba(111,34,255,.3);display:flex;align-items:center;justify-content:center;font-size:1.4rem}
 .dj-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1453,7 +1452,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=9"></script>
-<script src="/js/app.js?v=18"></script>
+<script src="/js/app.js?v=19"></script>
 <script src="/js/render.js?v=6"></script>
 <script src="/js/chat.js?v=13"></script>
 <script src="/js/auth.js?v=6"></script>

@@ -661,17 +661,6 @@ function doSubscribe() {
 document.addEventListener('DOMContentLoaded', () => {
   const on = (id, fn) => { const e = document.getElementById(id); if (e) e.addEventListener('click', fn); };
 
-  // Bannière DJ : se réduit dès qu'on scrolle dans la liste de propositions,
-  // pour laisser plus de place à l'écran — revient dès qu'on remonte en haut.
-  const cliScroll = document.getElementById('cli-scroll');
-  const djBanner  = document.getElementById('dj-banner');
-  if (cliScroll && djBanner) {
-    cliScroll.addEventListener('scroll', () => {
-      if (cliScroll.scrollTop > 24)      djBanner.classList.add('collapsed');
-      else if (cliScroll.scrollTop < 8)  djBanner.classList.remove('collapsed');
-    }, { passive: true });
-  }
-
   // Bannière "Ajouter à l'écran d'accueil" : seule façon d'éliminer les barres
   // Safari sur iOS (impossible à masquer autrement depuis un onglet du navigateur).
   const isIOS       = /iPhone|iPod|iPad/.test(navigator.userAgent) ||
