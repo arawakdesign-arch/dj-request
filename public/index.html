@@ -1420,8 +1420,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
   <!-- Input bar -->
   <div style="flex-shrink:0;padding:.65rem .75rem;background:#FFFFFF;border-top:1px solid var(--bdr);display:flex;align-items:flex-end;gap:.5rem">
-    <button onclick="document.getElementById('chat-photo-input').click()" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--bdr);background:var(--ink5);font-size:1.15rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s" title="Photo">📷</button>
-    <input type="file" id="chat-photo-input" accept="image/*" style="display:none" onchange="sendPhoto(this)">
     <textarea id="chat-input" placeholder="Message…" rows="1"
       style="flex:1;background:var(--ink5);border:1px solid var(--bdr);border-radius:14px;padding:.65rem .9rem;color:var(--tx);font-size:16px;font-family:'Inter',sans-serif;outline:none;resize:none;max-height:100px;transition:border-color .2s;line-height:1.4;-webkit-appearance:none"
       oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';chatInputChanged()"
