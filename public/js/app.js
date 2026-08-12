@@ -374,6 +374,16 @@ function removeFlyer() {
   localStorage.removeItem('djr_flyer');
   applyFlyer(null);
   toast('🗑️ Flyer retiré');
+  // Sans ça, flyer_url reste en base côté serveur : le flyer "retiré"
+  // revenait dès le prochain chargement (pour tout le monde).
+  if (eid && (_authToken || _djPassword)) {
+    const headers = {};
+    if (_authToken)  headers['Authorization']        = 'Bearer ' + _authToken;
+    if (_djPassword) headers['x-organizer-password'] = _djPassword;
+    fetch(`/api/events/${eid}/flyer`, { method: 'DELETE', headers }).catch(e => {
+      console.error('[pullup] Échec suppression flyer serveur :', e.message);
+    });
+  }
 }
 
 function applyFlyer(dataUrl) {
