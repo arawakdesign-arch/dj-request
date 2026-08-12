@@ -382,6 +382,8 @@ function applyFlyer(dataUrl) {
   const grid      = document.getElementById('flyer-grid');
   const preview   = document.getElementById('flyer-preview-dj');
   const hint      = document.getElementById('flyer-preview-hint');
+  const venuePhoto = document.getElementById('venue-photo-img');
+  if (venuePhoto) venuePhoto.src = dataUrl || '/images/venue-photo.jpg';
 
   if (dataUrl) {
     // Fond client : image en background
