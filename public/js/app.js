@@ -10,6 +10,16 @@ let locActive = false, selectedZone = '';
 
 // ══ UTILS ════════════════════════════════════════════════════════════
 function elt(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
+// fetch() sur une data: URL est bloqué par notre CSP (connect-src) — on
+// décode le base64 nous-mêmes pour obtenir un Blob à uploader.
+function dataURLtoBlob(dataUrl) {
+  const [header, base64] = dataUrl.split(',');
+  const mime   = header.match(/:(.*?);/)[1];
+  const binary = atob(base64);
+  const bytes  = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
 function getUid() {
   let u = localStorage.getItem('djr_uid');
   if (!u) { u = Math.random().toString(36).slice(2); localStorage.setItem('djr_uid', u); }
@@ -276,7 +286,7 @@ async function uploadProfilePhoto(input) {
   // Upload backend si connecté
   if (_authToken || _sbSession) {
     try {
-      const blob = await (await fetch(dataUrl)).blob();
+      const blob = dataURLtoBlob(dataUrl);
       const form = new FormData();
       form.append('photo', blob, 'avatar.jpg');
       const r = await fetch('/api/profile/photo', {
@@ -346,7 +356,7 @@ async function uploadFlyer(input) {
   // (_authToken), sans quoi l'upload échouait silencieusement après un refresh.
   if (eid && (_authToken || _djPassword)) {
     try {
-      const blob = await (await fetch(dataUrl)).blob();
+      const blob = dataURLtoBlob(dataUrl);
       const form = new FormData();
       form.append('flyer', blob, 'flyer.jpg');
       const headers = {};
