@@ -14,6 +14,7 @@ const eventsRouter   = require('./routes/events');
 const messagesRouter = require('./routes/messages');
 const liveRouter     = require('./routes/live');
 const profileRouter  = require('./routes/profile');
+const djRouter       = require('./routes/dj');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -71,6 +72,7 @@ app.use('/api', eventsRouter);
 app.use('/api', messagesRouter);
 app.use('/api', liveRouter);
 app.use('/api', profileRouter);
+app.use('/api', djRouter);
 
 // ══ SPA FALLBACK ══════════════════════════════════════════════════════
 app.get('*', (req, res) => {

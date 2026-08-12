@@ -49,6 +49,7 @@ function showPage(id) {
   if (id === 'profile')   renderProfile();
   if (id === 'dj')        renderAll();
   if (id === 'chat')      { chatMarkRead(); scrollChatBottom(); }
+  if (id === 'presskit')  { if (_djProfileCache) applyDjProfileToPresskit(); else loadDjProfile(); }
 }
 
 function navTo(id) {
@@ -311,6 +312,143 @@ async function uploadProfilePhoto(input) {
       toast('⚠️ Photo gardée en local seulement — ' + e.message);
     }
   }
+}
+
+// ══ PROFIL DJ (inscription / press kit) ═════════════════════════════
+let _djProfileCache = null; // {} tant que non chargé, {stage_name:...} une fois connu
+
+async function loadDjProfile() {
+  if (!(_authToken || _sbSession)) return null;
+  try {
+    _djProfileCache = await api('GET', '/dj/profile');
+  } catch(e) { _djProfileCache = null; }
+  refreshDjRegisterButton();
+  if (document.getElementById('pg-presskit')?.classList.contains('active')) applyDjProfileToPresskit();
+  return _djProfileCache;
+}
+
+function refreshDjRegisterButton() {
+  const title = document.getElementById('btn-dj-register-title');
+  const sub   = document.getElementById('btn-dj-register-sub');
+  if (!title || !sub) return;
+  if (_djProfileCache?.stage_name) {
+    title.textContent = 'Mon profil DJ';
+    sub.textContent    = _djProfileCache.stage_name;
+  } else {
+    title.textContent = 'Devenir DJ';
+    sub.textContent    = "Crée ton profil et ton press kit";
+  }
+}
+
+async function openDjRegister() {
+  if (!(_authToken || _sbSession)) { toast('⚠️ Connecte-toi pour créer ton profil DJ'); return; }
+  if (!_djProfileCache) await loadDjProfile();
+  const p = _djProfileCache || {};
+  elt2val('dj-edit-stage-name',     p.stage_name);
+  elt2val('dj-edit-tagline',        p.tagline);
+  elt2val('dj-edit-bio',            p.bio);
+  elt2val('dj-edit-city',           p.city);
+  elt2val('dj-edit-genres',         p.genres);
+  elt2val('dj-edit-instagram',      p.instagram);
+  elt2val('dj-edit-soundcloud',     p.soundcloud);
+  elt2val('dj-edit-ra',             p.resident_advisor);
+  elt2val('dj-edit-booking-email',  p.booking_email);
+  const img = document.getElementById('dj-edit-img');
+  const ini = document.getElementById('dj-edit-initials');
+  if (p.photo_url) { img.src = p.photo_url; img.style.display = 'block'; ini.style.display = 'none'; }
+  else              { img.style.display = 'none'; ini.style.display = 'flex'; }
+  openModal('modal-dj-register');
+}
+function elt2val(id, v) { const e = document.getElementById(id); if (e) e.value = v || ''; }
+
+async function saveDjProfile() {
+  const stage_name = document.getElementById('dj-edit-stage-name')?.value.trim();
+  if (!stage_name) { toast('⚠️ Le nom de scène est requis'); return; }
+  const payload = {
+    stage_name,
+    tagline:          document.getElementById('dj-edit-tagline')?.value.trim(),
+    bio:               document.getElementById('dj-edit-bio')?.value.trim(),
+    city:              document.getElementById('dj-edit-city')?.value.trim(),
+    genres:            document.getElementById('dj-edit-genres')?.value.trim(),
+    instagram:         document.getElementById('dj-edit-instagram')?.value.trim(),
+    soundcloud:        document.getElementById('dj-edit-soundcloud')?.value.trim(),
+    resident_advisor:  document.getElementById('dj-edit-ra')?.value.trim(),
+    booking_email:     document.getElementById('dj-edit-booking-email')?.value.trim(),
+  };
+  try {
+    _djProfileCache = await api('POST', '/dj/profile', payload);
+    refreshDjRegisterButton();
+    applyDjProfileToPresskit();
+    closeModal('modal-dj-register');
+    toast('✅ Profil DJ enregistré !');
+  } catch(e) {
+    console.error('[pullup] Échec enregistrement profil DJ :', e.message);
+    toast('⚠️ Erreur : ' + e.message);
+  }
+}
+
+async function uploadDjPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  toast('📷 Compression de la photo…');
+  let dataUrl;
+  try { dataUrl = await compressImage(file, 500, 0.8); } catch(e) { toast('❌ Erreur photo'); return; }
+
+  const img = document.getElementById('dj-edit-img');
+  const ini = document.getElementById('dj-edit-initials');
+  if (img) { img.src = dataUrl; img.style.display = 'block'; }
+  if (ini) ini.style.display = 'none';
+
+  try {
+    const blob = dataURLtoBlob(dataUrl);
+    const form = new FormData();
+    form.append('photo', blob, 'avatar.jpg');
+    const r = await fetch('/api/dj/profile/photo', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + (_authToken || _sbSession.access_token) },
+      body: form,
+    });
+    if (r.ok) {
+      const { url } = await r.json();
+      if (_djProfileCache) _djProfileCache.photo_url = url;
+      applyDjProfileToPresskit();
+      toast('✅ Photo sauvegardée !');
+    } else {
+      const err = await r.json().catch(() => ({}));
+      toast('⚠️ Échec upload — ' + (err.error || 'erreur serveur'));
+    }
+  } catch(e) {
+    toast('⚠️ Échec upload — ' + e.message);
+  }
+}
+
+function copyBookingEmail() {
+  const mail = _djProfileCache?.booking_email;
+  if (mail) navigator.clipboard?.writeText(mail).then(() => toast('📧 ' + mail + ' copié'));
+  else      toast('📧 booking@djnova.fr copié');
+}
+
+// Applique le profil DJ connecté à la page Press Kit (si présent) — sinon
+// la page garde son contenu de démonstration (DJ Nova) tel quel.
+function applyDjProfileToPresskit() {
+  const p = _djProfileCache;
+  const editBtn = document.getElementById('pk-edit-btn');
+  if (!p || !p.stage_name) { if (editBtn) editBtn.style.display = 'none'; return; }
+
+  elt('pk-name', p.stage_name.toUpperCase());
+  if (p.tagline) elt('pk-tagline', p.tagline);
+  if (p.city)    { const el = document.getElementById('pk-location'); if (el) el.textContent = '📍 ' + p.city; }
+  if (p.photo_url) { const img = document.getElementById('pk-photo'); if (img) img.src = p.photo_url; }
+  if (p.booking_email) elt('pk-booking-email', p.booking_email);
+
+  const socWrap = document.getElementById('pk-socials');
+  if (socWrap) {
+    const ig = document.getElementById('pk-soc-ig'), sc = document.getElementById('pk-soc-sc'), ra = document.getElementById('pk-soc-ra');
+    if (ig) ig.style.display = p.instagram        ? '' : 'none';
+    if (sc) sc.style.display = p.soundcloud       ? '' : 'none';
+    if (ra) ra.style.display = p.resident_advisor ? '' : 'none';
+  }
+
+  if (editBtn) editBtn.style.display = 'block';
 }
 
 function applyProfileToUI(profile) {
@@ -739,6 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Profil
   on('btn-edit-profile',    openProfileEdit);
   on('btn-save-profile',    saveProfile);
+  on('btn-save-dj-profile', saveDjProfile);
   on('btn-user-logout',     logout);
 
   // Amis

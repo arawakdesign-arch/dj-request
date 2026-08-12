@@ -966,6 +966,17 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div style="height:.5rem"></div>
 
       <!-- ACCÈS ORGANISATEUR -->
+      <div style="margin-bottom:.5rem">
+        <button id="btn-dj-register-entry" onclick="openDjRegister()" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(255,28,142,.2);background:rgba(255,28,142,.05);cursor:pointer;transition:all .2s">
+          <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,28,142,.12);border:1px solid rgba(255,28,142,.25);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🎧</div>
+          <div style="text-align:left;flex:1">
+            <div id="btn-dj-register-title" style="font-size:.88rem;font-weight:700;color:var(--pk)">Devenir DJ</div>
+            <div id="btn-dj-register-sub" style="font-size:.7rem;color:var(--tx3);margin-top:2px">Crée ton profil et ton press kit</div>
+          </div>
+          <div style="color:var(--pk);font-size:1rem">→</div>
+        </button>
+      </div>
+
       <div id="orga-access-btn" style="margin-bottom:.5rem">
         <button onclick="djLoggedIn?navTo('dj'):showPage('dj-login')" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;transition:all .2s">
           <div style="width:42px;height:42px;border-radius:12px;background:rgba(111,34,255,.15);border:1px solid rgba(111,34,255,.28);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🎛️</div>
@@ -1071,6 +1082,65 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
     <button class="btn-g" id="btn-save-profile">Enregistrer</button>
     <button class="btn-outline" onclick="closeModal('modal-profile-edit')" style="margin-top:.4rem">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL INSCRIPTION / ÉDITION PROFIL DJ -->
+<div class="modal-ov" id="modal-dj-register" onclick="closeModalOut('modal-dj-register',event)">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Mon profil DJ</div>
+
+    <!-- Photo -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:1.25rem">
+      <div id="dj-edit-avatar" onclick="document.getElementById('dj-photo-input').click()" style="width:90px;height:90px;border-radius:50%;background:var(--grd);overflow:hidden;position:relative;cursor:pointer;border:2px solid #FFFFFF;box-shadow:var(--shadow);margin-bottom:.6rem">
+        <img id="dj-edit-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none">
+        <div id="dj-edit-initials" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff">🎧</div>
+        <div style="position:absolute;inset:0;background:rgba(16,16,20,.35);display:flex;align-items:center;justify-content:center;font-size:1.2rem;border-radius:50%;color:#fff">📷</div>
+      </div>
+      <input type="file" id="dj-photo-input" accept="image/*" style="display:none" onchange="uploadDjPhoto(this)">
+      <div style="font-size:.7rem;color:var(--tx4)">Appuyer pour changer</div>
+    </div>
+
+    <div class="fl">
+      <label>Nom de scène</label>
+      <input class="fi" id="dj-edit-stage-name" type="text" placeholder="DJ Nova" maxlength="30">
+    </div>
+    <div class="fl">
+      <label>Accroche</label>
+      <input class="fi" id="dj-edit-tagline" type="text" placeholder="Producteur et DJ français…" maxlength="90">
+    </div>
+    <div class="fl">
+      <label>Bio</label>
+      <textarea class="fi" id="dj-edit-bio" placeholder="Parle de ton parcours, ton style…" maxlength="500" rows="3" style="resize:none;height:auto;line-height:1.5"></textarea>
+    </div>
+    <div class="fl">
+      <label>Ville</label>
+      <input class="fi" id="dj-edit-city" type="text" placeholder="Paris, France" maxlength="60">
+    </div>
+    <div class="fl">
+      <label>Genres</label>
+      <input class="fi" id="dj-edit-genres" type="text" placeholder="Techno, House, Électro" maxlength="80">
+    </div>
+    <div class="fl">
+      <label>Instagram</label>
+      <input class="fi" id="dj-edit-instagram" type="text" placeholder="@djnova (optionnel)" maxlength="60">
+    </div>
+    <div class="fl">
+      <label>SoundCloud</label>
+      <input class="fi" id="dj-edit-soundcloud" type="text" placeholder="soundcloud.com/djnova (optionnel)" maxlength="120">
+    </div>
+    <div class="fl">
+      <label>Resident Advisor</label>
+      <input class="fi" id="dj-edit-ra" type="text" placeholder="ra.co/dj/djnova (optionnel)" maxlength="120">
+    </div>
+    <div class="fl" style="margin-bottom:1.25rem">
+      <label>Email de booking</label>
+      <input class="fi" id="dj-edit-booking-email" type="email" placeholder="booking@djnova.fr">
+    </div>
+
+    <button class="btn-g" id="btn-save-dj-profile">Enregistrer</button>
+    <button class="btn-outline" onclick="closeModal('modal-dj-register')" style="margin-top:.4rem">Annuler</button>
   </div>
 </div>
 
@@ -1218,20 +1288,21 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
     <!-- HERO -->
     <div style="margin:0 1rem;border-radius:1.5rem;overflow:hidden;position:relative;height:320px;background:var(--dj-card)">
-      <img src="/images/dj-avatar.png?v=1" alt="DJ Nova" style="position:absolute;right:-10px;bottom:0;height:104%;object-fit:contain;object-position:bottom right">
+      <img id="pk-photo" src="/images/dj-avatar.png?v=1" alt="DJ Nova" style="position:absolute;right:-10px;bottom:0;height:104%;object-fit:contain;object-position:bottom right">
       <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,16,20,.94) 0%,rgba(16,16,20,.8) 42%,rgba(16,16,20,.2) 75%,transparent 100%)"></div>
       <div style="position:absolute;left:1.25rem;right:2.5rem;top:1.5rem">
         <div id="pk-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:2.1rem;letter-spacing:-.01em;line-height:1;color:#fff">DJ NOVA</div>
-        <div style="font-size:.8rem;color:rgba(255,255,255,.75);line-height:1.55;margin-top:.65rem;max-width:210px">Producteur et DJ français, DJ Nova délivre une house élégante, euphorique et percutante.</div>
+        <div id="pk-tagline" style="font-size:.8rem;color:rgba(255,255,255,.75);line-height:1.55;margin-top:.65rem;max-width:210px">Producteur et DJ français, DJ Nova délivre une house élégante, euphorique et percutante.</div>
       </div>
-      <div style="position:absolute;left:1.25rem;bottom:1.25rem;display:flex;align-items:center;gap:.3rem;font-size:.78rem;color:rgba(255,255,255,.85)">📍 Paris, France</div>
+      <div id="pk-location" style="position:absolute;left:1.25rem;bottom:1.25rem;display:flex;align-items:center;gap:.3rem;font-size:.78rem;color:rgba(255,255,255,.85)">📍 Paris, France</div>
+      <button id="pk-edit-btn" onclick="openDjRegister()" style="display:none;position:absolute;right:1.25rem;bottom:1.25rem;padding:.4rem .8rem;border-radius:20px;border:1px solid rgba(255,255,255,.35);background:rgba(16,16,20,.4);color:#fff;font-size:.72rem;font-weight:600">✎ Modifier</button>
     </div>
 
     <!-- RÉSEAUX -->
-    <div style="display:flex;gap:.5rem;padding:1rem 1rem 0">
-      <button onclick="toast('📷 Instagram')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">📷 Instagram</button>
-      <button onclick="toast('☁️ SoundCloud')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">☁️ SoundCloud</button>
-      <button onclick="toast('⚫ Resident Advisor')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">⚫ RA</button>
+    <div id="pk-socials" style="display:flex;gap:.5rem;padding:1rem 1rem 0">
+      <button id="pk-soc-ig" onclick="toast('📷 Instagram')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">📷 Instagram</button>
+      <button id="pk-soc-sc" onclick="toast('☁️ SoundCloud')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">☁️ SoundCloud</button>
+      <button id="pk-soc-ra" onclick="toast('⚫ Resident Advisor')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">⚫ RA</button>
     </div>
 
     <!-- LIVE SUR PULL UP -->
@@ -1297,11 +1368,11 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <div style="color:var(--green);font-size:1.15rem;flex-shrink:0">🌐</div>
       </div>
 
-      <div style="background:rgba(111,34,255,.06);border:1px solid rgba(111,34,255,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem;cursor:pointer" onclick="toast('📧 booking@djnova.fr copié')">
+      <div style="background:rgba(111,34,255,.06);border:1px solid rgba(111,34,255,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem;cursor:pointer" onclick="copyBookingEmail()">
         <div style="width:40px;height:40px;border-radius:12px;background:rgba(111,34,255,.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;color:var(--vi)">✉️</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:.85rem;font-weight:700;color:var(--tx)">Contact booking</div>
-          <div style="font-size:.82rem;color:var(--vi);font-weight:600;margin-top:1px">booking@djnova.fr</div>
+          <div id="pk-booking-email" style="font-size:.82rem;color:var(--vi);font-weight:600;margin-top:1px">booking@djnova.fr</div>
           <div style="font-size:.66rem;color:var(--tx4);margin-top:1px">Réponse garantie sous 48h</div>
         </div>
         <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">›</div>
@@ -1388,9 +1459,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=11"></script>
-<script src="/js/app.js?v=26"></script>
+<script src="/js/app.js?v=27"></script>
 <script src="/js/render.js?v=9"></script>
 <script src="/js/chat.js?v=13"></script>
-<script src="/js/auth.js?v=6"></script>
+<script src="/js/auth.js?v=7"></script>
 </body>
 </html>
