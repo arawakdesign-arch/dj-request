@@ -349,7 +349,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .dj-tag{font-size:.56rem;font-weight:700;color:var(--pk);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:.3rem;margin-top:.3rem}
 .dj-track-t{font-size:.88rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dj-track-a{font-size:.7rem;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dj-waves{position:absolute;bottom:-.35rem;left:50%;transform:translateX(-50%);z-index:4;display:flex;gap:3px;align-items:flex-end;justify-content:center;height:16px}
+.dj-waves{position:absolute;left:0;right:0;bottom:.45rem;z-index:4;display:flex;gap:3px;align-items:flex-end;justify-content:center;height:16px;pointer-events:none}
 .dj-wv{width:3px;border-radius:2px 2px 0 0;background:var(--pk);animation:wva 1s ease-in-out infinite;transform-origin:bottom}
 .dj-wv:nth-child(1){animation-delay:0s;height:35%}.dj-wv:nth-child(2){animation-delay:.14s;height:100%}.dj-wv:nth-child(3){animation-delay:.28s;height:60%}.dj-wv:nth-child(4){animation-delay:.14s;height:80%}.dj-wv:nth-child(5){animation-delay:0s;height:30%}
 @keyframes wva{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
@@ -806,7 +806,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div class="dj-bubble"><span id="dj-bubble-text">On est en feu ce soir 🔥</span></div>
       <div class="dj-track-t" id="cli-now-t">En attente…</div>
       <div class="dj-track-a" id="cli-now-a"></div>
-      <div class="dj-waves"><div class="dj-wv"></div><div class="dj-wv"></div><div class="dj-wv"></div><div class="dj-wv"></div><div class="dj-wv"></div></div>
     </div>
     <div class="dj-cover-wrap">
       <div class="dj-cover" id="dj-cover">
@@ -815,6 +814,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       </div>
       <div class="dj-tag">Now play</div>
     </div>
+    <div class="dj-waves"><div class="dj-wv"></div><div class="dj-wv"></div><div class="dj-wv"></div><div class="dj-wv"></div><div class="dj-wv"></div></div>
   </div>
 
   <div class="scroll" id="cli-scroll">
