@@ -406,7 +406,6 @@ function renderProfile() {
   }
 
   animCount('pst-ev', totEv); animCount('pst-vt', totVt); animCount('pst-pr', totPr); animCount('pst-pl', totPl);
-  animCount('hst-ev', totEv); animCount('hst-vt', totVt); animCount('hst-pr', totPr); animCount('hst-pl', totPl);
   setTimeout(() => {
     const bev = document.getElementById('bar-ev'); if(bev) bev.style.width = Math.min(100,totEv*20)+'%';
     const bvt = document.getElementById('bar-vt'); if(bvt) bvt.style.width = Math.min(100,totVt*2.5)+'%';
