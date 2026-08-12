@@ -252,36 +252,33 @@ async function loadRemoteProfile() {
 
 async function uploadProfilePhoto(input) {
   const file = input.files[0]; if (!file) return;
-  toast('📷 Upload en cours…');
+  toast('📷 Compression de la photo…');
 
-  // Preview immédiate (base64)
-  const reader = new FileReader();
-  reader.onload = e => {
-    const dataUrl = e.target.result;
-    const saved   = JSON.parse(localStorage.getItem('djr_profile') || '{}');
-    saved.photo   = dataUrl;
-    try {
-      localStorage.setItem('djr_profile', JSON.stringify(saved));
-    } catch (err) {
-      // Quota localStorage dépassé (photo trop lourde en base64) : on garde quand
-      // même l'aperçu à l'écran, mais on prévient que ça ne survivra pas à un refresh
-      // tant que l'upload serveur (ci-dessous) n'a pas réussi.
-      console.error('[pullup] localStorage plein, photo non persistée localement :', err.message);
-      toast('⚠️ Photo trop lourde pour être sauvegardée localement');
-    }
-    const img      = document.getElementById('prof-edit-img');
-    const initials = document.getElementById('prof-edit-initials');
-    if (img)     { img.src = dataUrl; img.style.display = 'block'; }
-    if (initials) initials.style.display = 'none';
-    applyProfileToUI(saved);
-  };
-  reader.readAsDataURL(file);
+  // Compression côté client (comme pour les photos du chat) : sans ça, une
+  // photo haute résolution (portrait IA, photo de téléphone récent…) dépasse
+  // souvent la limite de taille du serveur et l'upload échoue silencieusement
+  // — seul l'aperçu local restait visible, jamais partagé nulle part ailleurs.
+  let dataUrl;
+  try {
+    dataUrl = await compressImage(file, 500, 0.8);
+  } catch(e) { toast('❌ Erreur photo'); return; }
+
+  // Preview immédiate
+  const saved = JSON.parse(localStorage.getItem('djr_profile') || '{}');
+  saved.photo = dataUrl;
+  try { localStorage.setItem('djr_profile', JSON.stringify(saved)); } catch(err) {}
+  const img      = document.getElementById('prof-edit-img');
+  const initials = document.getElementById('prof-edit-initials');
+  if (img)     { img.src = dataUrl; img.style.display = 'block'; }
+  if (initials) initials.style.display = 'none';
+  applyProfileToUI(saved);
 
   // Upload backend si connecté
-  if (_sbSession) {
+  if (_authToken || _sbSession) {
     try {
+      const blob = await (await fetch(dataUrl)).blob();
       const form = new FormData();
-      form.append('photo', file);
+      form.append('photo', blob, 'avatar.jpg');
       const r = await fetch('/api/profile/photo', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + (_authToken || _sbSession.access_token) },
@@ -289,10 +286,10 @@ async function uploadProfilePhoto(input) {
       });
       if (r.ok) {
         const { url } = await r.json();
-        const saved = JSON.parse(localStorage.getItem('djr_profile') || '{}');
-        saved.photo = url;
-        localStorage.setItem('djr_profile', JSON.stringify(saved));
-        applyProfileToUI(saved);
+        const saved2 = JSON.parse(localStorage.getItem('djr_profile') || '{}');
+        saved2.photo = url;
+        localStorage.setItem('djr_profile', JSON.stringify(saved2));
+        applyProfileToUI(saved2);
         toast('✅ Photo sauvegardée !');
       } else {
         const err = await r.json().catch(() => ({}));
@@ -301,6 +298,7 @@ async function uploadProfilePhoto(input) {
       }
     } catch(e) {
       console.error('[pullup] Échec upload photo serveur :', e.message);
+      toast('⚠️ Photo gardée en local seulement — ' + e.message);
     }
   }
 }

@@ -379,8 +379,9 @@ async function sendPhoto(input) {
 
   // Affichage optimiste immédiat (comme pour les messages texte)
   const tmpId = 'tmp_' + Date.now();
+  let dataUrl;
   try {
-    const dataUrl = await compressImage(file, 800, 0.65);
+    dataUrl = await compressImage(file, 800, 0.65);
     const uid  = getUid();
     const name = currentUser?.displayName || currentUser?.phoneNumber || 'Invité';
     const avatarUrl = JSON.parse(localStorage.getItem('djr_profile') || '{}').photo || null;
@@ -393,8 +394,11 @@ async function sendPhoto(input) {
   // de l'expéditeur (les autres participants ne la reçoivent jamais).
   if (!eid || !(_authToken || _sbSession)) return;
   try {
+    // On envoie la version déjà compressée (pas le fichier d'origine) : une
+    // photo haute résolution dépasserait sinon la limite de taille serveur.
+    const blob = await (await fetch(dataUrl)).blob();
     const form = new FormData();
-    form.append('photo', file);
+    form.append('photo', blob, 'chat.jpg');
     const r = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + (_authToken || _sbSession.access_token) },
