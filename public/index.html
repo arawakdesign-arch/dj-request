@@ -757,14 +757,14 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div class="venue-name" id="club-name-strip">Warehouse 42</div>
       <div class="venue-addr">
         <svg class="venue-addr-ico" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s7-7.58 7-13A7 7 0 0 0 5 9c0 5.42 7 13 7 13Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
-        <span class="venue-addr-txt">32 Av. Corentin Cariou</span>
+        <span class="venue-addr-txt" id="venue-addr-txt">32 Av. Corentin Cariou</span>
         <button class="venue-addr-share" id="share-pos-btn" onclick="shareVenuePosition()" title="Partager l'adresse">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="5" r="2.5" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="12" r="2.5" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="19" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8.2 10.8 15.8 6.2M8.2 13.2l7.6 4.6" stroke="currentColor" stroke-width="1.6"/></svg>
         </button>
       </div>
       <div class="venue-status-row">
         <span class="venue-pill-open">Ouvert</span>
-        <span class="venue-hours">22h → 6h</span>
+        <span class="venue-hours" id="venue-hours-txt">22h → 6h</span>
       </div>
       <div class="venue-stats-row">
         <span>👥 <span id="venue-connected">0</span> connectés</span>
@@ -1435,9 +1435,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </div>
 
 <script src="/js/config.js?v=2"></script>
-<script src="/js/api.js?v=4"></script>
-<script src="/js/app.js?v=13"></script>
-<script src="/js/render.js?v=4"></script>
+<script src="/js/api.js?v=5"></script>
+<script src="/js/app.js?v=14"></script>
+<script src="/js/render.js?v=5"></script>
 <script src="/js/chat.js?v=13"></script>
 <script src="/js/auth.js?v=6"></script>
 </body>

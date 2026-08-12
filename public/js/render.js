@@ -37,7 +37,6 @@ function renderClient() {
   const t  = totalVotes();
   elt('cli-total', t ? `${t} vote${t > 1 ? 's' : ''}` : '-');
   elt('venue-connected', totalVoters());
-  const cs = document.getElementById('club-name-strip'); if (cs && CLUB_INFO.name) cs.textContent = CLUB_INFO.name;
   const list = document.getElementById('cli-list'); if (!list) return;
   if (!s.length) { list.innerHTML = `<div class="empty-state"><div class="ei">🎵</div><p>Aucune proposition pour l'instant.<br>Soyez le premier à proposer !</p></div>`; return; }
   const mx     = s[0]?.votes || 1;

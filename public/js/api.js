@@ -91,6 +91,12 @@ async function loadEvent(evId) {
     console.log('[pullup] loadEvent() succès : localEid=', localEid, 'ename=', ename);
     localStorage.setItem('djr_eid', localEid);
     localStorage.setItem('djr_ename', ename);
+    // Bannière venue-card : les vraies infos de l'événement (enregistrées par
+    // l'organisateur via saveSettings()) priment sur les valeurs de démo figées
+    // dans le HTML — sinon tout le monde voit toujours "Warehouse 42".
+    const cn = document.getElementById('club-name-strip');   if (cn && ev.club_name) cn.textContent = ev.club_name;
+    const ad = document.getElementById('venue-addr-txt');    if (ad && ev.address)   ad.textContent = ev.address;
+    const hr = document.getElementById('venue-hours-txt');   if (hr && ev.hours)     hr.textContent = ev.hours;
     const ps = await api('GET', '/proposals/' + localEid);
     console.log('[pullup] loadEvent() proposals reçus :', ps.length, 'items pour localEid=', localEid);
     // Normalise cover_url (DB snake_case) → coverUrl (camelCase utilisé par render.js)
