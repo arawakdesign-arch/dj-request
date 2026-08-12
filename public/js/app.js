@@ -335,7 +335,7 @@ function refreshDjRegisterButton() {
     title.textContent = 'Mon profil DJ';
     sub.textContent    = _djProfileCache.stage_name;
   } else {
-    title.textContent = 'Devenir DJ';
+    title.textContent = "S'enregistrer comme DJ";
     sub.textContent    = "Crée ton profil et ton press kit";
   }
 }
