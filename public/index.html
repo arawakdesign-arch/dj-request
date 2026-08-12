@@ -844,32 +844,50 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   <div class="tb"><button class="tb-menu" style="width:34px;height:34px" onclick="toggleTopMenu()">☰</button><div class="tb-title">Profil</div></div>
   <div class="scroll" id="prof-scroll">
 
-    <!-- PHOTO + NOM/STATUT/STATS EN LIGNE -->
-    <div style="display:flex;gap:.9rem;padding:1.1rem 1rem 0;position:relative">
-      <div style="position:relative;flex-shrink:0">
-        <div style="width:112px;height:112px;border-radius:1.1rem;overflow:hidden;background:var(--grd);box-shadow:var(--shadow);position:relative">
-          <img id="prof-photo-display" src="" alt="Photo profil" style="width:100%;height:100%;object-fit:cover;display:none">
-          <div id="prof-av" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.3rem;color:#fff"></div>
+    <!-- PHOTO + NOM/STATUT, puis STATS pleine largeur avec séparateurs -->
+    <div style="padding:1.1rem 1rem 0;position:relative">
+      <div style="display:flex;gap:.9rem">
+        <div style="position:relative;flex-shrink:0">
+          <div style="width:112px;height:112px;border-radius:1.1rem;overflow:hidden;background:var(--grd);box-shadow:var(--shadow);position:relative">
+            <img id="prof-photo-display" src="" alt="Photo profil" style="width:100%;height:100%;object-fit:cover;display:none">
+            <div id="prof-av" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.3rem;color:#fff"></div>
+          </div>
+          <button onclick="openProfileEdit()" title="Changer la photo" style="position:absolute;bottom:-6px;right:-6px;width:30px;height:30px;border-radius:50%;background:#FFFFFF;border:1px solid var(--bdr);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer">📷</button>
         </div>
-        <button onclick="openProfileEdit()" title="Changer la photo" style="position:absolute;bottom:-6px;right:-6px;width:30px;height:30px;border-radius:50%;background:#FFFFFF;border:1px solid var(--bdr);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer">📷</button>
+        <div style="flex:1;min-width:0;padding-top:.15rem;padding-right:4.6rem">
+          <div id="prof-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:0;color:var(--tx);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+          <div style="display:flex;align-items:center;gap:.35rem;margin-top:.35rem">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:pdot 1.4s infinite"></div>
+            <span style="font-size:.62rem;color:var(--green);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Actif ce soir</span>
+          </div>
+        </div>
+        <!-- Boutons Partager + Modifier -->
+        <div style="position:absolute;top:0;right:1rem;display:flex;gap:6px">
+          <button onclick="shareVenuePosition()" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.9rem;display:flex;align-items:center;justify-content:center">⬆</button>
+          <button id="btn-edit-profile" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.85rem;display:flex;align-items:center;justify-content:center">✎</button>
+        </div>
       </div>
-      <div style="flex:1;min-width:0;padding-top:.15rem;padding-right:4.2rem">
-        <div id="prof-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.2rem;letter-spacing:0;color:var(--tx);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-        <div style="display:flex;align-items:center;gap:.35rem;margin-top:.3rem">
-          <div style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:pdot 1.4s infinite"></div>
-          <span style="font-size:.6rem;color:var(--green);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Actif ce soir</span>
+
+      <div style="display:flex;align-items:stretch;margin-top:1.1rem">
+        <div style="flex:1;text-align:center">
+          <div id="pst-ev" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;color:var(--vi);line-height:1">0</div>
+          <div style="font-size:.6rem;color:var(--tx3);font-weight:600;letter-spacing:.02em;margin-top:3px;text-transform:uppercase">Soirées</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem .7rem;margin-top:.6rem;max-width:210px">
-          <div style="display:flex;align-items:center;gap:.3rem"><span style="font-size:.78rem;flex-shrink:0">📅</span><div style="min-width:0"><div id="pst-ev" style="font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;color:var(--tx);line-height:1">0</div><div style="font-size:.48rem;color:var(--tx3);white-space:nowrap">Soirées</div></div></div>
-          <div style="display:flex;align-items:center;gap:.3rem"><span style="font-size:.78rem;flex-shrink:0">❤️</span><div style="min-width:0"><div id="pst-vt" style="font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;color:var(--tx);line-height:1">0</div><div style="font-size:.48rem;color:var(--tx3);white-space:nowrap">Votes</div></div></div>
-          <div style="display:flex;align-items:center;gap:.3rem"><span style="font-size:.78rem;flex-shrink:0">🎵</span><div style="min-width:0"><div id="pst-pr" style="font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;color:var(--tx);line-height:1">0</div><div style="font-size:.48rem;color:var(--tx3);white-space:nowrap">Props.</div></div></div>
-          <div style="display:flex;align-items:center;gap:.3rem"><span style="font-size:.78rem;flex-shrink:0">▶️</span><div style="min-width:0"><div id="pst-pl" style="font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;color:var(--tx);line-height:1">0</div><div style="font-size:.48rem;color:var(--tx3);white-space:nowrap">Joués</div></div></div>
+        <div style="width:1px;background:var(--bdr);flex-shrink:0"></div>
+        <div style="flex:1;text-align:center">
+          <div id="pst-vt" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;color:var(--amber);line-height:1">0</div>
+          <div style="font-size:.6rem;color:var(--tx3);font-weight:600;letter-spacing:.02em;margin-top:3px;text-transform:uppercase">Votes</div>
         </div>
-      </div>
-      <!-- Boutons Partager + Modifier -->
-      <div style="position:absolute;top:1.1rem;right:1rem;display:flex;gap:6px">
-        <button onclick="shareVenuePosition()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.85rem;display:flex;align-items:center;justify-content:center">↗</button>
-        <button id="btn-edit-profile" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.8rem;display:flex;align-items:center;justify-content:center">✎</button>
+        <div style="width:1px;background:var(--bdr);flex-shrink:0"></div>
+        <div style="flex:1;text-align:center">
+          <div id="pst-pr" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;color:var(--blue);line-height:1">0</div>
+          <div style="font-size:.6rem;color:var(--tx3);font-weight:600;letter-spacing:.02em;margin-top:3px;text-transform:uppercase">Propositions</div>
+        </div>
+        <div style="width:1px;background:var(--bdr);flex-shrink:0"></div>
+        <div style="flex:1;text-align:center">
+          <div id="pst-pl" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;color:var(--green);line-height:1">0</div>
+          <div style="font-size:.6rem;color:var(--tx3);font-weight:600;letter-spacing:.02em;margin-top:3px;text-transform:uppercase">Joués</div>
+        </div>
       </div>
     </div>
 
