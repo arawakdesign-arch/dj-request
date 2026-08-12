@@ -95,6 +95,7 @@ async function loadEvent(evId) {
     // Bannière venue-card : les vraies infos de l'événement (enregistrées par
     // l'organisateur via saveSettings()) priment sur les valeurs de démo figées
     // dans le HTML — sinon tout le monde voit toujours "Warehouse 42".
+    const en = document.getElementById('venue-event-name');  if (en && ev.name)      en.textContent = ev.name;
     const cn = document.getElementById('club-name-strip');   if (cn && ev.club_name) cn.textContent = ev.club_name;
     const ad = document.getElementById('venue-addr-txt');    if (ad && ev.address)   ad.textContent = ev.address;
     const hr = document.getElementById('venue-hours-txt');   if (hr && ev.hours)     hr.textContent = ev.hours;
