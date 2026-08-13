@@ -202,7 +202,7 @@ function switchOrgaTab(tab, btn) {
     if (tb) { tb.style.color = 'var(--tx3)'; tb.style.borderBottom = '2px solid transparent'; tb.style.fontWeight = '600'; }
   });
   const el = document.getElementById('orga-' + tab);
-  if (el) el.style.display = 'flex';
+  if (el) el.style.display = 'block';
   if (btn) { btn.style.color = '#6F22FF'; btn.style.borderBottom = '2px solid #6F22FF'; btn.style.fontWeight = '700'; }
   if (tab === 'modo') loadOrgaChatList();
 }
