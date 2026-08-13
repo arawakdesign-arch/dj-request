@@ -56,6 +56,18 @@ router.post('/events', requireAuth, async (req, res) => {
   const { name, club_name, orga, address, hours, password } = req.body;
   if (!name || !password) return res.status(400).json({ error: 'Champs manquants' });
 
+  // Empêche 2 soirées actives en même temps sous le même nom : source de
+  // confusion (recherche par nom, QR/liens partagés qui se marchent dessus).
+  // Une fois la soirée existante fermée (24h, cf. isClosed()), le nom se
+  // libère pour une nouvelle création.
+  const { data: existingActive } = await supabase
+    .from('events').select('created_at')
+    .eq('name', name).eq('is_active', true)
+    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+  if (existingActive && !isClosed(existingActive.created_at)) {
+    return res.status(409).json({ error: `Une soirée "${name}" est déjà en cours — choisissez un autre nom.` });
+  }
+
   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
   const { data, error } = await supabase.from('events').insert({
     name, club_name, orga, address, hours, password: hashedPassword, owner_id: req.user.id,
