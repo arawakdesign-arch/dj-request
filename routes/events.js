@@ -52,6 +52,27 @@ router.get('/events/:id', async (req, res) => {
   res.json({ ...data, closed: isClosed(data.created_at) });
 });
 
+// Personnes ayant voté et/ou proposé un morceau sur cet événement — liste
+// affichée à l'organisateur dans l'onglet Contact.
+router.get('/events/:id/participants', requireOrganizer, async (req, res) => {
+  const eventId = req.params.id;
+  const [votesRes, proposalsRes] = await Promise.all([
+    supabase.from('votes').select('user_id').eq('event_id', eventId),
+    supabase.from('proposals').select('proposed_by').eq('event_id', eventId),
+  ]);
+  const ids = [...new Set([
+    ...(votesRes.data || []).map(v => v.user_id),
+    ...(proposalsRes.data || []).map(p => p.proposed_by).filter(Boolean),
+  ])];
+  if (!ids.length) return res.json([]);
+
+  const { data: profiles } = await supabase
+    .from('user_profiles').select('id, display_name').in('id', ids);
+  const nameById = {};
+  (profiles || []).forEach(p => { nameById[p.id] = p.display_name; });
+  res.json(ids.map(id => ({ id, name: nameById[id] || 'Invité' })));
+});
+
 router.post('/events', requireAuth, async (req, res) => {
   const { name, club_name, orga, address, hours, password } = req.body;
   if (!name || !password) return res.status(400).json({ error: 'Champs manquants' });

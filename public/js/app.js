@@ -206,6 +206,31 @@ function switchOrgaTab(tab, btn) {
   if (btn) { btn.style.color = '#6F22FF'; btn.style.borderBottom = '2px solid #6F22FF'; btn.style.fontWeight = '700'; }
   if (tab === 'modo')                          loadOrgaChatList();
   if (tab === 'settings' || tab === 'orga')    populateSettingsForm();
+  if (tab === 'orga')                          loadOrgaContacts();
+}
+
+// Liste des personnes ayant voté/proposé un morceau — onglet Contact.
+async function loadOrgaContacts() {
+  const list = document.getElementById('orga-contacts-list');
+  if (!list || !eid) return;
+  try {
+    const people = await api('GET', '/events/' + eid + '/participants', null, {dj: true});
+    if (!people.length) {
+      list.innerHTML = '<div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Personne pour l\'instant</div>';
+      return;
+    }
+    list.innerHTML = '';
+    people.forEach(p => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:var(--ink5);border-radius:.75rem';
+      row.innerHTML = `
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0">${(p.name||'?')[0].toUpperCase()}</div>
+        <div style="font-size:.85rem;font-weight:600;color:var(--tx)">${p.name}</div>`;
+      list.appendChild(row);
+    });
+  } catch(e) {
+    list.innerHTML = `<div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Erreur — ${e.message}</div>`;
+  }
 }
 
 // Les champs de Réglages sont vides par défaut (placeholders) — on les

@@ -1198,7 +1198,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <span id="dj-report-badge" style="display:none;position:absolute;top:6px;right:4px;background:var(--red);color:white;font-size:.48rem;font-weight:700;min-width:14px;height:14px;border-radius:7px;align-items:center;justify-content:center;padding:0 3px">0</span>
     </button>
     <button class="orga-tab" id="otab-settings" onclick="switchOrgaTab('settings',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:var(--tx3);background:none;border:none;border-bottom:2px solid transparent;font-family:Inter,sans-serif;white-space:nowrap;min-width:0">⚙️ SOIRÉE</button>
-    <button class="orga-tab" id="otab-orga" onclick="switchOrgaTab('orga',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:var(--tx3);background:none;border:none;border-bottom:2px solid transparent;font-family:Inter,sans-serif;white-space:nowrap;min-width:0">👤 Infos orga</button>
+    <button class="orga-tab" id="otab-orga" onclick="switchOrgaTab('orga',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:var(--tx3);background:none;border:none;border-bottom:2px solid transparent;font-family:Inter,sans-serif;white-space:nowrap;min-width:0">👤 Contact</button>
   </div>
 
   <!-- ONGLET LIVE -->
@@ -1258,13 +1258,20 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     </div>
   </div>
 
-  <!-- ONGLET INFOS ORGA -->
+  <!-- ONGLET CONTACT -->
   <div class="scroll" id="orga-orga" style="display:none;padding:.85rem .75rem">
     <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
       <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Organisateur</div>
       <div class="fl" style="margin-bottom:0"><label>Orga</label><input class="fi" id="settings-orga" type="text" placeholder="Nom de l'organisateur / du collectif"></div>
     </div>
-    <button onclick="saveSettings()" style="width:100%;padding:.85rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif">Enregistrer</button>
+    <button onclick="saveSettings()" style="width:100%;padding:.85rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif;margin-bottom:.75rem">Enregistrer</button>
+
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;box-shadow:var(--shadow)">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Personnes connectées à cette soirée</div>
+      <div id="orga-contacts-list" style="display:flex;flex-direction:column;gap:.4rem">
+        <div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Chargement…</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1451,7 +1458,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=12"></script>
-<script src="/js/app.js?v=34"></script>
+<script src="/js/app.js?v=35"></script>
 <script src="/js/render.js?v=15"></script>
 <script src="/js/chat.js?v=13"></script>
 <script src="/js/auth.js?v=8"></script>
