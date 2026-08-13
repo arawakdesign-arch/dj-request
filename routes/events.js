@@ -32,14 +32,17 @@ router.get('/events/by-name', async (req, res) => {
 
   const { data } = await supabase
     .from('events')
-    .select('id, name, club_name, is_active')
+    .select('id, name, club_name, is_active, created_at')
     .eq('name', name)
     .eq('is_active', true)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (!data) return res.status(404).json({ error: 'Soirée introuvable' });
+  // Une soirée fermée (24h) libère son nom — cf. POST /events. Sans ce check,
+  // le lookup renverrait toujours la vieille soirée et djLogin() s'y reconnecterait
+  // au lieu d'afficher l'écran de création d'une nouvelle édition.
+  if (!data || isClosed(data.created_at)) return res.status(404).json({ error: 'Soirée introuvable' });
   res.json(data);
 });
 
