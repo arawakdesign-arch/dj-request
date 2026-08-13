@@ -195,7 +195,7 @@ async function createNewEvent(n) {
 
 // ══ DJ DASHBOARD TABS ════════════════════════════════════════════════
 function switchOrgaTab(tab, btn) {
-  ['live','modo','pk','settings'].forEach(t => {
+  ['live','modo','settings'].forEach(t => {
     const el = document.getElementById('orga-' + t);
     if (el) el.style.display = 'none';
     const tb = document.getElementById('otab-' + t);
