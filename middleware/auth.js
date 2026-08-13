@@ -2,6 +2,17 @@ const crypto   = require('crypto');
 const supabase = require('../lib/supabase');
 const { verifyToken } = require('../lib/jwt');
 
+// Tient user_profiles.email/phone à jour à partir de l'identité vue sur
+// chaque requête authentifiée (Google → email, Phone OTP → numéro) — sans
+// bloquer la requête ni la faire échouer si la synchro rate.
+function syncContactInfo(user) {
+  if (!user?.id || (!user.email && !user.phone)) return;
+  const updates = { id: user.id, updated_at: new Date().toISOString() };
+  if (user.email) updates.email = user.email;
+  if (user.phone) updates.phone = user.phone;
+  supabase.from('user_profiles').upsert(updates).then(() => {}, () => {});
+}
+
 async function requireAuth(req, res, next) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Non authentifié' });
@@ -10,6 +21,7 @@ async function requireAuth(req, res, next) {
   try {
     const payload = verifyToken(token);
     req.user = { id: payload.id, email: payload.email || null, phone: payload.phoneNumber || null };
+    syncContactInfo(req.user);
     return next();
   } catch(e) { /* pas notre JWT, on essaie Supabase */ }
 
@@ -18,6 +30,7 @@ async function requireAuth(req, res, next) {
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) return res.status(401).json({ error: 'Token invalide' });
     req.user = { id: user.id, email: user.email || null, phone: user.phone || null };
+    syncContactInfo(req.user);
     return next();
   } catch(e) {
     return res.status(401).json({ error: 'Token invalide' });

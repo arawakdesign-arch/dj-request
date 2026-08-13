@@ -67,10 +67,15 @@ router.get('/events/:id/participants', requireOrganizer, async (req, res) => {
   if (!ids.length) return res.json([]);
 
   const { data: profiles } = await supabase
-    .from('user_profiles').select('id, display_name').in('id', ids);
-  const nameById = {};
-  (profiles || []).forEach(p => { nameById[p.id] = p.display_name; });
-  res.json(ids.map(id => ({ id, name: nameById[id] || 'Invité' })));
+    .from('user_profiles').select('id, display_name, email, phone').in('id', ids);
+  const byId = {};
+  (profiles || []).forEach(p => { byId[p.id] = p; });
+  res.json(ids.map(id => ({
+    id,
+    name:  byId[id]?.display_name || 'Invité',
+    email: byId[id]?.email || null,
+    phone: byId[id]?.phone || null,
+  })));
 });
 
 router.post('/events', requireAuth, async (req, res) => {
