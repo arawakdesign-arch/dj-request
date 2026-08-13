@@ -9,6 +9,19 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 
 const router = express.Router();
 
+// Une soirée se ferme aux votes/propositions 24h après sa création — calculé
+// à la volée depuis created_at, pas de tâche planifiée ni de colonne dédiée.
+// Les données (votes, propositions, chat) restent en base et consultables.
+const EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
+function isClosed(createdAt) {
+  return (Date.now() - new Date(createdAt).getTime()) > EVENT_DURATION_MS;
+}
+async function isEventClosed(eventId) {
+  const { data } = await supabase.from('events').select('created_at').eq('id', eventId).single();
+  if (!data) return true; // événement introuvable → traité comme fermé
+  return isClosed(data.created_at);
+}
+
 // ── Events ────────────────────────────────────────────────────────────
 
 // Lookup par nom — doit être déclaré AVANT /events/:id pour éviter que
@@ -36,7 +49,7 @@ router.get('/events/:id', async (req, res) => {
     .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at')
     .eq('id', req.params.id).single();
   if (error || !data) return res.status(404).json({ error: 'Événement introuvable' });
-  res.json(data);
+  res.json({ ...data, closed: isClosed(data.created_at) });
 });
 
 router.post('/events', async (req, res) => {
@@ -128,6 +141,7 @@ router.get('/events/:id/vote-rate', async (req, res) => {
 router.post('/proposals', requireAuth, async (req, res) => {
   const { song_id, event_id, title, artist, cover_url } = req.body;
   if (!song_id || !event_id) return res.status(400).json({ error: 'Champs manquants' });
+  if (await isEventClosed(event_id)) return res.status(403).json({ error: 'Cette soirée est terminée.' });
 
   const { data: existing } = await supabase.from('proposals')
     .select('id').eq('id', song_id).eq('event_id', event_id).single();
@@ -170,6 +184,7 @@ router.patch('/proposals/:eventId/:songId', requireOrganizer, async (req, res) =
 router.post('/votes', requireAuth, async (req, res) => {
   const { proposal_id, event_id } = req.body;
   if (!proposal_id || !event_id) return res.status(400).json({ error: 'Champs manquants' });
+  if (await isEventClosed(event_id)) return res.status(403).json({ error: 'Cette soirée est terminée.' });
 
   const { error } = await supabase.from('votes').insert({
     user_id: req.user.id, proposal_id, event_id,

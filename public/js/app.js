@@ -2,6 +2,7 @@
 let currentUser  = null;
 let confirmResult = null, otpPhase = false, resendTimer = null, resendCD = 30;
 let eid   = null, ename = '';
+let eventClosed = false; // soirée figée en lecture seule 24h après sa création
 let proposals = {}, myVotes = new Set(), nowPlaying = {t:'En attente…', a:''};
 let selModal = null, selModalMeta = null, selectedPlan = 'free', subscribed = false, subCount = 1284;
 let djLoggedIn = false;
@@ -86,8 +87,19 @@ function closeModal(id)          { document.getElementById(id).classList.remove(
 function closeModalOut(id, e)    { if (e.target === document.getElementById(id)) closeModal(id); }
 
 // ══ VOTE & PROPOSE ═══════════════════════════════════════════════════
+// Affiche le bandeau "Soirée terminée" et masque le CTA de proposition une
+// fois la fenêtre de 24h dépassée (cf. isEventClosed() côté serveur).
+function applyEventClosedState() {
+  const banner = document.getElementById('event-closed-banner');
+  const propose = document.getElementById('btn-fab-propose');
+  if (banner)  banner.style.display  = eventClosed ? 'block' : 'none';
+  if (propose) propose.style.display = eventClosed ? 'none'  : 'flex';
+  renderAll();
+}
+
 function vote(id) {
   if (!proposals[id]) return;
+  if (eventClosed) { toast('🔒 Cette soirée est terminée'); return; }
   if (myVotes.has(id)) {
     myVotes.delete(id);
     proposals[id].votes = Math.max(0, (proposals[id].votes || 0) - 1);
@@ -112,6 +124,7 @@ function vote(id) {
 
 async function submitProposal() {
   if (!selModal) return;
+  if (eventClosed) { toast('🔒 Cette soirée est terminée'); return; }
 
   // MusicBrainz result ou catalogue local
   const meta = selModalMeta || (() => {
@@ -856,6 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Modal Proposer
   on('btn-fab-propose', () => {
+    if (eventClosed) { toast('🔒 Cette soirée est terminée'); return; }
     const card = document.getElementById('btn-fab-propose');
     card.classList.remove('shake');
     void card.offsetWidth; // force le reflow pour pouvoir rejouer l'animation

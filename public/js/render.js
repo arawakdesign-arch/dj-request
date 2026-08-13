@@ -103,7 +103,7 @@ function renderClient() {
           <div class="s-votes-l">votes</div>
         </div>
         <div class="s-delta">${delta > 0 ? '+'+delta : ''}</div>
-        <button class="vote-pill" onclick="vote('${p.id}')">${voted?'GO ✓':'VOTER ›'}</button>`;
+        <button class="vote-pill" onclick="vote('${p.id}')" style="${eventClosed?'opacity:.5':''}">${eventClosed?'Clos':(voted?'GO ✓':'VOTER ›')}</button>`;
     } else {
       // Mise à jour ciblée : le bouton VOTER (et son handler) n'est jamais recréé.
       div.querySelector('.s-rank-num').textContent = i + 1;
@@ -118,7 +118,8 @@ function renderClient() {
       div.querySelector('.s-votes-n').textContent = votes;
       div.querySelector('.s-delta').textContent   = delta > 0 ? '+' + delta : '';
       const btn = div.querySelector('.vote-pill');
-      btn.textContent = voted ? 'GO ✓' : 'VOTER ›';
+      btn.style.opacity  = eventClosed ? '.5' : '';
+      btn.textContent    = eventClosed ? 'Clos' : (voted ? 'GO ✓' : 'VOTER ›');
     }
     list.appendChild(div); // réordonne en place (déplace le nœud, ne le recrée pas)
     if (isNew && !hasArt) {

@@ -86,6 +86,8 @@ async function loadEvent(evId) {
   try {
     const ev = await api('GET', '/events/' + evId);
     eid = ev.id; ename = ev.name;
+    eventClosed = !!ev.closed;
+    if (typeof applyEventClosedState === 'function') applyEventClosedState();
     // Figer l'ID dans une variable locale : eid global peut être muté
     // entre deux await par du code concurrent (onAuthStateChange, etc.)
     const localEid = eid;
