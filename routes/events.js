@@ -94,7 +94,22 @@ router.get('/proposals/:eventId', async (req, res) => {
   (allVotes || []).forEach(v => {
     (votersByProposal[v.proposal_id] ??= {})[v.user_id] = true;
   });
-  const enriched = (data || []).map(p => ({ ...p, voters: votersByProposal[p.id] || {} }));
+
+  // Nom de la personne qui a proposé chaque morceau — affiché sur la carte
+  // dans la liste des propositions côté vote.
+  const proposerIds = [...new Set((data || []).map(p => p.proposed_by).filter(Boolean))];
+  let proposerNames = {};
+  if (proposerIds.length) {
+    const { data: profiles } = await supabase
+      .from('user_profiles').select('id, display_name').in('id', proposerIds);
+    (profiles || []).forEach(u => { proposerNames[u.id] = u.display_name; });
+  }
+
+  const enriched = (data || []).map(p => ({
+    ...p,
+    voters: votersByProposal[p.id] || {},
+    proposer_name: proposerNames[p.proposed_by] || null,
+  }));
   res.json(enriched);
 });
 
