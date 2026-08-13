@@ -52,13 +52,13 @@ router.get('/events/:id', async (req, res) => {
   res.json({ ...data, closed: isClosed(data.created_at) });
 });
 
-router.post('/events', async (req, res) => {
+router.post('/events', requireAuth, async (req, res) => {
   const { name, club_name, orga, address, hours, password } = req.body;
   if (!name || !password) return res.status(400).json({ error: 'Champs manquants' });
 
   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
   const { data, error } = await supabase.from('events').insert({
-    name, club_name, orga, address, hours, password: hashedPassword,
+    name, club_name, orga, address, hours, password: hashedPassword, owner_id: req.user.id,
   }).select('id, name, club_name, orga, address, hours, created_at').single();
   if (error) return res.status(500).json({ error: error.message });
 

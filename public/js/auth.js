@@ -287,7 +287,9 @@ async function confirmCreateEvent() {
     await _activateDJ(n, p);
     toast(`🎉 Soirée "${n}" créée !`);
   } catch(e) {
-    if (err) err.textContent = e.message || 'Erreur lors de la création.';
+    if (err) err.textContent = e.message === 'Non authentifié'
+      ? '⚠️ Connecte-toi (Google) avant de créer une soirée.'
+      : (e.message || 'Erreur lors de la création.');
   }
 }
 
