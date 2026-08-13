@@ -105,6 +105,13 @@ CREATE TABLE IF NOT EXISTS profiles (
   created_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ══ TABLE ORGANIZERS (allowlist des emails autorisés à créer une soirée) ══
+CREATE TABLE IF NOT EXISTS organizers (
+  email        TEXT PRIMARY KEY,
+  display_name TEXT DEFAULT '',
+  added_at     TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ══════════════════════════════════════════════════════════════════
 -- TRIGGERS & FONCTIONS
 -- ══════════════════════════════════════════════════════════════════

@@ -82,6 +82,18 @@ router.post('/events', requireAuth, async (req, res) => {
   const { name, club_name, orga, address, hours, password } = req.body;
   if (!name || !password) return res.status(400).json({ error: 'Champs manquants' });
 
+  // Créer une soirée est réservé aux comptes Google dont l'email figure
+  // dans l'allowlist organizers — les invités et comptes téléphone n'ont
+  // pas d'email et sont rejetés avant même la recherche en base.
+  if (!req.user.email) {
+    return res.status(403).json({ error: 'Connecte-toi avec un compte Google autorisé pour créer une soirée.' });
+  }
+  const { data: authorized } = await supabase
+    .from('organizers').select('email').eq('email', req.user.email.toLowerCase()).maybeSingle();
+  if (!authorized) {
+    return res.status(403).json({ error: 'Cette adresse email n\'est pas autorisée à créer une soirée.' });
+  }
+
   // Empêche 2 soirées actives en même temps sous le même nom : source de
   // confusion (recherche par nom, QR/liens partagés qui se marchent dessus).
   // Une fois la soirée existante fermée (24h, cf. isClosed()), le nom se
