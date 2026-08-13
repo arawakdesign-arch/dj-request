@@ -204,7 +204,24 @@ function switchOrgaTab(tab, btn) {
   const el = document.getElementById('orga-' + tab);
   if (el) el.style.display = 'block';
   if (btn) { btn.style.color = '#6F22FF'; btn.style.borderBottom = '2px solid #6F22FF'; btn.style.fontWeight = '700'; }
-  if (tab === 'modo') loadOrgaChatList();
+  if (tab === 'modo')     loadOrgaChatList();
+  if (tab === 'settings') populateSettingsForm();
+}
+
+// Les champs de Réglages sont vides par défaut (placeholders) — on les
+// remplit avec les vraies infos enregistrées de l'événement à l'ouverture
+// de l'onglet, plutôt que de laisser des valeurs de démo trompeuses.
+async function populateSettingsForm() {
+  if (!eid) return;
+  try {
+    const ev = await api('GET', '/events/' + eid);
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v || ''; };
+    set('settings-ev-name', ev.name);
+    set('settings-club',    ev.club_name);
+    set('settings-orga',    ev.orga);
+    set('settings-address', ev.address);
+    set('settings-hours',   ev.hours);
+  } catch(e) { console.error('[pullup] populateSettingsForm:', e.message); }
 }
 function loadOrgaChatList() {
   const list = document.getElementById('orga-chat-list'); if (!list) return;
