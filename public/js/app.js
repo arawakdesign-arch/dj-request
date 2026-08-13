@@ -195,7 +195,7 @@ async function createNewEvent(n) {
 
 // ══ DJ DASHBOARD TABS ════════════════════════════════════════════════
 function switchOrgaTab(tab, btn) {
-  ['live','modo','settings'].forEach(t => {
+  ['live','modo','settings','orga'].forEach(t => {
     const el = document.getElementById('orga-' + t);
     if (el) el.style.display = 'none';
     const tb = document.getElementById('otab-' + t);
@@ -204,8 +204,8 @@ function switchOrgaTab(tab, btn) {
   const el = document.getElementById('orga-' + tab);
   if (el) el.style.display = 'block';
   if (btn) { btn.style.color = '#6F22FF'; btn.style.borderBottom = '2px solid #6F22FF'; btn.style.fontWeight = '700'; }
-  if (tab === 'modo')     loadOrgaChatList();
-  if (tab === 'settings') populateSettingsForm();
+  if (tab === 'modo')                          loadOrgaChatList();
+  if (tab === 'settings' || tab === 'orga')    populateSettingsForm();
 }
 
 // Les champs de Réglages sont vides par défaut (placeholders) — on les
