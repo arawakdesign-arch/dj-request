@@ -95,8 +95,8 @@ function renderClient() {
         <div class="s-body">
           <div class="s-name">${c.n}</div>
           <div class="s-artist">${c.a}</div>
-          ${p.proposer_name ? `<div class="s-proposer">Proposé par ${p.proposer_name}</div>` : ''}
           <div class="s-bar"><div class="s-bar-f" style="width:${pct}%;background:${bcol}"></div></div>
+          ${p.proposer_name ? `<div class="s-proposer">Proposé par ${p.proposer_name}</div>` : ''}
         </div>
         <div class="s-votes">
           <div class="s-votes-n">${votes}</div>
