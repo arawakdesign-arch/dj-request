@@ -21,6 +21,19 @@ function clearToken() {
 // ── Initialisation au chargement ─────────────────────────────────────
 window.addEventListener('load', async () => {
   await _configReady; // attendre que le client Supabase soit initialisé depuis /api/config/public
+
+  // Écran TV appairé par QR (?screen=1) — jamais de restauration de session,
+  // un nouveau code de pairing est demandé à chaque chargement de page.
+  if (new URLSearchParams(window.location.search).get('screen')) {
+    await startScreenPairing();
+    return;
+  }
+
+  // Lien de pairing scanné depuis l'écran d'une TV (?pair=CODE) — mémorisé tout de
+  // suite car _activateDJ() réécrit l'URL (history.replaceState) une fois connecté.
+  const pairCode = new URLSearchParams(window.location.search).get('pair');
+  if (pairCode) sessionStorage.setItem('djr_pending_pair_code', pairCode);
+
   const urlEid = new URLSearchParams(window.location.search).get('event');
   if (urlEid) {
     eid = urlEid;
@@ -99,6 +112,45 @@ window.addEventListener('load', async () => {
   showPage('auth');
 });
 
+// ── Écran TV — appairage par QR ─────────────────────────────────────────
+// Demande un code éphémère au serveur, l'affiche en QR + en clair, puis
+// s'abonne en Realtime sur ce code exact (même idiome que subscribeToEvent
+// dans api.js) pour basculer sur l'affichage Écran Géant dès qu'un
+// organisateur l'associe à sa soirée depuis son téléphone.
+async function startScreenPairing() {
+  showPage('screen-pairing');
+  const codeEl = document.getElementById('pair-code');
+  try {
+    const res = await fetch('/api/screen/pairings', { method: 'POST' });
+    if (!res.ok) throw new Error('Création du code impossible');
+    const { code } = await res.json();
+    codeEl.textContent = code;
+
+    const qrEl = document.getElementById('pair-qr');
+    qrEl.innerHTML = '';
+    const pairUrl = window.location.origin + '/?pair=' + code;
+    try { new QRCode(qrEl, { text: pairUrl, width: 220, height: 220, colorDark: '#000', colorLight: '#fff' }); } catch(e) {}
+
+    if (!_sb) return;
+    _sb.channel('pairing:' + code)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'screen_pairings', filter: 'code=eq.' + code },
+        async (payload) => {
+          if (!payload.new?.event_id) return;
+          eid = payload.new.event_id;
+          showPage('bigscreen');
+          // showPage('bigscreen') a déjà appelé generateQR()/renderBS() avec l'état
+          // précédent (eid pas encore chargé) — on les rappelle une fois les vraies
+          // données en place, même séquence que _activateDJ() (auth.js).
+          await loadEvent(eid).catch(() => {});
+          generateQR(eid);
+          renderBS();
+        })
+      .subscribe();
+  } catch(e) {
+    codeEl.textContent = 'Erreur';
+  }
+}
+
 // ── Après connexion réussie ───────────────────────────────────────────
 function afterLogin() {
   _loggedIn = true;
@@ -115,6 +167,53 @@ function afterLogin() {
     initChat();
     initReportsListener();
   }, 600);
+
+  // Un code de pairing écran attend, mais cette session n'est pas organisateur
+  // (invité, téléphone, Google pas encore passé par Créer/Rejoindre) → il faut
+  // d'abord se connecter comme organisateur avant de pouvoir l'associer.
+  if (sessionStorage.getItem('djr_pending_pair_code') && !djLoggedIn) {
+    showPage('dj-login');
+    _djLoginShowChoice();
+  }
+}
+
+// ── Association d'un écran en attente (?pair=CODE) ──────────────────────
+function _confirmScreenPair() {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:1.5rem';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:20px;padding:1.5rem;max-width:320px;width:100%;text-align:center;box-shadow:var(--shadow)">
+        <div style="font-size:1.6rem;margin-bottom:.5rem">📺</div>
+        <div style="font-weight:700;font-size:.95rem;color:var(--tx);margin-bottom:.3rem">Associer cet écran ?</div>
+        <div style="font-size:.8rem;color:var(--tx3);margin-bottom:1.1rem">L'écran scanné affichera le classement en direct de « ${ename} ».</div>
+        <button id="pair-confirm-yes" class="btn-g" style="margin-bottom:.5rem">Associer</button>
+        <button id="pair-confirm-no" style="background:none;border:none;color:var(--tx4);font-size:.8rem;width:100%">Annuler</button>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#pair-confirm-yes').onclick = () => { overlay.remove(); resolve(true); };
+    overlay.querySelector('#pair-confirm-no').onclick  = () => { overlay.remove(); resolve(false); };
+  });
+}
+
+async function _tryClaimPendingScreenPair() {
+  const code = sessionStorage.getItem('djr_pending_pair_code');
+  if (!code || !djLoggedIn) return;
+  sessionStorage.removeItem('djr_pending_pair_code');
+
+  const ok = await _confirmScreenPair();
+  if (!ok) return;
+  try {
+    const res  = await fetch('/api/screen/pairings/' + encodeURIComponent(code) + '/claim', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + _authToken },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Association impossible');
+    toast('📺 Écran associé !');
+  } catch(e) {
+    toast('⚠️ ' + (e.message || 'Association impossible'));
+  }
 }
 
 // ── Google OAuth ──────────────────────────────────────────────────────
@@ -393,6 +492,7 @@ async function _activateDJ(n, p) {
     history.replaceState(null, '', publicUrl);
     generateQR(activeEid);
   }
+  _tryClaimPendingScreenPair();
 }
 
 // ── Déconnexion ───────────────────────────────────────────────────────

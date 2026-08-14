@@ -595,7 +595,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 /* ══════════════════════════════════════════════════════════════════
    PAGE — BIGSCREEN
 ══════════════════════════════════════════════════════════════════ */
-#pg-bigscreen{background:var(--dj-card)}
+#pg-bigscreen,#pg-screen-pairing{background:var(--dj-card)}
 .bs-wrap{padding:1.1rem 1rem 1.5rem;display:flex;flex-direction:column;gap:.85rem;height:100%;overflow:hidden}
 .bs-head{text-align:center}
 .bs-ev-lbl{font-size:.6rem;letter-spacing:.16em;color:rgba(255,255,255,.5);text-transform:uppercase}
@@ -1401,6 +1401,18 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   </div>
 </div>
 
+<!-- ÉCRAN — APPAIRAGE PAR QR (TV non connectée) -->
+<div class="page" id="pg-screen-pairing">
+  <div class="bs-wrap" style="align-items:center;justify-content:center;text-align:center;margin:auto">
+    <div class="bs-ev-lbl">PULL UP!</div>
+    <div class="bs-headline" style="font-size:1.35rem">Associe cet écran</div>
+    <div class="bs-sub">Scanne ce QR avec le téléphone de l'organisateur</div>
+    <div class="bs-qr-img" style="padding:14px;margin:1rem auto 0"><div id="pair-qr" style="width:220px;height:220px"></div></div>
+    <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.7rem;letter-spacing:.35em;color:#fff;margin-top:1.1rem" id="pair-code">------</div>
+    <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-top:.4rem">Ce code expire dans 5 minutes</div>
+  </div>
+</div>
+
 <!-- BIGSCREEN -->
 <div class="page" id="pg-bigscreen">
   <div class="tb"><div class="tb-back" onclick="showPage('dj')">←</div><div class="tb-title">Écran Géant</div><div style="margin-left:auto"><div class="tb-live"><div class="pdot"></div>Live</div></div></div>
@@ -1476,6 +1488,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/app.js?v=37"></script>
 <script src="/js/render.js?v=15"></script>
 <script src="/js/chat.js?v=13"></script>
-<script src="/js/auth.js?v=9"></script>
+<script src="/js/auth.js?v=10"></script>
 </body>
 </html>

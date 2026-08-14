@@ -112,6 +112,13 @@ CREATE TABLE IF NOT EXISTS organizers (
   added_at     TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ══ TABLE SCREEN_PAIRINGS (appairage d'écran par QR, cf. migration dédiée) ══
+CREATE TABLE IF NOT EXISTS screen_pairings (
+  code       TEXT PRIMARY KEY,
+  event_id   UUID REFERENCES events(id) DEFAULT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ══════════════════════════════════════════════════════════════════
 -- TRIGGERS & FONCTIONS
 -- ══════════════════════════════════════════════════════════════════
@@ -175,6 +182,7 @@ ALTER TABLE now_playing ENABLE ROW LEVEL SECURITY;
 ALTER TABLE locations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blindtest_scores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE screen_pairings ENABLE ROW LEVEL SECURITY;
 
 -- Events : lecture publique, création via service_role uniquement
 CREATE POLICY "events_read" ON events FOR SELECT USING (true);
@@ -217,6 +225,10 @@ CREATE POLICY "scores_read" ON blindtest_scores FOR SELECT USING (true);
 CREATE POLICY "scores_upsert" ON blindtest_scores FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "scores_update" ON blindtest_scores FOR UPDATE TO authenticated USING (auth.uid() = user_id);
 
+-- Screen pairings : lecture publique (la TV s'abonne en Realtime, client anonyme) ;
+-- écritures uniquement via le backend (clé service_role, contourne RLS).
+CREATE POLICY "screen_pairings_read" ON screen_pairings FOR SELECT USING (true);
+
 -- ══════════════════════════════════════════════════════════════════
 -- REALTIME (activer les publications)
 -- ══════════════════════════════════════════════════════════════════
@@ -227,6 +239,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE now_playing;
 ALTER PUBLICATION supabase_realtime ADD TABLE locations;
 ALTER PUBLICATION supabase_realtime ADD TABLE reports;
 ALTER PUBLICATION supabase_realtime ADD TABLE blindtest_scores;
+ALTER PUBLICATION supabase_realtime ADD TABLE screen_pairings;
 
 -- ══════════════════════════════════════════════════════════════════
 -- STORAGE (photos du chat)
