@@ -56,6 +56,7 @@ function showPage(id) {
 function navTo(id) {
   if (id === 'dj' && !djLoggedIn) { showPage('dj-login'); closeTopMenu(); return; }
   showPage(id);
+  if (id === 'profile') loadOwnedEvents();
   ['vote','chat','profile','dj'].forEach(t => document.getElementById('nav-' + t)?.classList.remove('active'));
   const map = {client:'vote', chat:'chat', profile:'profile', presskit:'dj', dj:'dj'};
   const navId = map[id];
@@ -397,6 +398,38 @@ function refreshDjRegisterButton() {
     title.textContent = "S'enregistrer comme DJ";
     sub.textContent    = "Crée ton profil et ton press kit";
   }
+}
+
+// ── Soirées dont l'utilisateur est propriétaire → bouton "Administrer" sur le profil ──
+async function loadOwnedEvents() {
+  const box = document.getElementById('prof-owned-events');
+  if (!box || !(_authToken || _sbSession)) return;
+  let events = [];
+  try { events = await api('GET', '/events/mine'); } catch(e) { return; }
+  if (!events.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+  box.innerHTML = events.map(ev => `
+    <button onclick="adminEnterEvent('${ev.id}','${ev.name.replace(/'/g,"\\'")}')" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;transition:all .2s;margin-bottom:.5rem">
+      <div style="width:42px;height:42px;border-radius:12px;background:rgba(111,34,255,.15);border:1px solid rgba(111,34,255,.28);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🛠️</div>
+      <div style="text-align:left;flex:1;min-width:0">
+        <div style="font-size:.88rem;font-weight:700;color:var(--vi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Administrer "${ev.name}"</div>
+        <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">${ev.closed ? 'Terminée — consultable' : 'Tu es propriétaire de cette soirée'}</div>
+      </div>
+      <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
+    </button>`).join('');
+  box.style.display = 'block';
+}
+
+async function adminEnterEvent(id, name) {
+  try {
+    const res = await api('POST', '/events/' + id + '/admin-token');
+    if (res.token) saveToken(res.token);
+    eid = id; ename = name;
+    localStorage.setItem('djr_eid', id);
+    localStorage.setItem('djr_ename', name);
+    await _activateDJ(name, null);
+    toast(`🎛️ Accès admin — "${name}"`);
+  } catch(e) { toast(e.message || 'Erreur d\'accès'); }
 }
 
 async function openDjRegister() {

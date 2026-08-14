@@ -43,6 +43,19 @@ router.get('/events/by-name', async (req, res) => {
   res.json(data);
 });
 
+// Soirées dont l'utilisateur connecté est propriétaire (owner_id) — alimente
+// le bouton "Administrer" dans le profil. Déclarée avant /events/:id pour
+// éviter qu'Express n'intercepte "mine" comme un id.
+router.get('/events/mine', requireAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('events')
+    .select('id, name, club_name, created_at')
+    .eq('owner_id', req.user.id)
+    .order('created_at', { ascending: false });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json((data || []).map(ev => ({ ...ev, closed: isClosed(ev.created_at) })));
+});
+
 router.get('/events/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('events')
@@ -138,6 +151,20 @@ router.post('/events/:id/auth', async (req, res) => {
   // Générer un JWT organizer persistable — permet la restauration de session après refresh
   const token = signToken({ id: event.id, displayName: event.name, role: 'organizer', event_id: event.id });
   res.json({ authorized: true, event_id: event.id, name: event.name, token });
+});
+
+// Émet un JWT organizer pour le propriétaire de la soirée sans repasser par
+// le mot de passe : owner_id === req.user.id suffit à prouver l'identité.
+router.post('/events/:id/admin-token', requireAuth, async (req, res) => {
+  const { data: event } = await supabase
+    .from('events').select('id, name, owner_id').eq('id', req.params.id).single();
+  if (!event) return res.status(404).json({ error: 'Événement introuvable' });
+  if (event.owner_id !== req.user.id) {
+    return res.status(403).json({ error: 'Vous n\'êtes pas propriétaire de cette soirée.' });
+  }
+
+  const token = signToken({ id: event.id, displayName: event.name, role: 'organizer', event_id: event.id });
+  res.json({ token, event_id: event.id, name: event.name });
 });
 
 // ── Proposals ─────────────────────────────────────────────────────────
