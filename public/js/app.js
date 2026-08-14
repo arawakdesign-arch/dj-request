@@ -46,7 +46,7 @@ function showPage(id) {
   pg.classList.add('active', 'pe');
   setTimeout(() => pg.classList.remove('pe'), 400);
   if (id === 'dj' || id === 'bigscreen') generateQR();
-  if (id === 'bigscreen') renderBS();
+  if (id === 'bigscreen') { renderBS(); startBigscreenWatchdog(eid); } else { stopBigscreenWatchdog(); }
   if (id === 'profile')   renderProfile();
   if (id === 'dj')        renderAll();
   if (id === 'chat')      { chatMarkRead(); scrollChatBottom(); }

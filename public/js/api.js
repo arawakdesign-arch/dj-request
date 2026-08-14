@@ -34,37 +34,84 @@ async function api(method, path, body, { dj, token } = {}) {
 }
 
 // ── Souscriptions Realtime ────────────────────────────────────────────
+
+// Recharge les propositions depuis le serveur en préservant les métadonnées
+// locales (title/artist/coverUrl absentes du schéma DB actuel). Utilisé par
+// le handler Realtime ET par le filet de sécurité périodique de l'écran TV.
+async function refreshProposals(evId) {
+  const p = await api('GET', '/proposals/' + evId);
+  const fetched = Object.fromEntries(p.map(x => [x.id, { ...x, coverUrl: x.cover_url || null }]));
+  Object.keys(fetched).forEach(id => {
+    if (proposals[id]) {
+      fetched[id].title    = proposals[id].title    || fetched[id].title;
+      fetched[id].artist   = proposals[id].artist   || fetched[id].artist;
+      fetched[id].coverUrl = proposals[id].coverUrl || fetched[id].coverUrl;
+    }
+  });
+  proposals = fetched;
+}
+
+async function refreshNowPlaying(evId) {
+  const np = await api('GET', '/now-playing/' + evId);
+  if (np?.title) { nowPlaying = {t: np.title, a: np.artist || '', coverUrl: np.cover_url || null}; if (typeof updateNP === 'function') updateNP(); }
+}
+
+// Un canal Realtime peut mourir silencieusement (wifi de la TV qui redémarre,
+// veille prolongée, changement de réseau sur le téléphone) sans jamais
+// redevenir SUBSCRIBED tout seul. On surveille le statut de chaque canal et,
+// s'il tombe en erreur/expire/se ferme, on reprogramme une resouscription
+// complète après une courte pause (debounce : un seul canal en échec suffit
+// à déclencher, pas la peine que les 3 le fassent en même temps).
+let _resubscribeTimer = null;
+function _watchChannelStatus(evId, label) {
+  return (status) => {
+    console.log('[pullup] Canal ' + label + ':' + evId, '→', status);
+    if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+      _scheduleResubscribe(evId);
+    }
+  };
+}
+function _scheduleResubscribe(evId) {
+  if (_resubscribeTimer || eid !== evId) return; // soirée déjà changée entretemps, pas la peine
+  _resubscribeTimer = setTimeout(async () => {
+    _resubscribeTimer = null;
+    if (eid !== evId) return;
+    console.log('[pullup] Realtime: resouscription après coupure, evId=', evId);
+    subscribeToEvent(evId);
+    // La coupure a pu durer longtemps (TV en veille, wifi qui redémarre) :
+    // on recharge l'état complet plutôt que de compter sur le seul rattrapage
+    // du canal messages.
+    await refreshProposals(evId).catch(() => {});
+    await refreshNowPlaying(evId).catch(() => {});
+    renderAll();
+  }, 3000);
+}
+
 function subscribeToEvent(evId) {
   console.log('[pullup] subscribeToEvent() evId=', evId);
   if (!_sb) { console.warn('[pullup] subscribeToEvent: Supabase non initialisé'); return; }
+  // Repartir d'une base propre à chaque (re)souscription : sinon les canaux
+  // d'un appel précédent (loadEvent() rappelé, resouscription après coupure)
+  // restent ouverts en double et certains finissent par ne plus jamais
+  // recevoir d'évènements — symptôme typique d'un écran qui "ne réagit plus".
+  _sb.removeAllChannels();
+
   _sb.channel('proposals:' + evId)
     .on('postgres_changes', {event:'*', schema:'public', table:'proposals', filter:'event_id=eq.'+evId},
       async (payload) => {
         console.log('[pullup] Realtime proposals:', payload.eventType, '— rechargement pour evId=', evId);
-        const p = await api('GET', '/proposals/' + evId);
-        console.log('[pullup] Realtime proposals rechargés :', p.length, 'items');
-        // Merge : préserver les métadonnées locales (title, artist, coverUrl)
-        // absentes du schéma DB actuel mais présentes en mémoire locale
-        const fetched = Object.fromEntries(p.map(x => [x.id, { ...x, coverUrl: x.cover_url || null }]));
-        Object.keys(fetched).forEach(id => {
-          if (proposals[id]) {
-            fetched[id].title    = proposals[id].title    || fetched[id].title;
-            fetched[id].artist   = proposals[id].artist   || fetched[id].artist;
-            fetched[id].coverUrl = proposals[id].coverUrl || fetched[id].coverUrl;
-          }
-        });
-        proposals = fetched;
+        await refreshProposals(evId);
         renderAll();
         loadVoteRate(evId);
       })
-    .subscribe(status => console.log('[pullup] Canal proposals:' + evId, '→', status));
+    .subscribe(_watchChannelStatus(evId, 'proposals'));
 
   let _messagesEverSubscribed = false;
   _sb.channel('messages:' + evId)
     .on('postgres_changes', {event:'INSERT', schema:'public', table:'messages', filter:'event_id=eq.'+evId},
       payload => { if (typeof handleRealtimeMessage === 'function') handleRealtimeMessage(payload.new); })
     .subscribe(status => {
-      console.log('[pullup] Canal messages:' + evId, '→', status);
+      _watchChannelStatus(evId, 'messages')(status);
       // Rattrapage : si le canal se re-souscrit après une coupure (verrouillage
       // téléphone, changement réseau), on recharge l'historique pour récupérer
       // les messages manqués pendant la déconnexion.
@@ -77,7 +124,43 @@ function subscribeToEvent(evId) {
   _sb.channel('np:' + evId)
     .on('postgres_changes', {event:'UPDATE', schema:'public', table:'now_playing', filter:'event_id=eq.'+evId},
       p => { nowPlaying = {t: p.new.title, a: p.new.artist, coverUrl: p.new.cover_url || null}; updateNP(); })
-    .subscribe(status => console.log('[pullup] Canal np:' + evId, '→', status));
+    .subscribe(_watchChannelStatus(evId, 'np'));
+}
+
+// Le réseau peut disparaître un instant (coupure box/4G) sans que les canaux
+// Realtime déclenchent CHANNEL_ERROR — le navigateur les laisse "en attente".
+// Dès que la connexion revient, on force une resouscription + un rattrapage.
+window.addEventListener('online', () => {
+  if (!eid) return;
+  console.log('[pullup] réseau revenu — resynchronisation Realtime, evId=', eid);
+  subscribeToEvent(eid);
+  refreshProposals(eid).then(renderAll).catch(() => {});
+  refreshNowPlaying(eid).catch(() => {});
+});
+
+// ── Filet de sécurité pour l'écran TV (Écran Géant) ─────────────────────
+// Contrairement à un téléphone qu'on rallume, la TV reste TOUJOURS visible :
+// le rattrapage basé sur `visibilitychange` (cf. chat.js) ne se déclenche
+// donc jamais pour elle. Si le websocket Realtime meurt sans jamais générer
+// d'évènement de statut détectable (cas vu sur certains wifi de box TV), rien
+// ne le repère. Tant que l'Écran Géant est affiché, on force donc un
+// rafraîchissement complet à intervalle régulier, indépendamment de l'état
+// du Realtime — l'écran finit toujours par se remettre à jour.
+let _bsWatchdog = null;
+function startBigscreenWatchdog(evId) {
+  stopBigscreenWatchdog();
+  if (!evId) return;
+  _bsWatchdog = setInterval(async () => {
+    try {
+      await refreshProposals(evId);
+      await refreshNowPlaying(evId);
+      if (typeof renderBS === 'function') renderBS();
+    } catch(e) {}
+  }, 20000);
+}
+function stopBigscreenWatchdog() {
+  clearInterval(_bsWatchdog);
+  _bsWatchdog = null;
 }
 
 // ── Chargement d'un événement ─────────────────────────────────────────
