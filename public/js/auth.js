@@ -252,17 +252,25 @@ function _showCreateConfirm(n, err) {
   }
   _pendingCreateName = n;
 
-  const span = document.createElement('span');
-  span.textContent = `La soirée « ${n} » n'existe pas.`;
+  if (!currentUser?.email) {
+    // Pas de compte Google connu → le dire tout de suite plutôt que de laisser
+    // confirmCreateEvent() le découvrir après un clic sur "Créer cette soirée".
+    const p = document.getElementById('dj-pwd')?.value;
+    if (p) sessionStorage.setItem('djr_pending_create', JSON.stringify({ name: n, password: p }));
+    _showGoogleSignInPrompt(err, `Nouvelle soirée « ${n} » — connexion Google requise pour la créer :`);
+  } else {
+    const span = document.createElement('span');
+    span.textContent = `La soirée « ${n} » n'existe pas.`;
 
-  const btn = document.createElement('button');
-  btn.textContent = '🎉 Créer cette soirée';
-  btn.style.cssText = 'margin-top:.5rem;display:block;width:100%;padding:.5rem;background:#7C3AED;color:#fff;border:none;border-radius:.65rem;font-size:.85rem;font-weight:600;cursor:pointer';
-  btn.onclick = () => confirmCreateEvent();
+    const btn = document.createElement('button');
+    btn.textContent = '🎉 Créer cette soirée';
+    btn.style.cssText = 'margin-top:.5rem;display:block;width:100%;padding:.5rem;background:#7C3AED;color:#fff;border:none;border-radius:.65rem;font-size:.85rem;font-weight:600;cursor:pointer';
+    btn.onclick = () => confirmCreateEvent();
 
-  err.innerHTML = '';
-  err.appendChild(span);
-  err.appendChild(btn);
+    err.innerHTML = '';
+    err.appendChild(span);
+    err.appendChild(btn);
+  }
 
   // Annuler automatiquement si l'utilisateur modifie le nom
   const cancel = () => {
@@ -295,9 +303,12 @@ async function confirmCreateEvent(nameOverride, passwordOverride) {
     await _activateDJ(n, p);
     toast(`🎉 Soirée "${n}" créée !`);
   } catch(e) {
-    if (e.message === 'Non authentifié') {
-      // Pas de session Google → proposer la connexion sans perdre la saisie,
-      // la création reprendra automatiquement au retour d'OAuth (cf. onAuthStateChange).
+    // Pas de session, ou session invité/téléphone sans compte Google → proposer
+    // la connexion sans perdre la saisie ; la création reprendra automatiquement
+    // au retour d'OAuth (cf. onAuthStateChange). Ne pas intercepter le message
+    // "email non autorisé" : là, l'utilisateur EST connecté en Google, un autre
+    // bouton Google n'aiderait pas.
+    if (e.message === 'Non authentifié' || e.message === 'Connecte-toi avec un compte Google autorisé pour créer une soirée.') {
       sessionStorage.setItem('djr_pending_create', JSON.stringify({ name: n, password: p }));
       _showGoogleSignInPrompt(err);
       return;
@@ -306,11 +317,11 @@ async function confirmCreateEvent(nameOverride, passwordOverride) {
   }
 }
 
-function _showGoogleSignInPrompt(err) {
+function _showGoogleSignInPrompt(err, message) {
   if (!err) return;
   err.innerHTML = '';
   const span = document.createElement('span');
-  span.textContent = 'Connecte-toi avec Google pour créer cette soirée :';
+  span.textContent = message || 'Connecte-toi avec Google pour créer cette soirée :';
   const btn = document.createElement('button');
   btn.className = 'btn-google';
   btn.style.cssText = 'margin-top:.5rem';
