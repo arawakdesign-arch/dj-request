@@ -901,7 +901,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auth
   on('btn-google',       signInGoogle);
   on('btn-phone-action', phoneAction);
-  on('btn-orga',         () => showPage('dj-login'));
+  on('btn-orga',         () => { showPage('dj-login'); _djLoginShowChoice(); });
 
   // Nav
   on('nav-vote',    () => navTo('client'));
@@ -910,8 +910,12 @@ document.addEventListener('DOMContentLoaded', () => {
   on('nav-dj',      () => navTo('presskit'));
 
   // DJ login
-  on('btn-dj-login', djLogin);
-  on('btn-dj-back',  () => showPage('auth'));
+  on('btn-dj-choice-join',   _djLoginShowJoin);
+  on('btn-dj-choice-create', _djLoginShowCreate);
+  on('btn-dj-login',         djJoin);
+  on('btn-dj-create-google', _djCreateSignInGoogle);
+  on('btn-dj-create-submit', djCreateSubmit);
+  on('btn-dj-back',          _djLoginBack);
 
   // Modal Proposer
   on('btn-fab-propose', () => {

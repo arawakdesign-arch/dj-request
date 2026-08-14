@@ -2,8 +2,6 @@
 let _loggedIn          = false;
 let _pendingPhone      = null;
 let _authToken         = null;   // JWT interne (backend propre)
-let _pendingCreateName    = null; // nom de soirée en attente de confirmation création
-let _cancelCreateListener = null; // référence pour supprimer l'écouteur de changement de nom
 
 // ── Sauvegarde / restauration du token ───────────────────────────────
 function saveToken(token) {
@@ -77,12 +75,10 @@ window.addEventListener('load', async () => {
             email:       u.email  || null,
           };
           afterLogin();
-          const pendingCreateRaw = sessionStorage.getItem('djr_pending_create');
-          if (pendingCreateRaw) {
-            sessionStorage.removeItem('djr_pending_create');
-            const { name, password } = JSON.parse(pendingCreateRaw);
+          if (sessionStorage.getItem('djr_pending_create_intent')) {
+            sessionStorage.removeItem('djr_pending_create_intent');
             showPage('dj-login');
-            await confirmCreateEvent(name, password);
+            _djLoginShowCreate(); // le formulaire nom/mot de passe apparaît, currentUser.email est maintenant renseigné
           } else if (eid) {
             await loadEvent(eid).catch(() => {});
           }
@@ -242,97 +238,50 @@ async function guestLogin() {
 
 function setErr(msg) { const e = document.getElementById('auth-err'); if (e) e.textContent = msg; }
 
-// ── Confirmation création soirée ──────────────────────────────────────
-function _showCreateConfirm(n, err) {
-  // Supprimer l'écouteur précédent si djLogin() est rappelé avant confirmation
-  const nameEl = document.getElementById('dj-ev-name');
-  if (_cancelCreateListener) {
-    nameEl.removeEventListener('input', _cancelCreateListener);
-    _cancelCreateListener = null;
-  }
-  _pendingCreateName = n;
-
-  if (!currentUser?.email) {
-    // Pas de compte Google connu → le dire tout de suite plutôt que de laisser
-    // confirmCreateEvent() le découvrir après un clic sur "Créer cette soirée".
-    const p = document.getElementById('dj-pwd')?.value;
-    if (p) sessionStorage.setItem('djr_pending_create', JSON.stringify({ name: n, password: p }));
-    _showGoogleSignInPrompt(err, `Nouvelle soirée « ${n} » — connexion Google requise pour la créer :`);
-  } else {
-    const span = document.createElement('span');
-    span.textContent = `La soirée « ${n} » n'existe pas.`;
-
-    const btn = document.createElement('button');
-    btn.textContent = '🎉 Créer cette soirée';
-    btn.style.cssText = 'margin-top:.5rem;display:block;width:100%;padding:.5rem;background:#7C3AED;color:#fff;border:none;border-radius:.65rem;font-size:.85rem;font-weight:600;cursor:pointer';
-    btn.onclick = () => confirmCreateEvent();
-
-    err.innerHTML = '';
-    err.appendChild(span);
-    err.appendChild(btn);
-  }
-
-  // Annuler automatiquement si l'utilisateur modifie le nom
-  const cancel = () => {
-    _pendingCreateName    = null;
-    _cancelCreateListener = null;
-    err.innerHTML = '';
-    nameEl.removeEventListener('input', cancel);
-  };
-  _cancelCreateListener = cancel;
-  nameEl.addEventListener('input', cancel);
+// ── Espace Organisateur — navigation entre les 2 accès ─────────────────
+function _djLoginShowChoice() {
+  document.getElementById('dj-choice').style.display      = 'block';
+  document.getElementById('dj-join-form').style.display   = 'none';
+  document.getElementById('dj-create-flow').style.display = 'none';
+}
+function _djLoginShowJoin() {
+  document.getElementById('dj-choice').style.display      = 'none';
+  document.getElementById('dj-join-form').style.display   = 'block';
+  document.getElementById('dj-create-flow').style.display = 'none';
+  document.getElementById('dj-err').textContent = '';
+}
+function _djLoginShowCreate() {
+  document.getElementById('dj-choice').style.display      = 'none';
+  document.getElementById('dj-join-form').style.display   = 'none';
+  document.getElementById('dj-create-flow').style.display = 'block';
+  document.getElementById('dj-create-err').textContent = '';
+  _djCreateSyncGoogleState();
+}
+// Le formulaire nom/mot de passe n'apparaît qu'une fois connecté en Google
+function _djCreateSyncGoogleState() {
+  const authed = !!currentUser?.email;
+  document.getElementById('dj-create-google').style.display = authed ? 'none'  : 'block';
+  document.getElementById('dj-create-form').style.display   = authed ? 'block' : 'none';
+}
+function _djLoginBack() {
+  const onSubView = document.getElementById('dj-join-form').style.display   === 'block'
+                 || document.getElementById('dj-create-flow').style.display === 'block';
+  if (onSubView) { _djLoginShowChoice(); return; }
+  showPage('auth');
 }
 
-async function confirmCreateEvent(nameOverride, passwordOverride) {
-  const n   = nameOverride || _pendingCreateName;
-  const p   = passwordOverride || document.getElementById('dj-pwd')?.value;
-  const err = document.getElementById('dj-err');
-  if (!n || !p) return;
-  _pendingCreateName    = null;
-  _cancelCreateListener = null;
-  if (err) err.innerHTML = '';
-  try {
-    const ev = await api('POST', '/events', { name: n, password: p });
-    eid = ev.id;
-    localStorage.setItem('djr_eid',   eid);
-    localStorage.setItem('djr_ename', n);
-    // Obtenir le token organizer immédiatement après création pour survivre au refresh
-    const authRes = await api('POST', '/events/' + eid + '/auth', { password: p });
-    if (authRes.token) saveToken(authRes.token);
-    // subscribeToEvent est appelé par loadEvent() dans _activateDJ() — pas de doublon ici
-    await _activateDJ(n, p);
-    toast(`🎉 Soirée "${n}" créée !`);
-  } catch(e) {
-    // Pas de session, ou session invité/téléphone sans compte Google → proposer
-    // la connexion sans perdre la saisie ; la création reprendra automatiquement
-    // au retour d'OAuth (cf. onAuthStateChange). Ne pas intercepter le message
-    // "email non autorisé" : là, l'utilisateur EST connecté en Google, un autre
-    // bouton Google n'aiderait pas.
-    if (e.message === 'Non authentifié' || e.message === 'Connecte-toi avec un compte Google autorisé pour créer une soirée.') {
-      sessionStorage.setItem('djr_pending_create', JSON.stringify({ name: n, password: p }));
-      _showGoogleSignInPrompt(err);
-      return;
-    }
-    if (err) err.textContent = e.message || 'Erreur lors de la création.';
-  }
+function _djCreateSignInGoogle() {
+  // Une session invité/téléphone déjà stockée empêcherait sinon la restauration de la
+  // session Google au retour d'OAuth (window.addEventListener('load') la restaurerait
+  // en priorité, cf. étape 1 plus haut).
+  clearToken();
+  // Revenir sur l'étape "créer" de l'Espace Organisateur au retour d'OAuth (cf. onAuthStateChange)
+  sessionStorage.setItem('djr_pending_create_intent', '1');
+  signInGoogle();
 }
 
-function _showGoogleSignInPrompt(err, message) {
-  if (!err) return;
-  err.innerHTML = '';
-  const span = document.createElement('span');
-  span.textContent = message || 'Connecte-toi avec Google pour créer cette soirée :';
-  const btn = document.createElement('button');
-  btn.className = 'btn-google';
-  btn.style.cssText = 'margin-top:.5rem';
-  btn.textContent = 'Continuer avec Google';
-  btn.onclick = signInGoogle;
-  err.appendChild(span);
-  err.appendChild(btn);
-}
-
-// ── DJ Login ──────────────────────────────────────────────────────────
-async function djLogin() {
+// ── Rejoindre une soirée existante — nom + mot de passe uniquement ─────
+async function djJoin() {
   const n   = document.getElementById('dj-ev-name').value.trim();
   const p   = document.getElementById('dj-pwd').value;
   const err = document.getElementById('dj-err');
@@ -367,17 +316,16 @@ async function djLogin() {
     let found = null;
     try { found = await api('GET', '/events/by-name?name=' + encodeURIComponent(n)); } catch(_) {}
 
-    if (found) {
-      // Soirée trouvée → tester le mot de passe (lève une erreur si incorrect)
-      eid = found.id;
-      const authRes2 = await api('POST', '/events/' + eid + '/auth', { password: p });
-      if (authRes2.token) saveToken(authRes2.token);
-      toastMsg = `✅ Soirée "${n}" retrouvée !`;
-    } else {
-      // Soirée inexistante → afficher le bloc de confirmation explicite
-      _showCreateConfirm(n, err);
+    if (!found) {
+      err.textContent = `Soirée « ${n} » introuvable — vérifiez le nom, ou créez-la via "Créer une nouvelle soirée".`;
       return;
     }
+
+    // Soirée trouvée → tester le mot de passe (lève une erreur si incorrect)
+    eid = found.id;
+    const authRes2 = await api('POST', '/events/' + eid + '/auth', { password: p });
+    if (authRes2.token) saveToken(authRes2.token);
+    toastMsg = `✅ Soirée "${n}" retrouvée !`;
 
     localStorage.setItem('djr_eid',   eid);
     localStorage.setItem('djr_ename', n);
@@ -386,6 +334,36 @@ async function djLogin() {
     toast(toastMsg);
   } catch(e) {
     err.textContent = e.message || 'Mot de passe incorrect.';
+  }
+}
+
+// ── Créer une nouvelle soirée — connexion Google déjà acquise à ce stade ──
+async function djCreateSubmit() {
+  const n   = document.getElementById('dj-create-name').value.trim();
+  const p   = document.getElementById('dj-create-pwd').value;
+  const err = document.getElementById('dj-create-err');
+  if (!n) { err.textContent = '⚠️ Saisissez un nom de soirée.'; return; }
+  if (!p) { err.textContent = '⚠️ Mot de passe requis.'; return; }
+  err.textContent = '';
+  try {
+    const ev = await api('POST', '/events', { name: n, password: p });
+    eid = ev.id;
+    localStorage.setItem('djr_eid',   eid);
+    localStorage.setItem('djr_ename', n);
+    // Obtenir le token organizer immédiatement après création pour survivre au refresh
+    const authRes = await api('POST', '/events/' + eid + '/auth', { password: p });
+    if (authRes.token) saveToken(authRes.token);
+    // subscribeToEvent est appelé par loadEvent() dans _activateDJ() — pas de doublon ici
+    await _activateDJ(n, p);
+    toast(`🎉 Soirée "${n}" créée !`);
+  } catch(e) {
+    if (e.message === 'Non authentifié' || e.message === 'Connecte-toi avec un compte Google autorisé pour créer une soirée.') {
+      // Session Google expirée entre l'ouverture du formulaire et l'envoi → revenir à l'étape connexion
+      _djCreateSyncGoogleState();
+      err.textContent = 'Ta session a expiré — reconnecte-toi avec Google.';
+      return;
+    }
+    err.textContent = e.message || 'Erreur lors de la création.';
   }
 }
 

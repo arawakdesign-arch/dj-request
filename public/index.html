@@ -1169,10 +1169,34 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <div class="dj-login-title">Espace Organisateur</div>
         <div style="font-size:.78rem;color:var(--tx3)">DJ · Promoteur · Club manager</div>
       </div>
-      <div class="fl"><label>Nom de la soirée</label><input class="fi" id="dj-ev-name" type="text" placeholder="Ex: Nuit Électrique" maxlength="40"></div>
-      <div class="fl"><label>Mot de passe</label><input class="fi" id="dj-pwd" type="password" placeholder="••••••••"></div>
-      <button class="btn-g" id="btn-dj-login">Accéder →</button>
-      <div class="auth-err" id="dj-err" style="margin-top:.5rem"></div>
+      <!-- Choix initial : rejoindre ou créer -->
+      <div id="dj-choice">
+        <button class="btn-g" id="btn-dj-choice-join" style="margin-bottom:.6rem">🔑 Rejoindre une soirée existante</button>
+        <button class="btn-g" id="btn-dj-choice-create">🎉 Créer une nouvelle soirée</button>
+      </div>
+
+      <!-- Rejoindre une soirée existante : nom + mot de passe uniquement -->
+      <div id="dj-join-form" style="display:none">
+        <div class="fl"><label>Nom de la soirée</label><input class="fi" id="dj-ev-name" type="text" placeholder="Ex: Nuit Électrique" maxlength="40"></div>
+        <div class="fl"><label>Mot de passe</label><input class="fi" id="dj-pwd" type="password" placeholder="••••••••"></div>
+        <button class="btn-g" id="btn-dj-login">Accéder →</button>
+        <div class="auth-err" id="dj-err" style="margin-top:.5rem"></div>
+      </div>
+
+      <!-- Créer une nouvelle soirée : connexion Google d'abord, formulaire ensuite -->
+      <div id="dj-create-flow" style="display:none">
+        <div id="dj-create-google">
+          <div style="font-size:.82rem;color:var(--tx3);margin-bottom:.75rem;text-align:center">Connecte-toi avec Google pour créer une soirée.</div>
+          <button class="btn-google" id="btn-dj-create-google">Continuer avec Google</button>
+        </div>
+        <div id="dj-create-form" style="display:none">
+          <div class="fl"><label>Nom de la soirée</label><input class="fi" id="dj-create-name" type="text" placeholder="Ex: Nuit Électrique" maxlength="40"></div>
+          <div class="fl"><label>Mot de passe</label><input class="fi" id="dj-create-pwd" type="password" placeholder="••••••••"></div>
+          <button class="btn-g" id="btn-dj-create-submit">🎉 Créer la soirée</button>
+        </div>
+        <div class="auth-err" id="dj-create-err" style="margin-top:.5rem"></div>
+      </div>
+
       <button id="btn-dj-back" style="display:block;text-align:center;margin-top:.85rem;background:none;border:none;color:var(--tx4);font-size:.8rem;width:100%">← Retour</button>
     </div>
   </div>
