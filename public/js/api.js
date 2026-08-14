@@ -116,7 +116,10 @@ function subscribeToEvent(evId) {
       // téléphone, changement réseau), on recharge l'historique pour récupérer
       // les messages manqués pendant la déconnexion.
       if (status === 'SUBSCRIBED') {
-        if (_messagesEverSubscribed && typeof loadChatHistory === 'function') loadChatHistory();
+        if (_messagesEverSubscribed) {
+          if (typeof loadChatHistory === 'function') loadChatHistory();
+          if (typeof loadBsChatHistory === 'function') loadBsChatHistory(evId);
+        }
         _messagesEverSubscribed = true;
       }
     });
@@ -155,6 +158,7 @@ function startBigscreenWatchdog(evId) {
       await refreshProposals(evId);
       await refreshNowPlaying(evId);
       if (typeof renderBS === 'function') renderBS();
+      if (typeof loadBsChatHistory === 'function') loadBsChatHistory(evId);
     } catch(e) {}
   }, 20000);
 }

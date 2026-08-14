@@ -299,9 +299,58 @@ function updateDjBubble(text) {
   if (el && text) el.textContent = text;
 }
 
+// ── Chat sur l'Écran Géant (TV) — flux en lecture seule ─────────────────
+// Version simplifiée d'appendChatMsg() : pas de réactions/actions (rien
+// n'est cliquable sur une TV) et pas de photos (juste le texte, lisible à
+// distance). On purge les messages les plus anciens pour ne jamais grossir
+// sans fin sur un écran qui tourne en continu toute la soirée.
+const BS_CHAT_MAX = 30;
+function appendBsChatMsg(m, skipDedupe) {
+  const feed = document.getElementById('bs-chat-feed');
+  if (!feed || !m || m.deleted || !m.text) return;
+  const key = m.id ? 'bs-msg-' + m.id : null;
+  if (!skipDedupe && key && document.getElementById(key)) return;
+
+  const name = m.user_name || m.name || 'Invité';
+  const isDJ = isDjName(name);
+
+  const row = document.createElement('div');
+  row.className = 'bs-chat-msg' + (isDJ ? ' dj' : '');
+  if (key) row.id = key;
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'bs-chat-name';
+  nameEl.style.color = isDJ ? '#FF7DC4' : avatarColor(name);
+  nameEl.textContent = (isDJ ? '🎧 ' : '') + name;
+
+  const textEl = document.createElement('span');
+  textEl.className = 'bs-chat-text';
+  textEl.textContent = m.text;
+
+  row.appendChild(nameEl);
+  row.appendChild(textEl);
+  feed.appendChild(row);
+  while (feed.children.length > BS_CHAT_MAX) feed.removeChild(feed.firstChild);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+// Historique complet, utilisé à l'arrivée sur l'écran et par le filet de
+// sécurité périodique (cf. startBigscreenWatchdog dans api.js).
+async function loadBsChatHistory(evId) {
+  const feed = document.getElementById('bs-chat-feed');
+  if (!feed || !evId) return;
+  try {
+    const messages = await api('GET', '/messages/' + evId);
+    feed.innerHTML = '';
+    messages.filter(m => !m.deleted && m.text).slice(-BS_CHAT_MAX)
+      .forEach(m => appendBsChatMsg({ id: m.id, user_name: m.user_name, text: m.text }, true));
+  } catch(e) {}
+}
+
 // ── Réception temps réel (autres participants) ─────────────────────────
 function handleRealtimeMessage(m) {
   if (!m || m.deleted) return;
+  appendBsChatMsg({ id: m.id, user_name: m.user_name, text: m.text });
   // Le dernier message du DJ reste épinglé dans le cadre, indépendamment
   // de l'affichage/dédoublonnage de la liste de messages ci-dessous.
   if (isDjName(m.user_name)) renderPinnedMessage(m);
