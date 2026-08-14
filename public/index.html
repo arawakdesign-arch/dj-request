@@ -167,11 +167,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 /* ══════════════════════════════════════════════════════════════════
    PAGE — AUTH
 ══════════════════════════════════════════════════════════════════ */
-#pg-auth{justify-content:flex-start;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:clamp(.75rem,4vw,1.75rem);background:url('/images/auth-hero-promo.jpg?v=3') center top/cover no-repeat,#FAF9F7}
-#pg-auth::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(250,249,247,.2),rgba(250,249,247,.96) 62%,#FAF9F7 82%);pointer-events:none;z-index:0}
-#pg-auth>*{position:relative;z-index:1}
-.auth-hero{display:none}
-.auth-wrap{width:100%;max-width:360px;display:flex;flex-direction:column;gap:.4rem;padding:clamp(.4rem,2vh,.75rem) 0;margin-top:52vh}
+#pg-auth{justify-content:flex-start;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:clamp(.75rem,4vw,1.75rem);background:#FAF9F7}
+.auth-hero{margin:0 0 .75rem}
+.auth-promo-img{width:100%;height:450px;object-fit:cover;object-position:top;display:block;border-radius:18px}
+.auth-wrap{width:100%;max-width:360px;display:flex;flex-direction:column;gap:.4rem;padding:clamp(.4rem,2vh,.75rem) 0}
 .auth-ring{width:74px;height:74px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto .6rem;box-shadow:0 8px 30px rgba(111,34,255,.3)}
 /* Cartes Espace Organisateur / S'enregistrer DJ (façon mockup 3D) */
 .entry-card{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.5rem;padding:1.35rem .5rem 1rem;height:148px;border-radius:20px;border:1px solid var(--bdr);background:#fff;cursor:pointer;overflow:hidden;isolation:isolate;transition:transform .15s ease}
@@ -728,7 +727,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <!-- AUTH -->
 <div class="page active" id="pg-auth">
-  <div class="auth-wrap" style="position:relative;margin:auto">
+  <div class="auth-wrap" style="position:relative">
     <div class="auth-hero" style="text-align:center">
       <img src="/images/auth-hero-promo.jpg?v=3" alt="PULL UP! — La soirée, c'est toi" class="auth-promo-img">
     </div>
