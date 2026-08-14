@@ -77,7 +77,15 @@ window.addEventListener('load', async () => {
             email:       u.email  || null,
           };
           afterLogin();
-          if (eid) await loadEvent(eid).catch(() => {});
+          const pendingCreateRaw = sessionStorage.getItem('djr_pending_create');
+          if (pendingCreateRaw) {
+            sessionStorage.removeItem('djr_pending_create');
+            const { name, password } = JSON.parse(pendingCreateRaw);
+            showPage('dj-login');
+            await confirmCreateEvent(name, password);
+          } else if (eid) {
+            await loadEvent(eid).catch(() => {});
+          }
           // Nettoyer le hash OAuth ; conserver ou rétablir le paramètre ?event=
           if (window.location.hash) {
             history.replaceState(null, '', eid ? buildEventUrl(eid) : (window.location.pathname + window.location.search));
@@ -250,7 +258,7 @@ function _showCreateConfirm(n, err) {
   const btn = document.createElement('button');
   btn.textContent = '🎉 Créer cette soirée';
   btn.style.cssText = 'margin-top:.5rem;display:block;width:100%;padding:.5rem;background:#7C3AED;color:#fff;border:none;border-radius:.65rem;font-size:.85rem;font-weight:600;cursor:pointer';
-  btn.onclick = confirmCreateEvent;
+  btn.onclick = () => confirmCreateEvent();
 
   err.innerHTML = '';
   err.appendChild(span);
@@ -267,9 +275,9 @@ function _showCreateConfirm(n, err) {
   nameEl.addEventListener('input', cancel);
 }
 
-async function confirmCreateEvent() {
-  const n   = _pendingCreateName;
-  const p   = document.getElementById('dj-pwd')?.value;
+async function confirmCreateEvent(nameOverride, passwordOverride) {
+  const n   = nameOverride || _pendingCreateName;
+  const p   = passwordOverride || document.getElementById('dj-pwd')?.value;
   const err = document.getElementById('dj-err');
   if (!n || !p) return;
   _pendingCreateName    = null;
@@ -287,10 +295,29 @@ async function confirmCreateEvent() {
     await _activateDJ(n, p);
     toast(`🎉 Soirée "${n}" créée !`);
   } catch(e) {
-    if (err) err.textContent = e.message === 'Non authentifié'
-      ? '⚠️ Connecte-toi (Google) avant de créer une soirée.'
-      : (e.message || 'Erreur lors de la création.');
+    if (e.message === 'Non authentifié') {
+      // Pas de session Google → proposer la connexion sans perdre la saisie,
+      // la création reprendra automatiquement au retour d'OAuth (cf. onAuthStateChange).
+      sessionStorage.setItem('djr_pending_create', JSON.stringify({ name: n, password: p }));
+      _showGoogleSignInPrompt(err);
+      return;
+    }
+    if (err) err.textContent = e.message || 'Erreur lors de la création.';
   }
+}
+
+function _showGoogleSignInPrompt(err) {
+  if (!err) return;
+  err.innerHTML = '';
+  const span = document.createElement('span');
+  span.textContent = 'Connecte-toi avec Google pour créer cette soirée :';
+  const btn = document.createElement('button');
+  btn.className = 'btn-google';
+  btn.style.cssText = 'margin-top:.5rem';
+  btn.textContent = 'Continuer avec Google';
+  btn.onclick = signInGoogle;
+  err.appendChild(span);
+  err.appendChild(btn);
 }
 
 // ── DJ Login ──────────────────────────────────────────────────────────
