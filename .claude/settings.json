@@ -11,7 +11,20 @@
       "Bash(npx --yes playwright screenshot --browser=chromium --viewport-size=430,932 http://localhost:3000 /private/tmp/claude-501/-Users-enzolameynardie-Downloads-web-app-2/3b93f5da-a85c-4570-bcf0-f6a75fd6600e/scratchpad/pullup-theme.png)",
       "Read(//Users/enzolameynardie/Downloads/web-app 2/.agents/skills/**)",
       "Bash(find / -maxdepth 6 -ipath \"*mcp-server-guide*\")",
-      "Bash(claude mcp *)"
+      "Bash(claude mcp *)",
+      "Bash(kill 82110)",
+      "Bash(curl -sI --max-time 10 http://195.20.241.142/)",
+      "Bash(curl -s --max-time 10 http://195.20.241.142/api/health)",
+      "Bash(npx --yes playwright screenshot --browser=chromium --viewport-size=430,932 http://195.20.241.142/ /private/tmp/claude-501/-Users-enzolameynardie-Downloads-web-app-2/3b93f5da-a85c-4570-bcf0-f6a75fd6600e/scratchpad/live-site.png)",
+      "Bash(NODE_PATH=/Users/enzolameynardie/.npm/_npx/e41f203b7505f1fb/node_modules node -e ' *)",
+      "Bash(curl -s -o /dev/null -w \"local HTTP %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(node --check chat.js)",
+      "Bash(node --check api.js)",
+      "Bash(curl -s http://localhost:3000/api/messages/b0ad1244-1c31-4494-971f-6ee55c2098a4)",
+      "Bash(curl -s http://localhost:3000/api/reports/b0ad1244-1c31-4494-971f-6ee55c2098a4)",
+      "Bash(curl -s --max-time 10 -X POST http://195.20.241.142/api/events -H \"Content-Type: application/json\" -d '{\"name\":\"CheckSupabaseNew\",\"password\":\"test1234\"}')",
+      "Bash(curl -s --max-time 10 \"http://195.20.241.142/api/messages/781efc84-4f8d-4b13-aafc-68fec0cf0f07\")",
+      "Bash(curl -s http://195.20.241.142/js/chat.js)"
     ]
   }
 }
