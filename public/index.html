@@ -149,12 +149,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── Bannière "Ajouter à l'écran d'accueil" (Safari iOS uniquement) ── */
-.a2hs-banner{position:fixed;left:.65rem;right:.65rem;bottom:calc(var(--safe-bot) + .65rem);z-index:600;background:var(--dj-card);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:.75rem .85rem;display:flex;align-items:center;gap:.7rem;box-shadow:0 8px 30px rgba(16,16,20,.4);transform:translateY(120%);opacity:0;transition:transform .3s ease,opacity .3s ease}
-.a2hs-banner.show{transform:translateY(0);opacity:1}
-.a2hs-ico{width:38px;height:38px;border-radius:10px;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
-.a2hs-txt{flex:1;min-width:0;color:#fff;font-size:.78rem;line-height:1.35}
-.a2hs-txt b{font-weight:700}
-.a2hs-close{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer}
 
 /* Modal */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(16,16,20,.45);z-index:300;align-items:flex-end;backdrop-filter:blur(4px)}
@@ -713,13 +707,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <body>
 
 <div class="toast" id="toast"></div>
-
-<!-- Bannière "Ajouter à l'écran d'accueil" — masque les barres Safari une fois installée -->
-<div class="a2hs-banner" id="a2hs-banner">
-  <div class="a2hs-ico">📲</div>
-  <div class="a2hs-txt">Ajoute PULL UP! à ton écran d'accueil pour un plein écran sans barre Safari : appuie sur <b>Partager</b> ⬆️ puis <b>Sur l'écran d'accueil</b>.</div>
-  <div class="a2hs-close" id="a2hs-close">✕</div>
-</div>
 
 <!-- ══ MODALS ══════════════════════════════════════════════════════ -->
 <!-- Propose modal -->
@@ -1561,7 +1548,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=13"></script>
-<script src="/js/app.js?v=39"></script>
+<script src="/js/app.js?v=40"></script>
 <script src="/js/render.js?v=15"></script>
 <script src="/js/chat.js?v=14"></script>
 <script src="/js/auth.js?v=10"></script>
