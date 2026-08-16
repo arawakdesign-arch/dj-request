@@ -682,16 +682,14 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .bs2-chat-name.dj{color:var(--pk)}
 .bs2-chat-time{font-size:.62rem;color:var(--tx4);margin-left:auto;flex-shrink:0}
 .bs2-chat-txt{font-size:.82rem;color:var(--tx2);line-height:1.3;word-break:break-word}
-.bs2-footer{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;flex-shrink:0}
-.bs2-howto-img{max-width:800px;width:100%;height:auto;object-fit:contain;display:block}
-.bs2-scan-cta{display:flex;align-items:center;gap:1rem;margin-left:auto}
-.bs2-qr-box{background:#fff;padding:8px;border-radius:10px;display:inline-flex;flex-shrink:0;box-shadow:0 6px 18px rgba(20,10,40,.1);border:1px solid var(--bdr)}
-.bs2-scan-txt{font-family:'Inter',sans-serif;font-weight:800;font-size:1.1rem;color:var(--vi);line-height:1.15;text-transform:uppercase}
-.bs2-stats{display:flex;align-items:center;gap:1rem;margin-top:.4rem}
-.bs2-stat{text-align:left}
-.bs2-stat-n{font-family:'Inter',sans-serif;font-weight:800;font-size:1.1rem;color:var(--tx)}
-.bs2-stat-l{font-size:.6rem;color:var(--tx4);text-transform:uppercase}
-.bs2-stat-div{width:1px;align-self:stretch;background:var(--bdr)}
+.bs2-wrap{gap:0}
+.bs2-footer-wrap{position:relative;width:calc(100% + 2.4rem);margin:.6rem -1.2rem -1.2rem;line-height:0;flex-shrink:0}
+.bs2-footer-img{display:block;width:100%;height:auto}
+.bs2-footer-qr{position:absolute;left:15.1%;top:50.5%;width:7.8%;height:38.6%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.bs2-footer-qr canvas,.bs2-footer-qr img{width:100%!important;height:100%!important}
+.bs2-footer-stat{position:absolute;top:66%;transform:translate(-50%,-50%);font-family:'Inter',sans-serif;font-weight:800;color:#fff;font-size:clamp(.9rem,1.8vw,1.5rem)}
+.bs2-footer-votes{left:83.4%}
+.bs2-footer-tracks{left:93.3%}
 
 
 /* Prevent content jump when iOS keyboard opens */
@@ -1523,19 +1521,11 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         </div>
       </div>
     </div>
-    <div class="bs2-footer">
-      <img src="/images/bs-howto.jpg?v=1" alt="Comment ça marche : 1. Scanne, 2. Vote, 3. Pull Up" class="bs2-howto-img">
-      <div class="bs2-scan-cta">
-        <div class="bs2-qr-box"><div id="bs-qr"></div></div>
-        <div>
-          <div class="bs2-scan-txt">Scannez<br>pour voter</div>
-          <div class="bs2-stats">
-            <div class="bs2-stat"><div class="bs2-stat-n" id="bs-votes">0</div><div class="bs2-stat-l">Votes</div></div>
-            <div class="bs2-stat-div"></div>
-            <div class="bs2-stat"><div class="bs2-stat-n" id="bs-tracks">0</div><div class="bs2-stat-l">Titres</div></div>
-          </div>
-        </div>
-      </div>
+    <div class="bs2-footer-wrap">
+      <img src="/images/bs-footer-banner.png?v=1" alt="Comment ça marche : 1. Scanne, 2. Vote, 3. Pull Up — Scannez pour voter" class="bs2-footer-img">
+      <div class="bs2-footer-qr" id="bs-qr"></div>
+      <div class="bs2-footer-stat bs2-footer-votes" id="bs-votes">0</div>
+      <div class="bs2-footer-stat bs2-footer-tracks" id="bs-tracks">0</div>
     </div>
   </div>
 </div>
