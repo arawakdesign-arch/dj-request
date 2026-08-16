@@ -224,23 +224,30 @@ const BS_CHAT_MAX = 8;
 function bsChatMsgNode(m) {
   const isDJ = isDjName(m.user_name);
   const wrap = document.createElement('div');
-  wrap.className = 'bs-chat-msg';
+  wrap.className = 'bs2-chat-msg';
 
   const av = document.createElement('div');
-  av.className = 'bs-chat-av';
+  av.className = 'bs2-chat-av';
   if (isDJ) { av.style.backgroundImage = "url('/images/dj-avatar.png')"; }
   else if (m.user_photo) { av.style.backgroundImage = `url('${m.user_photo}')`; }
   else { av.style.background = avatarColor(m.user_name); av.textContent = (m.user_name || '?')[0].toUpperCase(); }
 
   const body = document.createElement('div');
-  body.className = 'bs-chat-body';
-  const name = document.createElement('div');
-  name.className = 'bs-chat-name' + (isDJ ? ' dj' : '');
+  body.className = 'bs2-chat-body';
+  const head = document.createElement('div');
+  head.className = 'bs2-chat-headrow';
+  const name = document.createElement('span');
+  name.className = 'bs2-chat-name' + (isDJ ? ' dj' : '');
   name.textContent = m.user_name || 'Invité';
+  const time = document.createElement('span');
+  time.className = 'bs2-chat-time';
+  const d = new Date(m.created_at || Date.now());
+  time.textContent = d.getHours() + ':' + (d.getMinutes()+'').padStart(2,'0');
+  head.appendChild(name); head.appendChild(time);
   const txt = document.createElement('div');
-  txt.className = 'bs-chat-txt';
+  txt.className = 'bs2-chat-txt';
   txt.textContent = m.photo_url ? '📷 Photo' : (m.text || '');
-  body.appendChild(name); body.appendChild(txt);
+  body.appendChild(head); body.appendChild(txt);
 
   wrap.appendChild(av); wrap.appendChild(body);
   return wrap;
@@ -251,7 +258,7 @@ function renderBSChatFeed(messages) {
   const last = (messages || []).filter(m => !m.deleted).slice(-BS_CHAT_MAX);
   feed.innerHTML = '';
   if (!last.length) {
-    feed.innerHTML = '<div class="empty-state" style="color:rgba(255,255,255,.35)"><div class="ei">💬</div><p>En attente de messages…</p></div>';
+    feed.innerHTML = '<div class="empty-state"><div class="ei">💬</div><p>En attente de messages…</p></div>';
     return;
   }
   last.forEach(m => feed.appendChild(bsChatMsgNode(m)));

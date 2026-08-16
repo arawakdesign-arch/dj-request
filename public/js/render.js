@@ -174,12 +174,14 @@ function renderBS() {
   const chart = document.getElementById('bs-chart'); if (!chart) return;
   chart.innerHTML = '';
   if (!s.length) { chart.innerHTML = '<div class="empty-state"><div class="ei">🎶</div><p>En attente…</p></div>'; return; }
-  const medals = ['🥇','🥈','🥉'];
   s.forEach((p, i) => {
     const c = CAT.find(x => x.id === p.id) || { n: p.title||p.id, a: p.artist||'', e:'🎵', c:'#6F22FF' };
     const pct = Math.max(5, Math.round(((p.votes||0) / mx) * 100));
-    const row = document.createElement('div'); row.className = 'bs-row';
-    row.innerHTML = `<div class="bs-row-top"><div class="bs-sname${i===0?' top':''}">${medals[i]||''} ${c.n}</div><div class="bs-vc${i===0?' top':''}">${p.votes||0}</div></div><div class="bs-bar-trk"><div class="bs-bar-f" style="width:${pct}%;background:${BCOLS[i]||BCOLS[4]}"></div></div><div class="bs-by">${c.a}</div>`;
+    const cover = p.coverUrl
+      ? `<img class="bs2-thumb" src="${p.coverUrl}" alt="" onerror="this.outerHTML='<div class=bs2-thumb style=display:flex;align-items:center;justify-content:center>${c.e}</div>'">`
+      : `<div class="bs2-thumb" style="display:flex;align-items:center;justify-content:center">${c.e}</div>`;
+    const row = document.createElement('div'); row.className = 'bs2-row';
+    row.innerHTML = `<div class="bs2-rank">${i+1}</div>${cover}<div class="bs2-row-mid"><div class="bs2-row-t">${c.n}</div><div class="bs2-row-a">${c.a}</div><div class="bs2-row-trk"><div class="bs2-row-f" style="width:${pct}%"></div></div></div><div class="bs2-row-vc"><div class="bs2-row-vn">${p.votes||0}</div><div class="bs2-row-vl">${(p.votes||0) > 1 ? 'votes' : 'vote'}</div></div>`;
     chart.appendChild(row);
   });
   elt('bs-votes', totalVotes()); elt('bs-tracks', s.length);
@@ -204,6 +206,19 @@ function updateNP() {
     } else {
       coverImg.style.display = 'none';
       coverFb.style.display  = '';
+    }
+  }
+
+  const bsCover   = document.getElementById('bs-np-cover');
+  const bsCoverFb = document.getElementById('bs-np-cover-fb');
+  if (bsCover && bsCoverFb) {
+    if (nowPlaying.coverUrl) {
+      bsCover.src = nowPlaying.coverUrl;
+      bsCover.style.display   = 'block';
+      bsCoverFb.style.display = 'none';
+    } else {
+      bsCover.style.display   = 'none';
+      bsCoverFb.style.display = 'flex';
     }
   }
 }

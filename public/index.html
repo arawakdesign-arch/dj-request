@@ -618,48 +618,83 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 /* ══════════════════════════════════════════════════════════════════
    PAGE — BIGSCREEN
 ══════════════════════════════════════════════════════════════════ */
-#pg-bigscreen,#pg-screen-pairing{background:var(--dj-card)}
-.bs-wrap{padding:1.1rem 1rem 1.5rem;display:flex;flex-direction:column;gap:.85rem;height:100%;overflow:hidden}
-.bs-head{text-align:center}
-.bs-ev-lbl{font-size:.6rem;letter-spacing:.16em;color:rgba(255,255,255,.5);text-transform:uppercase}
-.bs-headline{font-family:'Inter',sans-serif;font-weight:800;font-size:1.7rem;letter-spacing:-.01em;line-height:1.1;color:#fff;margin:.2rem 0}
-.bs-sub{font-size:.7rem;color:rgba(255,255,255,.5)}
-.bs-live{display:inline-flex;align-items:center;gap:4px;background:rgba(22,201,107,.18);border:1px solid rgba(22,201,107,.4);border-radius:18px;padding:3px 11px;margin-top:.4rem;font-size:.6rem;color:#3DE28A;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
-.bs-now{background:rgba(255,255,255,.06);border:1px solid rgba(255,28,142,.3);border-radius:16px;padding:.8rem .9rem;position:relative;overflow:hidden;flex-shrink:0}
-.bs-now::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grd)}
-.bs-now-tag{font-size:.58rem;color:var(--pk);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
-.bs-now-t{font-size:.95rem;font-weight:700;color:#fff}
-.bs-now-a{font-size:.72rem;color:rgba(255,255,255,.6);margin-bottom:.45rem}
-.bs-prog{height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden}
-.bs-prog-f{height:4px;border-radius:2px;background:var(--grd);transition:width .8s linear}
-.bs-main{display:grid;grid-template-columns:1fr;gap:.9rem;flex:1;overflow:hidden;min-height:0}
-@media (min-width:700px){.bs-main{grid-template-columns:1.3fr 1fr}}
-.bs-col{display:flex;flex-direction:column;gap:.5rem;min-height:0;overflow:hidden}
-.bs-chart-lbl{font-size:.6rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;flex-shrink:0}
-.bs-chart{display:flex;flex-direction:column;gap:.55rem;flex:1;overflow:hidden}
-.bs-chat-feed{display:flex;flex-direction:column;gap:.5rem;flex:1;overflow:hidden}
-.bs-chat-msg{display:flex;gap:.5rem;align-items:flex-start}
-.bs-chat-av{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:#fff;background-size:cover;background-position:center}
-.bs-chat-body{min-width:0;flex:1}
-.bs-chat-name{font-size:.66rem;font-weight:700;color:rgba(255,255,255,.55)}
-.bs-chat-name.dj{color:#FF7DC4}
-.bs-chat-txt{font-size:.8rem;color:#fff;line-height:1.3;word-break:break-word}
-.bs-row{display:flex;flex-direction:column;gap:3px}
-.bs-row-top{display:flex;justify-content:space-between;align-items:center}
-.bs-sname{font-family:'Inter',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:0;color:#fff;display:flex;align-items:center;gap:.38rem}
-.bs-sname.top{color:#FF7DC4}
-.bs-vc{font-family:'Inter',sans-serif;font-size:.95rem;font-weight:700;color:#D6BBFF}
-.bs-vc.top{color:#FF7DC4}
-.bs-bar-trk{height:7px;background:rgba(255,255,255,.12);border-radius:4px;overflow:hidden}
-.bs-bar-f{height:7px;border-radius:4px;transition:width .75s cubic-bezier(.4,0,.2,1)}
-.bs-by{font-size:.66rem;color:rgba(255,255,255,.4)}
-.bs-foot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid rgba(255,255,255,.12);padding-top:.7rem;flex-shrink:0}
-.bs-ft-st{text-align:center}
-.bs-ft-n{font-family:'Inter',sans-serif;font-size:1.2rem;font-weight:800;color:#fff}
-.bs-ft-l{font-size:.56rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-.bs-qr-wrap{text-align:center}
-.bs-qr-img{background:white;padding:5px;border-radius:7px;display:inline-block}
-.bs-qr-txt{font-size:.56rem;color:rgba(255,255,255,.4);margin-top:2px}
+#pg-screen-pairing{background:var(--dj-card)}
+
+/* Écran Géant v2 — façon collage "papier" (tags ruban violets, cartes déchirées) */
+#pg-bigscreen{background:#F2EFE9}
+.bs2-back{position:absolute;bottom:14px;left:14px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--tx2);cursor:pointer;z-index:20}
+.bs2-wrap{position:relative;padding:1rem 1.2rem 1.2rem;display:flex;flex-direction:column;gap:.85rem;min-height:100%;overflow-y:auto}
+@media (min-width:900px){.bs2-wrap{height:100%;overflow:hidden}}
+.bs2-tag{display:inline-block;background:var(--vi);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;padding:.3rem .7rem;border-radius:5px;transform:rotate(-1deg);margin-bottom:.55rem;flex-shrink:0}
+.bs2-card{background:#fff;border-radius:0 0 14px 14px;box-shadow:0 10px 24px rgba(20,10,40,.06);padding:1rem 1.1rem 1.1rem;position:relative}
+.bs2-card::before{content:'';position:absolute;left:0;right:0;top:-9px;height:14px;background:
+  linear-gradient(135deg,transparent 50%,#fff 50%) 0 0/16px 16px repeat-x,
+  linear-gradient(-135deg,transparent 50%,#fff 50%) 0 0/16px 16px repeat-x;
+  background-position:0 100%,8px 100%}
+.bs2-top{display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;padding:0 .2rem;flex-shrink:0}
+.bs2-logo{height:64px;object-fit:contain;flex-shrink:0}
+.bs2-live-pill{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--vi);color:var(--vi);font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.03em;padding:.35rem .8rem;border-radius:9px}
+.bs2-live-pill .pdot{background:var(--vi)}
+.bs2-sub{font-size:.92rem;font-weight:600;color:var(--tx);line-height:1.25;margin-left:.2rem}
+.bs2-body{display:grid;grid-template-columns:1fr;gap:1rem;flex:1}
+@media (min-width:900px){.bs2-body{grid-template-columns:1.55fr 1fr;overflow:hidden;min-height:0}}
+.bs2-left{display:flex;flex-direction:column;gap:1rem}
+@media (min-width:900px){.bs2-left{min-height:0;overflow:hidden}}
+.bs2-now-row{display:flex;align-items:center;gap:1rem}
+.bs2-cover{width:88px;height:88px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--ink3)}
+.bs2-now-txt{min-width:0;flex:1}
+.bs2-now-t{font-family:'Inter',sans-serif;font-weight:800;font-size:1.35rem;color:var(--tx);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bs2-now-a{font-weight:700;font-size:.92rem;color:var(--vi);margin-top:.15rem}
+.bs2-eq{display:flex;align-items:flex-end;gap:3px;height:16px;margin-top:.5rem}
+.bs2-eq span{width:4px;border-radius:2px;background:var(--vi);animation:bs2eq 1s ease-in-out infinite}
+.bs2-eq span:nth-child(1){height:40%;animation-delay:0s}
+.bs2-eq span:nth-child(2){height:100%;animation-delay:.15s}
+.bs2-eq span:nth-child(3){height:65%;animation-delay:.3s}
+.bs2-eq span:nth-child(4){height:85%;animation-delay:.45s}
+@keyframes bs2eq{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.bs2-chart-card{display:flex;flex-direction:column}
+@media (min-width:900px){.bs2-chart-card{flex:1;min-height:0;overflow:hidden}}
+.bs2-chart{display:flex;flex-direction:column;gap:.7rem}
+@media (min-width:900px){.bs2-chart{flex:1;overflow:hidden}}
+.bs2-row{display:flex;align-items:center;gap:.7rem}
+.bs2-rank{width:30px;height:30px;border-radius:7px;background:var(--vi);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bs2-thumb{width:44px;height:44px;border-radius:9px;object-fit:cover;flex-shrink:0;background:var(--ink3)}
+.bs2-row-mid{flex:1;min-width:0}
+.bs2-row-t{font-family:'Inter',sans-serif;font-weight:800;font-size:.88rem;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bs2-row-a{font-size:.72rem;font-weight:700;color:var(--vi);margin:1px 0 4px}
+.bs2-row-trk{height:6px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.bs2-row-f{height:6px;border-radius:3px;background:var(--vi)}
+.bs2-row-vc{text-align:right;flex-shrink:0;padding-left:.3rem}
+.bs2-row-vn{font-family:'Inter',sans-serif;font-weight:800;font-size:1rem;color:var(--tx)}
+.bs2-row-vl{font-size:.6rem;color:var(--tx4);text-transform:uppercase}
+.bs2-chat-card{display:flex;flex-direction:column}
+@media (min-width:900px){.bs2-chat-card{min-height:0;overflow:hidden}}
+.bs2-chat-feed{display:flex;flex-direction:column;gap:.75rem}
+@media (min-width:900px){.bs2-chat-feed{flex:1;overflow:hidden}}
+.bs2-card-fill{display:flex;flex-direction:column}
+@media (min-width:900px){.bs2-card-fill{flex:1;min-height:0;overflow:hidden}}
+.bs2-chat-msg{display:flex;gap:.6rem;align-items:flex-start}
+.bs2-chat-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff;background-size:cover;background-position:center}
+.bs2-chat-body{min-width:0;flex:1}
+.bs2-chat-headrow{display:flex;align-items:baseline;gap:.4rem}
+.bs2-chat-name{font-family:'Inter',sans-serif;font-weight:800;font-size:.82rem;color:var(--tx)}
+.bs2-chat-name.dj{color:var(--pk)}
+.bs2-chat-time{font-size:.62rem;color:var(--tx4);margin-left:auto;flex-shrink:0}
+.bs2-chat-txt{font-size:.82rem;color:var(--tx2);line-height:1.3;word-break:break-word}
+.bs2-footer{background:#181722;border-radius:16px;padding:1rem 1.3rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;flex-shrink:0}
+.bs2-howto{display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap}
+.bs2-step{display:flex;align-items:center;gap:.55rem}
+.bs2-step-n{width:22px;height:22px;border-radius:6px;background:var(--vi);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.7rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bs2-step-ico{font-size:1rem}
+.bs2-step-txt{font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;color:#fff}
+.bs2-scan-cta{display:flex;align-items:center;gap:1rem;margin-left:auto}
+.bs2-qr-box{background:#fff;padding:8px;border-radius:10px;display:inline-flex;flex-shrink:0}
+.bs2-scan-txt{font-family:'Inter',sans-serif;font-weight:800;font-size:1.1rem;color:var(--vi);line-height:1.15;text-transform:uppercase}
+.bs2-stats{display:flex;align-items:center;gap:1rem;margin-top:.4rem}
+.bs2-stat{text-align:left}
+.bs2-stat-n{font-family:'Inter',sans-serif;font-weight:800;font-size:1.1rem;color:#fff}
+.bs2-stat-l{font-size:.6rem;color:rgba(255,255,255,.45);text-transform:uppercase}
+.bs2-stat-div{width:1px;align-self:stretch;background:rgba(255,255,255,.15)}
 
 
 /* Prevent content jump when iOS keyboard opens */
@@ -1454,29 +1489,60 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <!-- BIGSCREEN -->
 <div class="page" id="pg-bigscreen">
-  <div class="tb"><div class="tb-back" onclick="showPage('dj')">←</div><div class="tb-title"><img src="/images/logo.png" alt="PULL UP!" style="height:80px;object-fit:contain;display:block"></div><div style="margin-left:auto"><div class="tb-live"><div class="pdot"></div>Live</div></div></div>
-  <div class="bs-wrap">
-    <div class="bs-head">
-      <div class="bs-ev-lbl" id="bs-ev-lbl">PULL UP! Live</div>
-      <div class="bs-headline">Quel sera le<br>prochain morceau ?</div>
-      <div class="bs-sub">Scannez et votez depuis votre téléphone</div>
-      <div class="bs-live"><div class="pdot"></div>&nbsp;Live</div>
+  <div class="bs2-wrap">
+    <div class="bs2-back" onclick="showPage('dj')">←</div>
+    <div class="bs2-top">
+      <img src="/images/logo.png" alt="PULL UP!" class="bs2-logo">
+      <div class="bs2-live-pill"><div class="pdot"></div>LIVE</div>
+      <div class="bs2-sub">Scannez et votez<br>depuis votre téléphone</div>
     </div>
-    <div class="bs-now"><div class="bs-now-tag">▶ En cours</div><div class="bs-now-t" id="bs-np-t">En attente…</div><div class="bs-now-a" id="bs-np-a"></div></div>
-    <div class="bs-main">
-      <div class="bs-col">
-        <div class="bs-chart-lbl">Classement en direct</div>
-        <div class="bs-chart" id="bs-chart"></div>
+    <div class="bs2-body">
+      <div class="bs2-left">
+        <div>
+          <div class="bs2-tag">En cours</div>
+          <div class="bs2-card">
+            <div class="bs2-now-row">
+              <img class="bs2-cover" id="bs-np-cover" src="" alt="" style="display:none">
+              <div class="bs2-cover" id="bs-np-cover-fb" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem">🎵</div>
+              <div class="bs2-now-txt">
+                <div class="bs2-now-t" id="bs-np-t">En attente…</div>
+                <div class="bs2-now-a" id="bs-np-a"></div>
+                <div class="bs2-eq"><span></span><span></span><span></span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bs2-chart-card">
+          <div class="bs2-tag">Classement en direct</div>
+          <div class="bs2-card bs2-card-fill">
+            <div class="bs2-chart" id="bs-chart"></div>
+          </div>
+        </div>
       </div>
-      <div class="bs-col">
-        <div class="bs-chart-lbl">Chat en direct</div>
-        <div class="bs-chat-feed" id="bs-chat-feed"><div class="empty-state" style="color:rgba(255,255,255,.35)"><div class="ei">💬</div><p>En attente de messages…</p></div></div>
+      <div class="bs2-chat-card">
+        <div class="bs2-tag">Chat en direct</div>
+        <div class="bs2-card bs2-card-fill">
+          <div class="bs2-chat-feed" id="bs-chat-feed"><div class="empty-state"><div class="ei">💬</div><p>En attente de messages…</p></div></div>
+        </div>
       </div>
     </div>
-    <div class="bs-foot">
-      <div class="bs-ft-st"><div class="bs-ft-n" id="bs-votes">0</div><div class="bs-ft-l">Votes</div></div>
-      <div class="bs-qr-wrap"><div class="bs-qr-img"><div id="bs-qr"></div></div><div class="bs-qr-txt">Scanner</div></div>
-      <div class="bs-ft-st"><div class="bs-ft-n" id="bs-tracks">0</div><div class="bs-ft-l">Titres</div></div>
+    <div class="bs2-footer">
+      <div class="bs2-howto">
+        <div class="bs2-step"><div class="bs2-step-n">1</div><span class="bs2-step-ico">📱</span><span class="bs2-step-txt">Scanne</span></div>
+        <div class="bs2-step"><div class="bs2-step-n">2</div><span class="bs2-step-ico">✌️</span><span class="bs2-step-txt">Vote</span></div>
+        <div class="bs2-step"><div class="bs2-step-n">3</div><span class="bs2-step-ico">🔊</span><span class="bs2-step-txt">Pull Up</span></div>
+      </div>
+      <div class="bs2-scan-cta">
+        <div class="bs2-qr-box"><div id="bs-qr"></div></div>
+        <div>
+          <div class="bs2-scan-txt">Scannez<br>pour voter</div>
+          <div class="bs2-stats">
+            <div class="bs2-stat"><div class="bs2-stat-n" id="bs-votes">0</div><div class="bs2-stat-l">Votes</div></div>
+            <div class="bs2-stat-div"></div>
+            <div class="bs2-stat"><div class="bs2-stat-n" id="bs-tracks">0</div><div class="bs2-stat-l">Titres</div></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1533,8 +1599,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=12"></script>
 <script src="/js/app.js?v=38"></script>
-<script src="/js/render.js?v=15"></script>
-<script src="/js/chat.js?v=14"></script>
+<script src="/js/render.js?v=16"></script>
+<script src="/js/chat.js?v=15"></script>
 <script src="/js/auth.js?v=11"></script>
 </body>
 </html>
