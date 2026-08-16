@@ -218,6 +218,54 @@ function renderPinnedMessage(msg) {
   box.style.display = 'flex';
 }
 
+// ── Flux de chat simplifié pour l'Écran Géant (lecture seule) ─────────
+const BS_CHAT_MAX = 8;
+
+function bsChatMsgNode(m) {
+  const isDJ = isDjName(m.user_name);
+  const wrap = document.createElement('div');
+  wrap.className = 'bs-chat-msg';
+
+  const av = document.createElement('div');
+  av.className = 'bs-chat-av';
+  if (isDJ) { av.style.backgroundImage = "url('/images/dj-avatar.png')"; }
+  else if (m.user_photo) { av.style.backgroundImage = `url('${m.user_photo}')`; }
+  else { av.style.background = avatarColor(m.user_name); av.textContent = (m.user_name || '?')[0].toUpperCase(); }
+
+  const body = document.createElement('div');
+  body.className = 'bs-chat-body';
+  const name = document.createElement('div');
+  name.className = 'bs-chat-name' + (isDJ ? ' dj' : '');
+  name.textContent = m.user_name || 'Invité';
+  const txt = document.createElement('div');
+  txt.className = 'bs-chat-txt';
+  txt.textContent = m.photo_url ? '📷 Photo' : (m.text || '');
+  body.appendChild(name); body.appendChild(txt);
+
+  wrap.appendChild(av); wrap.appendChild(body);
+  return wrap;
+}
+
+function renderBSChatFeed(messages) {
+  const feed = document.getElementById('bs-chat-feed'); if (!feed) return;
+  const last = (messages || []).filter(m => !m.deleted).slice(-BS_CHAT_MAX);
+  feed.innerHTML = '';
+  if (!last.length) {
+    feed.innerHTML = '<div class="empty-state" style="color:rgba(255,255,255,.35)"><div class="ei">💬</div><p>En attente de messages…</p></div>';
+    return;
+  }
+  last.forEach(m => feed.appendChild(bsChatMsgNode(m)));
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function appendBSChatMsg(m) {
+  const feed = document.getElementById('bs-chat-feed'); if (!feed) return;
+  if (feed.querySelector('.empty-state')) feed.innerHTML = '';
+  feed.appendChild(bsChatMsgNode(m));
+  while (feed.children.length > BS_CHAT_MAX) feed.removeChild(feed.firstChild);
+  feed.scrollTop = feed.scrollHeight;
+}
+
 // ── Suppression / signalement (persistés côté serveur) ────────────────
 async function deleteChatMsg(msgKey) {
   try { await api('DELETE', '/messages/' + msgKey); }
@@ -269,6 +317,7 @@ async function loadChatHistory() {
     const pinned  = messages.find(m => m.pinned);
     const djMsgs  = messages.filter(m => isDjName(m.user_name));
     renderPinnedMessage(pinned || djMsgs[djMsgs.length - 1] || null);
+    renderBSChatFeed(messages);
     const container = document.getElementById('chat-messages');
     if (!container || !messages.length) return;
     // Vider les messages de démo avant d'afficher l'historique réel
@@ -305,6 +354,7 @@ function handleRealtimeMessage(m) {
   // Le dernier message du DJ reste épinglé dans le cadre, indépendamment
   // de l'affichage/dédoublonnage de la liste de messages ci-dessous.
   if (isDjName(m.user_name)) renderPinnedMessage(m);
+  appendBSChatMsg(m); // Écran Géant : tous les messages, y compris les nôtres
   if (document.getElementById('msg-' + m.id)) return; // déjà affiché
 
   if (m.user_id === currentUser?.uid) {
