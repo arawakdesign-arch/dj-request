@@ -168,13 +168,33 @@ function afterLogin() {
     initReportsListener();
   }, 600);
 
-  // Un code de pairing écran attend, mais cette session n'est pas organisateur
-  // (invité, téléphone, Google pas encore passé par Créer/Rejoindre) → il faut
-  // d'abord se connecter comme organisateur avant de pouvoir l'associer.
+  // Un code de pairing écran attend, mais cette session n'est pas organisateur.
+  // Si le compte connecté est propriétaire d'une soirée (owner_id), on
+  // s'authentifie directement dessus — pas besoin de retaper le mot de passe.
+  // Sinon (invité, staff sans compte propriétaire...) on retombe sur l'écran
+  // de connexion organisateur classique (nom + mot de passe).
   if (sessionStorage.getItem('djr_pending_pair_code') && !djLoggedIn) {
-    showPage('dj-login');
-    _djLoginShowChoice();
+    _tryAutoClaimViaOwnership().then(claimed => {
+      if (!claimed) { showPage('dj-login'); _djLoginShowChoice(); }
+    });
   }
+}
+
+// ── Auto-association écran via la propriété du compte (sans mot de passe) ──
+async function _tryAutoClaimViaOwnership() {
+  try {
+    const events = await api('GET', '/events/mine');
+    if (events.length !== 1) return false; // 0 → pas propriétaire ; plusieurs → ambigu, on laisse choisir à la main
+    const ev = events[0];
+    const res = await api('POST', '/events/' + ev.id + '/admin-token');
+    if (!res.token) return false;
+    saveToken(res.token);
+    eid = ev.id; ename = ev.name;
+    localStorage.setItem('djr_eid', eid);
+    localStorage.setItem('djr_ename', ename);
+    await _activateDJ(ename, null); // déclenche _tryClaimPendingScreenPair() en sortie
+    return true;
+  } catch(e) { return false; }
 }
 
 // ── Association d'un écran en attente (?pair=CODE) ──────────────────────
