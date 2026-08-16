@@ -180,8 +180,9 @@ function renderBS() {
     const cover = p.coverUrl
       ? `<img class="bs2-thumb" src="${p.coverUrl}" alt="" onerror="this.outerHTML='<div class=bs2-thumb style=display:flex;align-items:center;justify-content:center>${c.e}</div>'">`
       : `<div class="bs2-thumb" style="display:flex;align-items:center;justify-content:center">${c.e}</div>`;
+    const proposer = p.proposer_name ? `<div class="bs2-row-by">Proposé par ${p.proposer_name}</div>` : '';
     const row = document.createElement('div'); row.className = 'bs2-row';
-    row.innerHTML = `<div class="bs2-rank">${i+1}</div>${cover}<div class="bs2-row-mid"><div class="bs2-row-t">${c.n}</div><div class="bs2-row-a">${c.a}</div><div class="bs2-row-trk"><div class="bs2-row-f" style="width:${pct}%"></div></div></div><div class="bs2-row-vc"><div class="bs2-row-vn">${p.votes||0}</div><div class="bs2-row-vl">${(p.votes||0) > 1 ? 'votes' : 'vote'}</div></div>`;
+    row.innerHTML = `<div class="bs2-rank">${i+1}</div>${cover}<div class="bs2-row-mid"><div class="bs2-row-t">${c.n}</div><div class="bs2-row-a">${c.a}</div><div class="bs2-row-trk"><div class="bs2-row-f" style="width:${pct}%"></div></div>${proposer}</div><div class="bs2-row-vc"><div class="bs2-row-vn">${p.votes||0}</div><div class="bs2-row-vl">${(p.votes||0) > 1 ? 'votes' : 'vote'}</div></div>`;
     chart.appendChild(row);
   });
   elt('bs-votes', totalVotes()); elt('bs-tracks', s.length);
