@@ -685,8 +685,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .bs2-wrap{gap:0}
 .bs2-footer-wrap{position:relative;width:calc(100% + 2.4rem);margin:.6rem -1.2rem -1.2rem;line-height:0;flex-shrink:0}
 .bs2-footer-img{display:block;width:100%;height:auto}
-.bs2-footer-qr{position:absolute;left:14.1%;top:45.7%;width:9.75%;height:48.2%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.bs2-footer-qr canvas,.bs2-footer-qr img{width:100%!important;height:100%!important}
+.bs2-footer-qr{position:absolute;left:15.1%;top:50.5%;width:7.8%;height:38.6%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.bs2-footer-qr canvas,.bs2-footer-qr img,.bs2-footer-qr-big canvas,.bs2-footer-qr-big img{width:100%!important;height:100%!important}
+.bs2-footer-qr-big{position:absolute;left:66.7%;top:19.3%;width:13%;height:65.9%;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.35)}
 .bs2-footer-stat{position:absolute;top:66%;transform:translate(-50%,-50%);font-family:'Inter',sans-serif;font-weight:800;color:#fff;font-size:clamp(.9rem,1.8vw,1.5rem)}
 .bs2-footer-votes{left:83.4%}
 .bs2-footer-tracks{left:93.3%}
@@ -1524,6 +1525,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     <div class="bs2-footer-wrap">
       <img src="/images/bs-footer-banner.png?v=1" alt="Comment ça marche : 1. Scanne, 2. Vote, 3. Pull Up — Scannez pour voter" class="bs2-footer-img">
       <div class="bs2-footer-qr" id="bs-qr"></div>
+      <div class="bs2-footer-qr-big" id="bs-qr-big"></div>
       <div class="bs2-footer-stat bs2-footer-votes" id="bs-votes">0</div>
       <div class="bs2-footer-stat bs2-footer-tracks" id="bs-tracks">0</div>
     </div>
@@ -1582,7 +1584,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=12"></script>
 <script src="/js/app.js?v=38"></script>
-<script src="/js/render.js?v=17"></script>
+<script src="/js/render.js?v=18"></script>
 <script src="/js/chat.js?v=15"></script>
 <script src="/js/auth.js?v=11"></script>
 </body>
