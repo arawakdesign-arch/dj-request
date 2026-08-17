@@ -144,6 +144,7 @@ async function startScreenPairing() {
           await loadEvent(eid).catch(() => {});
           generateQR(eid);
           renderBS();
+          loadChatHistory(); // charge tout l'historique du chat, pas seulement les messages à venir
         })
       .subscribe();
   } catch(e) {
