@@ -1,22 +1,3 @@
-// ── Panneau de debug persistant (diagnostic pairing écran) ────────────
-// Les toasts s'écrasent entre eux si plusieurs arrivent en rafale — ce panneau
-// empile chaque message sans en perdre, pour capture d'écran facile.
-function _dbg(msg) {
-  console.log('[pullup-dbg]', msg);
-  let el = document.getElementById('_dbgpanel');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = '_dbgpanel';
-    el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:55vh;overflow-y:auto;background:rgba(0,0,0,.92);color:#3DE28A;font:11px/1.4 monospace;padding:8px;z-index:99999;white-space:pre-wrap';
-    document.body.appendChild(el);
-  }
-  const line = document.createElement('div');
-  const d = new Date();
-  line.textContent = d.getHours()+':'+(d.getMinutes()+'').padStart(2,'0')+':'+(d.getSeconds()+'').padStart(2,'0') + ' — ' + msg;
-  el.appendChild(line);
-  el.scrollTop = el.scrollHeight;
-}
-
 // ══ AUTH STATE ═══════════════════════════════════════════════════════
 let _loggedIn          = false;
 let _pendingPhone      = null;
@@ -51,9 +32,7 @@ window.addEventListener('load', async () => {
   // Lien de pairing scanné depuis l'écran d'une TV (?pair=CODE) — mémorisé tout de
   // suite car _activateDJ() réécrit l'URL (history.replaceState) une fois connecté.
   const pairCode = new URLSearchParams(window.location.search).get('pair');
-  if (pairCode) { localStorage.setItem('djr_pending_pair_code', pairCode); _dbg('🔗 Code écran détecté : ' + pairCode); }
-  else if (localStorage.getItem('djr_pending_pair_code')) _dbg('🔗 Code écran en attente (mémorisé) : ' + localStorage.getItem('djr_pending_pair_code'));
-  _dbg('🌐 hash=' + (window.location.hash ? 'oui' : 'non') + ' saved_token=' + (!!loadToken()) + ' _sb=' + (!!_sb));
+  if (pairCode) sessionStorage.setItem('djr_pending_pair_code', pairCode);
 
   const urlEid = new URLSearchParams(window.location.search).get('event');
   if (urlEid) {
@@ -96,7 +75,6 @@ window.addEventListener('load', async () => {
   if (_sb) {
     try {
       _sb.auth.onAuthStateChange(async (event, session) => {
-        _dbg('🔑 onAuthStateChange event=' + event + ' session=' + (!!session) + ' _loggedIn=' + _loggedIn);
         if (session && !_loggedIn) {
           // Restaurer l'event ID préservé avant la redirection OAuth
           const savedEid = sessionStorage.getItem('djr_pre_oauth_eid');
@@ -126,13 +104,11 @@ window.addEventListener('load', async () => {
         }
       });
       const { data: { session } } = await _sb.auth.getSession();
-      _dbg('🪪 getSession() → ' + (session ? 'session trouvée' : 'aucune session'));
       if (session) return; // onAuthStateChange gère la suite
-    } catch(e) { _dbg('❌ Erreur getSession : ' + (e.message || e)); }
+    } catch(e) {}
   }
 
   // 3. Pas de session → page d'auth
-  _dbg('🚪 → page d\'auth (aucune session détectée)');
   showPage('auth');
 });
 
@@ -155,37 +131,20 @@ async function startScreenPairing() {
     const pairUrl = window.location.origin + '/?pair=' + code;
     try { new QRCode(qrEl, { text: pairUrl, width: 220, height: 220, colorDark: '#000', colorLight: '#fff' }); } catch(e) {}
 
-    let _paired = false;
-    const onPaired = async (eventId) => {
-      if (_paired || !eventId) return;
-      _paired = true;
-      clearInterval(pollId);
-      eid = eventId;
-      showPage('bigscreen');
-      // showPage('bigscreen') a déjà appelé generateQR()/renderBS() avec l'état
-      // précédent (eid pas encore chargé) — on les rappelle une fois les vraies
-      // données en place, même séquence que _activateDJ() (auth.js).
-      await loadEvent(eid).catch(() => {});
-      generateQR(eid);
-      renderBS();
-      loadChatHistory(); // charge tout l'historique du chat, pas seulement les messages à venir
-    };
-
-    // Filet de secours en polling — indépendant du Realtime Supabase (qui peut ne
-    // pas être activé sur cette table), l'appairage doit marcher dans tous les cas.
-    const pollId = setInterval(async () => {
-      try {
-        const r = await fetch('/api/screen/pairings/' + encodeURIComponent(code));
-        if (!r.ok) return;
-        const d = await r.json();
-        if (d.event_id) onPaired(d.event_id);
-      } catch(e) {}
-    }, 2500);
-
     if (!_sb) return;
     _sb.channel('pairing:' + code)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'screen_pairings', filter: 'code=eq.' + code },
-        (payload) => onPaired(payload.new?.event_id))
+        async (payload) => {
+          if (!payload.new?.event_id) return;
+          eid = payload.new.event_id;
+          showPage('bigscreen');
+          // showPage('bigscreen') a déjà appelé generateQR()/renderBS() avec l'état
+          // précédent (eid pas encore chargé) — on les rappelle une fois les vraies
+          // données en place, même séquence que _activateDJ() (auth.js).
+          await loadEvent(eid).catch(() => {});
+          generateQR(eid);
+          renderBS();
+        })
       .subscribe();
   } catch(e) {
     codeEl.textContent = 'Erreur';
@@ -197,11 +156,7 @@ function afterLogin() {
   _loggedIn = true;
   const subEl = document.getElementById('prof-sub'); if (subEl) subEl.textContent = currentUser?.phoneNumber || currentUser?.email || '';
   renderProfile();
-  // Un code de pairing écran attend : ne pas basculer sur la page d'accueil avant
-  // d'avoir tenté l'association, sinon l'écran flashe sur le vote pendant l'appel
-  // réseau (voire y reste bloqué si l'utilisateur ne voit pas la suite).
-  const pendingPairCode = localStorage.getItem('djr_pending_pair_code');
-  if (!(pendingPairCode && !djLoggedIn)) showPage('client');
+  showPage('client');
   renderAll();
   applyProfileToUI(); // initiale / photo dès la connexion (localStorage si présent, sinon fallback sur le nom du compte)
   loadRemoteProfile(); // le serveur fait autorité — écrase le cache local si le profil a été modifié ailleurs
@@ -213,39 +168,13 @@ function afterLogin() {
     initReportsListener();
   }, 600);
 
-  // Un code de pairing écran attend, mais cette session n'est pas organisateur.
-  // Si le compte connecté est propriétaire d'une soirée (owner_id), on
-  // s'authentifie directement dessus — pas besoin de retaper le mot de passe.
-  // Sinon (invité, staff sans compte propriétaire...) on retombe sur l'écran
-  // de connexion organisateur classique (nom + mot de passe).
-  if (pendingPairCode && !djLoggedIn) {
-    _dbg('🔍 Association de l\'écran en cours…');
-    _tryAutoClaimViaOwnership().then(claimed => {
-      if (!claimed) { _dbg('➡️ Passage au formulaire manuel'); showPage('dj-login'); _djLoginShowChoice(); }
-    });
-  } else if (pendingPairCode) {
-    _dbg('ℹ️ Code écran en attente mais déjà connecté comme DJ (djLoggedIn=true)');
+  // Un code de pairing écran attend, mais cette session n'est pas organisateur
+  // (invité, téléphone, Google pas encore passé par Créer/Rejoindre) → il faut
+  // d'abord se connecter comme organisateur avant de pouvoir l'associer.
+  if (sessionStorage.getItem('djr_pending_pair_code') && !djLoggedIn) {
+    showPage('dj-login');
+    _djLoginShowChoice();
   }
-}
-
-// ── Auto-association écran via la propriété du compte (sans mot de passe) ──
-async function _tryAutoClaimViaOwnership() {
-  try {
-    const events = await api('GET', '/events/mine');
-    _dbg('📋 ' + events.length + ' soirée(s) trouvée(s) pour ce compte');
-    if (events.length !== 1) return false; // 0 → pas propriétaire ; plusieurs → ambigu, on laisse choisir à la main
-    const ev = events[0];
-    const res = await api('POST', '/events/' + ev.id + '/admin-token');
-    if (!res.token) { _dbg('⚠️ Pas de token reçu pour ' + ev.name); return false; }
-    saveToken(res.token);
-    eid = ev.id; ename = ev.name;
-    localStorage.setItem('djr_eid', eid);
-    localStorage.setItem('djr_ename', ename);
-    _dbg('✅ Association auto réussie pour "' + ename + '"');
-    _skipNextPairConfirm = true;
-    await _activateDJ(ename, null); // déclenche _tryClaimPendingScreenPair() en sortie
-    return true;
-  } catch(e) { _dbg('❌ Erreur auto-claim : ' + (e.message || e)); return false; }
 }
 
 // ── Association d'un écran en attente (?pair=CODE) ──────────────────────
@@ -267,15 +196,12 @@ function _confirmScreenPair() {
   });
 }
 
-let _skipNextPairConfirm = false;
 async function _tryClaimPendingScreenPair() {
-  const code = localStorage.getItem('djr_pending_pair_code');
-  _dbg('📺 _tryClaimPendingScreenPair() code=' + code + ' djLoggedIn=' + djLoggedIn);
+  const code = sessionStorage.getItem('djr_pending_pair_code');
   if (!code || !djLoggedIn) return;
-  localStorage.removeItem('djr_pending_pair_code');
+  sessionStorage.removeItem('djr_pending_pair_code');
 
-  const skip = _skipNextPairConfirm; _skipNextPairConfirm = false;
-  const ok = skip || await _confirmScreenPair();
+  const ok = await _confirmScreenPair();
   if (!ok) return;
   try {
     const res  = await fetch('/api/screen/pairings/' + encodeURIComponent(code) + '/claim', {
@@ -296,13 +222,7 @@ async function signInGoogle() {
   try {
     // Préserver l'event ID avant la redirection OAuth (page rechargée)
     if (eid) sessionStorage.setItem('djr_pre_oauth_eid', eid);
-    // Le localStorage seul n'est pas fiable pour survivre à l'aller-retour OAuth
-    // (site en HTTP, iOS efface volontiers le stockage sur un enchaînement de
-    // redirections cross-origin) — le code de pairing écran transite donc aussi par
-    // l'URL de retour. Nécessite que Supabase autorise ce pattern dans Authentication
-    // → URL Configuration → Redirect URLs (ex : http://195.20.241.142/**).
-    const pendingPairCode = localStorage.getItem('djr_pending_pair_code');
-    const redirectTo = window.location.origin + '/' + (pendingPairCode ? '?pair=' + encodeURIComponent(pendingPairCode) : '');
+    const redirectTo = window.location.origin + '/';
     const { data, error } = await _sb.auth.signInWithOAuth({
       provider: 'google',
       options:  { redirectTo, skipBrowserRedirect: true },

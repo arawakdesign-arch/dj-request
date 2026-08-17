@@ -30,16 +30,6 @@ router.post('/screen/pairings', async (req, res) => {
   res.status(500).json({ error: 'Impossible de générer un code de pairing.' });
 });
 
-// ── Écran (TV) : vérifie si le code a été associé — filet de secours si le
-// Realtime Supabase n'est pas activé sur cette table (l'écran interroge en
-// polling en parallèle de son abonnement Realtime).
-router.get('/screen/pairings/:code', async (req, res) => {
-  const { data: pairing } = await supabase
-    .from('screen_pairings').select('code, event_id').eq('code', req.params.code).maybeSingle();
-  if (!pairing) return res.status(404).json({ error: 'Code introuvable.' });
-  res.json({ event_id: pairing.event_id || null });
-});
-
 // ── Téléphone organisateur : associe le code à sa soirée ────────────────
 router.post('/screen/pairings/:code/claim', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
