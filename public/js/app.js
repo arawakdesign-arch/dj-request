@@ -207,7 +207,12 @@ function switchOrgaTab(tab, btn) {
   if (btn) { btn.style.color = '#6F22FF'; btn.style.borderBottom = '2px solid #6F22FF'; btn.style.fontWeight = '700'; }
   if (tab === 'modo')                          loadOrgaChatList();
   if (tab === 'settings' || tab === 'orga')    populateSettingsForm();
-  if (tab === 'orga')                          loadOrgaContacts();
+  if (tab === 'orga') {
+    loadOrgaContacts();
+    loadOrgaProfile();
+    loadOrgaEventsStats();
+    loadOrgaClientsCount();
+  }
 }
 
 // Liste des personnes ayant voté/proposé un morceau — onglet Contact.
@@ -236,6 +241,118 @@ async function loadOrgaContacts() {
   } catch(e) {
     list.innerHTML = `<div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Erreur — ${e.message}</div>`;
   }
+}
+
+// ── Page organisateur (profil public, logo, réseaux, stats, clients) ──
+let _orgaProfileCache = null;
+
+async function loadOrgaProfile() {
+  try {
+    _orgaProfileCache = await api('GET', '/orga/profile', null, {dj: true});
+  } catch(e) { _orgaProfileCache = {}; }
+  const p = _orgaProfileCache || {};
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v || ''; };
+  set('orga-email',     p.email);
+  set('orga-slug',      p.slug);
+  set('orga-website',   p.website_url);
+  set('orga-instagram', p.instagram_url);
+  set('orga-tiktok',    p.tiktok_url);
+  set('orga-facebook',  p.facebook_url);
+  const logo = document.getElementById('orga-logo-preview');
+  if (logo) {
+    if (p.logo_url) { logo.style.backgroundImage = `url(${p.logo_url})`; logo.textContent = ''; }
+    else            { logo.style.backgroundImage = ''; logo.textContent = '🎪'; }
+  }
+}
+
+async function saveOrgaProfile() {
+  saveSettings(); // synchronise le nom "Orga" sur la soirée en cours, si une soirée est ouverte
+  const body = {
+    name:          document.getElementById('settings-orga')?.value.trim(),
+    email:         document.getElementById('orga-email')?.value.trim(),
+    slug:          document.getElementById('orga-slug')?.value.trim(),
+    website_url:   document.getElementById('orga-website')?.value.trim(),
+    instagram_url: document.getElementById('orga-instagram')?.value.trim(),
+    tiktok_url:    document.getElementById('orga-tiktok')?.value.trim(),
+    facebook_url:  document.getElementById('orga-facebook')?.value.trim(),
+  };
+  try {
+    _orgaProfileCache = await api('PUT', '/orga/profile', body, {dj: true});
+    toast('✅ Page organisateur enregistrée');
+  } catch(e) { toast('⚠️ ' + (e.message || 'Erreur d\'enregistrement')); }
+}
+
+async function uploadOrgaLogo(input) {
+  const file = input.files?.[0]; if (!file) return;
+  const fd = new FormData(); fd.append('logo', file);
+  try {
+    const r = await fetch('/api/orga/profile/logo', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + (_authToken || _sbSession?.access_token) },
+      body: fd,
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || 'Upload impossible');
+    const logo = document.getElementById('orga-logo-preview');
+    if (logo) { logo.style.backgroundImage = `url(${data.url})`; logo.textContent = ''; }
+    toast('📸 Logo mis à jour');
+  } catch(e) { toast('⚠️ ' + (e.message || 'Upload impossible')); }
+}
+
+function _orgaPageUrl() {
+  const slug = document.getElementById('orga-slug')?.value.trim();
+  if (!slug) { toast('⚠️ Choisis d\'abord une adresse pour ta page'); return null; }
+  return window.location.origin + '/' + slug;
+}
+function shareOrgaPage() {
+  const url = _orgaPageUrl(); if (!url) return;
+  if (navigator.share) { navigator.share({ title: 'Ma page PULL UP!', url }).catch(() => {}); return; }
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('🔗 Lien copié !'));
+}
+function viewOrgaPage() {
+  const url = _orgaPageUrl(); if (!url) return;
+  window.open(url, '_blank');
+}
+
+async function loadOrgaEventsStats() {
+  const list = document.getElementById('orga-events-list'); if (!list) return;
+  try {
+    const events = await api('GET', '/orga/events-stats', null, {dj: true});
+    if (!events.length) { list.innerHTML = '<div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Aucune soirée créée</div>'; return; }
+    list.innerHTML = events.map(ev => `
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.65rem .75rem;background:var(--ink5);border-radius:.85rem">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.85rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>
+          <div style="font-size:.66rem;color:var(--tx3)">${ev.closed ? 'Terminée' : 'En cours'} · ${new Date(ev.created_at).toLocaleDateString('fr-FR')}</div>
+        </div>
+        <div style="text-align:center;flex-shrink:0"><div style="font-size:.85rem;font-weight:800;color:var(--vi)">${ev.votes}</div><div style="font-size:.58rem;color:var(--tx4);text-transform:uppercase">Votes</div></div>
+        <div style="text-align:center;flex-shrink:0"><div style="font-size:.85rem;font-weight:800;color:var(--blue)">${ev.proposals}</div><div style="font-size:.58rem;color:var(--tx4);text-transform:uppercase">Props.</div></div>
+      </div>`).join('');
+  } catch(e) {
+    list.innerHTML = `<div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Erreur — ${e.message}</div>`;
+  }
+}
+
+async function loadOrgaClientsCount() {
+  const el = document.getElementById('orga-clients-count'); if (!el) return;
+  try {
+    const clients = await api('GET', '/orga/clients', null, {dj: true});
+    el.textContent = clients.length + (clients.length > 1 ? ' clients' : ' client');
+  } catch(e) { el.textContent = '—'; }
+}
+
+function downloadOrgaClients() {
+  const token = _authToken || _sbSession?.access_token;
+  fetch('/api/orga/clients/export.csv', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => { if (!r.ok) throw new Error('Téléchargement impossible'); return r.blob(); })
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'clients-pullup.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    })
+    .catch(e => toast('⚠️ ' + (e.message || 'Téléchargement impossible')));
 }
 
 // ── Horaires : deux menus déroulants (début/fin) qui écrivent dans le champ

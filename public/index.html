@@ -1287,7 +1287,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <span id="dj-report-badge" style="display:none;position:absolute;top:6px;right:4px;background:var(--red);color:white;font-size:.48rem;font-weight:700;min-width:14px;height:14px;border-radius:7px;align-items:center;justify-content:center;padding:0 3px">0</span>
     </button>
     <button class="orga-tab" id="otab-settings" onclick="switchOrgaTab('settings',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:var(--tx3);background:none;border:none;border-bottom:2px solid transparent;font-family:Inter,sans-serif;white-space:nowrap;min-width:0">⚙️ SOIRÉE</button>
-    <button class="orga-tab" id="otab-orga" onclick="switchOrgaTab('orga',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:var(--tx3);background:none;border:none;border-bottom:2px solid transparent;font-family:Inter,sans-serif;white-space:nowrap;min-width:0">👤 Contact</button>
+    <button class="orga-tab" id="otab-orga" onclick="switchOrgaTab('orga',this)" style="flex:1;padding:.65rem .5rem;font-size:.7rem;font-weight:600;color:var(--tx3);background:none;border:none;border-bottom:2px solid transparent;font-family:Inter,sans-serif;white-space:nowrap;min-width:0">📄 Page</button>
   </div>
 
   <!-- ONGLET LIVE -->
@@ -1365,17 +1365,84 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
   <!-- ONGLET CONTACT -->
   <div class="scroll" id="orga-orga" style="display:none;padding:.85rem .75rem">
+
+    <!-- IDENTITÉ : nom + email + logo -->
     <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
       <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Organisateur</div>
-      <div class="fl" style="margin-bottom:0"><label>Orga</label><input class="fi" id="settings-orga" type="text" placeholder="Nom de l'organisateur / du collectif"></div>
+      <div style="display:flex;gap:.85rem;align-items:center;margin-bottom:.85rem">
+        <div id="orga-logo-preview" style="width:64px;height:64px;border-radius:1rem;background:var(--dj-card);background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr);font-size:1.4rem">🎪</div>
+        <div style="flex:1">
+          <input type="file" id="orga-logo-input" accept="image/*" style="display:none" onchange="uploadOrgaLogo(this)">
+          <button onclick="document.getElementById('orga-logo-input').click()" style="width:100%;padding:.6rem;border-radius:.85rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:600;font-family:Inter,sans-serif">📸 Changer le logo</button>
+        </div>
+      </div>
+      <div class="fl"><label>Orga</label><input class="fi" id="settings-orga" type="text" placeholder="Nom de l'organisateur / du collectif"></div>
+      <div class="fl" style="margin-bottom:0"><label>Email</label><input class="fi" id="orga-email" type="email" placeholder="contact@monclub.fr"></div>
     </div>
-    <button onclick="saveSettings()" style="width:100%;padding:.85rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif;margin-bottom:.75rem">Enregistrer</button>
+    <button onclick="saveOrgaProfile()" style="width:100%;padding:.85rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif;margin-bottom:.75rem">Enregistrer</button>
+
+    <!-- URL PUBLIQUE + PARTAGE -->
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Adresse de ma page</div>
+      <div class="fl" style="margin-bottom:0">
+        <label>pull-up.live/</label>
+        <input class="fi" id="orga-slug" type="text" placeholder="mon-club" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-')">
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.85rem">
+        <button onclick="shareOrgaPage()" style="flex:1;padding:.7rem;border-radius:.85rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.78rem;font-weight:600;font-family:Inter,sans-serif">🔗 Partager</button>
+        <button onclick="viewOrgaPage()" style="flex:1;padding:.7rem;border-radius:.85rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:600;font-family:Inter,sans-serif">👁️ Voir ma page</button>
+      </div>
+    </div>
+
+    <!-- RÉSEAUX SOCIAUX -->
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Réseaux &amp; site web</div>
+      <div class="fl"><label>Site web</label><input class="fi" id="orga-website" type="text" placeholder="https://monclub.fr"></div>
+      <div class="fl"><label>Instagram</label><input class="fi" id="orga-instagram" type="text" placeholder="https://instagram.com/monclub"></div>
+      <div class="fl"><label>TikTok</label><input class="fi" id="orga-tiktok" type="text" placeholder="https://tiktok.com/@monclub"></div>
+      <div class="fl" style="margin-bottom:0"><label>Facebook</label><input class="fi" id="orga-facebook" type="text" placeholder="https://facebook.com/monclub"></div>
+    </div>
+    <button onclick="saveOrgaProfile()" style="width:100%;padding:.85rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif;margin-bottom:.75rem">Enregistrer</button>
+
+    <!-- MES SOIRÉES + STATS -->
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Mes soirées</div>
+      <div id="orga-events-list" style="display:flex;flex-direction:column;gap:.5rem">
+        <div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Chargement…</div>
+      </div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+        <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em">Clients</div>
+        <div style="font-size:.7rem;color:var(--tx3)" id="orga-clients-count">—</div>
+      </div>
+      <button onclick="downloadOrgaClients()" style="width:100%;padding:.75rem;border-radius:.85rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.8rem;font-weight:700;font-family:Inter,sans-serif">⬇️ Télécharger la liste (CSV)</button>
+    </div>
 
     <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;box-shadow:var(--shadow)">
       <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Personnes connectées à cette soirée</div>
       <div id="orga-contacts-list" style="display:flex;flex-direction:column;gap:.4rem">
         <div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Chargement…</div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PAGE ORGANISATEUR PUBLIQUE (pull-up.live/mon-club) -->
+<div class="page" id="pg-orga-public">
+  <div class="tb"><div class="tb-back" onclick="window.location.href='/'">←</div><div class="tb-title"><img src="/images/logo.png" alt="PULL UP!" style="height:44px;object-fit:contain;display:block"></div></div>
+  <div class="scroll">
+    <div style="padding:1.5rem 1.25rem 1rem;text-align:center">
+      <div id="op-logo" style="width:96px;height:96px;border-radius:1.4rem;background:var(--grd);background-size:cover;background-position:center;margin:0 auto .85rem;display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:var(--shadow)">🎪</div>
+      <div id="op-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.4rem;color:var(--tx)">—</div>
+      <div id="op-socials" style="display:flex;gap:.5rem;justify-content:center;margin-top:.9rem;flex-wrap:wrap"></div>
+    </div>
+    <div style="padding:.5rem 1.25rem 2rem">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">Soirées en cours</div>
+      <div id="op-events" style="display:flex;flex-direction:column;gap:.6rem"></div>
     </div>
   </div>
 </div>
@@ -1601,9 +1668,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=12"></script>
-<script src="/js/app.js?v=41"></script>
+<script src="/js/app.js?v=42"></script>
 <script src="/js/render.js?v=19"></script>
 <script src="/js/chat.js?v=18"></script>
-<script src="/js/auth.js?v=20"></script>
+<script src="/js/auth.js?v=21"></script>
 </body>
 </html>

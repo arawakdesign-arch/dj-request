@@ -16,6 +16,7 @@ const liveRouter     = require('./routes/live');
 const profileRouter  = require('./routes/profile');
 const djRouter       = require('./routes/dj');
 const screenRouter   = require('./routes/screen');
+const orgaRouter     = require('./routes/orga');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -75,6 +76,7 @@ app.use('/api', liveRouter);
 app.use('/api', profileRouter);
 app.use('/api', djRouter);
 app.use('/api', screenRouter);
+app.use('/api', orgaRouter);
 
 // ══ SPA FALLBACK ══════════════════════════════════════════════════════
 app.get('*', (req, res) => {

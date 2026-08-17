@@ -29,6 +29,15 @@ window.addEventListener('load', async () => {
     return;
   }
 
+  // Page publique organisateur (pull-up.live/mon-club) — un seul segment de
+  // chemin, aucun des fichiers statiques connus. Si aucune page ne correspond
+  // au slug, on laisse tomber sur le flux normal (auth/vote) plutôt que 404.
+  const pathSlug = window.location.pathname.replace(/^\/+|\/+$/g, '');
+  const reserved = ['', 'cgu.html', 'confidentialite.html'];
+  if (pathSlug && !reserved.includes(pathSlug) && !/^(images|js|css|api)\//.test(pathSlug) && !pathSlug.includes('.')) {
+    if (await tryShowOrgaPublicPage(pathSlug)) return;
+  }
+
   const urlEid = new URLSearchParams(window.location.search).get('event');
   if (urlEid) {
     eid = urlEid;
@@ -106,6 +115,47 @@ window.addEventListener('load', async () => {
   // 3. Pas de session → page d'auth
   showPage('auth');
 });
+
+// ── Page publique organisateur (pull-up.live/slug) ───────────────────
+async function tryShowOrgaPublicPage(slug) {
+  let page;
+  try { page = await api('GET', '/orga/by-slug/' + encodeURIComponent(slug)); }
+  catch(e) { return false; } // pas de page à cette adresse → flux normal
+
+  showPage('orga-public');
+  elt('op-name', page.name || slug);
+  const logo = document.getElementById('op-logo');
+  if (logo) {
+    if (page.logo_url) { logo.style.backgroundImage = `url(${page.logo_url})`; logo.textContent = ''; }
+    else                { logo.style.backgroundImage = ''; logo.textContent = '🎪'; }
+  }
+
+  const socials = document.getElementById('op-socials');
+  if (socials) {
+    const links = [
+      ['🌐', page.website_url], ['📷', page.instagram_url],
+      ['🎵', page.tiktok_url],  ['📘', page.facebook_url],
+    ].filter(([,url]) => url);
+    socials.innerHTML = links.map(([ico,url]) => `<a href="${url}" target="_blank" rel="noopener" style="width:42px;height:42px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:1.05rem;text-decoration:none">${ico}</a>`).join('');
+  }
+
+  const evList = document.getElementById('op-events');
+  if (evList) {
+    if (!page.events?.length) {
+      evList.innerHTML = '<div style="text-align:center;padding:1.5rem;font-size:.8rem;color:var(--tx4)">Aucune soirée en cours</div>';
+    } else {
+      evList.innerHTML = page.events.map(ev => `
+        <button onclick="window.location.href='/?event=${ev.id}'" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:.9rem 1rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;text-align:left;box-shadow:var(--shadow)">
+          <div style="min-width:0">
+            <div style="font-size:.9rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>
+            <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">${ev.club_name || ''}</div>
+          </div>
+          <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
+        </button>`).join('');
+    }
+  }
+  return true;
+}
 
 // ── Écran TV — appairage par QR ─────────────────────────────────────────
 // Demande un code éphémère au serveur, l'affiche en QR + en clair, puis
