@@ -157,7 +157,11 @@ function afterLogin() {
   _loggedIn = true;
   const subEl = document.getElementById('prof-sub'); if (subEl) subEl.textContent = currentUser?.phoneNumber || currentUser?.email || '';
   renderProfile();
-  showPage('client');
+  // Un code de pairing écran attend : ne pas basculer sur la page d'accueil avant
+  // d'avoir tenté l'association, sinon l'écran flashe sur le vote pendant l'appel
+  // réseau (voire y reste bloqué si l'utilisateur ne voit pas la suite).
+  const pendingPairCode = sessionStorage.getItem('djr_pending_pair_code');
+  if (!(pendingPairCode && !djLoggedIn)) showPage('client');
   renderAll();
   applyProfileToUI(); // initiale / photo dès la connexion (localStorage si présent, sinon fallback sur le nom du compte)
   loadRemoteProfile(); // le serveur fait autorité — écrase le cache local si le profil a été modifié ailleurs
@@ -174,7 +178,7 @@ function afterLogin() {
   // s'authentifie directement dessus — pas besoin de retaper le mot de passe.
   // Sinon (invité, staff sans compte propriétaire...) on retombe sur l'écran
   // de connexion organisateur classique (nom + mot de passe).
-  if (sessionStorage.getItem('djr_pending_pair_code') && !djLoggedIn) {
+  if (pendingPairCode && !djLoggedIn) {
     _tryAutoClaimViaOwnership().then(claimed => {
       if (!claimed) { showPage('dj-login'); _djLoginShowChoice(); }
     });
@@ -243,7 +247,11 @@ async function signInGoogle() {
   try {
     // Préserver l'event ID avant la redirection OAuth (page rechargée)
     if (eid) sessionStorage.setItem('djr_pre_oauth_eid', eid);
-    const redirectTo = window.location.origin + '/';
+    // Le sessionStorage peut être perdu pendant l'aller-retour OAuth (fréquent sur
+    // Safari iOS) — on fait aussi transiter le code de pairing écran par l'URL de
+    // retour ; le handler window.load le remet en sessionStorage à l'arrivée.
+    const pendingPairCode = sessionStorage.getItem('djr_pending_pair_code');
+    const redirectTo = window.location.origin + '/' + (pendingPairCode ? '?pair=' + encodeURIComponent(pendingPairCode) : '');
     const { data, error } = await _sb.auth.signInWithOAuth({
       provider: 'google',
       options:  { redirectTo, skipBrowserRedirect: true },
