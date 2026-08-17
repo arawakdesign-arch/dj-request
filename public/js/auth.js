@@ -263,11 +263,13 @@ async function signInGoogle() {
   try {
     // Préserver l'event ID avant la redirection OAuth (page rechargée)
     if (eid) sessionStorage.setItem('djr_pre_oauth_eid', eid);
-    // NB : ne pas ajouter de paramètres à redirectTo — Supabase valide cette URL
-    // contre une liste blanche exacte (Redirect URLs) et rejette tout ce qui n'y
-    // correspond pas telle quelle, renvoyant l'utilisateur sur l'écran de connexion
-    // sans session. Le code de pairing écran est préservé via localStorage à la place.
-    const redirectTo = window.location.origin + '/';
+    // Le localStorage seul n'est pas fiable pour survivre à l'aller-retour OAuth
+    // (site en HTTP, iOS efface volontiers le stockage sur un enchaînement de
+    // redirections cross-origin) — le code de pairing écran transite donc aussi par
+    // l'URL de retour. Nécessite que Supabase autorise ce pattern dans Authentication
+    // → URL Configuration → Redirect URLs (ex : http://195.20.241.142/**).
+    const pendingPairCode = localStorage.getItem('djr_pending_pair_code');
+    const redirectTo = window.location.origin + '/' + (pendingPairCode ? '?pair=' + encodeURIComponent(pendingPairCode) : '');
     const { data, error } = await _sb.auth.signInWithOAuth({
       provider: 'google',
       options:  { redirectTo, skipBrowserRedirect: true },
