@@ -250,7 +250,14 @@ async function populateSettingsForm() {
     set('settings-club',    ev.club_name);
     set('settings-orga',    ev.orga);
     set('settings-address', ev.address);
-    set('settings-hours',   ev.hours);
+
+    const hoursSel = document.getElementById('settings-hours');
+    if (hoursSel) {
+      if (ev.hours && ![...hoursSel.options].some(o => o.value === ev.hours)) {
+        hoursSel.add(new Option(ev.hours, ev.hours), 1); // valeur existante non listée → ajoutée en tête
+      }
+      hoursSel.value = ev.hours || '';
+    }
   } catch(e) { console.error('[pullup] populateSettingsForm:', e.message); }
 }
 function loadOrgaChatList() {

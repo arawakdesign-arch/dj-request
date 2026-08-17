@@ -1331,7 +1331,19 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div class="fl"><label>Nom de l'événement</label><input class="fi" id="settings-ev-name" type="text" placeholder="Nuit Électrique"></div>
       <div class="fl"><label>Nom du club</label><input class="fi" id="settings-club" type="text" placeholder="Warehouse 42"></div>
       <div class="fl"><label>Adresse</label><input class="fi" id="settings-address" type="text" placeholder="32 Av. Corentin Cariou, Paris 19e"></div>
-      <div class="fl" style="margin-bottom:0"><label>Horaires</label><input class="fi" id="settings-hours" type="text" placeholder="22h → 6h"></div>
+      <div class="fl" style="margin-bottom:0"><label>Horaires</label>
+        <select class="fi" id="settings-hours">
+          <option value="">— Choisir —</option>
+          <option>22h → 2h</option>
+          <option>22h → 4h</option>
+          <option>22h → 6h</option>
+          <option>23h → 3h</option>
+          <option>23h → 5h</option>
+          <option>23h → 6h</option>
+          <option>00h → 6h</option>
+          <option>00h → 8h</option>
+        </select>
+      </div>
     </div>
 
     <!-- Flyer de la soirée -->
@@ -1593,7 +1605,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=12"></script>
-<script src="/js/app.js?v=39"></script>
+<script src="/js/app.js?v=40"></script>
 <script src="/js/render.js?v=19"></script>
 <script src="/js/chat.js?v=18"></script>
 <script src="/js/auth.js?v=20"></script>
