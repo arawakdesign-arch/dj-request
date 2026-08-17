@@ -921,7 +921,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <!-- PROFILE -->
 <div class="page has-nav" id="pg-profile">
-  <div class="tb"><button class="tb-menu" style="width:34px;height:34px" onclick="toggleTopMenu()">☰</button><div class="tb-title">Profil</div></div>
+  <div class="tb"><button class="tb-menu" style="width:34px;height:34px" onclick="toggleTopMenu()">☰</button><div class="tb-title">Profil</div><button id="btn-profile-admin" onclick="navTo('dj')" style="display:none;margin-left:auto;align-items:center;gap:.35rem;padding:.4rem .75rem;border-radius:10px;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-family:'Inter',sans-serif;font-weight:700;font-size:.75rem">🎛️ Admin</button></div>
   <div class="scroll" id="prof-scroll">
 
     <!-- PHOTO à gauche, NOM/STATUT + STATS à droite -->
@@ -1594,7 +1594,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=12"></script>
 <script src="/js/app.js?v=39"></script>
-<script src="/js/render.js?v=18"></script>
+<script src="/js/render.js?v=19"></script>
 <script src="/js/chat.js?v=18"></script>
 <script src="/js/auth.js?v=20"></script>
 </body>

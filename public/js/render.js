@@ -388,6 +388,9 @@ async function loadProfileStats() {
 }
 
 function renderProfile() {
+  const adminBtn = document.getElementById('btn-profile-admin');
+  if (adminBtn) adminBtn.style.display = djLoggedIn ? 'flex' : 'none';
+
   // Utiliser les vraies stats si disponibles, sinon les données locales
   const stats = _profileStats;
   const totEv = stats?.totals.events    ?? USER_EVENTS.length;
