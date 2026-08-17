@@ -1,3 +1,22 @@
+// ── Panneau de debug persistant (diagnostic pairing écran) ────────────
+// Les toasts s'écrasent entre eux si plusieurs arrivent en rafale — ce panneau
+// empile chaque message sans en perdre, pour capture d'écran facile.
+function _dbg(msg) {
+  console.log('[pullup-dbg]', msg);
+  let el = document.getElementById('_dbgpanel');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = '_dbgpanel';
+    el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:55vh;overflow-y:auto;background:rgba(0,0,0,.92);color:#3DE28A;font:11px/1.4 monospace;padding:8px;z-index:99999;white-space:pre-wrap';
+    document.body.appendChild(el);
+  }
+  const line = document.createElement('div');
+  const d = new Date();
+  line.textContent = d.getHours()+':'+(d.getMinutes()+'').padStart(2,'0')+':'+(d.getSeconds()+'').padStart(2,'0') + ' — ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
 // ══ AUTH STATE ═══════════════════════════════════════════════════════
 let _loggedIn          = false;
 let _pendingPhone      = null;
@@ -32,8 +51,9 @@ window.addEventListener('load', async () => {
   // Lien de pairing scanné depuis l'écran d'une TV (?pair=CODE) — mémorisé tout de
   // suite car _activateDJ() réécrit l'URL (history.replaceState) une fois connecté.
   const pairCode = new URLSearchParams(window.location.search).get('pair');
-  if (pairCode) { localStorage.setItem('djr_pending_pair_code', pairCode); toast('🔗 Code écran détecté : ' + pairCode); }
-  else if (localStorage.getItem('djr_pending_pair_code')) toast('🔗 Code écran en attente (mémorisé) : ' + localStorage.getItem('djr_pending_pair_code'));
+  if (pairCode) { localStorage.setItem('djr_pending_pair_code', pairCode); _dbg('🔗 Code écran détecté : ' + pairCode); }
+  else if (localStorage.getItem('djr_pending_pair_code')) _dbg('🔗 Code écran en attente (mémorisé) : ' + localStorage.getItem('djr_pending_pair_code'));
+  _dbg('🌐 hash=' + (window.location.hash ? 'oui' : 'non') + ' saved_token=' + (!!loadToken()) + ' _sb=' + (!!_sb));
 
   const urlEid = new URLSearchParams(window.location.search).get('event');
   if (urlEid) {
@@ -76,6 +96,7 @@ window.addEventListener('load', async () => {
   if (_sb) {
     try {
       _sb.auth.onAuthStateChange(async (event, session) => {
+        _dbg('🔑 onAuthStateChange event=' + event + ' session=' + (!!session) + ' _loggedIn=' + _loggedIn);
         if (session && !_loggedIn) {
           // Restaurer l'event ID préservé avant la redirection OAuth
           const savedEid = sessionStorage.getItem('djr_pre_oauth_eid');
@@ -105,11 +126,13 @@ window.addEventListener('load', async () => {
         }
       });
       const { data: { session } } = await _sb.auth.getSession();
+      _dbg('🪪 getSession() → ' + (session ? 'session trouvée' : 'aucune session'));
       if (session) return; // onAuthStateChange gère la suite
-    } catch(e) {}
+    } catch(e) { _dbg('❌ Erreur getSession : ' + (e.message || e)); }
   }
 
   // 3. Pas de session → page d'auth
+  _dbg('🚪 → page d\'auth (aucune session détectée)');
   showPage('auth');
 });
 
@@ -196,12 +219,12 @@ function afterLogin() {
   // Sinon (invité, staff sans compte propriétaire...) on retombe sur l'écran
   // de connexion organisateur classique (nom + mot de passe).
   if (pendingPairCode && !djLoggedIn) {
-    toast('🔍 Association de l\'écran en cours…');
+    _dbg('🔍 Association de l\'écran en cours…');
     _tryAutoClaimViaOwnership().then(claimed => {
-      if (!claimed) { toast('➡️ Passage au formulaire manuel'); showPage('dj-login'); _djLoginShowChoice(); }
+      if (!claimed) { _dbg('➡️ Passage au formulaire manuel'); showPage('dj-login'); _djLoginShowChoice(); }
     });
   } else if (pendingPairCode) {
-    toast('ℹ️ Code écran en attente mais déjà connecté comme DJ (djLoggedIn=true)');
+    _dbg('ℹ️ Code écran en attente mais déjà connecté comme DJ (djLoggedIn=true)');
   }
 }
 
@@ -209,20 +232,20 @@ function afterLogin() {
 async function _tryAutoClaimViaOwnership() {
   try {
     const events = await api('GET', '/events/mine');
-    toast('📋 ' + events.length + ' soirée(s) trouvée(s) pour ce compte');
+    _dbg('📋 ' + events.length + ' soirée(s) trouvée(s) pour ce compte');
     if (events.length !== 1) return false; // 0 → pas propriétaire ; plusieurs → ambigu, on laisse choisir à la main
     const ev = events[0];
     const res = await api('POST', '/events/' + ev.id + '/admin-token');
-    if (!res.token) { toast('⚠️ Pas de token reçu pour ' + ev.name); return false; }
+    if (!res.token) { _dbg('⚠️ Pas de token reçu pour ' + ev.name); return false; }
     saveToken(res.token);
     eid = ev.id; ename = ev.name;
     localStorage.setItem('djr_eid', eid);
     localStorage.setItem('djr_ename', ename);
-    toast('✅ Association auto réussie pour "' + ename + '"');
+    _dbg('✅ Association auto réussie pour "' + ename + '"');
     _skipNextPairConfirm = true;
     await _activateDJ(ename, null); // déclenche _tryClaimPendingScreenPair() en sortie
     return true;
-  } catch(e) { toast('❌ Erreur auto-claim : ' + (e.message || e)); return false; }
+  } catch(e) { _dbg('❌ Erreur auto-claim : ' + (e.message || e)); return false; }
 }
 
 // ── Association d'un écran en attente (?pair=CODE) ──────────────────────
@@ -247,7 +270,7 @@ function _confirmScreenPair() {
 let _skipNextPairConfirm = false;
 async function _tryClaimPendingScreenPair() {
   const code = localStorage.getItem('djr_pending_pair_code');
-  toast('📺 _tryClaimPendingScreenPair() code=' + code + ' djLoggedIn=' + djLoggedIn);
+  _dbg('📺 _tryClaimPendingScreenPair() code=' + code + ' djLoggedIn=' + djLoggedIn);
   if (!code || !djLoggedIn) return;
   localStorage.removeItem('djr_pending_pair_code');
 
