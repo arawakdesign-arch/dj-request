@@ -22,10 +22,11 @@ router.get('/orga/profile', requireAuth, async (req, res) => {
 });
 
 router.put('/orga/profile', requireAuth, async (req, res) => {
-  const { name, email, slug, website_url, instagram_url, tiktok_url, facebook_url } = req.body;
+  const { name, email, bio, slug, website_url, instagram_url, tiktok_url, facebook_url } = req.body;
   const updates = { owner_id: req.user.id, updated_at: new Date().toISOString() };
   if (name         !== undefined) updates.name         = name;
   if (email        !== undefined) updates.email        = email;
+  if (bio          !== undefined) updates.bio          = bio;
   if (website_url  !== undefined) updates.website_url  = website_url;
   if (instagram_url!== undefined) updates.instagram_url= instagram_url;
   if (tiktok_url   !== undefined) updates.tiktok_url   = tiktok_url;
@@ -151,7 +152,7 @@ router.get('/orga/by-slug/:slug', async (req, res) => {
 
   const EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
   res.json({
-    name: page.name, logo_url: page.logo_url, website_url: page.website_url,
+    name: page.name, bio: page.bio, logo_url: page.logo_url, website_url: page.website_url,
     instagram_url: page.instagram_url, tiktok_url: page.tiktok_url, facebook_url: page.facebook_url,
     events: (events || []).map(e => ({ ...e, closed: (Date.now() - new Date(e.created_at).getTime()) > EVENT_DURATION_MS })),
   });

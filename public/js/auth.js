@@ -124,6 +124,7 @@ async function tryShowOrgaPublicPage(slug) {
 
   showPage('orga-public');
   elt('op-name', page.name || slug);
+  elt('op-bio', page.bio || '');
   const logo = document.getElementById('op-logo');
   if (logo) {
     if (page.logo_url) { logo.style.backgroundImage = `url(${page.logo_url})`; logo.textContent = ''; }

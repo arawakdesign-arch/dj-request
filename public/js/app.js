@@ -253,6 +253,7 @@ async function loadOrgaProfile() {
   const p = _orgaProfileCache || {};
   const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v || ''; };
   set('orga-email',     p.email);
+  set('orga-bio',       p.bio);
   set('orga-slug',      p.slug);
   set('orga-website',   p.website_url);
   set('orga-instagram', p.instagram_url);
@@ -270,6 +271,7 @@ async function saveOrgaProfile() {
   const body = {
     name:          document.getElementById('settings-orga')?.value.trim(),
     email:         document.getElementById('orga-email')?.value.trim(),
+    bio:           document.getElementById('orga-bio')?.value.trim(),
     slug:          document.getElementById('orga-slug')?.value.trim(),
     website_url:   document.getElementById('orga-website')?.value.trim(),
     instagram_url: document.getElementById('orga-instagram')?.value.trim(),
