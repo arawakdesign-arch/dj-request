@@ -32,7 +32,7 @@ window.addEventListener('load', async () => {
   // Lien de pairing scanné depuis l'écran d'une TV (?pair=CODE) — mémorisé tout de
   // suite car _activateDJ() réécrit l'URL (history.replaceState) une fois connecté.
   const pairCode = new URLSearchParams(window.location.search).get('pair');
-  if (pairCode) sessionStorage.setItem('djr_pending_pair_code', pairCode);
+  if (pairCode) localStorage.setItem('djr_pending_pair_code', pairCode);
 
   const urlEid = new URLSearchParams(window.location.search).get('event');
   if (urlEid) {
@@ -176,7 +176,7 @@ function afterLogin() {
   // Un code de pairing écran attend : ne pas basculer sur la page d'accueil avant
   // d'avoir tenté l'association, sinon l'écran flashe sur le vote pendant l'appel
   // réseau (voire y reste bloqué si l'utilisateur ne voit pas la suite).
-  const pendingPairCode = sessionStorage.getItem('djr_pending_pair_code');
+  const pendingPairCode = localStorage.getItem('djr_pending_pair_code');
   if (!(pendingPairCode && !djLoggedIn)) showPage('client');
   renderAll();
   applyProfileToUI(); // initiale / photo dès la connexion (localStorage si présent, sinon fallback sur le nom du compte)
@@ -238,9 +238,9 @@ function _confirmScreenPair() {
 }
 
 async function _tryClaimPendingScreenPair() {
-  const code = sessionStorage.getItem('djr_pending_pair_code');
+  const code = localStorage.getItem('djr_pending_pair_code');
   if (!code || !djLoggedIn) return;
-  sessionStorage.removeItem('djr_pending_pair_code');
+  localStorage.removeItem('djr_pending_pair_code');
 
   const ok = await _confirmScreenPair();
   if (!ok) return;
@@ -263,11 +263,11 @@ async function signInGoogle() {
   try {
     // Préserver l'event ID avant la redirection OAuth (page rechargée)
     if (eid) sessionStorage.setItem('djr_pre_oauth_eid', eid);
-    // Le sessionStorage peut être perdu pendant l'aller-retour OAuth (fréquent sur
-    // Safari iOS) — on fait aussi transiter le code de pairing écran par l'URL de
-    // retour ; le handler window.load le remet en sessionStorage à l'arrivée.
-    const pendingPairCode = sessionStorage.getItem('djr_pending_pair_code');
-    const redirectTo = window.location.origin + '/' + (pendingPairCode ? '?pair=' + encodeURIComponent(pendingPairCode) : '');
+    // NB : ne pas ajouter de paramètres à redirectTo — Supabase valide cette URL
+    // contre une liste blanche exacte (Redirect URLs) et rejette tout ce qui n'y
+    // correspond pas telle quelle, renvoyant l'utilisateur sur l'écran de connexion
+    // sans session. Le code de pairing écran est préservé via localStorage à la place.
+    const redirectTo = window.location.origin + '/';
     const { data, error } = await _sb.auth.signInWithOAuth({
       provider: 'google',
       options:  { redirectTo, skipBrowserRedirect: true },
