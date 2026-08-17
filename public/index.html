@@ -1299,6 +1299,14 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     </div>
     <div class="np-dj"><div class="np-dj-glow"></div><div class="np-tag">▶ En cours</div><div class="np-t" id="dj-np-t">En attente…</div><div class="np-a" id="dj-np-a"></div></div>
     <div class="qr-card"><div class="qr-box"><div id="dj-qr"></div></div><div class="qr-info"><div class="qr-evname" id="dj-qr-evname">—</div><div class="qr-url" id="dj-qr-url"></div><div class="qr-acts"><button class="qr-btn" onclick="copyUrl()">📋 Copier</button><button class="qr-btn new" onclick="createNewEvent()">＋ Nouvelle</button><button class="qr-btn" onclick="showPage('bigscreen')">📺 Écran</button></div></div></div>
+    <div class="qr-card" style="flex-direction:column;align-items:stretch;gap:.55rem">
+      <div style="font-size:.8rem;font-weight:700;color:var(--tx)">📺 Associer un écran manuellement</div>
+      <div style="font-size:.7rem;color:var(--tx3)">Entre le code à 6 caractères affiché sur l'écran (ex : 47GN8D)</div>
+      <div style="display:flex;gap:.5rem">
+        <input id="manual-pair-code" maxlength="6" placeholder="CODE" style="flex:1;text-transform:uppercase;letter-spacing:.15em;font-weight:700;text-align:center;padding:.6rem;border-radius:10px;border:1px solid var(--bdr);font-family:'Inter',sans-serif" oninput="this.value=this.value.toUpperCase()">
+        <button class="qr-btn" onclick="manualPairScreen()">Associer</button>
+      </div>
+    </div>
     <div style="padding:.3rem .75rem .3rem;display:flex;justify-content:space-between;align-items:center"><span class="sec-lbl">File d'attente</span><span style="font-size:.62rem;color:var(--tx4)">par votes</span></div>
     <div style="padding:0 .75rem .75rem" id="dj-queue"></div>
   </div>
@@ -1586,7 +1594,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=12"></script>
-<script src="/js/app.js?v=38"></script>
+<script src="/js/app.js?v=39"></script>
 <script src="/js/render.js?v=18"></script>
 <script src="/js/chat.js?v=18"></script>
 <script src="/js/auth.js?v=19"></script>

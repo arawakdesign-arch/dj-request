@@ -774,6 +774,28 @@ function copyUrl() {
     _copyFallback(url);
   }
 }
+// ── Association manuelle d'un écran (secours si le scan QR ne complète pas
+// l'association automatiquement, ex : perte de contexte pendant la connexion
+// Google) — l'utilisateur est déjà connecté comme organisateur ici, donc pas
+// de dépendance à un code mémorisé côté navigateur.
+async function manualPairScreen() {
+  const input = document.getElementById('manual-pair-code');
+  const code  = (input.value || '').trim().toUpperCase();
+  if (code.length !== 6) { toast('⚠️ Le code fait 6 caractères'); return; }
+  try {
+    const res  = await fetch('/api/screen/pairings/' + encodeURIComponent(code) + '/claim', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + _authToken },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Association impossible');
+    toast('📺 Écran associé !');
+    input.value = '';
+  } catch(e) {
+    toast('⚠️ ' + (e.message || 'Association impossible'));
+  }
+}
+
 // ══ AMIS ══════════════════════════════════════════════════════════════
 
 function getFriendCode() {
