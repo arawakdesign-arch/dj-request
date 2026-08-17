@@ -131,21 +131,37 @@ async function startScreenPairing() {
     const pairUrl = window.location.origin + '/?pair=' + code;
     try { new QRCode(qrEl, { text: pairUrl, width: 220, height: 220, colorDark: '#000', colorLight: '#fff' }); } catch(e) {}
 
+    let _paired = false;
+    const onPaired = async (eventId) => {
+      if (_paired || !eventId) return;
+      _paired = true;
+      clearInterval(pollId);
+      eid = eventId;
+      showPage('bigscreen');
+      // showPage('bigscreen') a déjà appelé generateQR()/renderBS() avec l'état
+      // précédent (eid pas encore chargé) — on les rappelle une fois les vraies
+      // données en place, même séquence que _activateDJ() (auth.js).
+      await loadEvent(eid).catch(() => {});
+      generateQR(eid);
+      renderBS();
+      loadChatHistory(); // charge tout l'historique du chat, pas seulement les messages à venir
+    };
+
+    // Filet de secours en polling — indépendant du Realtime Supabase (qui peut ne
+    // pas être activé sur cette table), l'appairage doit marcher dans tous les cas.
+    const pollId = setInterval(async () => {
+      try {
+        const r = await fetch('/api/screen/pairings/' + encodeURIComponent(code));
+        if (!r.ok) return;
+        const d = await r.json();
+        if (d.event_id) onPaired(d.event_id);
+      } catch(e) {}
+    }, 2500);
+
     if (!_sb) return;
     _sb.channel('pairing:' + code)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'screen_pairings', filter: 'code=eq.' + code },
-        async (payload) => {
-          if (!payload.new?.event_id) return;
-          eid = payload.new.event_id;
-          showPage('bigscreen');
-          // showPage('bigscreen') a déjà appelé generateQR()/renderBS() avec l'état
-          // précédent (eid pas encore chargé) — on les rappelle une fois les vraies
-          // données en place, même séquence que _activateDJ() (auth.js).
-          await loadEvent(eid).catch(() => {});
-          generateQR(eid);
-          renderBS();
-          loadChatHistory(); // charge tout l'historique du chat, pas seulement les messages à venir
-        })
+        (payload) => onPaired(payload.new?.event_id))
       .subscribe();
   } catch(e) {
     codeEl.textContent = 'Erreur';
