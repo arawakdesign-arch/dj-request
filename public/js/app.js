@@ -238,6 +238,23 @@ async function loadOrgaContacts() {
   }
 }
 
+// ── Horaires : deux menus déroulants (début/fin) qui écrivent dans le champ
+// caché #settings-hours (format "22h → 6h"), lu tel quel par saveSettings().
+const HOURS_OPTIONS = [18,19,20,21,22,23,0,1,2,3,4,5,6,7,8].map(h => (h+'').padStart(2,'0') + 'h');
+function _fillHoursSelects() {
+  const start = document.getElementById('settings-hours-start');
+  const end   = document.getElementById('settings-hours-end');
+  if (!start || !end || start.options.length) return; // déjà rempli
+  start.innerHTML = '<option value="">De —</option>' + HOURS_OPTIONS.map(h => `<option>${h}</option>`).join('');
+  end.innerHTML   = '<option value="">à —</option>'  + HOURS_OPTIONS.map(h => `<option>${h}</option>`).join('');
+}
+function _syncHoursField() {
+  const start = document.getElementById('settings-hours-start')?.value;
+  const end   = document.getElementById('settings-hours-end')?.value;
+  const field = document.getElementById('settings-hours');
+  if (field) field.value = (start && end) ? `${start} → ${end}` : '';
+}
+
 // Les champs de Réglages sont vides par défaut (placeholders) — on les
 // remplit avec les vraies infos enregistrées de l'événement à l'ouverture
 // de l'onglet, plutôt que de laisser des valeurs de démo trompeuses.
@@ -251,13 +268,11 @@ async function populateSettingsForm() {
     set('settings-orga',    ev.orga);
     set('settings-address', ev.address);
 
-    const hoursSel = document.getElementById('settings-hours');
-    if (hoursSel) {
-      if (ev.hours && ![...hoursSel.options].some(o => o.value === ev.hours)) {
-        hoursSel.add(new Option(ev.hours, ev.hours), 1); // valeur existante non listée → ajoutée en tête
-      }
-      hoursSel.value = ev.hours || '';
-    }
+    _fillHoursSelects();
+    const [h1, h2] = (ev.hours || '').split('→').map(s => s.trim());
+    set('settings-hours-start', HOURS_OPTIONS.includes(h1) ? h1 : '');
+    set('settings-hours-end',   HOURS_OPTIONS.includes(h2) ? h2 : '');
+    set('settings-hours', ev.hours);
   } catch(e) { console.error('[pullup] populateSettingsForm:', e.message); }
 }
 function loadOrgaChatList() {
