@@ -352,7 +352,7 @@ function generateQR(activeEid) {
     return;
   }
   const url = buildEventUrl(id);
-  const sizes = { 'dj-qr': 160, 'bs-qr': 220, 'bs-qr-big': 260 };
+  const sizes = { 'dj-qr': 110, 'bs-qr': 220, 'bs-qr-big': 260 };
   Object.entries(sizes).forEach(([elemId, sz]) => {
     const el = document.getElementById(elemId); if (!el) return;
     el.innerHTML = '';
