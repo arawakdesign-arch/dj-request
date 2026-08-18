@@ -115,7 +115,11 @@ router.post('/events', requireAuth, async (req, res) => {
     .eq('owner_id', req.user.id).eq('is_active', true)
     .order('created_at', { ascending: false }).limit(1).maybeSingle();
   if (ownActive && !isClosed(ownActive.created_at)) {
-    return res.status(409).json({ error: `Ta soirée "${ownActive.name}" est encore en cours — attends sa clôture (24h) avant d'en créer une nouvelle.` });
+    return res.status(409).json({
+      error: `Ta soirée "${ownActive.name}" est encore en cours — attends sa clôture (24h) avant d'en créer une nouvelle.`,
+      active_event_id: ownActive.id,
+      active_event_name: ownActive.name,
+    });
   }
 
   // Empêche 2 soirées actives en même temps sous le même nom : source de

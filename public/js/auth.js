@@ -464,6 +464,19 @@ async function djCreateSubmit() {
       err.textContent = 'Ta session a expiré — reconnecte-toi avec Google.';
       return;
     }
+    if (e.active_event_id) {
+      err.innerHTML = '';
+      const msg = document.createElement('div');
+      msg.textContent = e.message;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = '⚠️ Gérer cette soirée';
+      btn.style.cssText = 'margin-top:.5rem;padding:.55rem .9rem;border-radius:.75rem;border:1px solid #FFB020;background:#FFF6E5;color:#8A5A00;font-size:.78rem;font-weight:700;font-family:Inter,sans-serif';
+      btn.onclick = () => adminEnterEvent(e.active_event_id, e.active_event_name);
+      err.appendChild(msg);
+      err.appendChild(btn);
+      return;
+    }
     err.textContent = e.message || 'Erreur lors de la création.';
   }
 }

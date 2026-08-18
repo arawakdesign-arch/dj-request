@@ -28,7 +28,9 @@ async function api(method, path, body, { dj, token } = {}) {
   });
   if (!r.ok) {
     const e = await r.json().catch(() => ({}));
-    throw new Error(e.error || 'Erreur');
+    const err = new Error(e.error || 'Erreur');
+    Object.assign(err, e); // conserve les champs additionnels (ex: active_event_id)
+    throw err;
   }
   return r.json();
 }
