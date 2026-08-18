@@ -1108,7 +1108,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:0;color:var(--tx);margin-bottom:.25rem">Scanner pour rejoindre</div>
       <div style="font-size:.8rem;color:var(--tx3)">Partagez ce QR code pour inviter vos amis</div>
     </div>
-    <div style="display:flex;justify-content:center;margin:.5rem 0 1rem">
+    <div style="display:flex;justify-content:center;align-items:center;gap:.65rem;margin:.5rem 0 1rem">
+      <button onclick="shareEventLink()" style="flex-shrink:0;width:96px;height:96px;padding:0;border:none;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer">
+        <img src="/images/invite-amis.png?v=1" alt="Partager la soirée" style="width:100%;height:100%;object-fit:cover;display:block">
+      </button>
       <div style="background:white;padding:16px;border-radius:16px;display:inline-block;border:1px solid var(--bdr)">
         <div id="modal-qr-box"></div>
       </div>
@@ -1319,12 +1322,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div class="dj-st"><div class="dj-st-n" id="dj-s3">0</div><div class="dj-st-l">Votants</div></div>
     </div>
     <div class="np-dj"><div class="np-dj-glow"></div><div class="np-tag">▶ En cours</div><div class="np-t" id="dj-np-t">En attente…</div><div class="np-a" id="dj-np-a"></div></div>
-    <div style="display:flex;gap:.65rem;margin:.2rem .75rem .65rem">
-      <button onclick="shareEventLink()" style="flex-shrink:0;width:92px;height:92px;padding:0;border:none;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer">
-        <img src="/images/invite-amis.png?v=1" alt="Partager la soirée" style="width:100%;height:100%;object-fit:cover;display:block">
-      </button>
-      <div class="qr-card" style="margin:0;flex:1;min-width:0"><div class="qr-box"><div id="dj-qr"></div></div><div class="qr-info"><div class="qr-evname" id="dj-qr-evname">—</div><div class="qr-url" id="dj-qr-url"></div><div class="qr-acts"><button class="qr-btn" onclick="copyUrl()">📋 Copier</button><button class="qr-btn new" onclick="createNewEvent()">＋ Nouvelle</button><button class="qr-btn" onclick="showPage('bigscreen')">📺 Écran</button></div></div></div>
-    </div>
+    <div class="qr-card"><div class="qr-box"><div id="dj-qr"></div></div><div class="qr-info"><div class="qr-evname" id="dj-qr-evname">—</div><div class="qr-url" id="dj-qr-url"></div><div class="qr-acts"><button class="qr-btn" onclick="copyUrl()">📋 Copier</button><button class="qr-btn new" onclick="createNewEvent()">＋ Nouvelle</button><button class="qr-btn" onclick="showPage('bigscreen')">📺 Écran</button></div></div></div>
     <div class="qr-card" style="flex-direction:column;align-items:stretch;gap:.55rem">
       <div style="font-size:.8rem;font-weight:700;color:var(--tx)">📺 Associer un écran manuellement</div>
       <div style="font-size:.7rem;color:var(--tx3)">Entre le code à 6 caractères affiché sur l'écran (ex : 47GN8D)</div>
