@@ -935,9 +935,20 @@ function _copyFallback(url) {
 
 function shareEventLink() {
   const url = buildShortEventUrl(ename, eid);
-  if (navigator.share) { navigator.share({ title: ename || 'PULL UP!', text: 'Viens voter pour la prochaine musique 🎵', url }).catch(() => {}); return; }
-  if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('🔗 Lien copié !'));
-  else _copyFallback(url);
+  const club    = document.getElementById('club-name-strip')?.textContent?.trim() || '';
+  const address = document.getElementById('venue-addr-txt')?.textContent?.trim() || '';
+  const venue   = club && address ? `${club} — ${address}` : (club || address);
+  const flyerUrl = document.getElementById('venue-photo-img')?.src || '';
+  const hasFlyer = flyerUrl && !flyerUrl.includes('/images/venue-photo.jpg');
+
+  let text = `Hello !\nJe suis à la soirée ${ename || 'PULL UP!'}, rejoins moi`;
+  text += venue ? `, c'est au ${venue}. 🥂` : ' ! 🥂';
+  if (hasFlyer) text += `\n${flyerUrl}`;
+
+  if (navigator.share) { navigator.share({ title: ename || 'PULL UP!', text, url }).catch(() => {}); return; }
+  const full = `${text}\n${url}`;
+  if (navigator.clipboard) navigator.clipboard.writeText(full).then(() => toast('🔗 Message copié !'));
+  else _copyFallback(full);
 }
 
 function copyUrl() {
