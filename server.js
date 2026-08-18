@@ -39,6 +39,11 @@ app.use(helmet({
       upgradeInsecureRequests: null,
     },
   },
+  // Désactivé pour la même raison : envoyer ce header en HTTP indique aux
+  // navigateurs de ne plus jamais retenter le site en HTTP pendant 180 jours
+  // (max-age) — comme le HTTPS n'est pas encore fonctionnel, ça rend le site
+  // inaccessible à quiconque l'a déjà reçu. À réactiver une fois le HTTPS confirmé.
+  hsts: false,
 }));
 app.use(cors({ origin: process.env.APP_URL || '*' }));
 app.use(express.json({ limit: '10mb' }));
