@@ -33,17 +33,8 @@ app.use(helmet({
       imgSrc:        ["'self'", "data:", "blob:", "*.supabase.co", "i.pravatar.cc", "*.itunes.apple.com", "*.mzstatic.com", "*.dzcdn.net", "*.deezer.com"],
       connectSrc:    ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "itunes.apple.com", "api.deezer.com"],
       mediaSrc:      ["'self'", "*.itunes.apple.com", "*.supabase.co"],
-      // Désactivé de nouveau temporairement : le DNS de pull-up.live n'est pas
-      // encore propagé et aucun certificat SSL n'est posé sur le VPS (IP nue).
-      // À retirer dès que certbot aura tourné — voir conversation "nom de domaine".
-      upgradeInsecureRequests: null,
     },
   },
-  // Désactivé pour la même raison : envoyer ce header en HTTP indique aux
-  // navigateurs de ne plus jamais retenter le site en HTTP pendant 180 jours
-  // (max-age) — comme le HTTPS n'est pas encore fonctionnel, ça rend le site
-  // inaccessible à quiconque l'a déjà reçu. À réactiver une fois le HTTPS confirmé.
-  hsts: false,
 }));
 app.use(cors({ origin: process.env.APP_URL || '*' }));
 app.use(express.json({ limit: '10mb' }));
