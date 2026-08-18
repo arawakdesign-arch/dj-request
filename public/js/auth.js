@@ -500,3 +500,30 @@ function logout() {
   showPage('auth');
   closeTopMenu();
 }
+
+// ── Suppression du compte (droit à l'effacement) ───────────────────────
+function confirmDeleteAccount() {
+  if (!(_authToken || _sbSession)) { toast('⚠️ Connecte-toi d\'abord pour supprimer ton compte'); return; }
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:1.5rem';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:20px;padding:1.5rem;max-width:340px;width:100%;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:1.6rem;margin-bottom:.5rem">⚠️</div>
+      <div style="font-weight:700;font-size:.95rem;color:var(--tx);margin-bottom:.3rem">Supprimer ton compte ?</div>
+      <div style="font-size:.8rem;color:var(--tx3);margin-bottom:1.1rem">Ton profil, tes statistiques et tes accès seront définitivement supprimés. Cette action est irréversible.</div>
+      <button id="del-acc-yes" style="width:100%;padding:.75rem;border-radius:1rem;border:none;background:var(--red);color:#fff;font-size:.85rem;font-weight:700;font-family:Inter,sans-serif;margin-bottom:.5rem">Oui, supprimer définitivement</button>
+      <button id="del-acc-no" style="background:none;border:none;color:var(--tx4);font-size:.8rem;width:100%">Annuler</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#del-acc-no').onclick = () => overlay.remove();
+  overlay.querySelector('#del-acc-yes').onclick = async () => {
+    overlay.remove();
+    try {
+      await api('DELETE', '/profile/account', null, {});
+      localStorage.clear();
+      sessionStorage.clear();
+      toast('✅ Compte supprimé');
+      logout();
+    } catch(e) { toast('⚠️ ' + (e.message || 'Suppression impossible')); }
+  };
+}

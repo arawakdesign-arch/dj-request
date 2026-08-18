@@ -26,6 +26,21 @@ router.patch('/profile', requireAuth, async (req, res) => {
   res.json(data);
 });
 
+// ── Suppression du compte (droit à l'effacement) ───────────────────────
+router.delete('/profile/account', requireAuth, async (req, res) => {
+  const uid = req.user.id;
+  await Promise.all([
+    supabase.from('user_profiles').delete().eq('id', uid),
+    supabase.from('dj_profiles').delete().eq('id', uid),
+    supabase.from('organizer_pages').delete().eq('owner_id', uid),
+  ]);
+  // Comptes invités (guest_*) : pas d'utilisateur Supabase Auth associé, rien de plus à faire.
+  if (!uid.startsWith('guest_')) {
+    try { await supabase.auth.admin.deleteUser(uid); } catch(e) {}
+  }
+  res.json({ ok: true });
+});
+
 // ── Stats réelles du profil ───────────────────────────────────────────
 router.get('/profile/stats', requireAuth, async (req, res) => {
   const uid = req.user.id;
