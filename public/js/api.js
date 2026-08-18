@@ -125,12 +125,6 @@ async function loadEvent(evId) {
     renderAll();
     subscribeToEvent(localEid);
     if (typeof generateQR === 'function') generateQR(localEid);
-    const miniQR = document.getElementById('club-qr-mini');
-    if (miniQR) {
-      miniQR.innerHTML = '';
-      const sz = window.innerWidth <= 430 ? 96 : 120;
-      try { new QRCode(miniQR, {text: buildEventUrl(localEid), width:sz, height:sz, colorDark:'#000', colorLight:'#fff'}); } catch(_) {}
-    }
   } catch(e) {
     // Soirée introuvable ou supprimée → nettoyer tout l'état lié à cet event
     // NOTE : loadEvent() gère sa propre erreur et résout toujours (ne rejette jamais).

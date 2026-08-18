@@ -872,7 +872,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     </div>
     <div class="venue-qr-wrap">
       <button class="venue-qr" onclick="openQRModal()">
-        <div class="venue-qr-box"><div id="club-qr-mini"></div></div>
+        <div class="venue-qr-box"><img src="/images/logoamisajout.png?v=1" alt="Partager"></div>
       </button>
       <div class="venue-qr-info">
         <div class="venue-qr-title">Partage</div>
@@ -1116,9 +1116,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;width:150px">
         <div style="font-size:.7rem;font-weight:600;color:var(--tx3);text-align:center">Ajoute un ami qui est là</div>
-        <button onclick="shareEventLink()" style="flex-shrink:0;width:150px;height:150px;padding:0;border:none;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer">
-          <img src="/images/logoamisajout.png?v=1" alt="Ajoute un ami" style="width:100%;height:100%;object-fit:cover;display:block">
-        </button>
+        <div style="background:white;width:150px;height:150px;border-radius:16px;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr);flex-shrink:0">
+          <div id="modal-qr-box"></div>
+        </div>
       </div>
     </div>
     <div id="modal-qr-url" style="display:none"></div>
@@ -1702,7 +1702,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </div>
 
 <script src="/js/config.js?v=2"></script>
-<script src="/js/api.js?v=13"></script>
+<script src="/js/api.js?v=14"></script>
 <script src="/js/app.js?v=47"></script>
 <script src="/js/render.js?v=22"></script>
 <script src="/js/chat.js?v=18"></script>
