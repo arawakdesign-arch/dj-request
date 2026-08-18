@@ -107,6 +107,17 @@ router.post('/events', requireAuth, async (req, res) => {
     return res.status(403).json({ error: 'Cette adresse email n\'est pas autorisée à créer une soirée.' });
   }
 
+  // Un compte organisateur ne peut gérer qu'une seule soirée active à la fois —
+  // évite la confusion de plusieurs soirées ouvertes en parallèle sous le même
+  // compte. Une fois la soirée fermée (24h, cf. isClosed()), il peut en recréer une.
+  const { data: ownActive } = await supabase
+    .from('events').select('id, name, created_at')
+    .eq('owner_id', req.user.id).eq('is_active', true)
+    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+  if (ownActive && !isClosed(ownActive.created_at)) {
+    return res.status(409).json({ error: `Ta soirée "${ownActive.name}" est encore en cours — attends sa clôture (24h) avant d'en créer une nouvelle.` });
+  }
+
   // Empêche 2 soirées actives en même temps sous le même nom : source de
   // confusion (recherche par nom, QR/liens partagés qui se marchent dessus).
   // Une fois la soirée existante fermée (24h, cf. isClosed()), le nom se
