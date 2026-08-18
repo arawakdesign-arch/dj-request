@@ -905,7 +905,7 @@ function _copyFallback(url) {
 
 function copyUrl() {
   console.log('[pullup] copyUrl() eid=', eid, '| isValidUuid=', isValidUuid(eid));
-  const url = buildEventUrl(eid);
+  const url = buildShortEventUrl(ename, eid);
   console.log('[pullup] copyUrl() url=', url);
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url)

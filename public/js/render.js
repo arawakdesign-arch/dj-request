@@ -343,6 +343,14 @@ function buildEventUrl(eventId) {
   return window.location.origin + '/?event=' + encodeURIComponent(eventId);
 }
 
+// Lien court à partager (QR code, bouton Copier) — utilise le nom de la
+// soirée plutôt que l'UUID technique, résolu à l'arrivée via GET
+// /events/by-name. Beaucoup plus lisible sur un lien collé/affiché.
+function buildShortEventUrl(name, fallbackId) {
+  if (name) return window.location.origin + '/?event=' + encodeURIComponent(name);
+  return buildEventUrl(fallbackId);
+}
+
 // Accepte un ID explicite ; se replie sur le global eid si omis
 function generateQR(activeEid) {
   const id = activeEid !== undefined ? activeEid : eid;
@@ -351,7 +359,7 @@ function generateQR(activeEid) {
     console.warn('[pullup] generateQR: UUID invalide — génération ignorée, id=', id);
     return;
   }
-  const url = buildEventUrl(id);
+  const url = buildShortEventUrl(ename, id);
   const sizes = { 'dj-qr': 110, 'bs-qr': 220, 'bs-qr-big': 260 };
   Object.entries(sizes).forEach(([elemId, sz]) => {
     const el = document.getElementById(elemId); if (!el) return;

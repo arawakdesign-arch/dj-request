@@ -40,7 +40,15 @@ window.addEventListener('load', async () => {
 
   const urlEid = new URLSearchParams(window.location.search).get('event');
   if (urlEid) {
-    eid = urlEid;
+    if (isValidUuid(urlEid)) {
+      eid = urlEid;
+    } else {
+      // Lien court partagé avec le nom de la soirée plutôt que l'UUID technique
+      try {
+        const found = await api('GET', '/events/by-name?name=' + encodeURIComponent(urlEid));
+        eid = found.id;
+      } catch(e) { eid = null; } // soirée introuvable sous ce nom → flux normal (page d'accueil)
+    }
   } else {
     eid = localStorage.getItem('djr_eid') || null;
   }
