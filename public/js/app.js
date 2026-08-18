@@ -933,6 +933,13 @@ function _copyFallback(url) {
   toast(ok ? '📋 URL copiée !' : '🔗 ' + url);
 }
 
+function shareEventLink() {
+  const url = buildShortEventUrl(ename, eid);
+  if (navigator.share) { navigator.share({ title: ename || 'PULL UP!', text: 'Viens voter pour la prochaine musique 🎵', url }).catch(() => {}); return; }
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('🔗 Lien copié !'));
+  else _copyFallback(url);
+}
+
 function copyUrl() {
   console.log('[pullup] copyUrl() eid=', eid, '| isValidUuid=', isValidUuid(eid));
   const url = buildShortEventUrl(ename, eid);
