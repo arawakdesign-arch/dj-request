@@ -573,36 +573,6 @@ async function adminEnterEvent(id, name) {
   } catch(e) { toast(e.message || 'Erreur d\'accès'); }
 }
 
-// ── Changer de soirée depuis le tableau de bord (compte propriétaire de
-// plusieurs soirées — la session locale ne retient que la dernière active) ──
-async function openEventSwitcher() {
-  let events = [];
-  try { events = await api('GET', '/events/mine', null, {dj: true}); } catch(e) {}
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:1.5rem';
-  const rows = events.length
-    ? events.map(ev => `
-        <button onclick="_switchToEvent('${ev.id}','${ev.name.replace(/'/g,"\\'")}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.75rem .9rem;border-radius:.85rem;border:1px solid ${ev.id===eid?'var(--vi)':'var(--bdr)'};background:${ev.id===eid?'rgba(111,34,255,.08)':'#FFFFFF'};margin-bottom:.5rem;text-align:left">
-          <span style="font-weight:700;font-size:.85rem;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.name}</span>
-          <span style="font-size:.68rem;color:var(--tx4);flex-shrink:0">${ev.id===eid ? 'Active' : (ev.closed?'Terminée':'')}</span>
-        </button>`).join('')
-    : '<div style="text-align:center;padding:1rem;font-size:.8rem;color:var(--tx4)">Aucune soirée trouvée</div>';
-  overlay.innerHTML = `
-    <div style="background:#fff;border-radius:20px;padding:1.4rem;max-width:340px;width:100%;box-shadow:var(--shadow)">
-      <div style="font-weight:700;font-size:.95rem;color:var(--tx);margin-bottom:.9rem">🔀 Mes soirées</div>
-      ${rows}
-      <button id="switch-close" style="width:100%;background:none;border:none;color:var(--tx4);font-size:.8rem;padding-top:.3rem">Fermer</button>
-    </div>`;
-  document.body.appendChild(overlay);
-  overlay.querySelector('#switch-close').onclick = () => overlay.remove();
-  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-}
-async function _switchToEvent(id, name) {
-  document.querySelectorAll('body > div[style*="z-index:999"]').forEach(o => o.remove());
-  if (id === eid) return;
-  await adminEnterEvent(id, name);
-}
-
 async function openDjRegister() {
   showPage('dj-register');
   if (!(_authToken || _sbSession)) return; // formulaire consultable ; connexion requise seulement à l'enregistrement
