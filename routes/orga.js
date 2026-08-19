@@ -28,7 +28,8 @@ function slugify(s) {
 // ── Ma page organisateur (édition) ───────────────────────────────────
 router.get('/orga/profile', requireAuth, async (req, res) => {
   const { data } = await supabase.from('organizer_pages').select('*').eq('owner_id', req.user.id).maybeSingle();
-  if (data?.logo_url) data.logo_url = bustLogoCache(data.logo_url, data.updated_at);
+  if (data?.logo_url)   data.logo_url   = bustLogoCache(data.logo_url, data.updated_at);
+  if (data?.banner_url) data.banner_url = bustLogoCache(data.banner_url, data.updated_at);
   res.json(data || { email: req.user.email || null });
 });
 
@@ -75,6 +76,28 @@ router.post('/orga/profile/logo', requireAuth, upload.single('logo'), async (req
   const { data: { publicUrl } } = supabase.storage.from('orga-logos').getPublicUrl(fileName);
   const updatedAt = new Date().toISOString();
   await supabase.from('organizer_pages').upsert({ owner_id: req.user.id, logo_url: publicUrl, updated_at: updatedAt });
+  res.json({ url: bustLogoCache(publicUrl, updatedAt) });
+});
+
+// ── Upload bannière (image large en haut de la page publique) ─────────
+router.post('/orga/profile/banner', requireAuth, upload.single('banner'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Pas de fichier' });
+
+  let buffer = req.file.buffer;
+  try {
+    const sharp = require('sharp');
+    buffer = await sharp(buffer).resize(1200, 400, { fit: 'cover' }).jpeg({ quality: 78, mozjpeg: true }).toBuffer();
+  } catch(e) {}
+
+  const fileName = `${req.user.id}/banner.jpg`;
+  const { error } = await supabase.storage.from('orga-logos').upload(fileName, buffer, {
+    contentType: 'image/jpeg', cacheControl: '3600', upsert: true,
+  });
+  if (error) return res.status(500).json({ error: error.message });
+
+  const { data: { publicUrl } } = supabase.storage.from('orga-logos').getPublicUrl(fileName);
+  const updatedAt = new Date().toISOString();
+  await supabase.from('organizer_pages').upsert({ owner_id: req.user.id, banner_url: publicUrl, updated_at: updatedAt });
   res.json({ url: bustLogoCache(publicUrl, updatedAt) });
 });
 
@@ -164,7 +187,8 @@ router.get('/orga/by-slug/:slug', async (req, res) => {
 
   const EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
   res.json({
-    name: page.name, bio: page.bio, logo_url: bustLogoCache(page.logo_url, page.updated_at), website_url: page.website_url,
+    name: page.name, bio: page.bio, logo_url: bustLogoCache(page.logo_url, page.updated_at),
+    banner_url: bustLogoCache(page.banner_url, page.updated_at), website_url: page.website_url,
     instagram_url: page.instagram_url, tiktok_url: page.tiktok_url, facebook_url: page.facebook_url,
     events: (events || []).map(e => ({ ...e, closed: (Date.now() - new Date(e.created_at).getTime()) > EVENT_DURATION_MS })),
   });

@@ -133,6 +133,11 @@ async function tryShowOrgaPublicPage(slug) {
   showPage('orga-public');
   elt('op-name', page.name || slug);
   elt('op-bio', page.bio || '');
+  const banner = document.getElementById('op-banner');
+  if (banner) {
+    if (page.banner_url) { banner.style.backgroundImage = `url(${page.banner_url})`; banner.style.display = 'block'; }
+    else                  { banner.style.backgroundImage = ''; banner.style.display = 'none'; }
+  }
   const logo = document.getElementById('op-logo');
   if (logo) {
     if (page.logo_url) { logo.style.backgroundImage = `url(${page.logo_url})`; logo.textContent = ''; }

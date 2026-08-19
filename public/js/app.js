@@ -264,6 +264,11 @@ async function loadOrgaProfile() {
     if (p.logo_url) { logo.style.backgroundImage = `url(${p.logo_url})`; logo.textContent = ''; }
     else            { logo.style.backgroundImage = ''; logo.textContent = '🎪'; }
   }
+  const banner = document.getElementById('orga-banner-preview');
+  if (banner) {
+    if (p.banner_url) { banner.style.backgroundImage = `url(${p.banner_url})`; banner.textContent = ''; }
+    else               { banner.style.backgroundImage = ''; banner.textContent = '🖼️'; }
+  }
 }
 
 async function saveOrgaProfile() {
@@ -298,6 +303,23 @@ async function uploadOrgaLogo(input) {
     const logo = document.getElementById('orga-logo-preview');
     if (logo) { logo.style.backgroundImage = `url(${data.url})`; logo.textContent = ''; }
     toast('📸 Logo mis à jour');
+  } catch(e) { toast('⚠️ ' + (e.message || 'Upload impossible')); }
+}
+
+async function uploadOrgaBanner(input) {
+  const file = input.files?.[0]; if (!file) return;
+  const fd = new FormData(); fd.append('banner', file);
+  try {
+    const r = await fetch('/api/orga/profile/banner', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + (_authToken || _sbSession?.access_token) },
+      body: fd,
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || 'Upload impossible');
+    const banner = document.getElementById('orga-banner-preview');
+    if (banner) { banner.style.backgroundImage = `url(${data.url})`; banner.textContent = ''; }
+    toast('🖼️ Bannière mise à jour');
   } catch(e) { toast('⚠️ ' + (e.message || 'Upload impossible')); }
 }
 
