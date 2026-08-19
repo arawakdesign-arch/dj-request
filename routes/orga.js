@@ -6,6 +6,16 @@ const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
+// Le logo est réécrit au même chemin de storage à chaque upload (upsert) —
+// l'URL publique ne change donc jamais, ce qui fait que le navigateur (et le
+// CDN Supabase) sert une version en cache après une mise à jour. On ajoute
+// un paramètre de cache-busting basé sur updated_at pour forcer le refetch.
+function bustLogoCache(url, updatedAt) {
+  if (!url) return url;
+  const v = updatedAt ? new Date(updatedAt).getTime() : Date.now();
+  return url + (url.includes('?') ? '&' : '?') + 'v=' + v;
+}
+
 function slugify(s) {
   return (s || '')
     .toLowerCase()
@@ -18,6 +28,7 @@ function slugify(s) {
 // ── Ma page organisateur (édition) ───────────────────────────────────
 router.get('/orga/profile', requireAuth, async (req, res) => {
   const { data } = await supabase.from('organizer_pages').select('*').eq('owner_id', req.user.id).maybeSingle();
+  if (data?.logo_url) data.logo_url = bustLogoCache(data.logo_url, data.updated_at);
   res.json(data || { email: req.user.email || null });
 });
 
@@ -62,8 +73,9 @@ router.post('/orga/profile/logo', requireAuth, upload.single('logo'), async (req
   if (error) return res.status(500).json({ error: error.message });
 
   const { data: { publicUrl } } = supabase.storage.from('orga-logos').getPublicUrl(fileName);
-  await supabase.from('organizer_pages').upsert({ owner_id: req.user.id, logo_url: publicUrl, updated_at: new Date().toISOString() });
-  res.json({ url: publicUrl });
+  const updatedAt = new Date().toISOString();
+  await supabase.from('organizer_pages').upsert({ owner_id: req.user.id, logo_url: publicUrl, updated_at: updatedAt });
+  res.json({ url: bustLogoCache(publicUrl, updatedAt) });
 });
 
 // ── Mes soirées + stats par événement ────────────────────────────────
@@ -152,7 +164,7 @@ router.get('/orga/by-slug/:slug', async (req, res) => {
 
   const EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
   res.json({
-    name: page.name, bio: page.bio, logo_url: page.logo_url, website_url: page.website_url,
+    name: page.name, bio: page.bio, logo_url: bustLogoCache(page.logo_url, page.updated_at), website_url: page.website_url,
     instagram_url: page.instagram_url, tiktok_url: page.tiktok_url, facebook_url: page.facebook_url,
     events: (events || []).map(e => ({ ...e, closed: (Date.now() - new Date(e.created_at).getTime()) > EVENT_DURATION_MS })),
   });
