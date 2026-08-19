@@ -5,6 +5,8 @@ const cors      = require('cors');
 const helmet    = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path      = require('path');
+const fs        = require('fs');
+const supabase  = require('./lib/supabase');
 
 const configRouter   = require('./routes/config');
 const authRouter     = require('./routes/auth');
@@ -43,6 +45,43 @@ app.use(express.urlencoded({ extended: true }));
 // ══ RATE LIMITING ═════════════════════════════════════════════════════
 app.use('/api/', rateLimit({ windowMs: 60 * 1000,      max: 120, message: { error: 'Ralentissez !' } }));
 app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 500, message: { error: 'Trop de requêtes' } }));
+
+// ══ PARTAGE D'ÉVÉNEMENT — flyer en aperçu de lien (WhatsApp, etc.) ═════
+// Les crawlers de réseaux sociaux ne lisent que le HTML brut (pas de JS) :
+// on injecte donc le flyer de l'événement dans les balises og:/twitter:
+// avant de servir la page, plutôt que de compter sur le rendu client.
+const escapeHtml = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+app.get('/', async (req, res, next) => {
+  const evParam = req.query.event;
+  if (!evParam) return next();
+  try {
+    let query = supabase.from('events').select('id, name, club_name, flyer_url, is_active');
+    query = UUID_RE.test(evParam) ? query.eq('id', evParam) : query.eq('name', evParam).eq('is_active', true);
+    const { data: ev } = await query.order('created_at', { ascending: false }).limit(1).maybeSingle();
+    if (!ev || !ev.flyer_url) return next();
+
+    let html  = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+    const title = escapeHtml(ev.name || 'Pull up');
+    const desc  = escapeHtml(`Rejoins la soirée${ev.club_name ? ' à ' + ev.club_name : ''} et vote pour la prochaine chanson 🎵`);
+    const image = escapeHtml(ev.flyer_url);
+
+    html = html
+      .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${title}">`)
+      .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${desc}">`)
+      .replace(/<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${image}">`)
+      .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${title}">`)
+      .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${desc}">`)
+      .replace(/<meta name="twitter:image" content="[^"]*">/, `<meta name="twitter:image" content="${image}">`);
+
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    res.send(html);
+  } catch (e) {
+    next();
+  }
+});
 
 // ══ FICHIERS STATIQUES ════════════════════════════════════════════════
 const isDev = process.env.NODE_ENV !== 'production';
