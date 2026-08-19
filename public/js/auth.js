@@ -237,6 +237,30 @@ async function signInGoogle() {
   }
 }
 
+// ── Email — Supabase Magic Link natif (aucun fournisseur externe requis) ──
+async function sendEmailLink() {
+  if (!_sb) { setErr('Service d\'authentification non disponible.'); return; }
+  const inp   = document.getElementById('email-inp');
+  const email = inp.value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('Adresse email invalide.'); return; }
+  const btn = document.getElementById('btn-email-action');
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  try {
+    if (eid) sessionStorage.setItem('djr_pre_oauth_eid', eid);
+    const redirectTo = window.location.origin + '/';
+    const { error } = await _sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
+    if (error) throw error;
+    inp.style.display = 'none';
+    btn.style.display = 'none';
+    document.getElementById('email-sent-addr').textContent = email;
+    document.getElementById('email-sent-msg').style.display = 'block';
+    setErr('');
+  } catch(e) {
+    setErr(e.message || 'Erreur d\'envoi du lien');
+    btn.disabled = false; btn.textContent = 'Recevoir le lien de connexion';
+  }
+}
+
 // ── SMS / OTP — Supabase Phone OTP natif (Twilio) ────────────────────
 function toE164(cc, raw) {
   const digits = raw.replace(/[\s\-\(\)\.]/g, '');
