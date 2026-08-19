@@ -374,7 +374,7 @@ function openQRModal() {
   const url = buildEventUrl(id);
   const box  = document.getElementById('modal-qr-box');
   const urlEl = document.getElementById('modal-qr-url');
-  if (box) { box.innerHTML = ''; try { new QRCode(box, {text:url, width:126, height:126, colorDark:'#000', colorLight:'#fff'}); } catch(e) { box.innerHTML = '<div style="width:126px;height:126px;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#333">QR Code</div>'; } }
+  if (box) { box.innerHTML = ''; try { new QRCode(box, {text:url, width:140, height:140, colorDark:'#000', colorLight:'#fff'}); } catch(e) { box.innerHTML = '<div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#333">QR Code</div>'; } }
   if (urlEl) urlEl.textContent = url;
   openModal('modal-qr');
 }
