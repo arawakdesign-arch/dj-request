@@ -492,13 +492,3 @@ function compressImage(file, maxW, quality) {
 
 function scrollChatBottom() { const s = document.getElementById('chat-scroll'); if (s) setTimeout(() => s.scrollTop = s.scrollHeight, 100); }
 function chatMarkRead()     { chatUnread = 0; const b = document.getElementById('chat-badge'); if (b) b.style.display = 'none'; }
-
-function loadDemoChat() {
-  const demos = [
-    {uid:'u1', name:'Marie 🌹', text:"C'est trop bien ce soir 🔥",         ts: Date.now()-310000},
-    {uid:'u2', name:'Thomas',   text:"Quelqu'un a vu le DJ warm-up ?",     ts: Date.now()-240000},
-    {uid:'u1', name:'Marie 🌹', text:'Ouii il était incroyable !',         ts: Date.now()-180000},
-    {uid:'u3', name:'Alex',     text:'Votez pour Blinding Lights svp 🎵',  ts: Date.now()-120000},
-  ];
-  demos.forEach(m => appendChatMsg(m));
-}

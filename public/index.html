@@ -782,7 +782,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     <div class="sheet-handle"></div>
     <div style="text-align:center;margin-bottom:1rem">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:1.45rem;margin:0 auto .55rem">🎧</div>
-      <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:0;color:var(--tx)">S'abonner à DJ NOVA</div>
+      <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:0;color:var(--tx)">S'abonner au DJ</div>
       <div style="font-size:.78rem;color:var(--tx3);margin-top:.2rem">Restez informé de tous les prochains sets</div>
     </div>
     <div class="plan-list" id="plan-list">
@@ -902,10 +902,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     <div class="venue-info">
       <div class="venue-event-name" id="venue-event-name"></div>
       <div class="venue-orga" id="venue-orga"></div>
-      <div class="venue-name" id="club-name-strip">Warehouse 42</div>
+      <div class="venue-name" id="club-name-strip"></div>
       <div class="venue-addr">
         <svg class="venue-addr-ico" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s7-7.58 7-13A7 7 0 0 0 5 9c0 5.42 7 13 7 13Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
-        <span class="venue-addr-txt" id="venue-addr-txt">32 Av. Corentin Cariou</span>
+        <span class="venue-addr-txt" id="venue-addr-txt"></span>
       </div>
       <div class="venue-stats-row">
         <span>👥 <span id="venue-connected">0</span> connectés</span>
@@ -923,7 +923,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   <div class="dj-banner" id="dj-banner" onclick="navTo('presskit')" style="cursor:pointer">
     <img class="dj-banner-avatar" id="dj-banner-avatar" src="/images/dj-avatar.png?v=1" alt="DJ Nova">
     <div class="dj-banner-body">
-      <div class="dj-name-tag">DJ NOVA</div>
+      <div class="dj-name-tag">DJ</div>
       <div class="dj-bubble"><span id="dj-bubble-text">On est en feu ce soir 🔥</span></div>
       <div class="dj-track-t" id="cli-now-t">En attente…</div>
       <div class="dj-track-a" id="cli-now-a"></div>
@@ -1022,7 +1022,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div style="padding:.8rem 1rem;display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;cursor:pointer" onclick="openProfileEdit()">
         <div style="flex:1;min-width:0">
           <div style="font-size:.6rem;font-weight:700;color:var(--vi);text-transform:uppercase;letter-spacing:.08em">À propos</div>
-          <div id="prof-bio-display" style="font-size:.8rem;color:var(--tx2);line-height:1.5;margin-top:2px">Passionné de musique électronique · Toujours en première ligne pour voter 🎵</div>
+          <div id="prof-bio-display" style="font-size:.8rem;color:var(--tx2);line-height:1.5;margin-top:2px"></div>
         </div>
         <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">›</div>
       </div>
@@ -1534,10 +1534,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <img id="pk-photo" src="/images/dj-avatar.png?v=1" alt="DJ Nova" style="position:absolute;right:-10px;bottom:0;height:104%;object-fit:contain;object-position:bottom right">
       <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,16,20,.94) 0%,rgba(16,16,20,.8) 42%,rgba(16,16,20,.2) 75%,transparent 100%)"></div>
       <div style="position:absolute;left:1.25rem;right:2.5rem;top:1.5rem">
-        <div id="pk-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:2.1rem;letter-spacing:-.01em;line-height:1;color:#fff">DJ NOVA</div>
-        <div id="pk-tagline" style="font-size:.8rem;color:rgba(255,255,255,.75);line-height:1.55;margin-top:.65rem;max-width:210px">Producteur et DJ français, DJ Nova délivre une house élégante, euphorique et percutante.</div>
+        <div id="pk-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:2.1rem;letter-spacing:-.01em;line-height:1;color:#fff">DJ</div>
+        <div id="pk-tagline" style="font-size:.8rem;color:rgba(255,255,255,.75);line-height:1.55;margin-top:.65rem;max-width:210px"></div>
       </div>
-      <div id="pk-location" style="position:absolute;left:1.25rem;bottom:1.25rem;display:flex;align-items:center;gap:.3rem;font-size:.78rem;color:rgba(255,255,255,.85)">📍 Paris, France</div>
+      <div id="pk-location" style="position:absolute;left:1.25rem;bottom:1.25rem;display:flex;align-items:center;gap:.3rem;font-size:.78rem;color:rgba(255,255,255,.85)"></div>
       <button id="pk-edit-btn" onclick="openDjRegister()" style="display:none;position:absolute;right:1.25rem;bottom:1.25rem;padding:.4rem .8rem;border-radius:20px;border:1px solid rgba(255,255,255,.35);background:rgba(16,16,20,.4);color:#fff;font-size:.72rem;font-weight:600">✎ Modifier</button>
     </div>
 
@@ -1567,15 +1567,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <button onclick="navTo('vote')" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">▶</button>
       </div>
 
-      <div style="display:flex;align-items:center;gap:.7rem;background:#FFFFFF;border-radius:1rem;padding:.7rem .8rem;margin-bottom:.5rem">
-        <div style="width:38px;height:38px;border-radius:10px;background:rgba(111,34,255,.08);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">💬</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.6rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.05em">Dernier commentaire</div>
-          <div style="font-size:.82rem;font-weight:600;color:var(--tx);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Ambiance de folie ce soir 🔥</div>
-        </div>
-        <div style="font-size:.64rem;color:var(--tx4);flex-shrink:0">Il y a 2 min</div>
-      </div>
-
       <div style="display:flex;align-items:center;gap:.7rem;background:#FFFFFF;border-radius:1rem;padding:.7rem .8rem">
         <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,28,142,.1);color:var(--pk);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">💸</div>
         <div style="flex:1;min-width:0">
@@ -1593,8 +1584,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <span onclick="toast('📅 Bientôt disponible')" style="font-size:.75rem;font-weight:700;color:var(--vi);cursor:pointer">Voir tout ›</span>
       </div>
       <div class="up-list">
-        <div class="up-item"><div class="up-dt"><div class="up-d">17</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Warehouse Night Vol.12</div><div class="up-v">📍 La Clairière, Paris</div><div class="up-v">🕐 23h – 06h</div></div><button onclick="toast('📅 Ajouté au calendrier')" style="width:34px;height:34px;border-radius:10px;padding:0;flex-shrink:0;background:rgba(111,34,255,.1);border:1px solid rgba(111,34,255,.22);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:.85rem">📅</button></div>
-        <div class="up-item"><div class="up-dt"><div class="up-d">31</div><div class="up-m">Mai</div></div><div class="up-sep"></div><div class="up-inf"><div class="up-n">Club Friday — Gate Club</div><div class="up-v">📍 Gate Club, Paris</div><div class="up-v">🕐 23h – 05h</div></div><button onclick="toast('📅 Ajouté au calendrier')" style="width:34px;height:34px;border-radius:10px;padding:0;flex-shrink:0;background:rgba(111,34,255,.1);border:1px solid rgba(111,34,255,.22);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:.85rem">📅</button></div>
+        <div style="text-align:center;padding:1.25rem;font-size:.8rem;color:var(--tx4)">Bientôt disponible</div>
       </div>
     </div>
 

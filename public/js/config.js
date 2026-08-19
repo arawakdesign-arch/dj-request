@@ -3,18 +3,10 @@
 // depuis GET /api/config/public — ne jamais hardcoder ces valeurs ici.
 
 const CLUB_INFO = {
-  name:      'Warehouse 42',
-  address:   '32 Av. Corentin Cariou, Paris 19e',
-  logo:      '🏭',
-  instagram: '@warehouse42paris',
-};
-
-const EVENT_INFO = {
-  name:     'Nuit Électrique',
-  date:     'Sam 17 mai 2026',
-  hours:    '22h → 6h',
-  location: 'Paris 19e',
-  lineup:   ['★ DJ NOVA', 'RAVEN', 'K.LUX'],
+  name:      '',
+  address:   '',
+  logo:      '🎵',
+  instagram: '',
 };
 
 const CAT = [
@@ -38,12 +30,9 @@ const CAT = [
   {id:'sh',  n:'Shake It Off',              a:'Taylor Swift',            e:'🩷', c:'#EC4899'},
 ];
 
-const USER_EVENTS = [
-  {id:'e1', name:'Nuit Électrique',      venue:'Warehouse 42', date:'3 mai 2026',   e:'🏭', c:'rgba(147,51,234,.12)', votes:14, proposals:3, played:2, first:true},
-  {id:'e2', name:'La Clairière Open Air',venue:'La Clairière',  date:'12 avr. 2026', e:'🌿', c:'rgba(6,182,212,.1)',   votes:9,  proposals:2, played:1, first:false},
-  {id:'e3', name:'Club Friday Night',    venue:'Rex Club',      date:'28 mar. 2026', e:'👑', c:'rgba(245,158,11,.1)',  votes:7,  proposals:1, played:0, first:false},
-  {id:'e4', name:'Afterwork DJ Set',     venue:'Movida Club',   date:'5 mar. 2026',  e:'🎵', c:'rgba(16,185,129,.1)',  votes:3,  proposals:0, played:0, first:false},
-];
+// Fallback utilisé uniquement si /profile/stats n'a pas encore répondu —
+// vide pour ne pas afficher de fausses statistiques à un nouvel utilisateur.
+const USER_EVENTS = [];
 
 const LEVELS = [
   {name:'Découvreur', ico:'🌱', min:0},
