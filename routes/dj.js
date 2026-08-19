@@ -39,7 +39,7 @@ router.post('/dj/profile/photo', requireAuth, upload.single('photo'), async (req
   let buffer = req.file.buffer;
   try {
     const sharp = require('sharp');
-    buffer = await sharp(buffer).resize(500, 500, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
+    buffer = await sharp(buffer).resize(500, 500, { fit: 'cover' }).jpeg({ quality: 75, mozjpeg: true }).toBuffer();
   } catch(e) {}
 
   const fileName = `dj/${req.user.id}/avatar.jpg`;

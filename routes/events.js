@@ -316,7 +316,7 @@ router.post('/events/:id/flyer', requireOrganizer, upload.single('flyer'), async
     const sharp = require('sharp');
     buffer = await sharp(buffer)
       .resize(1200, 800, { fit: 'cover' })
-      .jpeg({ quality: 85 })
+      .jpeg({ quality: 78, mozjpeg: true })
       .toBuffer();
   } catch(e) {}
 

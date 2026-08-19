@@ -108,7 +108,7 @@ router.post('/profile/photo', requireAuth, upload.single('photo'), async (req, r
     const sharp = require('sharp');
     buffer = await sharp(buffer)
       .resize(400, 400, { fit: 'cover' })
-      .jpeg({ quality: 85 })
+      .jpeg({ quality: 72, mozjpeg: true })
       .toBuffer();
   } catch(e) {}
 
@@ -134,7 +134,7 @@ router.post('/upload', requireAuth, upload.single('photo'), async (req, res) => 
     const sharp = require('sharp');
     buffer = await sharp(buffer)
       .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: 70 })
+      .jpeg({ quality: 62, mozjpeg: true })
       .toBuffer();
   } catch(e) {}
 

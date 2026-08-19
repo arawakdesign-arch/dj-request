@@ -63,7 +63,7 @@ router.post('/orga/profile/logo', requireAuth, upload.single('logo'), async (req
   let buffer = req.file.buffer;
   try {
     const sharp = require('sharp');
-    buffer = await sharp(buffer).resize(500, 500, { fit: 'cover' }).jpeg({ quality: 88 }).toBuffer();
+    buffer = await sharp(buffer).resize(500, 500, { fit: 'cover' }).jpeg({ quality: 75, mozjpeg: true }).toBuffer();
   } catch(e) {}
 
   const fileName = `${req.user.id}/logo.jpg`;
