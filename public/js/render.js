@@ -10,17 +10,18 @@ function totalVotes() { return Object.values(proposals).reduce((s,p) => s + (p.v
 function totalVoters(){ const s = new Set(); Object.values(proposals).forEach(p => Object.keys(p.voters||{}).forEach(v => s.add(v))); return s.size; }
 function renderAll()  { renderClient(); renderDJ(); renderBS(); updateNP(); updateDJStats(); }
 
-// ── Album art (cache iTunes) ──────────────────────────────────────────
+// ── Album art (Deezer via le serveur, iTunes en repli) ─────────────────
+// Deezer n'autorise pas les appels directs depuis le navigateur (pas de
+// CORS) — on passe donc par /api/search/songs, qui interroge déjà Deezer
+// en priorité (iTunes en repli) côté serveur.
 const artCache = {};
 async function fetchAlbumArt(songName, artist) {
   const key = songName + artist;
   if (artCache[key] !== undefined) return artCache[key];
   artCache[key] = null;
   try {
-    const q   = encodeURIComponent(`${songName} ${artist}`);
-    const res = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&limit=1&country=fr`);
-    const data = await res.json();
-    if (data.results?.[0]) artCache[key] = data.results[0].artworkUrl100.replace('100x100', '300x300');
+    const results = await api('GET', '/search/songs?q=' + encodeURIComponent(`${songName} ${artist}`));
+    if (results?.[0]?.coverUrl) artCache[key] = results[0].coverUrl;
   } catch(e) {}
   return artCache[key];
 }
