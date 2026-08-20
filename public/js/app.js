@@ -1147,12 +1147,10 @@ function shareEventLink() {
   const club    = document.getElementById('club-name-strip')?.textContent?.trim() || '';
   const address = document.getElementById('venue-addr-txt')?.textContent?.trim() || '';
   const venue   = club && address ? `${club} — ${address}` : (club || address);
-  const flyerUrl = document.getElementById('venue-photo-img')?.src || '';
-  const hasFlyer = flyerUrl && !flyerUrl.includes('/images/venue-photo.jpg');
-
   let text = `Hello !\nJe suis à la soirée ${ename || 'PULL UP!'}, rejoins moi`;
   text += venue ? `, c'est au ${venue}. 🥂` : ' ! 🥂';
-  if (hasFlyer) text += `\n${flyerUrl}`;
+  // Le flyer s'affiche déjà tout seul en aperçu du lien (meta Open Graph côté
+  // serveur) — inutile de coller aussi son URL Supabase brute dans le texte.
 
   if (navigator.share) { navigator.share({ title: ename || 'PULL UP!', text, url }).catch(() => {}); return; }
   const full = `${text}\n${url}`;
