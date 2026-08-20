@@ -723,14 +723,20 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .bs2-chat-time{font-size:.68rem;color:var(--tx4);margin-left:auto;flex-shrink:0}
 .bs2-chat-txt{font-size:.82rem;color:var(--tx2);line-height:1.32;word-break:break-word}
 .bs2-wrap{gap:0}
-.bs2-footer-wrap{position:relative;width:calc(100% + 2.4rem);margin:.6rem -1.2rem -1.2rem;line-height:0;flex-shrink:0}
-.bs2-footer-img{display:block;width:100%;height:auto}
-.bs2-footer-qr{position:absolute;left:16.9%;top:56%;width:4.1%;height:21%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.bs2-footer-qr canvas,.bs2-footer-qr img,.bs2-footer-qr-big canvas,.bs2-footer-qr-big img{width:100%!important;height:100%!important}
-.bs2-footer-qr-big{position:absolute;left:65.6%;top:27.4%;width:12%;height:65.1%;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.35)}
-.bs2-footer-stat{position:absolute;top:64%;transform:translate(-50%,-50%);font-family:'Inter',sans-serif;font-weight:800;color:#fff;font-size:clamp(.9rem,1.8vw,1.5rem)}
-.bs2-footer-votes{left:83.4%}
-.bs2-footer-tracks{left:93.3%}
+.bs2-footer-plain{display:flex;flex-direction:column;align-items:flex-start;gap:.85rem;background:#0D0714;border-radius:16px;padding:1rem 1.2rem;flex-shrink:0;margin-top:.6rem}
+@media (min-width:900px){.bs2-footer-plain{flex-direction:row;align-items:center;gap:1.2rem;padding:1rem 1.4rem}}
+.bs2-footer-stats{width:100%;justify-content:flex-start}
+@media (min-width:900px){.bs2-footer-stats{width:auto}}
+.bs2-footer-qr-box{background:#fff;border-radius:10px;padding:6px;flex-shrink:0;line-height:0}
+.bs2-footer-qr-box canvas,.bs2-footer-qr-box img{display:block}
+.bs2-footer-cta{flex:1;min-width:0}
+.bs2-footer-cta-t{font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;color:#fff}
+.bs2-footer-cta-s{font-size:.8rem;color:rgba(255,255,255,.55);margin-top:.15rem}
+.bs2-footer-stats{display:flex;align-items:center;gap:1.2rem;flex-shrink:0}
+.bs2-footer-stat-item{text-align:center}
+.bs2-footer-stat-n{font-family:'Inter',sans-serif;font-weight:800;font-size:2.1rem;color:#fff}
+.bs2-footer-stat-l{font-size:.7rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.05em;margin-top:.1rem}
+.bs2-footer-stat-div{width:1px;height:36px;background:rgba(255,255,255,.2)}
 
 
 /* Prevent content jump when iOS keyboard opens */
@@ -1755,12 +1761,17 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         </div>
       </div>
     </div>
-    <div class="bs2-footer-wrap">
-      <img src="/images/bs-footer-banner.png?v=1" alt="Comment ça marche : 1. Scanne, 2. Vote, 3. Pull Up — Scannez pour voter" class="bs2-footer-img">
-      <div class="bs2-footer-qr" id="bs-qr"></div>
-      <div class="bs2-footer-qr-big" id="bs-qr-big"></div>
-      <div class="bs2-footer-stat bs2-footer-votes" id="bs-votes">0</div>
-      <div class="bs2-footer-stat bs2-footer-tracks" id="bs-tracks">0</div>
+    <div class="bs2-footer-plain">
+      <div class="bs2-footer-qr-box" id="bs-qr"></div>
+      <div class="bs2-footer-cta">
+        <div class="bs2-footer-cta-t">Scannez pour voter</div>
+        <div class="bs2-footer-cta-s">Le QR code de l'événement</div>
+      </div>
+      <div class="bs2-footer-stats">
+        <div class="bs2-footer-stat-item"><div class="bs2-footer-stat-n" id="bs-votes">0</div><div class="bs2-footer-stat-l">Votes</div></div>
+        <div class="bs2-footer-stat-div"></div>
+        <div class="bs2-footer-stat-item"><div class="bs2-footer-stat-n" id="bs-tracks">0</div><div class="bs2-footer-stat-l">Titres</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1817,7 +1828,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=16"></script>
 <script src="/js/app.js?v=54"></script>
-<script src="/js/render.js?v=24"></script>
+<script src="/js/render.js?v=25"></script>
 <script src="/js/chat.js?v=18"></script>
 <script src="/js/auth.js?v=31"></script>
 </body>
