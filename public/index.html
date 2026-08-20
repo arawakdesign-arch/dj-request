@@ -1324,6 +1324,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         </div>
         <div id="dj-create-form" style="display:none">
           <div class="fl"><label>Nom de la soirée</label><input class="fi" id="dj-create-name" type="text" placeholder="Ex: Nuit Électrique" maxlength="40"></div>
+          <div class="fl"><label>Date (optionnel — laisser vide pour démarrer maintenant)</label><input class="fi" id="dj-create-date" type="datetime-local"></div>
           <div class="fl"><label>Mot de passe</label><input class="fi" id="dj-create-pwd" type="password" placeholder="••••••••"></div>
           <button class="btn-g" id="btn-dj-create-submit">🎉 Créer la soirée</button>
         </div>
@@ -1442,7 +1443,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           <button onclick="document.getElementById('orga-logo-input').click()" style="width:100%;padding:.6rem;border-radius:.85rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:600;font-family:Inter,sans-serif">📸 Changer le logo</button>
         </div>
       </div>
-      <div class="fl"><label>Orga</label><input class="fi" id="settings-orga" type="text" placeholder="Nom de l'organisateur / du collectif"></div>
+      <div class="fl"><label>ORGANISATEUR</label><input class="fi" id="settings-orga" type="text" placeholder="Nom de l'organisateur / du collectif"></div>
       <div class="fl" style="margin-bottom:.85rem"><label>Email</label><input class="fi" id="orga-email" type="email" placeholder="contact@monclub.fr"></div>
       <label style="font-size:.72rem;font-weight:600;color:var(--tx3);display:block;margin-bottom:.4rem">Bannière</label>
       <div id="orga-banner-preview" style="width:100%;aspect-ratio:3/1;border-radius:1rem;background:var(--dj-card);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr);font-size:1.4rem;color:var(--tx4);margin-bottom:.6rem">🖼️</div>
@@ -1518,9 +1519,17 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <a id="op-email-btn" href="#" target="_blank" style="display:none;align-items:center;justify-content:center;gap:.4rem;margin-top:.9rem;padding:.65rem 1.2rem;border-radius:1rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:700;text-decoration:none">✉️ Contacter</a>
       <div id="op-socials" style="display:flex;gap:.5rem;justify-content:center;margin-top:.7rem;flex-wrap:wrap"></div>
     </div>
-    <div style="padding:.5rem 1.25rem 2rem">
-      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">Soirées en cours</div>
-      <div id="op-events" style="display:flex;flex-direction:column;gap:.6rem"></div>
+    <div id="op-sec-live" style="display:none;padding:.5rem 1.25rem 1.25rem">
+      <div style="font-size:.62rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">🔴 En direct</div>
+      <div id="op-events-live" style="display:flex;flex-direction:column;gap:.6rem"></div>
+    </div>
+    <div id="op-sec-upcoming" style="display:none;padding:.5rem 1.25rem 1.25rem">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">À venir</div>
+      <div id="op-events-upcoming" style="display:flex;flex-direction:column;gap:.6rem"></div>
+    </div>
+    <div id="op-sec-closed" style="display:none;padding:.5rem 1.25rem 2rem">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">Passées</div>
+      <div id="op-events-closed" style="display:flex;flex-direction:column;gap:.6rem"></div>
     </div>
   </div>
 </div>
@@ -1739,6 +1748,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/app.js?v=49"></script>
 <script src="/js/render.js?v=23"></script>
 <script src="/js/chat.js?v=18"></script>
-<script src="/js/auth.js?v=29"></script>
+<script src="/js/auth.js?v=30"></script>
 </body>
 </html>

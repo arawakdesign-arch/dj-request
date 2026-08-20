@@ -161,21 +161,34 @@ async function tryShowOrgaPublicPage(slug) {
     socials.innerHTML = links.map(([ico,label,url]) => `<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.35rem;padding:.55rem .9rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.75rem;font-weight:600;color:var(--tx2);text-decoration:none">${ico} ${label}</a>`).join('');
   }
 
-  const evList = document.getElementById('op-events');
-  if (evList) {
-    if (!page.events?.length) {
-      evList.innerHTML = '<div style="text-align:center;padding:1.5rem;font-size:.8rem;color:var(--tx4)">Aucune soirée en cours</div>';
-    } else {
-      evList.innerHTML = page.events.map(ev => `
-        <button onclick="window.location.href='/?event=${ev.id}'" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:.9rem 1rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;text-align:left;box-shadow:var(--shadow)">
-          <div style="min-width:0">
-            <div style="font-size:.9rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>
-            <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">${ev.club_name || ''}</div>
-          </div>
-          <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
-        </button>`).join('');
-    }
-  }
+  const evCard = (ev, sub) => `
+    <button onclick="window.location.href='/?event=${ev.id}'" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:.9rem 1rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;text-align:left;box-shadow:var(--shadow)">
+      <div style="min-width:0">
+        <div style="font-size:.9rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>
+        <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">${sub}</div>
+      </div>
+      <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
+    </button>`;
+  const fmtDate = iso => new Date(iso).toLocaleString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+
+  const events   = page.events || [];
+  const live     = events.filter(e => !e.upcoming && !e.closed);
+  const upcoming = events.filter(e => e.upcoming);
+  const closed   = events.filter(e => e.closed);
+
+  const sections = [
+    ['op-sec-live',     'op-events-live',     live,     ev => ev.club_name || ''],
+    ['op-sec-upcoming', 'op-events-upcoming', upcoming, ev => ev.scheduled_at ? fmtDate(ev.scheduled_at) : (ev.club_name || '')],
+    ['op-sec-closed',   'op-events-closed',   closed,   ev => ev.club_name || ''],
+  ];
+  sections.forEach(([secId, listId, list, subFn]) => {
+    const sec  = document.getElementById(secId);
+    const list_ = document.getElementById(listId);
+    if (!sec || !list_) return;
+    if (!list.length) { sec.style.display = 'none'; return; }
+    sec.style.display = 'block';
+    list_.innerHTML = list.map(ev => evCard(ev, subFn(ev))).join('');
+  });
   return true;
 }
 
@@ -477,14 +490,17 @@ async function djJoin() {
 
 // ── Créer une nouvelle soirée — connexion Google déjà acquise à ce stade ──
 async function djCreateSubmit() {
-  const n   = document.getElementById('dj-create-name').value.trim();
-  const p   = document.getElementById('dj-create-pwd').value;
-  const err = document.getElementById('dj-create-err');
+  const n     = document.getElementById('dj-create-name').value.trim();
+  const p     = document.getElementById('dj-create-pwd').value;
+  const dateV = document.getElementById('dj-create-date')?.value;
+  const err   = document.getElementById('dj-create-err');
   if (!n) { err.textContent = '⚠️ Saisissez un nom de soirée.'; return; }
   if (!p) { err.textContent = '⚠️ Mot de passe requis.'; return; }
   err.textContent = '';
   try {
-    const ev = await api('POST', '/events', { name: n, password: p });
+    const body = { name: n, password: p };
+    if (dateV) body.scheduled_at = new Date(dateV).toISOString();
+    const ev = await api('POST', '/events', body);
     eid = ev.id;
     localStorage.setItem('djr_eid',   eid);
     localStorage.setItem('djr_ename', n);

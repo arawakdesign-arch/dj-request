@@ -9,17 +9,23 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 
 const router = express.Router();
 
-// Une soirée se ferme aux votes/propositions 24h après sa création — calculé
-// à la volée depuis created_at, pas de tâche planifiée ni de colonne dédiée.
-// Les données (votes, propositions, chat) restent en base et consultables.
+// Une soirée se ferme aux votes/propositions 24h après son démarrage — calculé
+// à la volée depuis scheduled_at (ou created_at si pas planifiée), pas de
+// tâche planifiée ni de colonne dédiée. Les données (votes, propositions,
+// chat) restent en base et consultables.
 const EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
-function isClosed(createdAt) {
-  return (Date.now() - new Date(createdAt).getTime()) > EVENT_DURATION_MS;
+function isUpcoming(scheduledAt) {
+  return !!scheduledAt && new Date(scheduledAt).getTime() > Date.now();
+}
+function isClosed(createdAt, scheduledAt) {
+  if (isUpcoming(scheduledAt)) return false; // pas encore démarrée → pas fermée
+  const start = scheduledAt ? new Date(scheduledAt).getTime() : new Date(createdAt).getTime();
+  return (Date.now() - start) > EVENT_DURATION_MS;
 }
 async function isEventClosed(eventId) {
-  const { data } = await supabase.from('events').select('created_at').eq('id', eventId).single();
+  const { data } = await supabase.from('events').select('created_at, scheduled_at').eq('id', eventId).single();
   if (!data) return true; // événement introuvable → traité comme fermé
-  return isClosed(data.created_at);
+  return isClosed(data.created_at, data.scheduled_at);
 }
 
 // ── Events ────────────────────────────────────────────────────────────
@@ -49,20 +55,20 @@ router.get('/events/by-name', async (req, res) => {
 router.get('/events/mine', requireAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, club_name, created_at')
+    .select('id, name, club_name, created_at, scheduled_at')
     .eq('owner_id', req.user.id)
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
-  res.json((data || []).map(ev => ({ ...ev, closed: isClosed(ev.created_at) })));
+  res.json((data || []).map(ev => ({ ...ev, closed: isClosed(ev.created_at, ev.scheduled_at), upcoming: isUpcoming(ev.scheduled_at) })));
 });
 
 router.get('/events/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at')
+    .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at, scheduled_at')
     .eq('id', req.params.id).single();
   if (error || !data) return res.status(404).json({ error: 'Événement introuvable' });
-  res.json({ ...data, closed: isClosed(data.created_at) });
+  res.json({ ...data, closed: isClosed(data.created_at, data.scheduled_at), upcoming: isUpcoming(data.scheduled_at) });
 });
 
 // Personnes ayant voté et/ou proposé un morceau sur cet événement — liste
@@ -92,8 +98,11 @@ router.get('/events/:id/participants', requireOrganizer, async (req, res) => {
 });
 
 router.post('/events', requireAuth, async (req, res) => {
-  const { name, club_name, orga, address, hours, password } = req.body;
+  const { name, club_name, orga, address, hours, password, scheduled_at } = req.body;
   if (!name || !password) return res.status(400).json({ error: 'Champs manquants' });
+  // Date planifiée optionnelle — doit être dans le futur, sinon on l'ignore
+  // (la soirée démarre alors immédiatement comme avant).
+  const scheduledAt = scheduled_at && new Date(scheduled_at).getTime() > Date.now() ? scheduled_at : null;
 
   // Créer une soirée nécessite un compte identifiable par email (Google ou
   // email magic-link) — les invités et comptes téléphone n'en ont pas et
@@ -107,10 +116,10 @@ router.post('/events', requireAuth, async (req, res) => {
   // évite la confusion de plusieurs soirées ouvertes en parallèle sous le même
   // compte. Une fois la soirée fermée (24h, cf. isClosed()), il peut en recréer une.
   const { data: ownActive } = await supabase
-    .from('events').select('id, name, created_at')
+    .from('events').select('id, name, created_at, scheduled_at')
     .eq('owner_id', req.user.id).eq('is_active', true)
     .order('created_at', { ascending: false }).limit(1).maybeSingle();
-  if (ownActive && !isClosed(ownActive.created_at)) {
+  if (ownActive && !isClosed(ownActive.created_at, ownActive.scheduled_at)) {
     return res.status(409).json({
       error: `Ta soirée "${ownActive.name}" est encore en cours — attends sa clôture (24h) avant d'en créer une nouvelle.`,
       active_event_id: ownActive.id,
@@ -123,17 +132,18 @@ router.post('/events', requireAuth, async (req, res) => {
   // Une fois la soirée existante fermée (24h, cf. isClosed()), le nom se
   // libère pour une nouvelle création.
   const { data: existingActive } = await supabase
-    .from('events').select('created_at')
+    .from('events').select('created_at, scheduled_at')
     .eq('name', name).eq('is_active', true)
     .order('created_at', { ascending: false }).limit(1).maybeSingle();
-  if (existingActive && !isClosed(existingActive.created_at)) {
+  if (existingActive && !isClosed(existingActive.created_at, existingActive.scheduled_at)) {
     return res.status(409).json({ error: `Une soirée "${name}" est déjà en cours — choisissez un autre nom.` });
   }
 
   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
   const { data, error } = await supabase.from('events').insert({
     name, club_name, orga, address, hours, password: hashedPassword, owner_id: req.user.id,
-  }).select('id, name, club_name, orga, address, hours, created_at').single();
+    scheduled_at: scheduledAt,
+  }).select('id, name, club_name, orga, address, hours, created_at, scheduled_at').single();
   if (error) return res.status(500).json({ error: error.message });
 
   await supabase.from('now_playing').insert({ event_id: data.id, title: 'En attente…', artist: '' });
@@ -335,3 +345,5 @@ router.delete('/events/:id/flyer', requireOrganizer, async (req, res) => {
 });
 
 module.exports = router;
+module.exports.isClosed = isClosed;
+module.exports.isUpcoming = isUpcoming;

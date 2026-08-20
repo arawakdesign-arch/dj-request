@@ -2,6 +2,7 @@ const express  = require('express');
 const multer   = require('multer');
 const supabase = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
+const { isClosed, isUpcoming } = require('./events');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -105,7 +106,7 @@ router.post('/orga/profile/banner', requireAuth, upload.single('banner'), async 
 router.get('/orga/events-stats', requireAuth, async (req, res) => {
   const { data: events, error } = await supabase
     .from('events')
-    .select('id, name, club_name, created_at')
+    .select('id, name, club_name, created_at, scheduled_at')
     .eq('owner_id', req.user.id)
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
@@ -120,10 +121,10 @@ router.get('/orga/events-stats', requireAuth, async (req, res) => {
   (votesRes.data || []).forEach(v => { votesByEv[v.event_id] = (votesByEv[v.event_id]||0)+1; });
   (proposalsRes.data || []).forEach(p => { propsByEv[p.event_id] = (propsByEv[p.event_id]||0)+1; });
 
-  const EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
   res.json(events.map(e => ({
     ...e,
-    closed: (Date.now() - new Date(e.created_at).getTime()) > EVENT_DURATION_MS,
+    closed: isClosed(e.created_at, e.scheduled_at),
+    upcoming: isUpcoming(e.scheduled_at),
     votes: votesByEv[e.id] || 0,
     proposals: propsByEv[e.id] || 0,
   })));
@@ -181,16 +182,19 @@ router.get('/orga/by-slug/:slug', async (req, res) => {
   if (!page) return res.status(404).json({ error: 'Page introuvable' });
 
   const { data: events } = await supabase
-    .from('events').select('id, name, club_name, created_at, is_active')
+    .from('events').select('id, name, club_name, created_at, scheduled_at, is_active')
     .eq('owner_id', page.owner_id).eq('is_active', true)
-    .order('created_at', { ascending: false }).limit(10);
+    .order('created_at', { ascending: false }).limit(20);
 
-  const EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
   res.json({
     name: page.name, bio: page.bio, email: page.email, logo_url: bustLogoCache(page.logo_url, page.updated_at),
     banner_url: bustLogoCache(page.banner_url, page.updated_at), website_url: page.website_url,
     instagram_url: page.instagram_url, tiktok_url: page.tiktok_url, facebook_url: page.facebook_url,
-    events: (events || []).map(e => ({ ...e, closed: (Date.now() - new Date(e.created_at).getTime()) > EVENT_DURATION_MS })),
+    events: (events || []).map(e => {
+      const upcoming = isUpcoming(e.scheduled_at);
+      const closed   = isClosed(e.created_at, e.scheduled_at);
+      return { ...e, upcoming, closed, status: upcoming ? 'upcoming' : (closed ? 'closed' : 'live') };
+    }),
   });
 });
 
