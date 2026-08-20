@@ -471,6 +471,10 @@ async function populateSettingsForm() {
     _lineup = Array.isArray(ev.lineup) ? ev.lineup : [];
     _renderLineup();
 
+    // Nécessaire pour l'URL publique (pull-up.live/slug) affichée dans le
+    // résumé — pas encore chargée si on arrive directement sur cet onglet.
+    if (!_orgaProfileCache) { try { _orgaProfileCache = await api('GET', '/orga/profile', null, {dj: true}); } catch(e) {} }
+
     _renderSettingsSummary(ev);
     _showSettingsSummary();
   } catch(e) { console.error('[pullup] populateSettingsForm:', e.message); }
@@ -554,6 +558,8 @@ function _saveLineup() {
 // ── Soirée en cours : bascule résumé ⇄ formulaire d'édition ───────────
 function _renderSettingsSummary(ev) {
   const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v || ''; };
+  set('settings-summary-orga', ev.orga || _orgaProfileCache?.name || 'Organisateur');
+  set('settings-summary-url',  _orgaProfileCache?.slug ? ('pull-up.live/' + _orgaProfileCache.slug) : '');
   set('settings-summary-name',    ev.name);
   set('settings-summary-club',    ev.club_name);
   set('settings-summary-address', ev.address);
