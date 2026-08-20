@@ -163,6 +163,17 @@ async function djPlay(id) {
     api('PUT',    '/now-playing/' + eid, {title, artist, coverUrl, proposer_name: proposerName}, {dj: true}).catch(() => {});
     api('DELETE', '/proposals/' + eid + '/' + id, null, {dj: true}).catch(() => {});
   }
+  // La pochette peut ne pas être encore en cache (recherche iTunes asynchrone
+  // pas terminée au moment du clic ▶) — on la récupère après coup et on met à
+  // jour l'affichage/le serveur dès qu'elle arrive, plutôt que de rester sans image.
+  if (!coverUrl) {
+    const url = await fetchAlbumArt(title, artist);
+    if (url && nowPlaying.t === title && nowPlaying.a === artist) {
+      nowPlaying.coverUrl = url;
+      updateNP();
+      if (eid) api('PUT', '/now-playing/' + eid, {title, artist, coverUrl: url, proposer_name: proposerName}, {dj: true}).catch(() => {});
+    }
+  }
 }
 function djApprove(id) {
   if (proposals[id]) proposals[id].approved = true; renderAll(); toast('✓ Approuvé');

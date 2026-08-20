@@ -27,8 +27,7 @@ function avatarColor(name) {
 }
 
 function appendChatMsg(msg, msgKey) {
-  const uid       = getUid();
-  const isMe      = msg.uid === uid;
+  const isMe      = msg.uid === currentUser?.uid;
   const isDJ      = isDjName(msg.name);
   const container = document.getElementById('chat-messages'); if (!container) return;
   const name      = isMe ? (currentUser?.displayName || 'Moi') : (msg.name || 'Invité');
@@ -391,11 +390,25 @@ function handleRealtimeMessage(m) {
   }
 }
 
+// Remplace la bulle optimiste (id temporaire, nom client potentiellement périmé)
+// par la version confirmée par le serveur (id réel, nom/photo résolus à
+// l'instant de l'insertion) — évite qu'un nom obsolète reste affiché indéfiniment,
+// et fait que le doublon Realtime (handleRealtimeMessage) se détecte correctement
+// puisque l'id DOM correspond désormais au vrai id du message.
+function _replaceOptimisticMsg(tmpId, saved) {
+  document.getElementById('msg-' + tmpId)?.remove();
+  appendChatMsg({
+    uid: saved.user_id, name: saved.user_name || 'Invité', text: saved.text,
+    photo: saved.photo_url || null, avatarUrl: saved.user_photo || null,
+    ts: new Date(saved.created_at).getTime(), reported: saved.reported, reactions: saved.reactions || {},
+  }, saved.id);
+}
+
 // ── Envoi d'un message ────────────────────────────────────────────────
 async function sendChatMsg() {
   const inp  = document.getElementById('chat-input');
   const text = inp?.value.trim(); if (!text) return;
-  const uid  = getUid();
+  const uid  = currentUser?.uid;
   const name = currentUser?.displayName || currentUser?.phoneNumber || 'Invité';
   const avatarUrl = JSON.parse(localStorage.getItem('djr_profile') || '{}').photo || null;
 
@@ -415,10 +428,8 @@ async function sendChatMsg() {
   // toute session authentifiée, pas seulement Supabase)
   if (eid && (_authToken || _sbSession)) {
     try {
-      await api('POST', '/messages', { event_id: eid, text });
-      // Le message persisté arrivera via l'abonnement Realtime (handleRealtimeMessage),
-      // qui retire ce message optimiste et l'affiche avec son vrai id. On ne le retire
-      // pas ici pour éviter qu'il disparaisse si le Realtime met du temps à arriver.
+      const saved = await api('POST', '/messages', { event_id: eid, text });
+      _replaceOptimisticMsg(tmpId, saved);
     } catch(e) { /* message local gardé */ }
   }
 }
@@ -439,7 +450,7 @@ async function sendPhoto(input) {
   let dataUrl;
   try {
     dataUrl = await compressImage(file, 800, 0.65);
-    const uid  = getUid();
+    const uid  = currentUser?.uid;
     const name = currentUser?.displayName || currentUser?.phoneNumber || 'Invité';
     const avatarUrl = JSON.parse(localStorage.getItem('djr_profile') || '{}').photo || null;
     appendChatMsg({uid, name, photo: dataUrl, avatarUrl, ts: Date.now()}, tmpId);
@@ -463,9 +474,8 @@ async function sendPhoto(input) {
     });
     if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Échec upload');
     const { url } = await r.json();
-    await api('POST', '/messages', { event_id: eid, photo_url: url });
-    // Le message persisté arrivera via l'abonnement Realtime (handleRealtimeMessage)
-    // avec la vraie URL — le tmp optimiste reste affiché tel quel entre-temps.
+    const saved = await api('POST', '/messages', { event_id: eid, photo_url: url });
+    _replaceOptimisticMsg(tmpId, saved);
   } catch(e) {
     console.error('[pullup] Échec envoi photo :', e.message);
     toast('⚠️ Photo non envoyée aux autres — ' + e.message);
