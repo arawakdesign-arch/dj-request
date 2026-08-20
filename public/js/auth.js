@@ -219,6 +219,10 @@ async function startScreenPairing() {
           await loadEvent(eid).catch(() => {});
           generateQR(eid);
           renderBS();
+          // loadEvent() ne charge pas l'historique du chat (seulement les nouveaux
+          // messages via Realtime) — sans ça, l'écran affiche un chat vide tant
+          // qu'aucun nouveau message n'arrive après l'appairage.
+          if (typeof loadChatHistory === 'function') loadChatHistory();
         })
       .subscribe();
   } catch(e) {
