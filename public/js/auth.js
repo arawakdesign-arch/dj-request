@@ -375,22 +375,6 @@ function otpKey(e, idx) {
   }
 }
 
-// ── Invité — via backend ──────────────────────────────────────────────
-async function guestLogin() {
-  try {
-    const res = await api('POST', '/auth/guest');
-    saveToken(res.token); // persisté en localStorage — survivre au refresh
-    _authToken  = res.token;
-    _sbSession  = { access_token: res.token };
-    currentUser = { displayName: 'Invité', uid: res.user.id, role: 'guest' };
-    afterLogin();
-    if (eid) loadEvent(eid).catch(() => {});
-  } catch(e) {
-    currentUser = { displayName: 'Invité', uid: 'local_' + Date.now() };
-    afterLogin();
-  }
-}
-
 function setErr(msg) { const e = document.getElementById('auth-err'); if (e) e.textContent = msg; }
 
 // ── Espace Organisateur — navigation entre les 2 accès ─────────────────
