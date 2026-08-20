@@ -170,3 +170,22 @@ setInterval(() => {
   if (!isValidUuid(eid)) return;
   refreshProposals(eid).catch(() => {});
 }, 15000);
+
+// ── Filet de sécurité : rafraîchissement périodique du morceau en cours ──
+// Même problème que ci-dessus pour le canal np: — l'Écran Géant (TV, jamais
+// rechargé de la soirée) doit toujours finir par refléter le morceau lancé
+// par le DJ même si l'événement Realtime UPDATE n'est jamais arrivé.
+async function refreshNowPlaying(evId) {
+  try {
+    const np = await api('GET', '/now-playing/' + evId);
+    if (!np?.title) return;
+    if (np.title === nowPlaying.t && np.artist === nowPlaying.a) return; // rien de neuf
+    nowPlaying = { t: np.title, a: np.artist || '', coverUrl: np.cover_url || null, by: np.proposer_name || null };
+    updateNP();
+  } catch(e) {}
+}
+setInterval(() => {
+  if (document.visibilityState !== 'visible') return;
+  if (!isValidUuid(eid)) return;
+  refreshNowPlaying(eid);
+}, 10000);
