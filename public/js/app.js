@@ -269,6 +269,50 @@ async function loadOrgaProfile() {
     if (p.banner_url) { banner.style.backgroundImage = `url(${p.banner_url})`; banner.textContent = ''; }
     else               { banner.style.backgroundImage = ''; banner.textContent = '🖼️'; }
   }
+
+  _renderOrgaSummary(p);
+  // Rien à résumer la toute première fois (page jamais configurée) → ouvrir
+  // directement le formulaire plutôt qu'un résumé vide.
+  if (p.name || p.slug) _showOrgaSummary(); else _editOrgaProfile();
+}
+
+// ── Ma page organisateur : bascule résumé ⇄ formulaire d'édition ──────
+function _renderOrgaSummary(p) {
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v || ''; };
+  const name = p.name || document.getElementById('settings-orga')?.value.trim() || 'Organisateur';
+  set('orga-summary-name',  name);
+  set('orga-summary-email', p.email || '');
+  set('orga-summary-bio',   p.bio || '');
+  set('orga-summary-url',   p.slug ? ('pull-up.live/' + p.slug) : '');
+
+  const logo = document.getElementById('orga-summary-logo');
+  if (logo) {
+    if (p.logo_url) { logo.style.backgroundImage = `url(${p.logo_url})`; logo.textContent = ''; }
+    else             { logo.style.backgroundImage = ''; logo.textContent = '🎪'; }
+  }
+  const banner = document.getElementById('orga-summary-banner');
+  if (banner) {
+    if (p.banner_url) { banner.style.backgroundImage = `url(${p.banner_url})`; banner.style.display = 'block'; }
+    else               { banner.style.backgroundImage = ''; banner.style.display = 'none'; }
+  }
+  const socials = document.getElementById('orga-summary-socials');
+  if (socials) {
+    const links = [
+      ['🌐','Site web',p.website_url], ['📷','Instagram',p.instagram_url],
+      ['🎵','TikTok',p.tiktok_url],    ['📘','Facebook',p.facebook_url],
+    ].filter(([,,url]) => url);
+    socials.innerHTML = links.map(([ico,label,url]) => `<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.35rem;padding:.5rem .8rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2);text-decoration:none">${ico} ${label}</a>`).join('');
+  }
+}
+function _showOrgaSummary() {
+  const s = document.getElementById('orga-summary-view'), f = document.getElementById('orga-edit-view');
+  if (s) s.style.display = 'block';
+  if (f) f.style.display = 'none';
+}
+function _editOrgaProfile() {
+  const s = document.getElementById('orga-summary-view'), f = document.getElementById('orga-edit-view');
+  if (s) s.style.display = 'none';
+  if (f) f.style.display = 'block';
 }
 
 async function saveOrgaProfile() {
@@ -286,6 +330,8 @@ async function saveOrgaProfile() {
   try {
     _orgaProfileCache = await api('PUT', '/orga/profile', body, {dj: true});
     toast('✅ Page organisateur enregistrée');
+    _renderOrgaSummary(_orgaProfileCache || {});
+    _showOrgaSummary();
   } catch(e) { toast('⚠️ ' + (e.message || 'Erreur d\'enregistrement')); }
 }
 
@@ -347,7 +393,7 @@ async function loadOrgaEventsStats() {
       <div style="display:flex;align-items:center;gap:.6rem;padding:.65rem .75rem;background:var(--ink5);border-radius:.85rem">
         <div style="flex:1;min-width:0">
           <div style="font-size:.85rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>
-          <div style="font-size:.66rem;color:var(--tx3)">${ev.closed ? 'Terminée' : 'En cours'} · ${new Date(ev.created_at).toLocaleDateString('fr-FR')}</div>
+          <div style="font-size:.66rem;color:var(--tx3)">${ev.upcoming ? '📅 À venir' : (ev.closed ? 'Terminée' : '🔴 En cours')} · ${ev.upcoming && ev.scheduled_at ? new Date(ev.scheduled_at).toLocaleDateString('fr-FR') : new Date(ev.created_at).toLocaleDateString('fr-FR')}</div>
         </div>
         <div style="text-align:center;flex-shrink:0"><div style="font-size:.85rem;font-weight:800;color:var(--vi)">${ev.votes}</div><div style="font-size:.58rem;color:var(--tx4);text-transform:uppercase">Votes</div></div>
         <div style="text-align:center;flex-shrink:0"><div style="font-size:.85rem;font-weight:800;color:var(--blue)">${ev.proposals}</div><div style="font-size:.58rem;color:var(--tx4);text-transform:uppercase">Props.</div></div>
@@ -421,7 +467,58 @@ async function populateSettingsForm() {
     set('settings-hours-start', HOURS_OPTIONS.includes(h1) ? h1 : '');
     set('settings-hours-end',   HOURS_OPTIONS.includes(h2) ? h2 : '');
     set('settings-hours', ev.hours);
+
+    _renderSettingsSummary(ev);
+    _showSettingsSummary();
   } catch(e) { console.error('[pullup] populateSettingsForm:', e.message); }
+}
+
+// ── Soirée en cours : bascule résumé ⇄ formulaire d'édition ───────────
+function _renderSettingsSummary(ev) {
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v || ''; };
+  set('settings-summary-name',    ev.name);
+  set('settings-summary-club',    ev.club_name);
+  set('settings-summary-address', ev.address);
+  const upcoming = ev.scheduled_at && new Date(ev.scheduled_at).getTime() > Date.now();
+  const dateTxt  = upcoming
+    ? '📅 À venir — ' + new Date(ev.scheduled_at).toLocaleString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+    : (ev.hours || '');
+  set('settings-summary-datehours', dateTxt);
+}
+function _showSettingsSummary() {
+  const s = document.getElementById('settings-summary'), f = document.getElementById('settings-edit-fields');
+  if (s) s.style.display = 'block';
+  if (f) f.style.display = 'none';
+}
+function _editSettingsCard() {
+  const s = document.getElementById('settings-summary'), f = document.getElementById('settings-edit-fields');
+  if (s) s.style.display = 'none';
+  if (f) f.style.display = 'block';
+}
+
+// ── Planifier une soirée à venir (en plus de la soirée en cours) ──────
+function toggleUpcomingForm() {
+  const f = document.getElementById('upcoming-form');
+  if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+async function createUpcomingEvent() {
+  const n   = document.getElementById('upcoming-name').value.trim();
+  const d   = document.getElementById('upcoming-date').value;
+  const p   = document.getElementById('upcoming-pwd').value;
+  const err = document.getElementById('upcoming-err');
+  err.textContent = '';
+  if (!n) { err.textContent = '⚠️ Saisissez un nom de soirée.'; return; }
+  if (!d) { err.textContent = '⚠️ Choisissez une date.'; return; }
+  if (!p) { err.textContent = '⚠️ Mot de passe requis.'; return; }
+  try {
+    await api('POST', '/events', { name: n, password: p, scheduled_at: new Date(d).toISOString() }, {dj: true});
+    toast(`📅 Soirée "${n}" planifiée !`);
+    document.getElementById('upcoming-name').value = '';
+    document.getElementById('upcoming-date').value = '';
+    document.getElementById('upcoming-pwd').value  = '';
+    toggleUpcomingForm();
+    if (typeof loadOrgaEventsStats === 'function') loadOrgaEventsStats();
+  } catch(e) { err.textContent = e.message || 'Erreur lors de la planification.'; }
 }
 function loadOrgaChatList() {
   const list = document.getElementById('orga-chat-list'); if (!list) return;
@@ -854,15 +951,15 @@ function saveSettings() {
     if (address)  updates.address   = address;
     if (hours)    updates.hours     = hours;
     updates.scheduled_at = dateV ? new Date(dateV).toISOString() : null;
-    if (Object.keys(updates).length) {
-      api('PATCH', '/events/' + eid, updates, {dj: true}).catch(e => {
-        console.error('[pullup] Échec enregistrement réglages :', e.message);
-        toast('⚠️ Réglages non enregistrés côté serveur — ' + e.message);
-        return;
-      });
-    }
+    api('PATCH', '/events/' + eid, updates, {dj: true}).then(ev => {
+      toast('✅ Réglages enregistrés');
+      _renderSettingsSummary(ev);
+      _showSettingsSummary();
+    }).catch(e => {
+      console.error('[pullup] Échec enregistrement réglages :', e.message);
+      toast('⚠️ Réglages non enregistrés côté serveur — ' + e.message);
+    });
   }
-  toast('✅ Réglages enregistrés');
 }
 
 // ══ LOCALISATION ═════════════════════════════════════════════════════

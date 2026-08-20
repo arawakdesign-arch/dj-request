@@ -20,7 +20,10 @@ async function requireAuth(req, res, next) {
   // 1. JWT interne (guest, phone OTP maison)
   try {
     const payload = verifyToken(token);
-    req.user = { id: payload.id, email: payload.email || null, phone: payload.phoneNumber || null };
+    req.user = {
+      id: payload.id, email: payload.email || null, phone: payload.phoneNumber || null,
+      role: payload.role || null, event_id: payload.event_id || null,
+    };
     syncContactInfo(req.user);
     return next();
   } catch(e) { /* pas notre JWT, on essaie Supabase */ }

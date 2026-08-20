@@ -108,23 +108,38 @@ router.post('/events', requireAuth, async (req, res) => {
   // email magic-link) — les invités et comptes téléphone n'en ont pas et
   // sont rejetés. Plus de liste blanche : n'importe quel compte email peut
   // créer une soirée (ouvert à tous les clients).
-  if (!req.user.email) {
+  // Exception : une session organisateur (JWT lié à un event_id, ex. planifier
+  // une soirée à venir depuis le dashboard) n'a pas d'email dans son JWT —
+  // on résout alors le vrai propriétaire via l'événement en cours.
+  let ownerId = req.user.email ? req.user.id : null;
+  if (!ownerId && req.user.role === 'organizer' && req.user.event_id) {
+    const { data: currentEvent } = await supabase
+      .from('events').select('owner_id').eq('id', req.user.event_id).single();
+    ownerId = currentEvent?.owner_id || null;
+  }
+  if (!ownerId) {
     return res.status(403).json({ error: 'Connecte-toi avec Google ou par email pour créer une soirée.' });
   }
 
-  // Un compte organisateur ne peut gérer qu'une seule soirée active à la fois —
+  // Un compte organisateur ne peut gérer qu'une seule soirée LIVE à la fois —
   // évite la confusion de plusieurs soirées ouvertes en parallèle sous le même
-  // compte. Une fois la soirée fermée (24h, cf. isClosed()), il peut en recréer une.
-  const { data: ownActive } = await supabase
-    .from('events').select('id, name, created_at, scheduled_at')
-    .eq('owner_id', req.user.id).eq('is_active', true)
-    .order('created_at', { ascending: false }).limit(1).maybeSingle();
-  if (ownActive && !isClosed(ownActive.created_at, ownActive.scheduled_at)) {
-    return res.status(409).json({
-      error: `Ta soirée "${ownActive.name}" est encore en cours — attends sa clôture (24h) avant d'en créer une nouvelle.`,
-      active_event_id: ownActive.id,
-      active_event_name: ownActive.name,
-    });
+  // compte. Une fois la soirée fermée (24h, cf. isClosed()), il peut en
+  // recréer une. Ne s'applique que si la nouvelle soirée démarre immédiatement :
+  // planifier une soirée à venir (scheduledAt) reste toujours possible, même
+  // si une soirée est déjà live ou d'autres soirées à venir existent déjà.
+  if (!scheduledAt) {
+    const { data: recent } = await supabase
+      .from('events').select('id, name, created_at, scheduled_at')
+      .eq('owner_id', ownerId).eq('is_active', true)
+      .order('created_at', { ascending: false }).limit(5);
+    const ownActive = (recent || []).find(ev => !isUpcoming(ev.scheduled_at) && !isClosed(ev.created_at, ev.scheduled_at));
+    if (ownActive) {
+      return res.status(409).json({
+        error: `Ta soirée "${ownActive.name}" est encore en cours — attends sa clôture (24h) avant d'en créer une nouvelle.`,
+        active_event_id: ownActive.id,
+        active_event_name: ownActive.name,
+      });
+    }
   }
 
   // Empêche 2 soirées actives en même temps sous le même nom : source de
@@ -141,7 +156,7 @@ router.post('/events', requireAuth, async (req, res) => {
 
   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
   const { data, error } = await supabase.from('events').insert({
-    name, club_name, orga, address, hours, password: hashedPassword, owner_id: req.user.id,
+    name, club_name, orga, address, hours, password: hashedPassword, owner_id: ownerId,
     scheduled_at: scheduledAt,
   }).select('id, name, club_name, orga, address, hours, created_at, scheduled_at').single();
   if (error) return res.status(500).json({ error: error.message });
