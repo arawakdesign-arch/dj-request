@@ -94,18 +94,20 @@ async function requireOrganizer(req, res, next) {
     try {
       const payload = verifyToken(bearer);
       if (payload.role === 'organizer' && payload.event_id === eventId) return next();
+      console.error('[requireOrganizer] JWT valide mais rôle/event_id ne correspondent pas —', req.method, req.originalUrl, '| payload.role=', payload.role, 'payload.event_id=', payload.event_id, 'eventId attendu=', eventId);
     } catch(e) { /* JWT expiré ou invalide — continuer avec le mot de passe */ }
   }
 
   // 2. Mot de passe direct (session active, _djPassword présent)
   const password = req.headers['x-organizer-password'];
-  if (!password) return res.status(403).json({ error: 'Mot de passe requis' });
+  if (!password) { console.error('[requireOrganizer] Aucun mot de passe fourni —', req.method, req.originalUrl, '| eventId=', eventId); return res.status(403).json({ error: 'Mot de passe requis' }); }
 
   const { data: event } = await supabase
     .from('events').select('password').eq('id', eventId).single();
   if (!event) return res.status(404).json({ error: 'Événement introuvable' });
 
   if (!await verifyOrganizerPassword(eventId, event.password, password)) {
+    console.error('[requireOrganizer] Mot de passe incorrect —', req.method, req.originalUrl, '| eventId=', eventId);
     return res.status(403).json({ error: 'Mot de passe incorrect' });
   }
 

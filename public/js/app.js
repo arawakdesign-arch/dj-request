@@ -164,7 +164,8 @@ async function djPlay(id) {
   nowPlaying = {t: title, a: artist, coverUrl, by: proposerName};
   delete proposals[id]; renderAll(); toast(`▶ ${title}`);
   if (eid) {
-    api('PUT',    '/now-playing/' + eid, {title, artist, coverUrl, proposer_name: proposerName}, {dj: true}).catch(() => {});
+    api('PUT',    '/now-playing/' + eid, {title, artist, coverUrl, proposer_name: proposerName}, {dj: true})
+      .catch(e => { console.error('[pullup] Échec PUT now-playing :', e.message); toast('⚠️ Morceau non synchronisé — ' + e.message); });
     api('DELETE', '/proposals/' + eid + '/' + id, null, {dj: true}).catch(() => {});
   }
   // La pochette peut ne pas être encore en cache (recherche iTunes asynchrone

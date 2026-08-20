@@ -16,7 +16,7 @@ router.put('/now-playing/:eventId', requireOrganizer, async (req, res) => {
   const { data, error } = await supabase.from('now_playing')
     .upsert({ event_id: req.params.eventId, title, artist, cover_url: coverUrl || null, proposer_name: proposer_name || null })
     .select().single();
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) { console.error('[now-playing PUT]', req.params.eventId, error.message); return res.status(500).json({ error: error.message }); }
   res.json(data);
 });
 
