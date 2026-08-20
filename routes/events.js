@@ -1,8 +1,7 @@
 const express  = require('express');
-const crypto   = require('crypto');
 const multer   = require('multer');
 const supabase = require('../lib/supabase');
-const { requireAuth, requireOrganizer } = require('../middleware/auth');
+const { requireAuth, requireOrganizer, hashPassword, verifyOrganizerPassword } = require('../middleware/auth');
 const { signToken } = require('../lib/jwt');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -154,7 +153,7 @@ router.post('/events', requireAuth, async (req, res) => {
     return res.status(409).json({ error: `Une soirée "${name}" est déjà en cours — choisissez un autre nom.` });
   }
 
-  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+  const hashedPassword = hashPassword(password);
   const { data, error } = await supabase.from('events').insert({
     name, club_name, orga, address, hours, password: hashedPassword, owner_id: ownerId,
     scheduled_at: scheduledAt,
@@ -181,11 +180,12 @@ router.post('/events/:id/auth', async (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).json({ error: 'Mot de passe manquant' });
 
-  const hash = crypto.createHash('sha256').update(password).digest('hex');
   const { data: event } = await supabase.from('events')
     .select('id, name, password').eq('id', req.params.id).single();
   if (!event) return res.status(404).json({ error: 'Événement introuvable' });
-  if (event.password !== hash) return res.status(403).json({ error: 'Mot de passe incorrect' });
+  if (!await verifyOrganizerPassword(event.id, event.password, password)) {
+    return res.status(403).json({ error: 'Mot de passe incorrect' });
+  }
 
   // Générer un JWT organizer persistable — permet la restauration de session après refresh
   const token = signToken({ id: event.id, displayName: event.name, role: 'organizer', event_id: event.id });
@@ -254,9 +254,16 @@ router.get('/events/:id/vote-rate', async (req, res) => {
   res.json({ perMinute: count || 0 });
 });
 
+// song_id vient toujours d'un id de catalogue (Deezer/iTunes numérique, ou code
+// local court) — jamais de texte libre. On le restreint à ce format : il est
+// réinjecté tel quel dans des attributs onclick (`vote('${p.id}')`) côté client,
+// un id contenant un guillemet permettrait d'y injecter du JS arbitraire.
+const SONG_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
+
 router.post('/proposals', requireAuth, async (req, res) => {
   const { song_id, event_id, title, artist, cover_url } = req.body;
   if (!song_id || !event_id) return res.status(400).json({ error: 'Champs manquants' });
+  if (!SONG_ID_RE.test(song_id)) return res.status(400).json({ error: 'Identifiant de morceau invalide' });
   if (await isEventClosed(event_id)) return res.status(403).json({ error: 'Cette soirée est terminée.' });
 
   const { data: existing } = await supabase.from('proposals')
@@ -265,9 +272,9 @@ router.post('/proposals', requireAuth, async (req, res) => {
 
   const { data, error } = await supabase.from('proposals').insert({
     id: song_id, event_id, proposed_by: req.user.id,
-    title:     title     || null,
-    artist:    artist    || null,
-    cover_url: cover_url || null,
+    title:     title     ? String(title).slice(0, 200)     : null,
+    artist:    artist    ? String(artist).slice(0, 200)    : null,
+    cover_url: cover_url ? String(cover_url).slice(0, 1000) : null,
   }).select().single();
   if (error) return res.status(500).json({ error: error.message });
 

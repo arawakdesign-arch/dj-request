@@ -1,4 +1,10 @@
 // ══ HELPERS RENDER ═══════════════════════════════════════════════════
+// Échappe tout texte fourni par un utilisateur (titre/artiste proposé, nom,
+// message de chat…) avant de l'insérer via innerHTML — ces valeurs viennent
+// directement de la base de données sans validation de contenu côté serveur.
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
 function sorted()     { return Object.entries(proposals).map(([id,p]) => ({id,...p})).sort((a,b) => (b.votes||0) - (a.votes||0)); }
 function totalVotes() { return Object.values(proposals).reduce((s,p) => s + (p.votes||0), 0); }
 function totalVoters(){ const s = new Set(); Object.values(proposals).forEach(p => Object.keys(p.voters||{}).forEach(v => s.add(v))); return s.size; }
@@ -82,7 +88,7 @@ function renderClient() {
     const hasArt    = !!coverSrc;
 
     if (isNew) {
-      const coverHTML = coverSrc ? `<img src="${coverSrc}" alt="${c.n}" loading="lazy" onerror="this.style.display='none'">` : '';
+      const coverHTML = coverSrc ? `<img src="${escapeHtml(coverSrc)}" alt="${escapeHtml(c.n)}" loading="lazy" onerror="this.style.display='none'">` : '';
       div.innerHTML = `
         <div class="s-rank">
           <div class="s-rank-num">${i+1}</div>
@@ -93,10 +99,10 @@ function renderClient() {
           <div class="s-cover-fallback" style="${hasArt ? 'display:none' : ''}">${c.e}</div>
         </div>
         <div class="s-body">
-          <div class="s-name">${c.n}</div>
-          <div class="s-artist">${c.a}</div>
+          <div class="s-name">${escapeHtml(c.n)}</div>
+          <div class="s-artist">${escapeHtml(c.a)}</div>
           <div class="s-bar"><div class="s-bar-f" style="width:${pct}%;background:${bcol}"></div></div>
-          ${p.proposer_name ? `<div class="s-proposer">Proposé par ${p.proposer_name}</div>` : ''}
+          ${p.proposer_name ? `<div class="s-proposer">Proposé par ${escapeHtml(p.proposer_name)}</div>` : ''}
         </div>
         <div class="s-votes">
           <div class="s-votes-n">${votes}</div>
@@ -158,9 +164,9 @@ function renderDJ() {
     const card = document.createElement('div');
     card.className = `q-card${i === 0 ? ' q1' : ''}`;
     const qCover = p.coverUrl
-      ? `<img src="${p.coverUrl}" style="width:38px;height:38px;border-radius:8px;object-fit:cover" onerror="this.outerHTML='<div class=q-cv style=background:${c.c}18>${c.e}</div>'">`
+      ? `<img src="${escapeHtml(p.coverUrl)}" style="width:38px;height:38px;border-radius:8px;object-fit:cover" onerror="this.outerHTML='<div class=q-cv style=background:${c.c}18>${c.e}</div>'">`
       : `<div class="q-cv" style="background:${c.c}18">${c.e}</div>`;
-    card.innerHTML = `<div class="q-rk${i < 3 ? ' '+rCls[i] : ''}">${medals[i]||'#'+(i+1)}</div>${qCover}<div class="q-bd"><div class="q-n">${c.n}</div><div class="q-s"><span class="q-v">▲ ${p.votes||0} vote${(p.votes||0)>1?'s':''}</span><span class="q-ar">· ${c.a}</span></div></div><div class="q-acts"><div class="qa play" onclick="djPlay('${p.id}')">▶</div><div class="qa ok" onclick="djApprove('${p.id}')">✓</div><div class="qa no" onclick="djReject('${p.id}')">✕</div></div>`;
+    card.innerHTML = `<div class="q-rk${i < 3 ? ' '+rCls[i] : ''}">${medals[i]||'#'+(i+1)}</div>${qCover}<div class="q-bd"><div class="q-n">${escapeHtml(c.n)}</div><div class="q-s"><span class="q-v">▲ ${p.votes||0} vote${(p.votes||0)>1?'s':''}</span><span class="q-ar">· ${escapeHtml(c.a)}</span></div></div><div class="q-acts"><div class="qa play" onclick="djPlay('${p.id}')">▶</div><div class="qa ok" onclick="djApprove('${p.id}')">✓</div><div class="qa no" onclick="djReject('${p.id}')">✕</div></div>`;
 
     queue.appendChild(card);
   });
@@ -178,11 +184,11 @@ function renderBS() {
     const c = CAT.find(x => x.id === p.id) || { n: p.title||p.id, a: p.artist||'', e:'🎵', c:'#6F22FF' };
     const pct = Math.max(5, Math.round(((p.votes||0) / mx) * 100));
     const cover = p.coverUrl
-      ? `<img class="bs2-thumb" src="${p.coverUrl}" alt="" onerror="this.outerHTML='<div class=bs2-thumb style=display:flex;align-items:center;justify-content:center>${c.e}</div>'">`
+      ? `<img class="bs2-thumb" src="${escapeHtml(p.coverUrl)}" alt="" onerror="this.outerHTML='<div class=bs2-thumb style=display:flex;align-items:center;justify-content:center>${c.e}</div>'">`
       : `<div class="bs2-thumb" style="display:flex;align-items:center;justify-content:center">${c.e}</div>`;
-    const proposer = p.proposer_name ? `<div class="bs2-row-by">Proposé par ${p.proposer_name}</div>` : '';
+    const proposer = p.proposer_name ? `<div class="bs2-row-by">Proposé par ${escapeHtml(p.proposer_name)}</div>` : '';
     const row = document.createElement('div'); row.className = 'bs2-row';
-    row.innerHTML = `<div class="bs2-rank">${i+1}</div>${cover}<div class="bs2-row-mid"><div class="bs2-row-t">${c.n}</div><div class="bs2-row-a">${c.a}</div><div class="bs2-row-trk"><div class="bs2-row-f" style="width:${pct}%"></div></div>${proposer}</div><div class="bs2-row-vc"><div class="bs2-row-vn">${p.votes||0}</div><div class="bs2-row-vl">${(p.votes||0) > 1 ? 'votes' : 'vote'}</div></div>`;
+    row.innerHTML = `<div class="bs2-rank">${i+1}</div>${cover}<div class="bs2-row-mid"><div class="bs2-row-t">${escapeHtml(c.n)}</div><div class="bs2-row-a">${escapeHtml(c.a)}</div><div class="bs2-row-trk"><div class="bs2-row-f" style="width:${pct}%"></div></div>${proposer}</div><div class="bs2-row-vc"><div class="bs2-row-vn">${p.votes||0}</div><div class="bs2-row-vl">${(p.votes||0) > 1 ? 'votes' : 'vote'}</div></div>`;
     chart.appendChild(row);
   });
   elt('bs-votes', totalVotes()); elt('bs-tracks', s.length);
@@ -246,12 +252,12 @@ function renderModalList() {
         div.style.cssText = `display:flex;align-items:center;gap:.65rem;padding:.55rem .8rem;background:${sel?'rgba(111,34,255,.06)':'#FFFFFF'};border:1px solid ${sel?'rgba(111,34,255,.3)':'var(--bdr)'};border-radius:10px;cursor:pointer;transition:all .18s;margin-bottom:.3rem`;
         const coverSrc = p.coverUrl || artCache[c.n + c.a] || null;
         const coverHTML = coverSrc
-          ? `<img src="${coverSrc}" style="width:85px;height:85px;border-radius:12px;object-fit:cover;flex-shrink:0">`
+          ? `<img src="${escapeHtml(coverSrc)}" style="width:85px;height:85px;border-radius:12px;object-fit:cover;flex-shrink:0">`
           : `<div style="width:85px;height:85px;border-radius:12px;background:${c.c}18;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0">${c.e}</div>`;
         div.innerHTML = `${coverHTML}
           <div style="flex:1;min-width:0">
-            <div style="font-size:.84rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.n}</div>
-            <div style="font-size:.72rem;color:var(--tx3);margin-top:1px">${c.a}</div>
+            <div style="font-size:.84rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(c.n)}</div>
+            <div style="font-size:.72rem;color:var(--tx3);margin-top:1px">${escapeHtml(c.a)}</div>
             <div style="font-size:.68rem;color:var(--vi);margin-top:3px">▲ ${p.votes||0} vote${(p.votes||0)>1?'s':''}</div>
           </div>
           <div style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;${sel?'background:#6F22FF;border-color:transparent;color:white;font-size:.72rem':''}">${sel?'✓':''}</div>`;
@@ -310,14 +316,14 @@ function _renderItems(list, items) {
 
     const bg = item.color ? `background:${item.color}18` : 'background:rgba(111,34,255,.1)';
     const coverHTML = item.coverUrl
-      ? `<img src="${item.coverUrl}" alt="" style="width:85px;height:85px;border-radius:12px;object-fit:cover;flex-shrink:0" onerror="this.outerHTML='<div style=width:85px;height:85px;border-radius:12px;${bg};display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0>${item.emoji||'🎵'}</div>'">`
+      ? `<img src="${escapeHtml(item.coverUrl)}" alt="" style="width:85px;height:85px;border-radius:12px;object-fit:cover;flex-shrink:0" onerror="this.outerHTML='<div style=width:85px;height:85px;border-radius:12px;${bg};display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0>${item.emoji||'🎵'}</div>'">`
       : `<div style="width:85px;height:85px;border-radius:12px;${bg};display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0">${item.emoji||'🎵'}</div>`;
 
     div.innerHTML = `
       ${coverHTML}
       <div style="flex:1;min-width:0">
-        <div style="font-size:.84rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title}</div>
-        <div style="font-size:.72rem;color:var(--tx3);margin-top:1px">${item.artist}${item.album ? ' · <span style="opacity:.6">'+item.album+'</span>' : ''}</div>
+        <div style="font-size:.84rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(item.title)}</div>
+        <div style="font-size:.72rem;color:var(--tx3);margin-top:1px">${escapeHtml(item.artist)}${item.album ? ' · <span style="opacity:.6">'+escapeHtml(item.album)+'</span>' : ''}</div>
       </div>
       <div style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;${sel?'background:#6F22FF;border-color:transparent;color:white;font-size:.72rem':''}">${sel?'✓':''}</div>`;
 

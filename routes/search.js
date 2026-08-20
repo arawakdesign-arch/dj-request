@@ -2,6 +2,12 @@ const express = require('express');
 const router  = express.Router();
 
 const artCache = new Map(); // url → Buffer
+const ART_CACHE_MAX = 2000; // borne la mémoire — au-delà, on évince les entrées les plus anciennes
+
+function cacheSet(url, val) {
+  if (artCache.size >= ART_CACHE_MAX) artCache.delete(artCache.keys().next().value);
+  artCache.set(url, val);
+}
 
 // Domaines autorisés pour le proxy de pochettes — empêche le SSRF via une URL arbitraire
 const ALLOWED_COVER_HOSTS = ['dzcdn.net', 'deezer.com', 'mzstatic.com', 'apple.com', 'supabase.co'];
@@ -84,14 +90,14 @@ router.get('/cover', async (req, res) => {
 
   try {
     const r   = await fetch(url);
-    if (!r.ok) { artCache.set(url, null); return res.status(404).end(); }
+    if (!r.ok) { cacheSet(url, null); return res.status(404).end(); }
     const buf = Buffer.from(await r.arrayBuffer());
-    artCache.set(url, buf);
+    cacheSet(url, buf);
     res.setHeader('Content-Type', r.headers.get('content-type') || 'image/jpeg');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     res.send(buf);
   } catch(e) {
-    artCache.set(url, null);
+    cacheSet(url, null);
     res.status(404).end();
   }
 });

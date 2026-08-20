@@ -106,7 +106,10 @@ router.post('/reports', requireAuth, async (req, res) => {
   res.status(201).json({ success: true });
 });
 
-router.get('/reports/:eventId', async (req, res) => {
+router.get('/reports/:eventId', requireAuth, async (req, res) => {
+  const authorized = await isOrganizer(req, req.params.eventId);
+  if (!authorized) return res.status(403).json({ error: 'Non autorisé' });
+
   const { data, error } = await supabase
     .from('reports')
     .select('*, messages(id, text, photo_url, user_name, created_at)')

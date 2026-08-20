@@ -50,6 +50,9 @@ router.get('/scores/:eventId', async (req, res) => {
 
 router.put('/scores/:eventId', requireAuth, async (req, res) => {
   const { score } = req.body;
+  if (!Number.isInteger(score) || score < 0 || score > 10000) {
+    return res.status(400).json({ error: 'Score invalide' });
+  }
   const profile = await supabase.from('user_profiles').select('display_name').eq('id', req.user.id).single();
   const { error } = await supabase.from('blindtest_scores').upsert({
     user_id:   req.user.id,

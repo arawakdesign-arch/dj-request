@@ -1,4 +1,5 @@
 const crypto   = require('crypto');
+const bcrypt   = require('bcryptjs');
 const supabase = require('../lib/supabase');
 const { verifyToken } = require('../lib/jwt');
 
@@ -46,6 +47,27 @@ function timingSafeEqualHex(a, b) {
   return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 
+function hashPassword(password) {
+  return bcrypt.hashSync(password, 10);
+}
+
+// Vérifie un mot de passe contre le hash stocké. Supporte l'ancien format
+// (SHA-256 non salé, hex 64 caractères) pour ne pas invalider les mots de
+// passe existants, et migre silencieusement vers bcrypt (salé) dès qu'une
+// vérification réussit avec l'ancien format.
+async function verifyOrganizerPassword(eventId, storedHash, password) {
+  const isLegacy = typeof storedHash === 'string' && /^[0-9a-f]{64}$/i.test(storedHash);
+  if (isLegacy) {
+    const legacyHash = crypto.createHash('sha256').update(password).digest('hex');
+    const ok = timingSafeEqualHex(storedHash, legacyHash);
+    if (ok) {
+      supabase.from('events').update({ password: hashPassword(password) }).eq('id', eventId).then(() => {}, () => {});
+    }
+    return ok;
+  }
+  try { return bcrypt.compareSync(password, storedHash); } catch(e) { return false; }
+}
+
 async function requireOrganizer(req, res, next) {
   const eventId = req.params.eventId || req.params.id;
 
@@ -66,8 +88,9 @@ async function requireOrganizer(req, res, next) {
     .from('events').select('password').eq('id', eventId).single();
   if (!event) return res.status(404).json({ error: 'Événement introuvable' });
 
-  const hash = crypto.createHash('sha256').update(password).digest('hex');
-  if (!timingSafeEqualHex(event.password, hash)) return res.status(403).json({ error: 'Mot de passe incorrect' });
+  if (!await verifyOrganizerPassword(eventId, event.password, password)) {
+    return res.status(403).json({ error: 'Mot de passe incorrect' });
+  }
 
   next();
 }
@@ -90,8 +113,7 @@ async function isOrganizer(req, eventId) {
     .from('events').select('password').eq('id', eventId).single();
   if (!event) return false;
 
-  const hash = crypto.createHash('sha256').update(password).digest('hex');
-  return timingSafeEqualHex(event.password, hash);
+  return verifyOrganizerPassword(eventId, event.password, password);
 }
 
-module.exports = { requireAuth, requireOrganizer, isOrganizer };
+module.exports = { requireAuth, requireOrganizer, isOrganizer, hashPassword, verifyOrganizerPassword };

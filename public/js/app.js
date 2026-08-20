@@ -232,10 +232,10 @@ async function loadOrgaContacts() {
       const row = document.createElement('div');
       row.style.cssText = 'display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:var(--ink5);border-radius:.75rem';
       row.innerHTML = `
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0">${(p.name||'?')[0].toUpperCase()}</div>
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0">${escapeHtml((p.name||'?')[0].toUpperCase())}</div>
         <div style="min-width:0">
-          <div style="font-size:.85rem;font-weight:600;color:var(--tx)">${p.name}</div>
-          ${contact ? `<div style="font-size:.68rem;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${contact}</div>` : ''}
+          <div style="font-size:.85rem;font-weight:600;color:var(--tx)">${escapeHtml(p.name)}</div>
+          ${contact ? `<div style="font-size:.68rem;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(contact)}</div>` : ''}
         </div>`;
       list.appendChild(row);
     });
@@ -302,7 +302,7 @@ function _renderOrgaSummary(p) {
       ['🌐','Site web',p.website_url], ['📷','Instagram',p.instagram_url],
       ['🎵','TikTok',p.tiktok_url],    ['📘','Facebook',p.facebook_url],
     ].filter(([,,url]) => url);
-    socials.innerHTML = links.map(([ico,label,url]) => `<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.35rem;padding:.5rem .8rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2);text-decoration:none">${ico} ${label}</a>`).join('');
+    socials.innerHTML = links.map(([ico,label,url]) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.35rem;padding:.5rem .8rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2);text-decoration:none">${ico} ${label}</a>`).join('');
   }
 }
 function _showOrgaSummary() {
@@ -393,7 +393,7 @@ async function loadOrgaEventsStats() {
     list.innerHTML = events.map(ev => `
       <div style="display:flex;align-items:center;gap:.6rem;padding:.65rem .75rem;background:var(--ink5);border-radius:.85rem">
         <div style="flex:1;min-width:0">
-          <div style="font-size:.85rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>
+          <div style="font-size:.85rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
           <div style="font-size:.66rem;color:var(--tx3)">${ev.upcoming ? '📅 À venir' : (ev.closed ? 'Terminée' : '🔴 En cours')} · ${ev.upcoming && ev.scheduled_at ? new Date(ev.scheduled_at).toLocaleDateString('fr-FR') : new Date(ev.created_at).toLocaleDateString('fr-FR')}</div>
         </div>
         <div style="text-align:center;flex-shrink:0"><div style="font-size:.85rem;font-weight:800;color:var(--vi)">${ev.votes}</div><div style="font-size:.58rem;color:var(--tx4);text-transform:uppercase">Votes</div></div>
@@ -493,10 +493,10 @@ function _renderLineup() {
   }
   list.innerHTML = _lineup.map((dj, i) => `
     <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:var(--ink5);border-radius:.85rem">
-      <div style="width:34px;height:34px;border-radius:50%;background:var(--grd);background-image:${dj.photo_url ? `url(${dj.photo_url})` : 'none'};background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;font-weight:700">${dj.photo_url ? '' : (dj.name||'?')[0].toUpperCase()}</div>
+      <div style="width:34px;height:34px;border-radius:50%;background:var(--grd);background-image:${dj.photo_url ? `url(${escapeHtml(dj.photo_url)})` : 'none'};background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;font-weight:700">${dj.photo_url ? '' : escapeHtml((dj.name||'?')[0].toUpperCase())}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:.85rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${dj.name}</div>
-        ${dj.type === 'app' ? '<div style="font-size:.66rem;color:var(--vi)">Sur Pull up</div>' : (dj.soundcloud_url ? `<a href="${dj.soundcloud_url}" target="_blank" style="font-size:.66rem;color:var(--tx3)">SoundCloud ↗</a>` : '')}
+        <div style="font-size:.85rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(dj.name)}</div>
+        ${dj.type === 'app' ? '<div style="font-size:.66rem;color:var(--vi)">Sur Pull up</div>' : (dj.soundcloud_url ? `<a href="${escapeHtml(dj.soundcloud_url)}" target="_blank" style="font-size:.66rem;color:var(--tx3)">SoundCloud ↗</a>` : '')}
       </div>
       <button onclick="_lineupRemove(${i})" style="width:26px;height:26px;flex-shrink:0;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.8rem">✕</button>
     </div>`).join('');
@@ -516,8 +516,8 @@ function _lineupSearch(q) {
       box.innerHTML = filtered.length
         ? filtered.map(r => `
           <button onclick='_lineupAddApp(${JSON.stringify(r).replace(/'/g,"&#39;")})' style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
-            <div style="width:30px;height:30px;border-radius:50%;background:var(--grd);background-image:${r.photo_url ? `url(${r.photo_url})` : 'none'};background-size:cover;background-position:center;flex-shrink:0"></div>
-            <div style="min-width:0"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.stage_name}</div>${r.city ? `<div style="font-size:.64rem;color:var(--tx3)">${r.city}</div>` : ''}</div>
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--grd);background-image:${r.photo_url ? `url(${escapeHtml(r.photo_url)})` : 'none'};background-size:cover;background-position:center;flex-shrink:0"></div>
+            <div style="min-width:0"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.stage_name)}</div>${r.city ? `<div style="font-size:.64rem;color:var(--tx3)">${escapeHtml(r.city)}</div>` : ''}</div>
           </button>`).join('')
         : '<div style="font-size:.75rem;color:var(--tx4);padding:.3rem .1rem">Aucun DJ trouvé</div>';
     } catch(e) { box.innerHTML = ''; }
@@ -616,7 +616,7 @@ function loadOrgaChatList() {
     if (!txt) return;
     const div = document.createElement('div');
     div.style.cssText = 'display:flex;align-items:center;gap:.5rem;padding:.45rem .65rem;background:var(--ink5);border-radius:.75rem;border:1px solid var(--bdr)';
-    div.innerHTML = `<div style="flex:1;min-width:0"><div style="font-size:.65rem;color:var(--tx4);margin-bottom:1px">${name||'Moi'}</div><div style="font-size:.8rem;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${txt}</div></div>`;
+    div.innerHTML = `<div style="flex:1;min-width:0"><div style="font-size:.65rem;color:var(--tx4);margin-bottom:1px">${escapeHtml(name||'Moi')}</div><div style="font-size:.8rem;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(txt)}</div></div>`;
     list.appendChild(div);
   });
   if (!list.children.length) list.innerHTML = '<div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Aucun message</div>';
@@ -761,10 +761,10 @@ async function loadOwnedEvents() {
   if (!events.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
 
   box.innerHTML = events.map(ev => `
-    <button onclick="adminEnterEvent('${ev.id}','${ev.name.replace(/'/g,"\\'")}')" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;transition:all .2s;margin-bottom:.5rem">
+    <button onclick="${escapeHtml(`adminEnterEvent('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;transition:all .2s;margin-bottom:.5rem">
       <div style="width:42px;height:42px;border-radius:12px;background:rgba(111,34,255,.15);border:1px solid rgba(111,34,255,.28);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🛠️</div>
       <div style="text-align:left;flex:1;min-width:0">
-        <div style="font-size:.88rem;font-weight:700;color:var(--vi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Administrer "${ev.name}"</div>
+        <div style="font-size:.88rem;font-weight:700;color:var(--vi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Administrer "${escapeHtml(ev.name)}"</div>
         <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">${ev.closed ? 'Terminée — consultable' : 'Tu es propriétaire de cette soirée'}</div>
       </div>
       <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
@@ -1211,10 +1211,10 @@ function renderFriendsList() {
     const div = document.createElement('div');
     div.style.cssText = 'display:flex;align-items:center;gap:.65rem;padding:.6rem .8rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:1rem';
     div.innerHTML = `
-      <div style="width:36px;height:36px;border-radius:50%;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0">${(f.name||'?')[0].toUpperCase()}</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0">${escapeHtml((f.name||'?')[0].toUpperCase())}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:.88rem;font-weight:600;color:var(--tx)">${f.name}</div>
-        <div style="font-size:.65rem;color:var(--tx4);font-family:'Inter',sans-serif">${f.code}</div>
+        <div style="font-size:.88rem;font-weight:600;color:var(--tx)">${escapeHtml(f.name)}</div>
+        <div style="font-size:.65rem;color:var(--tx4);font-family:'Inter',sans-serif">${escapeHtml(f.code)}</div>
       </div>
       <button onclick="removeFriend('${f.code}')" style="font-size:.7rem;padding:3px 8px;border-radius:7px;border:1px solid rgba(255,59,87,.2);background:rgba(255,59,87,.06);color:var(--red)">✕</button>`;
     list.appendChild(div);
@@ -1270,10 +1270,10 @@ function renderFriendsOnProfile() {
     div.style.cssText = 'flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer';
     div.innerHTML = `
       <div style="position:relative">
-        <div style="width:52px;height:52px;border-radius:50%;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:700;color:#fff">${(f.name||'?')[0].toUpperCase()}</div>
+        <div style="width:52px;height:52px;border-radius:50%;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:700;color:#fff">${escapeHtml((f.name||'?')[0].toUpperCase())}</div>
         <div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid #fff"></div>
       </div>
-      <div style="font-size:.66rem;color:var(--tx2);font-weight:600;max-width:56px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div>`;
+      <div style="font-size:.66rem;color:var(--tx2);font-weight:600;max-width:56px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(f.name)}</div>`;
     list.appendChild(div);
   });
 }

@@ -23,6 +23,10 @@ const orgaRouter     = require('./routes/orga');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Nécessaire derrière nginx (reverse proxy) pour que le rate limiting et req.ip
+// utilisent la vraie IP du client (X-Forwarded-For) au lieu de 127.0.0.1 pour tout le monde.
+app.set('trust proxy', 1);
+
 // ══ SÉCURITÉ ══════════════════════════════════════════════════════════
 app.use(helmet({
   contentSecurityPolicy: {

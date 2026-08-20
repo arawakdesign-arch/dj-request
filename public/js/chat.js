@@ -205,13 +205,13 @@ function renderPinnedMessage(msg) {
   const avatarHTML = isDJ
     ? `<img class="chat-pinned-av" src="/images/dj-avatar.png" alt="">`
     : msg.user_photo
-      ? `<img class="chat-pinned-av" src="${msg.user_photo}" alt="">`
-      : `<div class="chat-pinned-av" style="background:${avatarColor(msg.user_name)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">${(msg.user_name||'?')[0].toUpperCase()}</div>`;
+      ? `<img class="chat-pinned-av" src="${escapeHtml(msg.user_photo)}" alt="">`
+      : `<div class="chat-pinned-av" style="background:${avatarColor(msg.user_name)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">${escapeHtml((msg.user_name||'?')[0].toUpperCase())}</div>`;
   box.innerHTML = `
     ${avatarHTML}
     <div class="chat-pinned-body">
       <div class="chat-pinned-lbl">📌 Message épinglé</div>
-      <div class="chat-pinned-txt">${msg.text || ''}</div>
+      <div class="chat-pinned-txt">${escapeHtml(msg.text || '')}</div>
       <div class="chat-pinned-time">${time}</div>
     </div>
     <div class="chat-pinned-ico" ${djLoggedIn ? `onclick="unpinMessage('${msg.id}')" title="Retirer"` : ''}>📌</div>`;
@@ -295,8 +295,8 @@ function renderDJReports(reports) {
     const div = document.createElement('div');
     div.style.cssText = 'display:flex;align-items:flex-start;gap:.65rem;padding:.7rem .85rem;background:rgba(255,59,87,.05);border:1px solid rgba(255,59,87,.2);border-radius:1rem;margin-bottom:.4rem';
     div.innerHTML = `<div style="flex:1;min-width:0">
-      <div style="font-size:.7rem;font-weight:700;color:var(--red);margin-bottom:2px">⚑ ${msg.name||'Invité'}</div>
-      <div style="font-size:.82rem;color:var(--tx2)">${msg.text||'[photo]'}</div>
+      <div style="font-size:.7rem;font-weight:700;color:var(--red);margin-bottom:2px">⚑ ${escapeHtml(msg.name||'Invité')}</div>
+      <div style="font-size:.82rem;color:var(--tx2)">${escapeHtml(msg.text||'[photo]')}</div>
     </div>
     <div style="display:flex;gap:.3rem;flex-shrink:0">
       <button onclick="djIgnoreReport('${key}')" style="font-size:.7rem;padding:4px 8px;border-radius:7px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3)">Ignorer</button>
