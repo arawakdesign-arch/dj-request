@@ -130,6 +130,9 @@ async function loadEvent(evId) {
     // téléphone qui l'a uploadé) — sinon les autres invités ne le voient jamais.
     // Alimente aussi la vignette venue-photo de la venue-card (cf. applyFlyer).
     if (typeof applyFlyer === 'function') applyFlyer(ev.flyer_url || null);
+    // Bannière DJ de la page vote — affiche le nom (et photo si dispo) du
+    // premier DJ du line-up de la soirée, au lieu du texte générique "DJ".
+    if (typeof applyDjBanner === 'function') applyDjBanner(ev.lineup);
     loadVoteRate(localEid);
     const ps = await api('GET', '/proposals/' + localEid);
     console.log('[pullup] loadEvent() proposals reçus :', ps.length, 'items pour localEid=', localEid);
