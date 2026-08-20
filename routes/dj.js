@@ -32,6 +32,21 @@ router.post('/dj/profile', requireAuth, async (req, res) => {
   res.json(data);
 });
 
+// ── Recherche de DJ inscrits (line-up d'une soirée) — déclarée avant
+// /dj/profile/:id pour éviter qu'Express n'intercepte "search" comme id.
+router.get('/dj/search', async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q || q.length < 2) return res.json([]);
+  const { data, error } = await supabase
+    .from('dj_profiles')
+    .select('id, stage_name, photo_url, city')
+    .not('stage_name', 'is', null)
+    .ilike('stage_name', `%${q}%`)
+    .limit(10);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data || []);
+});
+
 // ── Upload photo de profil DJ ────────────────────────────────────────
 router.post('/dj/profile/photo', requireAuth, upload.single('photo'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Pas de fichier' });

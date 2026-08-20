@@ -468,9 +468,87 @@ async function populateSettingsForm() {
     set('settings-hours-end',   HOURS_OPTIONS.includes(h2) ? h2 : '');
     set('settings-hours', ev.hours);
 
+    _lineup = Array.isArray(ev.lineup) ? ev.lineup : [];
+    _renderLineup();
+
     _renderSettingsSummary(ev);
     _showSettingsSummary();
   } catch(e) { console.error('[pullup] populateSettingsForm:', e.message); }
+}
+
+// ── Line-up de la soirée : DJ inscrits sur Pull up + DJ externes ──────
+let _lineup = [];
+let _lineupSearchTimer = null;
+
+function _renderLineup() {
+  const list = document.getElementById('lineup-list'); if (!list) return;
+  if (!_lineup.length) {
+    list.innerHTML = '<div style="font-size:.78rem;color:var(--tx4)">Aucun DJ ajouté pour l\'instant</div>';
+    return;
+  }
+  list.innerHTML = _lineup.map((dj, i) => `
+    <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:var(--ink5);border-radius:.85rem">
+      <div style="width:34px;height:34px;border-radius:50%;background:var(--grd);background-image:${dj.photo_url ? `url(${dj.photo_url})` : 'none'};background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;font-weight:700">${dj.photo_url ? '' : (dj.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.85rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${dj.name}</div>
+        ${dj.type === 'app' ? '<div style="font-size:.66rem;color:var(--vi)">Sur Pull up</div>' : (dj.soundcloud_url ? `<a href="${dj.soundcloud_url}" target="_blank" style="font-size:.66rem;color:var(--tx3)">SoundCloud ↗</a>` : '')}
+      </div>
+      <button onclick="_lineupRemove(${i})" style="width:26px;height:26px;flex-shrink:0;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.8rem">✕</button>
+    </div>`).join('');
+}
+
+function _lineupSearch(q) {
+  clearTimeout(_lineupSearchTimer);
+  const box = document.getElementById('lineup-search-results');
+  if (!box) return;
+  q = q.trim();
+  if (q.length < 2) { box.innerHTML = ''; return; }
+  _lineupSearchTimer = setTimeout(async () => {
+    try {
+      const results = await api('GET', '/dj/search?q=' + encodeURIComponent(q));
+      const already = new Set(_lineup.filter(d => d.type === 'app').map(d => d.id));
+      const filtered = results.filter(r => !already.has(r.id));
+      box.innerHTML = filtered.length
+        ? filtered.map(r => `
+          <button onclick='_lineupAddApp(${JSON.stringify(r).replace(/'/g,"&#39;")})' style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--grd);background-image:${r.photo_url ? `url(${r.photo_url})` : 'none'};background-size:cover;background-position:center;flex-shrink:0"></div>
+            <div style="min-width:0"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.stage_name}</div>${r.city ? `<div style="font-size:.64rem;color:var(--tx3)">${r.city}</div>` : ''}</div>
+          </button>`).join('')
+        : '<div style="font-size:.75rem;color:var(--tx4);padding:.3rem .1rem">Aucun DJ trouvé</div>';
+    } catch(e) { box.innerHTML = ''; }
+  }, 300);
+}
+
+function _lineupAddApp(dj) {
+  _lineup.push({ type: 'app', id: dj.id, name: dj.stage_name, photo_url: dj.photo_url || null });
+  document.getElementById('lineup-search').value = '';
+  document.getElementById('lineup-search-results').innerHTML = '';
+  _renderLineup();
+  _saveLineup();
+}
+
+function _lineupAddExternal() {
+  const name = document.getElementById('lineup-ext-name').value.trim();
+  const sc   = document.getElementById('lineup-ext-sc').value.trim();
+  if (!name) { toast('⚠️ Entrez le nom du DJ'); return; }
+  _lineup.push({ type: 'external', name, soundcloud_url: sc || null });
+  document.getElementById('lineup-ext-name').value = '';
+  document.getElementById('lineup-ext-sc').value   = '';
+  _renderLineup();
+  _saveLineup();
+}
+
+function _lineupRemove(i) {
+  _lineup.splice(i, 1);
+  _renderLineup();
+  _saveLineup();
+}
+
+function _saveLineup() {
+  if (!eid) return;
+  api('PATCH', '/events/' + eid, { lineup: _lineup }, {dj: true})
+    .then(() => toast('🎧 Line-up mis à jour'))
+    .catch(e => toast('⚠️ ' + (e.message || 'Erreur line-up')));
 }
 
 // ── Soirée en cours : bascule résumé ⇄ formulaire d'édition ───────────

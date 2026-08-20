@@ -166,9 +166,10 @@ router.post('/events', requireAuth, async (req, res) => {
 });
 
 router.patch('/events/:id', requireOrganizer, async (req, res) => {
-  const { name, club_name, orga, address, hours, scheduled_at } = req.body;
+  const { name, club_name, orga, address, hours, scheduled_at, lineup } = req.body;
   const updates = { name, club_name, orga, address, hours };
   if (scheduled_at !== undefined) updates.scheduled_at = scheduled_at;
+  if (lineup !== undefined) updates.lineup = lineup;
   const { data, error } = await supabase.from('events')
     .update(updates)
     .eq('id', req.params.id).select().single();
