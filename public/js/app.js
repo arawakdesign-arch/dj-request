@@ -506,8 +506,8 @@ async function populateSettingsForm() {
 let _lineup = [];
 let _lineupSearchTimer = null;
 const _LINEUP_IDS = {
-  settings: { list: 'lineup-list',        search: 'lineup-search',        results: 'lineup-search-results',        extName: 'lineup-ext-name',        extSc: 'lineup-ext-sc' },
-  create:   { list: 'create-lineup-list', search: 'create-lineup-search', results: 'create-lineup-search-results', extName: 'create-lineup-ext-name', extSc: 'create-lineup-ext-sc' },
+  settings: { list: 'lineup-list',        search: 'lineup-search',        results: 'lineup-search-results',        extName: 'lineup-ext-name',        extSc: 'lineup-ext-sc',        scSearch: 'lineup-sc-search',        scResults: 'lineup-sc-results' },
+  create:   { list: 'create-lineup-list', search: 'create-lineup-search', results: 'create-lineup-search-results', extName: 'create-lineup-ext-name', extSc: 'create-lineup-ext-sc', scSearch: 'create-lineup-sc-search', scResults: 'create-lineup-sc-results' },
 };
 
 function _renderLineup(scope = 'settings') {
@@ -574,6 +574,50 @@ function _lineupAddExternal(scope = 'settings') {
 
 function _lineupRemove(i, scope = 'settings') {
   _lineup.splice(i, 1);
+  _renderLineup(scope);
+  _saveLineup();
+}
+
+// ── Recherche DJ sur SoundCloud (pour ceux pas encore inscrits) ───────
+let _lineupScSearchTimer = null;
+function _lineupScSearch(q, scope = 'settings') {
+  clearTimeout(_lineupScSearchTimer);
+  const ids = _LINEUP_IDS[scope];
+  const box = document.getElementById(ids.scResults);
+  if (!box) return;
+  q = q.trim();
+  if (q.length < 2) { box.innerHTML = ''; return; }
+  _lineupScSearchTimer = setTimeout(async () => {
+    try {
+      const results = await api('GET', '/search/soundcloud-dj?q=' + encodeURIComponent(q));
+      box.innerHTML = results.length
+        ? results.map(r => `
+          <button onclick='_lineupAddScResult(${JSON.stringify(r).replace(/'/g,"&#39;")},"${scope}")' style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--grd);background-image:${r.avatar_url ? `url(${escapeHtml(r.avatar_url)})` : 'none'};background-size:cover;background-position:center;flex-shrink:0"></div>
+            <div style="min-width:0;flex:1"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.name)}</div>${r.city ? `<div style="font-size:.64rem;color:var(--tx3)">${escapeHtml(r.city)}</div>` : ''}</div>
+            <div style="font-size:.64rem;color:var(--tx4);flex-shrink:0">SoundCloud</div>
+          </button>`).join('')
+        : '<div style="font-size:.75rem;color:var(--tx4);padding:.3rem .1rem">Aucun résultat — indisponible ou introuvable, ajoute-le manuellement ci-dessous</div>';
+    } catch(e) { box.innerHTML = ''; }
+  }, 350);
+}
+
+// Résultat SoundCloud choisi : s'il correspond à un compte Pull up existant
+// (même nom de scène), on le relie directement au lieu de l'ajouter en externe.
+async function _lineupAddScResult(sc, scope = 'settings') {
+  const ids = _LINEUP_IDS[scope];
+  document.getElementById(ids.scResults).innerHTML = '';
+  document.getElementById(ids.scSearch).value = '';
+  try {
+    const matches = await api('GET', '/dj/search?q=' + encodeURIComponent(sc.name));
+    const exact = (matches || []).find(m => m.stage_name.toLowerCase() === sc.name.toLowerCase());
+    if (exact) {
+      if (_lineup.some(d => d.type === 'app' && d.id === exact.id)) { toast('Déjà dans le line-up'); return; }
+      _lineupAddApp(exact, scope);
+      return;
+    }
+  } catch(e) {}
+  _lineup.push({ type: 'external', name: sc.name, soundcloud_url: sc.permalink, photo_url: sc.avatar_url || null });
   _renderLineup(scope);
   _saveLineup();
 }

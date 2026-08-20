@@ -1,4 +1,5 @@
 const express = require('express');
+const { searchDJs } = require('../lib/soundcloud');
 const router  = express.Router();
 
 const artCache = new Map(); // url → Buffer
@@ -72,6 +73,21 @@ router.get('/songs', async (req, res) => {
   } catch(eItunes) {
     console.error('[search] Les deux sources sont indisponibles');
     return res.status(502).json({ error: 'Recherche indisponible' });
+  }
+});
+
+// ── Recherche DJ sur SoundCloud (line-up) — dégrade en silence : si
+// SoundCloud est indisponible ou bloque, on renvoie juste [] plutôt qu'une
+// erreur, pour que l'organisateur retombe sur l'ajout manuel du lien.
+router.get('/soundcloud-dj', async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q || q.length < 2) return res.json([]);
+  try {
+    const results = await searchDJs(q);
+    res.json(results);
+  } catch(e) {
+    console.warn('[search] SoundCloud indisponible :', e.message);
+    res.json([]);
   }
 });
 

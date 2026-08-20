@@ -36,7 +36,7 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc:      ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
       fontSrc:       ["'self'", "fonts.gstatic.com"],
-      imgSrc:        ["'self'", "data:", "blob:", "*.supabase.co", "i.pravatar.cc", "*.itunes.apple.com", "*.mzstatic.com", "*.dzcdn.net", "*.deezer.com"],
+      imgSrc:        ["'self'", "data:", "blob:", "*.supabase.co", "i.pravatar.cc", "*.itunes.apple.com", "*.mzstatic.com", "*.dzcdn.net", "*.deezer.com", "*.sndcdn.com"],
       connectSrc:    ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "itunes.apple.com", "api.deezer.com"],
       mediaSrc:      ["'self'", "*.itunes.apple.com", "*.supabase.co"],
     },
