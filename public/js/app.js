@@ -1381,3 +1381,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const fi = document.getElementById('friend-code-input');
   if (fi) fi.addEventListener('keydown', e => { if (e.key === 'Enter') addFriendByCode(); });
 });
+
+// ── Plein écran (écran géant / appairage TV) ────────────────────────────
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+  else document.exitFullscreen?.();
+}
+document.addEventListener('fullscreenchange', () => {
+  const on = !!document.fullscreenElement;
+  document.querySelectorAll('.fs-toggle').forEach(el => {
+    el.textContent = on ? '⛝' : '⛶';
+    el.title = on ? 'Quitter le plein écran' : 'Plein écran';
+  });
+});
