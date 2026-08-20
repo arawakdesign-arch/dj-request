@@ -21,6 +21,17 @@ function isClosed(createdAt, scheduledAt) {
   const start = scheduledAt ? new Date(scheduledAt).getTime() : new Date(createdAt).getTime();
   return (Date.now() - start) > EVENT_DURATION_MS;
 }
+// Le flyer est réécrit au même chemin de storage à chaque upload (upsert) —
+// l'URL publique ne change donc jamais, ce qui fait que le navigateur (et le
+// CDN Supabase) sert une version en cache après une mise à jour ("je uploade
+// un nouveau flyer, l'ancien reste affiché"). On ajoute un paramètre de
+// cache-busting basé sur updated_at pour forcer le refetch.
+function bustFlyerCache(url, updatedAt) {
+  if (!url) return url;
+  const v = updatedAt ? new Date(updatedAt).getTime() : Date.now();
+  return url + (url.includes('?') ? '&' : '?') + 'v=' + v;
+}
+
 async function isEventClosed(eventId) {
   const { data } = await supabase.from('events').select('created_at, scheduled_at').eq('id', eventId).single();
   if (!data) return true; // événement introuvable → traité comme fermé
@@ -64,9 +75,10 @@ router.get('/events/mine', requireAuth, async (req, res) => {
 router.get('/events/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at, scheduled_at, owner_id')
+    .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at, scheduled_at, updated_at, owner_id')
     .eq('id', req.params.id).single();
   if (error || !data) return res.status(404).json({ error: 'Événement introuvable' });
+  data.flyer_url = bustFlyerCache(data.flyer_url, data.updated_at);
   // Slug de la page publique organisateur, si l'organisateur en a configuré une —
   // permet aux liens/QR de la soirée de rediriger vers sa page de marque plutôt
   // que directement dans le flux d'inscription.
@@ -369,8 +381,9 @@ router.post('/events/:id/flyer', requireOrganizer, upload.single('flyer'), async
 
   const { data: { publicUrl } } = supabase.storage.from('flyers').getPublicUrl(fileName);
 
-  await supabase.from('events').update({ flyer_url: publicUrl }).eq('id', req.params.id);
-  res.json({ url: publicUrl });
+  const updatedAt = new Date().toISOString();
+  await supabase.from('events').update({ flyer_url: publicUrl, updated_at: updatedAt }).eq('id', req.params.id);
+  res.json({ url: bustFlyerCache(publicUrl, updatedAt) });
 });
 
 router.delete('/events/:id/flyer', requireOrganizer, async (req, res) => {
