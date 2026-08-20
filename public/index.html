@@ -1364,10 +1364,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div class="dj-st"><div class="dj-st-n" id="dj-s3">0</div><div class="dj-st-l">Votants</div></div>
     </div>
     <div class="np-dj"><div class="np-dj-glow"></div><div class="np-tag">▶ En cours</div><div class="np-t" id="dj-np-t">En attente…</div><div class="np-a" id="dj-np-a"></div></div>
-    <div class="qr-card"><div class="qr-box"><div id="dj-qr"></div></div><div class="qr-info"><div class="qr-evname" id="dj-qr-evname">—</div><div class="qr-url" id="dj-qr-url"></div><div class="qr-acts"><button class="qr-btn" onclick="copyUrl()">📋 Copier</button><button class="qr-btn new" onclick="createNewEvent()">＋ Nouvelle</button><button class="qr-btn" onclick="showPage('bigscreen')">📺 Écran</button></div></div></div>
+    <div class="qr-card"><div class="qr-box"><div id="dj-qr"></div></div><div class="qr-info"><div class="qr-evname" id="dj-qr-evname">—</div><div class="qr-url" id="dj-qr-url"></div><div class="qr-acts"><button class="qr-btn" onclick="copyUrl()">📋 Copier</button><button class="qr-btn" onclick="showPage('bigscreen')">📺 Écran</button></div></div></div>
     <div class="qr-card" style="flex-direction:column;align-items:stretch;gap:.55rem">
       <div style="font-size:.8rem;font-weight:700;color:var(--tx)">📺 Associer un écran manuellement</div>
-      <div style="font-size:.7rem;color:var(--tx3)">Entre le code à 6 caractères affiché sur l'écran (ex : 47GN8D)</div>
+      <div style="font-size:.7rem;color:var(--tx3)">Sur l'écran, ouvre <strong style="color:var(--vi)">www.pull-up.live/tv</strong> puis entre ici le code à 6 caractères affiché (ex : 47GN8D)</div>
       <div style="display:flex;gap:.5rem">
         <input id="manual-pair-code" maxlength="6" placeholder="CODE" style="flex:1;text-transform:uppercase;letter-spacing:.15em;font-weight:700;text-align:center;padding:.6rem;border-radius:10px;border:1px solid var(--bdr);font-family:'Inter',sans-serif" oninput="this.value=this.value.toUpperCase()">
         <button class="qr-btn" onclick="manualPairScreen()">Associer</button>
@@ -1744,7 +1744,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </div>
 
 <script src="/js/config.js?v=2"></script>
-<script src="/js/api.js?v=14"></script>
+<script src="/js/api.js?v=15"></script>
 <script src="/js/app.js?v=50"></script>
 <script src="/js/render.js?v=23"></script>
 <script src="/js/chat.js?v=18"></script>

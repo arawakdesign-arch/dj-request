@@ -36,6 +36,28 @@ async function api(method, path, body, { dj, token } = {}) {
 }
 
 // ── Souscriptions Realtime ────────────────────────────────────────────
+// Rechargement + fusion des propositions — utilisé à la fois par le
+// handler Realtime et par le polling de secours ci-dessous (le canal
+// WebSocket peut se couper silencieusement sans se resouscrire, ex :
+// téléphone verrouillé, changement de réseau — d'où les votes qui
+// n'apparaissaient pas toujours sans recharger la page manuellement).
+async function refreshProposals(evId) {
+  const p = await api('GET', '/proposals/' + evId);
+  // Merge : préserver les métadonnées locales (title, artist, coverUrl)
+  // absentes du schéma DB actuel mais présentes en mémoire locale
+  const fetched = Object.fromEntries(p.map(x => [x.id, { ...x, coverUrl: x.cover_url || null }]));
+  Object.keys(fetched).forEach(id => {
+    if (proposals[id]) {
+      fetched[id].title    = proposals[id].title    || fetched[id].title;
+      fetched[id].artist   = proposals[id].artist   || fetched[id].artist;
+      fetched[id].coverUrl = proposals[id].coverUrl || fetched[id].coverUrl;
+    }
+  });
+  proposals = fetched;
+  renderAll();
+  loadVoteRate(evId);
+}
+
 function subscribeToEvent(evId) {
   console.log('[pullup] subscribeToEvent() evId=', evId);
   if (!_sb) { console.warn('[pullup] subscribeToEvent: Supabase non initialisé'); return; }
@@ -43,21 +65,8 @@ function subscribeToEvent(evId) {
     .on('postgres_changes', {event:'*', schema:'public', table:'proposals', filter:'event_id=eq.'+evId},
       async (payload) => {
         console.log('[pullup] Realtime proposals:', payload.eventType, '— rechargement pour evId=', evId);
-        const p = await api('GET', '/proposals/' + evId);
-        console.log('[pullup] Realtime proposals rechargés :', p.length, 'items');
-        // Merge : préserver les métadonnées locales (title, artist, coverUrl)
-        // absentes du schéma DB actuel mais présentes en mémoire locale
-        const fetched = Object.fromEntries(p.map(x => [x.id, { ...x, coverUrl: x.cover_url || null }]));
-        Object.keys(fetched).forEach(id => {
-          if (proposals[id]) {
-            fetched[id].title    = proposals[id].title    || fetched[id].title;
-            fetched[id].artist   = proposals[id].artist   || fetched[id].artist;
-            fetched[id].coverUrl = proposals[id].coverUrl || fetched[id].coverUrl;
-          }
-        });
-        proposals = fetched;
-        renderAll();
-        loadVoteRate(evId);
+        await refreshProposals(evId);
+        console.log('[pullup] Realtime proposals rechargés');
       })
     .subscribe(status => console.log('[pullup] Canal proposals:' + evId, '→', status));
 
@@ -151,3 +160,13 @@ async function loadVoteRate(evId) {
     elt('venue-recent-votes', perMinute ?? 0);
   } catch(e) {}
 }
+
+// ── Filet de sécurité : rafraîchissement périodique des propositions ───
+// Le canal Realtime peut se couper sans se resouscrire (verrouillage
+// téléphone, changement de réseau) — ce polling garantit que les votes
+// finissent toujours par apparaître, même sans recharger la page.
+setInterval(() => {
+  if (document.visibilityState !== 'visible') return;
+  if (!isValidUuid(eid)) return;
+  refreshProposals(eid).catch(() => {});
+}, 15000);
