@@ -1,6 +1,7 @@
 const express  = require('express');
 const supabase = require('../lib/supabase');
 const { requireAuth, isOrganizer } = require('../middleware/auth');
+const { containsProfanity } = require('../lib/moderation');
 
 const ALLOWED_REACTIONS = ['🔥', '👍', '❤️', '💜'];
 
@@ -21,6 +22,7 @@ router.get('/messages/:eventId', async (req, res) => {
 router.post('/messages', requireAuth, async (req, res) => {
   const { event_id, text, photo_url } = req.body;
   if (!event_id || (!text && !photo_url)) return res.status(400).json({ error: 'Champs manquants' });
+  if (text && containsProfanity(text)) return res.status(400).json({ error: 'Message non autorisé — merci de rester respectueux.' });
 
   const profile   = await supabase.from('user_profiles').select('display_name, photo_url').eq('id', req.user.id).single();
   const userName  = profile.data?.display_name || req.user.phone || 'Invité';

@@ -2,6 +2,7 @@ const express  = require('express');
 const multer   = require('multer');
 const supabase = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
+const { validateDisplayName } = require('../lib/moderation');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -14,6 +15,10 @@ router.get('/profile', requireAuth, async (req, res) => {
 
 router.patch('/profile', requireAuth, async (req, res) => {
   const { display_name, bio, friend_code } = req.body;
+  if (display_name !== undefined) {
+    const check = validateDisplayName(display_name);
+    if (!check.ok) return res.status(400).json({ error: check.reason });
+  }
   const updates = { updated_at: new Date().toISOString() };
   if (display_name !== undefined) updates.display_name = display_name;
   if (bio          !== undefined) updates.bio          = bio;

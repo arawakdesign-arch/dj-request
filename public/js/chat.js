@@ -430,7 +430,13 @@ async function sendChatMsg() {
     try {
       const saved = await api('POST', '/messages', { event_id: eid, text });
       _replaceOptimisticMsg(tmpId, saved);
-    } catch(e) { /* message local gardé */ }
+    } catch(e) {
+      // Refusé par le serveur (ex : message filtré) — retirer la bulle optimiste,
+      // sinon le message a l'air d'être bien envoyé alors qu'il n'a jamais atteint
+      // les autres participants.
+      document.getElementById('msg-' + tmpId)?.remove();
+      toast('⚠️ ' + e.message);
+    }
   }
 }
 

@@ -661,8 +661,9 @@ function openProfileEdit() {
 async function saveProfile() {
   const name  = document.getElementById('prof-edit-name')?.value.trim() || currentUser?.displayName || 'Invité';
   const bio   = document.getElementById('prof-edit-bio')?.value.trim()  || '';
-  const saved = JSON.parse(localStorage.getItem('djr_profile') || '{}');
-  const profile = { ...saved, name, bio };
+  const prevSaved = JSON.parse(localStorage.getItem('djr_profile') || '{}');
+  const prevName  = currentUser?.displayName;
+  const profile = { ...prevSaved, name, bio };
   localStorage.setItem('djr_profile', JSON.stringify(profile));
   if (currentUser) currentUser.displayName = name;
   applyProfileToUI(profile);
@@ -670,7 +671,15 @@ async function saveProfile() {
   toast('✅ Profil mis à jour !');
   // Sync backend
   if (_authToken || _sbSession) api('PATCH', '/profile', { display_name: name, bio, friend_code: getFriendCode() })
-    .catch(e => { console.error('[pullup] Échec sauvegarde profil :', e.message); toast('⚠️ Profil gardé en local seulement — ' + e.message); });
+    .catch(e => {
+      console.error('[pullup] Échec sauvegarde profil :', e.message);
+      // Refusé par le serveur (ex : nom non autorisé) — annule le changement optimiste
+      // ci-dessus, sinon le nom rejeté reste affiché en local sans jamais être accepté.
+      localStorage.setItem('djr_profile', JSON.stringify(prevSaved));
+      if (currentUser) currentUser.displayName = prevName;
+      applyProfileToUI(prevSaved);
+      toast('⚠️ ' + e.message);
+    });
 }
 
 // Le profil (nom, bio, photo) est sauvegardé côté serveur via saveProfile()/

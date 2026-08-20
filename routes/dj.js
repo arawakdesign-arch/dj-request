@@ -2,6 +2,7 @@ const express  = require('express');
 const multer   = require('multer');
 const supabase = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
+const { validateDisplayName } = require('../lib/moderation');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -15,6 +16,8 @@ router.get('/dj/profile', requireAuth, async (req, res) => {
 router.post('/dj/profile', requireAuth, async (req, res) => {
   const { stage_name, tagline, bio, city, genres, instagram, soundcloud, resident_advisor, booking_email, available } = req.body;
   if (!stage_name) return res.status(400).json({ error: 'Nom de scène requis' });
+  const nameCheck = validateDisplayName(stage_name);
+  if (!nameCheck.ok) return res.status(400).json({ error: nameCheck.reason });
 
   const updates = { id: req.user.id, stage_name, updated_at: new Date().toISOString() };
   if (tagline           !== undefined) updates.tagline          = tagline;
