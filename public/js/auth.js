@@ -415,6 +415,15 @@ async function _djCreateSyncGoogleState() {
       return;
     }
   } catch(e) {}
+
+  if (typeof _fillHoursSelects === 'function') _fillHoursSelects('create-');
+  // Pré-remplit "Organisateur" avec le nom déjà enregistré sur "Ma page",
+  // pour ne pas le refaire taper à chaque nouvelle soirée.
+  try {
+    if (!_orgaProfileCache) _orgaProfileCache = await api('GET', '/orga/profile', null, { dj: true });
+    const orgaField = document.getElementById('create-orga');
+    if (orgaField && !orgaField.value) orgaField.value = _orgaProfileCache?.name || '';
+  } catch(e) {}
   document.getElementById('dj-create-form').style.display = 'block';
 }
 function _djLoginBack() {
@@ -493,24 +502,32 @@ async function djJoin() {
 
 // ── Créer une nouvelle soirée — connexion Google déjà acquise à ce stade ──
 async function djCreateSubmit() {
-  const n   = document.getElementById('dj-create-name').value.trim();
-  const p   = document.getElementById('dj-create-pwd').value;
+  const n     = document.getElementById('dj-create-name').value.trim();
+  const p     = document.getElementById('dj-create-pwd').value;
+  const orga  = document.getElementById('create-orga')?.value.trim();
+  const club  = document.getElementById('create-club')?.value.trim();
+  const addr  = document.getElementById('create-address')?.value.trim();
+  const date  = document.getElementById('create-date')?.value;
+  const hours = document.getElementById('create-hours')?.value;
   const err = document.getElementById('dj-create-err');
   if (!n) { err.textContent = '⚠️ Saisissez un nom de soirée.'; return; }
   if (!p) { err.textContent = '⚠️ Mot de passe requis.'; return; }
   err.textContent = '';
   try {
-    const ev = await api('POST', '/events', { name: n, password: p });
+    const body = { name: n, password: p, orga, club_name: club, address: addr, hours };
+    if (date) body.scheduled_at = new Date(date).toISOString();
+    const ev = await api('POST', '/events', body);
     eid = ev.id;
     localStorage.setItem('djr_eid',   eid);
     localStorage.setItem('djr_ename', n);
     // Obtenir le token organizer immédiatement après création pour survivre au refresh
     const authRes = await api('POST', '/events/' + eid + '/auth', { password: p });
     if (authRes.token) saveToken(authRes.token);
-    // Line-up rempli pendant la création (eid/token viennent d'être obtenus
-    // ci-dessus) — _saveLineup() lit le tableau _lineup partagé et gère
-    // elle-même son propre toast/erreur.
+    // Line-up et flyer remplis pendant la création (eid/token viennent d'être
+    // obtenus ci-dessus, donc utilisables seulement maintenant) — ces deux
+    // helpers gèrent eux-mêmes leur toast/erreur.
     if (_lineup.length) _saveLineup();
+    if (_createFlyerDataUrl) { await _persistFlyer(_createFlyerDataUrl); _createFlyerDataUrl = null; }
     // subscribeToEvent est appelé par loadEvent() dans _activateDJ() — pas de doublon ici
     await _activateDJ(n, p);
     toast(`🎉 Soirée "${n}" créée !`);

@@ -1309,12 +1309,38 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           <button id="dj-create-existing-btn" style="width:100%;padding:.75rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.85rem;font-weight:700;font-family:Inter,sans-serif">✎ Modifier</button>
         </div>
         <div id="dj-create-form" style="display:none">
+          <div class="fl"><label>Organisateur</label><input class="fi" id="create-orga" type="text" placeholder="Ton nom / nom de ton collectif" maxlength="60"></div>
           <div class="fl"><label>Nom de la soirée</label><input class="fi" id="dj-create-name" type="text" placeholder="Ex: Nuit Électrique" maxlength="40"></div>
           <div class="fl"><label>Mot de passe</label><input class="fi" id="dj-create-pwd" type="password" placeholder="••••••••"></div>
+          <div class="fl"><label>Nom du club</label><input class="fi" id="create-club" type="text" placeholder="Warehouse 42"></div>
+          <div class="fl"><label>Adresse du club</label><input class="fi" id="create-address" type="text" placeholder="32 Av. Corentin Cariou, Paris 19e"></div>
+          <div class="fl"><label>Date de l'événement (vide = déjà en cours)</label><input class="fi" id="create-date" type="datetime-local"></div>
+          <div class="fl">
+            <label>Horaires</label>
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <select class="fi" id="create-hours-start" onchange="_syncHoursField('create-')" style="flex:1"></select>
+              <span style="color:var(--tx4);flex-shrink:0">→</span>
+              <select class="fi" id="create-hours-end" onchange="_syncHoursField('create-')" style="flex:1"></select>
+            </div>
+            <input type="hidden" id="create-hours">
+          </div>
+
+          <!-- FLYER (upload différé — envoyé au serveur juste après la création) -->
+          <div style="margin-top:.75rem;padding-top:.85rem;border-top:1px solid var(--bdr)">
+            <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Flyer</div>
+            <div id="create-flyer-preview" style="width:100%;aspect-ratio:1/1;border-radius:1rem;background:var(--dj-card);background-size:cover;background-position:center;margin-bottom:.75rem;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr)">
+              <span style="font-size:.78rem;color:rgba(255,255,255,.4)" id="create-flyer-hint">Aucun flyer choisi</span>
+            </div>
+            <input type="file" id="create-flyer-input" accept="image/*" style="display:none" onchange="handleCreateFlyerSelect(this)">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+              <button type="button" onclick="document.getElementById('create-flyer-input').click()" style="padding:.75rem;border-radius:1rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif">📸 Choisir</button>
+              <button type="button" onclick="clearCreateFlyer()" style="padding:.75rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif">🗑️ Retirer</button>
+            </div>
+          </div>
 
           <!-- LINE-UP (optionnel — se règle uniquement à la création, les DJ changent à chaque soirée) -->
           <div style="background:var(--ink5);border:1px solid var(--bdr);border-radius:1.1rem;padding:.9rem;margin:.9rem 0">
-            <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.7rem">Line-up (optionnel)</div>
+            <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.7rem">Nom du DJ / Line-up (optionnel)</div>
             <div id="create-lineup-list" style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:.7rem"></div>
             <div class="fl" style="margin-bottom:.4rem">
               <label>Chercher un DJ inscrit sur Pull up</label>
@@ -1333,7 +1359,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
             </div>
           </div>
 
-          <button class="btn-g" id="btn-dj-create-submit">🎉 Créer la soirée</button>
+          <button class="btn-g" id="btn-dj-create-submit">💾 Enregistrer l'événement</button>
         </div>
         <div class="auth-err" id="dj-create-err" style="margin-top:.5rem"></div>
       </div>
@@ -1813,9 +1839,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=20"></script>
-<script src="/js/app.js?v=67"></script>
+<script src="/js/app.js?v=68"></script>
 <script src="/js/render.js?v=30"></script>
 <script src="/js/chat.js?v=22"></script>
-<script src="/js/auth.js?v=36"></script>
+<script src="/js/auth.js?v=37"></script>
 </body>
 </html>

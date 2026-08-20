@@ -442,20 +442,21 @@ function downloadOrgaClients() {
     .catch(e => toast('⚠️ ' + (e.message || 'Téléchargement impossible')));
 }
 
-// ── Horaires : deux menus déroulants (début/fin) qui écrivent dans le champ
-// caché #settings-hours (format "22h → 6h"), lu tel quel par saveSettings().
+// ── Horaires : deux menus déroulants (début/fin) qui écrivent dans un champ
+// caché #<préfixe>hours (format "22h → 6h"). Même paire settings-*/create-*
+// utilisée dans Réglages et dans le formulaire de création.
 const HOURS_OPTIONS = [18,19,20,21,22,23,0,1,2,3,4,5,6,7,8].map(h => (h+'').padStart(2,'0') + 'h');
-function _fillHoursSelects() {
-  const start = document.getElementById('settings-hours-start');
-  const end   = document.getElementById('settings-hours-end');
+function _fillHoursSelects(prefix = 'settings-') {
+  const start = document.getElementById(prefix + 'hours-start');
+  const end   = document.getElementById(prefix + 'hours-end');
   if (!start || !end || start.options.length) return; // déjà rempli
   start.innerHTML = '<option value="">De —</option>' + HOURS_OPTIONS.map(h => `<option>${h}</option>`).join('');
   end.innerHTML   = '<option value="">à —</option>'  + HOURS_OPTIONS.map(h => `<option>${h}</option>`).join('');
 }
-function _syncHoursField() {
-  const start = document.getElementById('settings-hours-start')?.value;
-  const end   = document.getElementById('settings-hours-end')?.value;
-  const field = document.getElementById('settings-hours');
+function _syncHoursField(prefix = 'settings-') {
+  const start = document.getElementById(prefix + 'hours-start')?.value;
+  const end   = document.getElementById(prefix + 'hours-end')?.value;
+  const field = document.getElementById(prefix + 'hours');
   if (field) field.value = (start && end) ? `${start} → ${end}` : '';
 }
 
@@ -1009,6 +1010,34 @@ function applyProfileToUI(profile) {
 }
 
 // ══ FLYER ════════════════════════════════════════════════════════════
+// Envoi effectif au serveur — factorisé pour être réutilisable juste après la
+// création d'une soirée (eid/_authToken n'existent qu'à partir de ce moment-là).
+async function _persistFlyer(dataUrl) {
+  if (!eid || !(_authToken || _djPassword)) return;
+  try {
+    const blob = dataURLtoBlob(dataUrl);
+    const form = new FormData();
+    form.append('flyer', blob, 'flyer.jpg');
+    const headers = {};
+    if (_authToken)  headers['Authorization']        = 'Bearer ' + _authToken;
+    if (_djPassword) headers['x-organizer-password'] = _djPassword;
+    const r = await fetch(`/api/events/${eid}/flyer`, { method: 'POST', headers, body: form });
+    if (r.ok) {
+      const { url } = await r.json();
+      localStorage.setItem('djr_flyer', url);
+      applyFlyer(url);
+      toast('✅ Flyer sauvegardé !');
+    } else {
+      const err = await r.json().catch(() => ({}));
+      console.error('[pullup] Échec upload flyer :', err.error || r.status);
+      toast('⚠️ Flyer gardé en local seulement — ' + (err.error || 'échec serveur'));
+    }
+  } catch(e) {
+    console.error('[pullup] Échec upload flyer :', e.message);
+    toast('⚠️ Flyer gardé en local seulement — ' + e.message);
+  }
+}
+
 async function uploadFlyer(input) {
   const file = input.files[0]; if (!file) return;
   toast('🖼️ Compression du flyer…');
@@ -1021,35 +1050,32 @@ async function uploadFlyer(input) {
   // Preview locale immédiate
   localStorage.setItem('djr_flyer', dataUrl);
   applyFlyer(dataUrl);
+  await _persistFlyer(dataUrl);
+}
 
-  // Upload backend si organisateur connecté à un événement. _djPassword n'est
-  // rempli qu'au moment de la saisie du mot de passe et ne survit pas à un
-  // rechargement de page — on envoie donc aussi le JWT organisateur restauré
-  // (_authToken), sans quoi l'upload échouait silencieusement après un refresh.
-  if (eid && (_authToken || _djPassword)) {
-    try {
-      const blob = dataURLtoBlob(dataUrl);
-      const form = new FormData();
-      form.append('flyer', blob, 'flyer.jpg');
-      const headers = {};
-      if (_authToken)  headers['Authorization']        = 'Bearer ' + _authToken;
-      if (_djPassword) headers['x-organizer-password'] = _djPassword;
-      const r = await fetch(`/api/events/${eid}/flyer`, { method: 'POST', headers, body: form });
-      if (r.ok) {
-        const { url } = await r.json();
-        localStorage.setItem('djr_flyer', url);
-        applyFlyer(url);
-        toast('✅ Flyer sauvegardé !');
-      } else {
-        const err = await r.json().catch(() => ({}));
-        console.error('[pullup] Échec upload flyer :', err.error || r.status);
-        toast('⚠️ Flyer gardé en local seulement — ' + (err.error || 'échec serveur'));
-      }
-    } catch(e) {
-      console.error('[pullup] Échec upload flyer :', e.message);
-      toast('⚠️ Flyer gardé en local seulement — ' + e.message);
-    }
-  }
+// ── Flyer au moment de la création : pas encore d'eid, donc on prévisualise
+// seulement en local et on n'envoie au serveur qu'une fois la soirée créée
+// (cf. djCreateSubmit dans auth.js).
+let _createFlyerDataUrl = null;
+async function handleCreateFlyerSelect(input) {
+  const file = input.files[0]; if (!file) return;
+  toast('🖼️ Compression du flyer…');
+  try {
+    _createFlyerDataUrl = await compressImage(file, 1200, 0.8);
+  } catch(e) { toast('❌ Erreur photo'); return; }
+  const preview = document.getElementById('create-flyer-preview');
+  const hint    = document.getElementById('create-flyer-hint');
+  if (preview) { preview.style.backgroundImage = `url(${_createFlyerDataUrl})`; }
+  if (hint)    hint.style.display = 'none';
+}
+function clearCreateFlyer() {
+  _createFlyerDataUrl = null;
+  const preview = document.getElementById('create-flyer-preview');
+  const hint    = document.getElementById('create-flyer-hint');
+  const input   = document.getElementById('create-flyer-input');
+  if (preview) preview.style.backgroundImage = '';
+  if (hint)    hint.style.display = '';
+  if (input)   input.value = '';
 }
 
 function removeFlyer() {
