@@ -57,35 +57,27 @@ window.addEventListener('load', async () => {
   // ename n'est jamais restauré depuis localStorage :
   // loadEvent() le définit depuis la DB, pas depuis le cache.
 
-  // 1. Token backend sauvegardé (guest, téléphone, OAuth, organizer) → vérifier s'il est encore valide
-  const saved = loadToken();
-  if (saved) {
+  // 1. Session organisateur (JWT interne lié à un event_id) — indépendante de
+  // l'identité personnelle ci-dessous : un organisateur peut aussi voter/
+  // discuter avec son propre compte Google/téléphone, ce sont deux choses
+  // distinctes. Ne jamais faire de cette session la source de l'identité
+  // générale (cf. api.js) sous peine de "perdre" son compte personnel.
+  const savedOrgToken = loadToken();
+  if (savedOrgToken) {
     try {
-      const res = await api('GET', '/auth/me', null, { token: saved });
+      const res = await api('GET', '/auth/me', null, { token: savedOrgToken });
       const u   = res.user;
-      _sbSession = { access_token: saved };
-      currentUser = {
-        displayName: u.displayName || u.phoneNumber || 'Invité',
-        uid:         u.id,
-        phoneNumber: u.phoneNumber || null,
-        role:        u.role || 'user',
-      };
-      console.log('[pullup] restore token : role=', u.role, 'event_id=', u.event_id);
       if (u.role === 'organizer' && isValidUuid(u.event_id)) {
-        // Restaurer session DJ : le JWT est la source d'autorité (propriétaire de l'événement)
         eid   = u.event_id;
         ename = u.displayName || '';
-        console.log('[pullup] restauration session organizer : eid=', eid);
         await _activateDJ(ename, null);
       } else {
-        afterLogin();
-        if (eid) { await loadEvent(eid).catch(() => {}); }
+        clearToken(); // ancien format de token (invité, etc.) — plus utilisé
       }
-      return;
     } catch(e) { clearToken(); }
   }
 
-  // 2. Session Supabase (Google OAuth callback, etc.)
+  // 2. Identité personnelle (Google OAuth, magic link, téléphone via Supabase)
   if (_sb) {
     try {
       _sb.auth.onAuthStateChange(async (event, session) => {
@@ -96,7 +88,7 @@ window.addEventListener('load', async () => {
           _sbSession = session;
           const u   = session.user;
           currentUser = {
-            displayName: u.user_metadata?.display_name || u.phone || u.email || 'Invité',
+            displayName: u.user_metadata?.full_name || u.user_metadata?.name || u.phone || u.email || 'Invité',
             uid:         u.id,
             phoneNumber: u.phone  || null,
             email:       u.email  || null,
@@ -106,14 +98,14 @@ window.addEventListener('load', async () => {
             sessionStorage.removeItem('djr_pending_create_intent');
             showPage('dj-login');
             _djLoginShowCreate(); // le formulaire nom/mot de passe apparaît, currentUser.email est maintenant renseigné
-          } else if (eid) {
+          } else if (eid && !djLoggedIn) {
             await loadEvent(eid).catch(() => {});
           }
           // Nettoyer le hash OAuth ; conserver ou rétablir le paramètre ?event=
           if (window.location.hash) {
             history.replaceState(null, '', eid ? buildEventUrl(eid) : (window.location.pathname + window.location.search));
           }
-        } else if (event !== 'INITIAL_SESSION' && !_loggedIn) {
+        } else if (event !== 'INITIAL_SESSION' && !_loggedIn && !djLoggedIn) {
           showPage('auth');
         }
       });
@@ -122,8 +114,9 @@ window.addEventListener('load', async () => {
     } catch(e) {}
   }
 
-  // 3. Pas de session → page d'auth
-  showPage('auth');
+  // 3. Ni organisateur ni identité personnelle → page d'auth (sauf si le
+  // mode DJ a déjà choisi sa page à l'étape 1 ci-dessus)
+  if (!djLoggedIn) showPage('auth');
 });
 
 // ── Page publique organisateur (pull-up.live/slug) ───────────────────
@@ -235,7 +228,10 @@ function afterLogin() {
   _loggedIn = true;
   const subEl = document.getElementById('prof-sub'); if (subEl) subEl.textContent = currentUser?.phoneNumber || currentUser?.email || '';
   renderProfile();
-  showPage('client');
+  // Ne pas voler l'écran si le mode DJ est déjà actif (session organisateur
+  // restaurée en parallèle, cf. window.load) — on charge quand même tout le
+  // reste (profil, chat...) pour que l'identité personnelle soit disponible.
+  if (!djLoggedIn) showPage('client');
   renderAll();
   applyProfileToUI(); // initiale / photo dès la connexion (localStorage si présent, sinon fallback sur le nom du compte)
   loadRemoteProfile(); // le serveur fait autorité — écrase le cache local si le profil a été modifié ailleurs

@@ -17,8 +17,11 @@ const _configReady = _initSupabase();
 // ── Fetch helper vers le serveur Node.js ─────────────────────────────
 async function api(method, path, body, { dj, token } = {}) {
   const headers = { 'Content-Type': 'application/json' };
-  // Priorité : token explicite > token interne > session Supabase
-  const bearer = token || _authToken || _sbSession?.access_token;
+  // _authToken est un JWT organisateur lié à un event_id (pas une identité
+  // personnelle) — ne jamais l'utiliser pour une action "normale" (voter,
+  // discuter, lister ses soirées...), sinon le serveur résout l'id de
+  // l'événement à la place du vrai compte de la personne.
+  const bearer = token || (dj ? (_authToken || _sbSession?.access_token) : _sbSession?.access_token);
   if (bearer) headers['Authorization'] = 'Bearer ' + bearer;
   if (dj && _djPassword) headers['x-organizer-password'] = _djPassword;
   const r = await fetch('/api' + path, {
