@@ -1337,12 +1337,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
             <div style="border-top:1px solid var(--bdr);padding-top:.7rem;margin-top:.2rem">
               <label style="font-size:.72rem;font-weight:600;color:var(--tx3);display:block;margin-bottom:.4rem">DJ pas encore inscrit sur Pull up ?</label>
               <input class="fi" id="create-lineup-sc-search" type="text" placeholder="🔍 Chercher sur SoundCloud…" style="margin-bottom:.4rem" oninput="_lineupScSearch(this.value)" autocomplete="off">
-              <div id="create-lineup-sc-results" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem"></div>
-              <input class="fi" id="create-lineup-ext-name" type="text" placeholder="Nom du DJ" style="margin-bottom:.5rem">
-              <div style="display:flex;gap:.5rem">
-                <input class="fi" id="create-lineup-ext-sc" type="text" placeholder="Lien SoundCloud (optionnel)" style="flex:1">
-                <button type="button" onclick="_lineupAddExternal()" style="flex-shrink:0;padding:0 1rem;border-radius:.85rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:700;font-family:Inter,sans-serif">Ajouter</button>
-              </div>
+              <div id="create-lineup-sc-results" style="display:flex;flex-direction:column;gap:.4rem"></div>
             </div>
           </div>
 
@@ -1483,12 +1478,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <div style="border-top:1px solid var(--bdr);padding-top:.75rem;margin-top:.25rem">
           <label style="font-size:.72rem;font-weight:600;color:var(--tx3);display:block;margin-bottom:.4rem">DJ pas encore inscrit sur Pull up ?</label>
           <input class="fi" id="lineup-sc-search" type="text" placeholder="🔍 Chercher sur SoundCloud…" style="margin-bottom:.4rem" oninput="_lineupScSearch(this.value,'settings')" autocomplete="off">
-          <div id="lineup-sc-results" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem"></div>
-          <input class="fi" id="lineup-ext-name" type="text" placeholder="Nom du DJ" style="margin-bottom:.5rem">
-          <div style="display:flex;gap:.5rem">
-            <input class="fi" id="lineup-ext-sc" type="text" placeholder="Lien SoundCloud (optionnel)" style="flex:1">
-            <button type="button" onclick="_lineupAddExternal('settings')" style="flex-shrink:0;padding:0 1rem;border-radius:.85rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:700;font-family:Inter,sans-serif">Ajouter</button>
-          </div>
+          <div id="lineup-sc-results" style="display:flex;flex-direction:column;gap:.4rem"></div>
         </div>
       </div>
 
@@ -1855,7 +1845,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=20"></script>
-<script src="/js/app.js?v=70"></script>
+<script src="/js/app.js?v=71"></script>
 <script src="/js/render.js?v=30"></script>
 <script src="/js/chat.js?v=22"></script>
 <script src="/js/auth.js?v=37"></script>

@@ -507,8 +507,8 @@ async function populateSettingsForm() {
 let _lineup = [];
 let _lineupSearchTimer = null;
 const _LINEUP_IDS = {
-  settings: { list: 'lineup-list',        search: 'lineup-search',        results: 'lineup-search-results',        extName: 'lineup-ext-name',        extSc: 'lineup-ext-sc',        scSearch: 'lineup-sc-search',        scResults: 'lineup-sc-results' },
-  create:   { list: 'create-lineup-list', search: 'create-lineup-search', results: 'create-lineup-search-results', extName: 'create-lineup-ext-name', extSc: 'create-lineup-ext-sc', scSearch: 'create-lineup-sc-search', scResults: 'create-lineup-sc-results' },
+  settings: { list: 'lineup-list',        search: 'lineup-search',        results: 'lineup-search-results',        scSearch: 'lineup-sc-search',        scResults: 'lineup-sc-results' },
+  create:   { list: 'create-lineup-list', search: 'create-lineup-search', results: 'create-lineup-search-results', scSearch: 'create-lineup-sc-search', scResults: 'create-lineup-sc-results' },
 };
 
 function _renderLineup(scope = 'create') {
@@ -557,18 +557,6 @@ function _lineupAddApp(dj, scope = 'create') {
   _lineup.push({ type: 'app', id: dj.id, name: dj.stage_name, photo_url: dj.photo_url || null });
   document.getElementById(ids.search).value = '';
   document.getElementById(ids.results).innerHTML = '';
-  _renderLineup(scope);
-  _saveLineup();
-}
-
-function _lineupAddExternal(scope = 'create') {
-  const ids = _LINEUP_IDS[scope];
-  const name = document.getElementById(ids.extName).value.trim();
-  const sc   = document.getElementById(ids.extSc).value.trim();
-  if (!name) { toast('⚠️ Entrez le nom du DJ'); return; }
-  _lineup.push({ type: 'external', name, soundcloud_url: sc || null });
-  document.getElementById(ids.extName).value = '';
-  document.getElementById(ids.extSc).value   = '';
   _renderLineup(scope);
   _saveLineup();
 }
