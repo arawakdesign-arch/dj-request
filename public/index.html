@@ -1097,29 +1097,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <!-- MES SOIRÉES CRÉÉES (propriétaire) -->
       <div id="prof-owned-events" style="display:none;margin-bottom:.5rem"></div>
 
-      <!-- ACCÈS ORGANISATEUR -->
-      <div style="margin-bottom:.5rem">
-        <button id="btn-dj-register-entry" onclick="openDjRegister()" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(255,28,142,.2);background:rgba(255,28,142,.05);cursor:pointer;transition:all .2s">
-          <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,28,142,.12);border:1px solid rgba(255,28,142,.25);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🎧</div>
-          <div style="text-align:left;flex:1">
-            <div id="btn-dj-register-title" style="font-size:.88rem;font-weight:700;color:var(--pk)">S'enregistrer comme DJ</div>
-            <div id="btn-dj-register-sub" style="font-size:.7rem;color:var(--tx3);margin-top:2px">Crée ton profil et ton press kit</div>
-          </div>
-          <div style="color:var(--pk);font-size:1rem">→</div>
-        </button>
-      </div>
-
-      <div id="orga-access-btn" style="margin-bottom:.5rem">
-        <button onclick="djLoggedIn?navTo('dj'):showPage('dj-login')" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;transition:all .2s">
-          <div style="width:42px;height:42px;border-radius:12px;background:rgba(111,34,255,.15);border:1px solid rgba(111,34,255,.28);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🎛️</div>
-          <div style="text-align:left;flex:1">
-            <div style="font-size:.88rem;font-weight:700;color:var(--vi)">Espace Organisateur</div>
-            <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">Gérer la soirée, le chat, le press kit</div>
-          </div>
-          <div style="color:var(--vi);font-size:1rem">→</div>
-        </button>
-      </div>
-
       <!-- Déconnexion utilisateur -->
       <button id="btn-user-logout" style="width:100%;padding:.72rem;border-radius:1rem;border:1px solid rgba(255,59,87,.2);background:rgba(255,59,87,.05);color:var(--red);font-size:.82rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.5rem">
         Se déconnecter
