@@ -408,6 +408,13 @@ async function populateSettingsForm() {
     set('settings-club',    ev.club_name);
     set('settings-orga',    ev.orga);
     set('settings-address', ev.address);
+    if (ev.scheduled_at) {
+      const d = new Date(ev.scheduled_at);
+      const pad = n => String(n).padStart(2, '0');
+      set('settings-date', `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
+    } else {
+      set('settings-date', '');
+    }
 
     _fillHoursSelects();
     const [h1, h2] = (ev.hours || '').split('→').map(s => s.trim());
@@ -832,6 +839,7 @@ function saveSettings() {
   const orga     = document.getElementById('settings-orga')?.value.trim();
   const address  = document.getElementById('settings-address')?.value.trim();
   const hours    = document.getElementById('settings-hours')?.value.trim();
+  const dateV    = document.getElementById('settings-date')?.value;
   if (evName)   { ename = evName; const fn = document.getElementById('flyer-ev-name'); if(fn) fn.textContent = evName;
                   const en = document.getElementById('venue-event-name'); if(en) en.textContent = evName; }
   if (clubName) { const cn = document.getElementById('club-name-strip'); if(cn) cn.textContent = clubName; }
@@ -845,6 +853,7 @@ function saveSettings() {
     if (orga)     updates.orga      = orga;
     if (address)  updates.address   = address;
     if (hours)    updates.hours     = hours;
+    updates.scheduled_at = dateV ? new Date(dateV).toISOString() : null;
     if (Object.keys(updates).length) {
       api('PATCH', '/events/' + eid, updates, {dj: true}).catch(e => {
         console.error('[pullup] Échec enregistrement réglages :', e.message);

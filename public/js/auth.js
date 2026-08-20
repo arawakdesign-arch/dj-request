@@ -490,17 +490,14 @@ async function djJoin() {
 
 // ── Créer une nouvelle soirée — connexion Google déjà acquise à ce stade ──
 async function djCreateSubmit() {
-  const n     = document.getElementById('dj-create-name').value.trim();
-  const p     = document.getElementById('dj-create-pwd').value;
-  const dateV = document.getElementById('dj-create-date')?.value;
-  const err   = document.getElementById('dj-create-err');
+  const n   = document.getElementById('dj-create-name').value.trim();
+  const p   = document.getElementById('dj-create-pwd').value;
+  const err = document.getElementById('dj-create-err');
   if (!n) { err.textContent = '⚠️ Saisissez un nom de soirée.'; return; }
   if (!p) { err.textContent = '⚠️ Mot de passe requis.'; return; }
   err.textContent = '';
   try {
-    const body = { name: n, password: p };
-    if (dateV) body.scheduled_at = new Date(dateV).toISOString();
-    const ev = await api('POST', '/events', body);
+    const ev = await api('POST', '/events', { name: n, password: p });
     eid = ev.id;
     localStorage.setItem('djr_eid',   eid);
     localStorage.setItem('djr_ename', n);

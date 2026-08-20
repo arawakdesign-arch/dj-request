@@ -151,12 +151,14 @@ router.post('/events', requireAuth, async (req, res) => {
 });
 
 router.patch('/events/:id', requireOrganizer, async (req, res) => {
-  const { name, club_name, orga, address, hours } = req.body;
+  const { name, club_name, orga, address, hours, scheduled_at } = req.body;
+  const updates = { name, club_name, orga, address, hours };
+  if (scheduled_at !== undefined) updates.scheduled_at = scheduled_at;
   const { data, error } = await supabase.from('events')
-    .update({ name, club_name, orga, address, hours })
+    .update(updates)
     .eq('id', req.params.id).select().single();
   if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+  res.json({ ...data, closed: isClosed(data.created_at, data.scheduled_at), upcoming: isUpcoming(data.scheduled_at) });
 });
 
 router.post('/events/:id/auth', async (req, res) => {

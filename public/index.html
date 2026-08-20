@@ -1324,7 +1324,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         </div>
         <div id="dj-create-form" style="display:none">
           <div class="fl"><label>Nom de la soirée</label><input class="fi" id="dj-create-name" type="text" placeholder="Ex: Nuit Électrique" maxlength="40"></div>
-          <div class="fl"><label>Date (optionnel — laisser vide pour démarrer maintenant)</label><input class="fi" id="dj-create-date" type="datetime-local"></div>
           <div class="fl"><label>Mot de passe</label><input class="fi" id="dj-create-pwd" type="password" placeholder="••••••••"></div>
           <button class="btn-g" id="btn-dj-create-submit">🎉 Créer la soirée</button>
         </div>
@@ -1398,6 +1397,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div class="fl"><label>Nom de l'événement</label><input class="fi" id="settings-ev-name" type="text" placeholder="Nuit Électrique"></div>
       <div class="fl"><label>Nom du club</label><input class="fi" id="settings-club" type="text" placeholder="Warehouse 42"></div>
       <div class="fl"><label>Adresse</label><input class="fi" id="settings-address" type="text" placeholder="32 Av. Corentin Cariou, Paris 19e"></div>
+      <div class="fl"><label>Date (optionnel — vide = déjà en cours)</label><input class="fi" id="settings-date" type="datetime-local"></div>
       <div class="fl" style="margin-bottom:0">
         <label>Horaires</label>
         <div style="display:flex;align-items:center;gap:.5rem">
@@ -1745,9 +1745,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=14"></script>
-<script src="/js/app.js?v=49"></script>
+<script src="/js/app.js?v=50"></script>
 <script src="/js/render.js?v=23"></script>
 <script src="/js/chat.js?v=18"></script>
-<script src="/js/auth.js?v=30"></script>
+<script src="/js/auth.js?v=31"></script>
 </body>
 </html>
