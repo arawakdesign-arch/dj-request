@@ -486,8 +486,6 @@ async function populateSettingsForm() {
     set('settings-hours-end',   HOURS_OPTIONS.includes(h2) ? h2 : '');
     set('settings-hours', ev.hours);
 
-    _renderLineupReadOnly(ev.lineup);
-
     // Nécessaire pour l'URL publique (pull-up.live/slug) affichée dans le
     // résumé — pas encore chargée si on arrive directement sur cet onglet.
     if (!_orgaProfileCache) { try { _orgaProfileCache = await api('GET', '/orga/profile', null, {dj: true}); } catch(e) {} }
@@ -519,24 +517,6 @@ function _renderLineup() {
         ${dj.type === 'app' ? '<div style="font-size:.66rem;color:var(--vi)">Sur Pull up</div>' : (dj.soundcloud_url ? `<a href="${escapeHtml(dj.soundcloud_url)}" target="_blank" style="font-size:.66rem;color:var(--tx3)">SoundCloud ↗</a>` : '')}
       </div>
       <button onclick="_lineupRemove(${i})" style="width:26px;height:26px;flex-shrink:0;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.8rem">✕</button>
-    </div>`).join('');
-}
-
-// Affichage lecture seule dans Réglages : le line-up ne se règle qu'à la
-// création, mais l'organisateur doit pouvoir revoir qui joue.
-function _renderLineupReadOnly(list) {
-  const card = document.getElementById('settings-lineup-card');
-  const el   = document.getElementById('settings-lineup-list');
-  if (!card || !el) return;
-  if (!Array.isArray(list) || !list.length) { card.style.display = 'none'; return; }
-  card.style.display = 'block';
-  el.innerHTML = list.map(dj => `
-    <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:var(--ink5);border-radius:.85rem">
-      <div style="width:34px;height:34px;border-radius:50%;background:var(--grd);background-image:${dj.photo_url ? `url(${escapeHtml(dj.photo_url)})` : 'none'};background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;font-weight:700">${dj.photo_url ? '' : escapeHtml((dj.name||'?')[0].toUpperCase())}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:.85rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(dj.name)}</div>
-        ${dj.type === 'app' ? '<div style="font-size:.66rem;color:var(--vi)">Sur Pull up</div>' : (dj.soundcloud_url ? `<a href="${escapeHtml(dj.soundcloud_url)}" target="_blank" style="font-size:.66rem;color:var(--tx3)">SoundCloud ↗</a>` : '')}
-      </div>
     </div>`).join('');
 }
 
