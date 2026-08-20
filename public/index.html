@@ -659,7 +659,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 #pg-screen-pairing{background:var(--dj-card);padding-top:0!important}
 
 /* Écran Géant v2 — façon collage "papier" (tags ruban violets, cartes déchirées) */
-#pg-bigscreen{background:#F2EFE9}
+#pg-bigscreen{background:#F2EFE9;padding-top:0!important}
 .bs2-back{position:absolute;bottom:14px;left:14px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--tx2);cursor:pointer;z-index:20}
 .bs2-wrap{position:relative;padding:1rem 1.2rem 1.2rem;display:flex;flex-direction:column;gap:.85rem;min-height:100%;overflow-y:auto}
 @media (min-width:900px){.bs2-wrap{height:100%;overflow:hidden}}
@@ -673,6 +673,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .bs2-logo{height:64px;object-fit:contain;flex-shrink:0}
 .bs2-top-mini{display:flex;align-items:center;gap:.9rem;margin-bottom:.6rem;flex-shrink:0}
 .bs2-logo-200{width:170px;height:auto;object-fit:contain;flex-shrink:0}
+.bs2-header-bar{display:flex;align-items:center;gap:1.1rem;margin:-1rem -1.2rem 0 -1.2rem;padding:0;flex-shrink:0}
+.bs2-header-logo{width:64px;height:64px;object-fit:contain;flex-shrink:0;display:block}
 .bs2-live-pill{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--vi);color:var(--vi);font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.03em;padding:.35rem .8rem;border-radius:9px}
 .bs2-live-pill .pdot{background:var(--vi)}
 .bs2-sub{font-size:.92rem;font-weight:600;color:var(--tx);line-height:1.25;margin-left:.2rem}
@@ -1723,19 +1725,17 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <div class="page" id="pg-bigscreen">
   <div class="bs2-wrap">
     <div class="bs2-back" onclick="showPage('dj')">←</div>
-    <div class="bs2-top-mini">
-      <img src="/images/logo.png" alt="PULL UP!" class="bs2-logo-200">
-      <div style="flex:1;min-width:0">
-        <div class="bs2-live-pill" style="margin-bottom:.5rem"><div class="pdot"></div>LIVE</div>
-        <div class="bs2-now-row">
-          <img class="bs2-cover" id="bs-np-cover" src="" alt="" style="display:none">
-          <div class="bs2-cover" id="bs-np-cover-fb" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem">🎵</div>
-          <div class="bs2-now-txt">
-            <div class="bs2-now-t" id="bs-np-t">En attente…</div>
-            <div class="bs2-now-a" id="bs-np-a"></div>
-            <div class="bs2-now-by" id="bs-np-by"></div>
-            <div class="bs2-eq"><span></span><span></span><span></span><span></span></div>
-          </div>
+    <div class="bs2-header-bar">
+      <img src="/images/LOGO120.png" alt="PULL UP!" class="bs2-header-logo">
+      <div class="bs2-live-pill"><div class="pdot"></div>LIVE</div>
+      <div class="bs2-now-row">
+        <img class="bs2-cover" id="bs-np-cover" src="" alt="" style="display:none">
+        <div class="bs2-cover" id="bs-np-cover-fb" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem">🎵</div>
+        <div class="bs2-now-txt">
+          <div class="bs2-now-t" id="bs-np-t">En attente…</div>
+          <div class="bs2-now-a" id="bs-np-a"></div>
+          <div class="bs2-now-by" id="bs-np-by"></div>
+          <div class="bs2-eq"><span></span><span></span><span></span><span></span></div>
         </div>
       </div>
     </div>
