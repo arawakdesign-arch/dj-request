@@ -391,7 +391,7 @@ function _djLoginShowCreate() {
   document.getElementById('dj-create-flow').style.display = 'block';
   document.getElementById('dj-create-err').textContent = '';
   _lineup = [];
-  if (typeof _renderLineup === 'function') _renderLineup('create');
+  if (typeof _renderLineup === 'function') _renderLineup();
   _djCreateSyncGoogleState();
 }
 // Le formulaire nom/mot de passe n'apparaît qu'une fois connecté en Google —
