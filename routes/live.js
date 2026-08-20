@@ -8,6 +8,7 @@ const router = express.Router();
 router.get('/now-playing/:eventId', async (req, res) => {
   const { data } = await supabase.from('now_playing').select('*')
     .eq('event_id', req.params.eventId).single();
+  console.log('[now-playing GET]', req.params.eventId, '→ title=', data?.title || '(aucune ligne)');
   res.json(data || { title: 'En attente…', artist: '' });
 });
 
@@ -16,7 +17,8 @@ router.put('/now-playing/:eventId', requireOrganizer, async (req, res) => {
   const { data, error } = await supabase.from('now_playing')
     .upsert({ event_id: req.params.eventId, title, artist, cover_url: coverUrl || null, proposer_name: proposer_name || null })
     .select().single();
-  if (error) { console.error('[now-playing PUT]', req.params.eventId, error.message); return res.status(500).json({ error: error.message }); }
+  if (error) { console.error('[now-playing PUT] échec —', req.params.eventId, error.message); return res.status(500).json({ error: error.message }); }
+  console.log('[now-playing PUT] ok —', req.params.eventId, '| title=', data.title, '| artist=', data.artist);
   res.json(data);
 });
 
