@@ -1,7 +1,7 @@
 // ══ STATE GLOBAL ═════════════════════════════════════════════════════
 let currentUser  = null;
 let confirmResult = null, otpPhase = false, resendTimer = null, resendCD = 30;
-let eid   = null, ename = '';
+let eid   = null, ename = '', evOrgaSlug = null;
 let eventClosed = false; // soirée figée en lecture seule 24h après sa création
 let proposals = {}, myVotes = new Set(), nowPlaying = {t:'En attente…', a:'', by:null};
 let selModal = null, selModalMeta = null, selectedPlan = 'free', subscribed = false, subCount = 1284;

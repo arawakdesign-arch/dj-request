@@ -64,10 +64,20 @@ router.get('/events/mine', requireAuth, async (req, res) => {
 router.get('/events/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at, scheduled_at')
+    .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at, scheduled_at, owner_id')
     .eq('id', req.params.id).single();
   if (error || !data) return res.status(404).json({ error: 'Événement introuvable' });
-  res.json({ ...data, closed: isClosed(data.created_at, data.scheduled_at), upcoming: isUpcoming(data.scheduled_at) });
+  // Slug de la page publique organisateur, si l'organisateur en a configuré une —
+  // permet aux liens/QR de la soirée de rediriger vers sa page de marque plutôt
+  // que directement dans le flux d'inscription.
+  let orgaSlug = null;
+  if (data.owner_id) {
+    const { data: page } = await supabase
+      .from('organizer_pages').select('slug').eq('owner_id', data.owner_id).maybeSingle();
+    orgaSlug = page?.slug || null;
+  }
+  const { owner_id, ...pub } = data;
+  res.json({ ...pub, orga_slug: orgaSlug, closed: isClosed(data.created_at, data.scheduled_at), upcoming: isUpcoming(data.scheduled_at) });
 });
 
 // Personnes ayant voté et/ou proposé un morceau sur cet événement — liste
