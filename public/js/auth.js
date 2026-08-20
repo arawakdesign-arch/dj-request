@@ -22,9 +22,11 @@ function clearToken() {
 window.addEventListener('load', async () => {
   await _configReady; // attendre que le client Supabase soit initialisé depuis /api/config/public
 
-  // Écran TV appairé par QR (?screen=1) — jamais de restauration de session,
-  // un nouveau code de pairing est demandé à chaque chargement de page.
-  if (new URLSearchParams(window.location.search).get('screen')) {
+  // Écran TV appairé par QR (/tv ou ?screen=1 pour compat) — jamais de
+  // restauration de session, un nouveau code de pairing est demandé à
+  // chaque chargement de page.
+  const _screenPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
+  if (_screenPath === 'tv' || new URLSearchParams(window.location.search).get('screen')) {
     await startScreenPairing();
     return;
   }
@@ -33,7 +35,7 @@ window.addEventListener('load', async () => {
   // chemin, aucun des fichiers statiques connus. Si aucune page ne correspond
   // au slug, on laisse tomber sur le flux normal (auth/vote) plutôt que 404.
   const pathSlug = window.location.pathname.replace(/^\/+|\/+$/g, '');
-  const reserved = ['', 'cgu.html', 'confidentialite.html'];
+  const reserved = ['', 'tv', 'cgu.html', 'confidentialite.html'];
   if (pathSlug && !reserved.includes(pathSlug) && !/^(images|js|css|api)\//.test(pathSlug) && !pathSlug.includes('.')) {
     if (await tryShowOrgaPublicPage(pathSlug)) return;
   }
