@@ -672,7 +672,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .bs2-top{display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;padding:0 .2rem;flex-shrink:0}
 .bs2-logo{height:64px;object-fit:contain;flex-shrink:0}
 .bs2-top-mini{display:flex;align-items:center;gap:.9rem;margin-bottom:.6rem;flex-shrink:0}
-.bs2-logo-200{width:110px;height:auto;object-fit:contain;flex-shrink:0}
+.bs2-logo-200{width:170px;height:auto;object-fit:contain;flex-shrink:0}
 .bs2-live-pill{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--vi);color:var(--vi);font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.03em;padding:.35rem .8rem;border-radius:9px}
 .bs2-live-pill .pdot{background:var(--vi)}
 .bs2-sub{font-size:.92rem;font-weight:600;color:var(--tx);line-height:1.25;margin-left:.2rem}
@@ -1731,24 +1731,21 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     <div class="bs2-back" onclick="showPage('dj')">←</div>
     <div class="bs2-top-mini">
       <img src="/images/logo.png" alt="PULL UP!" class="bs2-logo-200">
-      <div class="bs2-live-pill"><div class="pdot"></div>LIVE</div>
+      <div style="flex:1;min-width:0">
+        <div class="bs2-live-pill" style="margin-bottom:.5rem"><div class="pdot"></div>LIVE</div>
+        <div class="bs2-now-row">
+          <img class="bs2-cover" id="bs-np-cover" src="" alt="" style="display:none">
+          <div class="bs2-cover" id="bs-np-cover-fb" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem">🎵</div>
+          <div class="bs2-now-txt">
+            <div class="bs2-now-t" id="bs-np-t">En attente…</div>
+            <div class="bs2-now-a" id="bs-np-a"></div>
+            <div class="bs2-eq"><span></span><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="bs2-body">
       <div class="bs2-left">
-        <div>
-          <div class="bs2-tag">En cours</div>
-          <div class="bs2-card">
-            <div class="bs2-now-row">
-              <img class="bs2-cover" id="bs-np-cover" src="" alt="" style="display:none">
-              <div class="bs2-cover" id="bs-np-cover-fb" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem">🎵</div>
-              <div class="bs2-now-txt">
-                <div class="bs2-now-t" id="bs-np-t">En attente…</div>
-                <div class="bs2-now-a" id="bs-np-a"></div>
-                <div class="bs2-eq"><span></span><span></span><span></span><span></span></div>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="bs2-chart-card">
           <div class="bs2-tag">Classement en direct</div>
           <div class="bs2-card bs2-card-fill">
