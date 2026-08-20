@@ -661,9 +661,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 /* Écran Géant v2 — façon collage "papier" (tags ruban violets, cartes déchirées) */
 #pg-bigscreen{background:#F2EFE9;padding-top:0!important}
 .bs2-back{position:absolute;bottom:14px;left:14px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--tx2);cursor:pointer;z-index:20}
-.fs-toggle{position:absolute;bottom:14px;right:14px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;z-index:20}
-#pg-bigscreen .fs-toggle{background:rgba(0,0,0,.06);color:var(--tx2)}
-#pg-screen-pairing .fs-toggle{background:rgba(255,255,255,.1);color:#fff}
+.fs-toggle{position:absolute;bottom:14px;right:14px;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;background:var(--vi);color:#fff;box-shadow:0 4px 12px rgba(111,34,255,.35)}
+.fs-toggle svg{width:18px;height:18px;stroke:currentColor}
 .bs2-wrap{position:relative;padding:1rem 1.2rem 1.2rem;display:flex;flex-direction:column;gap:.85rem;min-height:100%;overflow-y:auto}
 @media (min-width:900px){.bs2-wrap{height:100%;overflow:hidden}}
 .bs2-tag{display:inline-block;background:var(--vi);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;padding:.3rem .7rem;border-radius:5px;transform:rotate(-1deg);margin-bottom:.55rem;flex-shrink:0}
@@ -1715,7 +1714,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <!-- ÉCRAN — APPAIRAGE PAR QR (TV non connectée) -->
 <div class="page" id="pg-screen-pairing">
-  <div class="fs-toggle" onclick="toggleFullscreen()" title="Plein écran">⛶</div>
+  <div class="fs-toggle" onclick="toggleFullscreen()" title="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
   <img src="/images/logo.png" alt="PULL UP!" style="width:64px;height:auto;object-fit:contain;flex-shrink:0;margin:0 auto;display:block">
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;margin:auto;padding:2rem">
     <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.35rem;color:#fff;margin-top:.3rem">Associe cet écran</div>
@@ -1729,7 +1728,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <div class="page" id="pg-bigscreen">
   <div class="bs2-wrap">
     <div class="bs2-back" onclick="showPage('dj')">←</div>
-    <div class="fs-toggle" onclick="toggleFullscreen()" title="Plein écran">⛶</div>
+    <div class="fs-toggle" onclick="toggleFullscreen()" title="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
     <div class="bs2-header-bar">
       <img src="/images/LOGO120.png" alt="PULL UP!" class="bs2-header-logo">
       <div class="bs2-live-pill"><div class="pdot"></div>LIVE</div>
@@ -1821,7 +1820,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=16"></script>
-<script src="/js/app.js?v=56"></script>
+<script src="/js/app.js?v=57"></script>
 <script src="/js/render.js?v=28"></script>
 <script src="/js/chat.js?v=20"></script>
 <script src="/js/auth.js?v=32"></script>
