@@ -144,13 +144,19 @@ async function tryShowOrgaPublicPage(slug) {
     else                { logo.style.backgroundImage = ''; logo.textContent = '🎪'; }
   }
 
+  const emailBtn = document.getElementById('op-email-btn');
+  if (emailBtn) {
+    if (page.email) { emailBtn.href = 'mailto:' + page.email; emailBtn.style.display = 'inline-flex'; }
+    else             { emailBtn.style.display = 'none'; }
+  }
+
   const socials = document.getElementById('op-socials');
   if (socials) {
     const links = [
-      ['🌐', page.website_url], ['📷', page.instagram_url],
-      ['🎵', page.tiktok_url],  ['📘', page.facebook_url],
-    ].filter(([,url]) => url);
-    socials.innerHTML = links.map(([ico,url]) => `<a href="${url}" target="_blank" rel="noopener" style="width:42px;height:42px;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:1.05rem;text-decoration:none">${ico}</a>`).join('');
+      ['🌐', 'Site web',    page.website_url], ['📷', 'Instagram', page.instagram_url],
+      ['🎵', 'TikTok',      page.tiktok_url],   ['📘', 'Facebook',  page.facebook_url],
+    ].filter(([,,url]) => url);
+    socials.innerHTML = links.map(([ico,label,url]) => `<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.35rem;padding:.55rem .9rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.75rem;font-weight:600;color:var(--tx2);text-decoration:none">${ico} ${label}</a>`).join('');
   }
 
   const evList = document.getElementById('op-events');

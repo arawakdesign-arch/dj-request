@@ -1514,12 +1514,13 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <div class="page" id="pg-orga-public">
   <div class="tb"><div class="tb-back" onclick="window.location.href='/'">←</div><div class="tb-title"><img src="/images/logo.png" alt="PULL UP!" style="height:44px;object-fit:contain;display:block"></div></div>
   <div class="scroll">
-    <div id="op-banner" style="display:none;width:100%;aspect-ratio:3/1;background-size:cover;background-position:center"></div>
+    <div id="op-banner" style="display:none;width:100%;aspect-ratio:3/1;background-size:cover;background-position:center;background-color:var(--dj-card)"></div>
     <div style="padding:1.5rem 1.25rem 1rem;text-align:center">
       <div id="op-logo" style="width:96px;height:96px;border-radius:1.4rem;background:var(--grd);background-size:cover;background-position:center;margin:0 auto .85rem;display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:var(--shadow)">🎪</div>
       <div id="op-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.4rem;color:var(--tx)">—</div>
       <div id="op-bio" style="font-size:.82rem;color:var(--tx3);line-height:1.5;margin-top:.5rem;max-width:320px;margin-left:auto;margin-right:auto"></div>
-      <div id="op-socials" style="display:flex;gap:.5rem;justify-content:center;margin-top:.9rem;flex-wrap:wrap"></div>
+      <a id="op-email-btn" href="#" target="_blank" style="display:none;align-items:center;justify-content:center;gap:.4rem;margin-top:.9rem;padding:.65rem 1.2rem;border-radius:1rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:700;text-decoration:none">✉️ Contacter</a>
+      <div id="op-socials" style="display:flex;gap:.5rem;justify-content:center;margin-top:.7rem;flex-wrap:wrap"></div>
     </div>
     <div style="padding:.5rem 1.25rem 2rem">
       <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">Soirées en cours</div>
@@ -1742,6 +1743,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/app.js?v=49"></script>
 <script src="/js/render.js?v=23"></script>
 <script src="/js/chat.js?v=18"></script>
-<script src="/js/auth.js?v=27"></script>
+<script src="/js/auth.js?v=28"></script>
 </body>
 </html>

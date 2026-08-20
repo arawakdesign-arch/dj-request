@@ -187,7 +187,7 @@ router.get('/orga/by-slug/:slug', async (req, res) => {
 
   const EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
   res.json({
-    name: page.name, bio: page.bio, logo_url: bustLogoCache(page.logo_url, page.updated_at),
+    name: page.name, bio: page.bio, email: page.email, logo_url: bustLogoCache(page.logo_url, page.updated_at),
     banner_url: bustLogoCache(page.banner_url, page.updated_at), website_url: page.website_url,
     instagram_url: page.instagram_url, tiktok_url: page.tiktok_url, facebook_url: page.facebook_url,
     events: (events || []).map(e => ({ ...e, closed: (Date.now() - new Date(e.created_at).getTime()) > EVENT_DURATION_MS })),
