@@ -95,16 +95,12 @@ router.post('/events', requireAuth, async (req, res) => {
   const { name, club_name, orga, address, hours, password } = req.body;
   if (!name || !password) return res.status(400).json({ error: 'Champs manquants' });
 
-  // Créer une soirée est réservé aux comptes Google dont l'email figure
-  // dans l'allowlist organizers — les invités et comptes téléphone n'ont
-  // pas d'email et sont rejetés avant même la recherche en base.
+  // Créer une soirée nécessite un compte identifiable par email (Google ou
+  // email magic-link) — les invités et comptes téléphone n'en ont pas et
+  // sont rejetés. Plus de liste blanche : n'importe quel compte email peut
+  // créer une soirée (ouvert à tous les clients).
   if (!req.user.email) {
-    return res.status(403).json({ error: 'Connecte-toi avec un compte Google autorisé pour créer une soirée.' });
-  }
-  const { data: authorized } = await supabase
-    .from('organizers').select('email').eq('email', req.user.email.toLowerCase()).maybeSingle();
-  if (!authorized) {
-    return res.status(403).json({ error: 'Cette adresse email n\'est pas autorisée à créer une soirée.' });
+    return res.status(403).json({ error: 'Connecte-toi avec Google ou par email pour créer une soirée.' });
   }
 
   // Un compte organisateur ne peut gérer qu'une seule soirée active à la fois —
