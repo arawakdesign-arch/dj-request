@@ -64,7 +64,8 @@ router.post('/dj/profile/photo', requireAuth, upload.single('photo'), async (req
   if (error) return res.status(500).json({ error: error.message });
 
   const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(fileName);
-  await supabase.from('dj_profiles').upsert({ id: req.user.id, photo_url: publicUrl, updated_at: new Date().toISOString() });
+  const { error: dbError } = await supabase.from('dj_profiles').upsert({ id: req.user.id, photo_url: publicUrl, updated_at: new Date().toISOString() });
+  if (dbError) { console.error('[dj profile photo] échec écriture DB —', req.user.id, dbError.message); return res.status(500).json({ error: dbError.message }); }
   res.json({ url: publicUrl });
 });
 

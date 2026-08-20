@@ -22,7 +22,7 @@ router.patch('/profile', requireAuth, async (req, res) => {
   const { data, error } = await supabase.from('user_profiles')
     .upsert({ id: req.user.id, ...updates })
     .select().single();
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) { console.error('[profile PATCH] échec —', req.user.id, error.message); return res.status(500).json({ error: error.message }); }
   res.json(data);
 });
 
@@ -120,8 +120,12 @@ router.post('/profile/photo', requireAuth, upload.single('photo'), async (req, r
 
   const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(fileName);
 
-  // Sauvegarder l'URL dans le profil
-  await supabase.from('user_profiles').upsert({ id: req.user.id, photo_url: publicUrl });
+  // Sauvegarder l'URL dans le profil — cette écriture n'était jamais vérifiée :
+  // en cas d'échec, la photo semblait s'envoyer (le fichier était bien stocké,
+  // une URL était retournée) mais n'était jamais réellement associée au profil,
+  // donc invisible pour les autres et perdue à la prochaine connexion.
+  const { error: dbError } = await supabase.from('user_profiles').upsert({ id: req.user.id, photo_url: publicUrl });
+  if (dbError) { console.error('[profile photo] échec écriture DB —', req.user.id, dbError.message); return res.status(500).json({ error: dbError.message }); }
   res.json({ url: publicUrl });
 });
 

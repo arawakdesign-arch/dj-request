@@ -669,7 +669,8 @@ async function saveProfile() {
   closeModal('modal-profile-edit');
   toast('✅ Profil mis à jour !');
   // Sync backend
-  if (_authToken || _sbSession) api('PATCH', '/profile', { display_name: name, bio, friend_code: getFriendCode() }).catch(() => {});
+  if (_authToken || _sbSession) api('PATCH', '/profile', { display_name: name, bio, friend_code: getFriendCode() })
+    .catch(e => { console.error('[pullup] Échec sauvegarde profil :', e.message); toast('⚠️ Profil gardé en local seulement — ' + e.message); });
 }
 
 // Le profil (nom, bio, photo) est sauvegardé côté serveur via saveProfile()/
