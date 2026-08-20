@@ -17,14 +17,12 @@ async function syncContactInfo(user) {
   // vide (aucune connexion Google ne les importe automatiquement) et le chat
   // affiche "Invité" sans photo tant que l'utilisateur n'édite pas son profil
   // à la main. On ne touche jamais un profil déjà personnalisé.
-  if (user.googleName || user.googlePhoto) {
-    const { data: existing } = await supabase.from('user_profiles')
-      .select('display_name, photo_url').eq('id', user.id).single();
-    const fill = {};
-    if (user.googleName  && !existing?.display_name) fill.display_name = user.googleName;
-    if (user.googlePhoto && !existing?.photo_url)     fill.photo_url   = user.googlePhoto;
-    if (Object.keys(fill).length) supabase.from('user_profiles').update(fill).eq('id', user.id).then(() => {}, () => {});
-  }
+  // Écriture conditionnelle atomique (WHERE ... IS NULL) plutôt qu'un lire-
+  // puis-écrire : sinon une requête concurrente (ex. upload de photo par
+  // l'utilisateur au même moment) peut lire "vide" juste avant que l'upload
+  // n'écrive la vraie photo, puis l'écraser après coup avec celle de Google.
+  if (user.googleName)  supabase.from('user_profiles').update({ display_name: user.googleName }).eq('id', user.id).is('display_name', null).then(() => {}, () => {});
+  if (user.googlePhoto) supabase.from('user_profiles').update({ photo_url: user.googlePhoto }).eq('id', user.id).is('photo_url', null).then(() => {}, () => {});
 }
 
 async function requireAuth(req, res, next) {
