@@ -390,13 +390,32 @@ function _djLoginShowCreate() {
   document.getElementById('dj-join-form').style.display   = 'none';
   document.getElementById('dj-create-flow').style.display = 'block';
   document.getElementById('dj-create-err').textContent = '';
+  _lineup = [];
+  if (typeof _renderLineup === 'function') _renderLineup('create');
   _djCreateSyncGoogleState();
 }
-// Le formulaire nom/mot de passe n'apparaît qu'une fois connecté en Google
-function _djCreateSyncGoogleState() {
+// Le formulaire nom/mot de passe n'apparaît qu'une fois connecté en Google —
+// et seulement si cet email n'a pas déjà une soirée active : sinon, autant
+// proposer directement de la gérer plutôt que de faire remplir un nouveau
+// formulaire pour tomber sur l'erreur "soirée déjà en cours" à la soumission.
+async function _djCreateSyncGoogleState() {
   const authed = !!currentUser?.email;
-  document.getElementById('dj-create-google').style.display = authed ? 'none'  : 'block';
-  document.getElementById('dj-create-form').style.display   = authed ? 'block' : 'none';
+  document.getElementById('dj-create-google').style.display   = authed ? 'none' : 'block';
+  document.getElementById('dj-create-existing').style.display = 'none';
+  document.getElementById('dj-create-form').style.display     = 'none';
+  if (!authed) return;
+
+  try {
+    const mine = await api('GET', '/events/mine');
+    const active = (mine || []).find(ev => !ev.closed && !ev.upcoming);
+    if (active) {
+      document.getElementById('dj-create-existing-name').textContent = active.name;
+      document.getElementById('dj-create-existing-btn').onclick = () => adminEnterEvent(active.id, active.name);
+      document.getElementById('dj-create-existing').style.display = 'block';
+      return;
+    }
+  } catch(e) {}
+  document.getElementById('dj-create-form').style.display = 'block';
 }
 function _djLoginBack() {
   const onSubView = document.getElementById('dj-join-form').style.display   === 'block'
@@ -488,6 +507,10 @@ async function djCreateSubmit() {
     // Obtenir le token organizer immédiatement après création pour survivre au refresh
     const authRes = await api('POST', '/events/' + eid + '/auth', { password: p });
     if (authRes.token) saveToken(authRes.token);
+    // Line-up rempli pendant la création (eid/token viennent d'être obtenus
+    // ci-dessus) — _saveLineup() lit le tableau _lineup partagé et gère
+    // elle-même son propre toast/erreur.
+    if (_lineup.length) _saveLineup();
     // subscribeToEvent est appelé par loadEvent() dans _activateDJ() — pas de doublon ici
     await _activateDJ(n, p);
     toast(`🎉 Soirée "${n}" créée !`);
