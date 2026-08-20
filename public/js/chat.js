@@ -219,7 +219,7 @@ function renderPinnedMessage(msg) {
 }
 
 // ── Flux de chat simplifié pour l'Écran Géant (lecture seule) ─────────
-const BS_CHAT_MAX = 4;
+const BS_CHAT_MAX = 6;
 
 function bsChatMsgNode(m) {
   const isDJ = isDjName(m.user_name);
