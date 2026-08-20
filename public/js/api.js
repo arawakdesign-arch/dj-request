@@ -41,8 +41,17 @@ async function api(method, path, body, { dj, token } = {}) {
 // WebSocket peut se couper silencieusement sans se resouscrire, ex :
 // téléphone verrouillé, changement de réseau — d'où les votes qui
 // n'apparaissaient pas toujours sans recharger la page manuellement).
+// Plusieurs appels peuvent se chevaucher (événement Realtime + polling de
+// secours + rafales de votes qui arrivent en même temps) : sans garde, une
+// réponse plus lente peut arriver après une plus récente et écraser des
+// votes tout frais avec des données périmées — le compteur "revient en
+// arrière" jusqu'au prochain rafraîchissement. On ignore toute réponse qui
+// n'est plus la plus récente requête en vol.
+let _refreshProposalsSeq = 0;
 async function refreshProposals(evId) {
+  const seq = ++_refreshProposalsSeq;
   const p = await api('GET', '/proposals/' + evId);
+  if (seq !== _refreshProposalsSeq) return; // une requête plus récente a déjà répondu
   // Merge : préserver les métadonnées locales (title, artist, coverUrl)
   // absentes du schéma DB actuel mais présentes en mémoire locale
   const fetched = Object.fromEntries(p.map(x => [x.id, { ...x, coverUrl: x.cover_url || null }]));

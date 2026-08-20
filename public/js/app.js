@@ -112,7 +112,11 @@ function vote(id) {
     renderAll(); toast('Voté ! 🎵');
     if (eid && _sbSession) api('POST', '/votes', {proposal_id: id, event_id: eid}).catch(e => {
       if (e.message === 'Vous avez déjà voté pour ce morceau') {
-        myVotes.delete(id);
+        // Le vote existait déjà côté serveur (ex : myVotes pas encore restauré après
+        // un reload) — l'ajout optimiste ci-dessus comptait donc ce vote en double.
+        // On corrige le compteur, mais on garde myVotes à true : le vote existe
+        // réellement, sinon le bouton reste bloqué sur "non voté" indéfiniment et
+        // chaque clic reproduit la même erreur 409 sans jamais aboutir.
         if (proposals[id]) proposals[id].votes = Math.max(0, (proposals[id].votes || 0) - 1);
         renderAll();
       } else {
