@@ -486,6 +486,9 @@ async function populateSettingsForm() {
     set('settings-hours-end',   HOURS_OPTIONS.includes(h2) ? h2 : '');
     set('settings-hours', ev.hours);
 
+    _lineup = Array.isArray(ev.lineup) ? ev.lineup : [];
+    _renderLineup('settings');
+
     // Nécessaire pour l'URL publique (pull-up.live/slug) affichée dans le
     // résumé — pas encore chargée si on arrive directement sur cet onglet.
     if (!_orgaProfileCache) { try { _orgaProfileCache = await api('GET', '/orga/profile', null, {dj: true}); } catch(e) {} }
@@ -498,13 +501,19 @@ async function populateSettingsForm() {
 // ── Line-up de la soirée : DJ inscrits sur Pull up + DJ externes ──────
 // Un seul tableau _lineup partagé entre deux emplacements possibles dans le
 // DOM (formulaire de création de soirée et onglet Réglages d'une soirée déjà
-// créée) — les DJ changent à chaque soirée, donc le line-up ne se règle
-// qu'à la création (pas de ré-édition dans Réglages).
+// créée) — jamais actifs en même temps, donc pas de conflit. Les ids étant
+// différents dans chaque emplacement, toutes les fonctions prennent un
+// paramètre `scope` pour cibler le bon jeu d'éléments.
 let _lineup = [];
 let _lineupSearchTimer = null;
+const _LINEUP_IDS = {
+  settings: { list: 'lineup-list',        search: 'lineup-search',        results: 'lineup-search-results',        extName: 'lineup-ext-name',        extSc: 'lineup-ext-sc',        scSearch: 'lineup-sc-search',        scResults: 'lineup-sc-results' },
+  create:   { list: 'create-lineup-list', search: 'create-lineup-search', results: 'create-lineup-search-results', extName: 'create-lineup-ext-name', extSc: 'create-lineup-ext-sc', scSearch: 'create-lineup-sc-search', scResults: 'create-lineup-sc-results' },
+};
 
-function _renderLineup() {
-  const list = document.getElementById('create-lineup-list'); if (!list) return;
+function _renderLineup(scope = 'create') {
+  const ids = _LINEUP_IDS[scope];
+  const list = document.getElementById(ids.list); if (!list) return;
   if (!_lineup.length) {
     list.innerHTML = '<div style="font-size:.78rem;color:var(--tx4)">Aucun DJ ajouté pour l\'instant</div>';
     return;
@@ -516,13 +525,14 @@ function _renderLineup() {
         <div style="font-size:.85rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(dj.name)}</div>
         ${dj.type === 'app' ? '<div style="font-size:.66rem;color:var(--vi)">Sur Pull up</div>' : (dj.soundcloud_url ? `<a href="${escapeHtml(dj.soundcloud_url)}" target="_blank" style="font-size:.66rem;color:var(--tx3)">SoundCloud ↗</a>` : '')}
       </div>
-      <button onclick="_lineupRemove(${i})" style="width:26px;height:26px;flex-shrink:0;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.8rem">✕</button>
+      <button onclick="_lineupRemove(${i},'${scope}')" style="width:26px;height:26px;flex-shrink:0;border-radius:50%;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.8rem">✕</button>
     </div>`).join('');
 }
 
-function _lineupSearch(q) {
+function _lineupSearch(q, scope = 'create') {
   clearTimeout(_lineupSearchTimer);
-  const box = document.getElementById('create-lineup-search-results');
+  const ids = _LINEUP_IDS[scope];
+  const box = document.getElementById(ids.results);
   if (!box) return;
   q = q.trim();
   if (q.length < 2) { box.innerHTML = ''; return; }
@@ -533,7 +543,7 @@ function _lineupSearch(q) {
       const filtered = results.filter(r => !already.has(r.id));
       box.innerHTML = filtered.length
         ? filtered.map(r => `
-          <button onclick='_lineupAddApp(${JSON.stringify(r).replace(/'/g,"&#39;")})' style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
+          <button onclick='_lineupAddApp(${JSON.stringify(r).replace(/'/g,"&#39;")},"${scope}")' style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
             <div style="width:30px;height:30px;border-radius:50%;background:var(--grd);background-image:${r.photo_url ? `url(${escapeHtml(r.photo_url)})` : 'none'};background-size:cover;background-position:center;flex-shrink:0"></div>
             <div style="min-width:0"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.stage_name)}</div>${r.city ? `<div style="font-size:.64rem;color:var(--tx3)">${escapeHtml(r.city)}</div>` : ''}</div>
           </button>`).join('')
@@ -542,36 +552,39 @@ function _lineupSearch(q) {
   }, 300);
 }
 
-function _lineupAddApp(dj) {
+function _lineupAddApp(dj, scope = 'create') {
+  const ids = _LINEUP_IDS[scope];
   _lineup.push({ type: 'app', id: dj.id, name: dj.stage_name, photo_url: dj.photo_url || null });
-  document.getElementById('create-lineup-search').value = '';
-  document.getElementById('create-lineup-search-results').innerHTML = '';
-  _renderLineup();
+  document.getElementById(ids.search).value = '';
+  document.getElementById(ids.results).innerHTML = '';
+  _renderLineup(scope);
   _saveLineup();
 }
 
-function _lineupAddExternal() {
-  const name = document.getElementById('create-lineup-ext-name').value.trim();
-  const sc   = document.getElementById('create-lineup-ext-sc').value.trim();
+function _lineupAddExternal(scope = 'create') {
+  const ids = _LINEUP_IDS[scope];
+  const name = document.getElementById(ids.extName).value.trim();
+  const sc   = document.getElementById(ids.extSc).value.trim();
   if (!name) { toast('⚠️ Entrez le nom du DJ'); return; }
   _lineup.push({ type: 'external', name, soundcloud_url: sc || null });
-  document.getElementById('create-lineup-ext-name').value = '';
-  document.getElementById('create-lineup-ext-sc').value   = '';
-  _renderLineup();
+  document.getElementById(ids.extName).value = '';
+  document.getElementById(ids.extSc).value   = '';
+  _renderLineup(scope);
   _saveLineup();
 }
 
-function _lineupRemove(i) {
+function _lineupRemove(i, scope = 'create') {
   _lineup.splice(i, 1);
-  _renderLineup();
+  _renderLineup(scope);
   _saveLineup();
 }
 
 // ── Recherche DJ sur SoundCloud (pour ceux pas encore inscrits) ───────
 let _lineupScSearchTimer = null;
-function _lineupScSearch(q) {
+function _lineupScSearch(q, scope = 'create') {
   clearTimeout(_lineupScSearchTimer);
-  const box = document.getElementById('create-lineup-sc-results');
+  const ids = _LINEUP_IDS[scope];
+  const box = document.getElementById(ids.scResults);
   if (!box) return;
   q = q.trim();
   if (q.length < 2) { box.innerHTML = ''; return; }
@@ -580,7 +593,7 @@ function _lineupScSearch(q) {
       const results = await api('GET', '/search/soundcloud-dj?q=' + encodeURIComponent(q));
       box.innerHTML = results.length
         ? results.map(r => `
-          <button onclick='_lineupAddScResult(${JSON.stringify(r).replace(/'/g,"&#39;")})' style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
+          <button onclick='_lineupAddScResult(${JSON.stringify(r).replace(/'/g,"&#39;")},"${scope}")' style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
             <div style="width:30px;height:30px;border-radius:50%;background:var(--grd);background-image:${r.avatar_url ? `url(${escapeHtml(r.avatar_url)})` : 'none'};background-size:cover;background-position:center;flex-shrink:0"></div>
             <div style="min-width:0;flex:1"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.name)}</div>${r.city ? `<div style="font-size:.64rem;color:var(--tx3)">${escapeHtml(r.city)}</div>` : ''}</div>
             <div style="font-size:.64rem;color:var(--tx4);flex-shrink:0">SoundCloud</div>
@@ -592,20 +605,21 @@ function _lineupScSearch(q) {
 
 // Résultat SoundCloud choisi : s'il correspond à un compte Pull up existant
 // (même nom de scène), on le relie directement au lieu de l'ajouter en externe.
-async function _lineupAddScResult(sc) {
-  document.getElementById('create-lineup-sc-results').innerHTML = '';
-  document.getElementById('create-lineup-sc-search').value = '';
+async function _lineupAddScResult(sc, scope = 'create') {
+  const ids = _LINEUP_IDS[scope];
+  document.getElementById(ids.scResults).innerHTML = '';
+  document.getElementById(ids.scSearch).value = '';
   try {
     const matches = await api('GET', '/dj/search?q=' + encodeURIComponent(sc.name));
     const exact = (matches || []).find(m => m.stage_name.toLowerCase() === sc.name.toLowerCase());
     if (exact) {
       if (_lineup.some(d => d.type === 'app' && d.id === exact.id)) { toast('Déjà dans le line-up'); return; }
-      _lineupAddApp(exact);
+      _lineupAddApp(exact, scope);
       return;
     }
   } catch(e) {}
   _lineup.push({ type: 'external', name: sc.name, soundcloud_url: sc.permalink, photo_url: sc.avatar_url || null });
-  _renderLineup();
+  _renderLineup(scope);
   _saveLineup();
 }
 
