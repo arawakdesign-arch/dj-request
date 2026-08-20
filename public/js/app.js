@@ -1110,11 +1110,11 @@ function applyFlyer(dataUrl) {
 // Bannière DJ (page vote) — affiche le nom/photo du premier DJ du line-up,
 // à défaut du texte générique "DJ" figé dans le HTML.
 function applyDjBanner(lineup) {
+  // Pour l'instant on ne change que le nom — l'avatar générique (bitmoji)
+  // reste tel quel, pas la vraie photo du DJ.
   const nameTag = document.getElementById('dj-banner-name');
-  const avatar  = document.getElementById('dj-banner-avatar');
   const dj = Array.isArray(lineup) && lineup.length ? lineup[0] : null;
   if (nameTag) nameTag.textContent = dj ? dj.name.toUpperCase() : 'DJ';
-  if (avatar)  avatar.src = dj?.photo_url || '/images/dj-avatar.png?v=1';
 }
 
 function loadFlyerFromStorage() {
