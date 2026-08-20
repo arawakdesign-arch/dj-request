@@ -12,9 +12,9 @@ router.get('/now-playing/:eventId', async (req, res) => {
 });
 
 router.put('/now-playing/:eventId', requireOrganizer, async (req, res) => {
-  const { title, artist, coverUrl } = req.body;
+  const { title, artist, coverUrl, proposer_name } = req.body;
   const { data, error } = await supabase.from('now_playing')
-    .upsert({ event_id: req.params.eventId, title, artist, cover_url: coverUrl || null })
+    .upsert({ event_id: req.params.eventId, title, artist, cover_url: coverUrl || null, proposer_name: proposer_name || null })
     .select().single();
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);

@@ -87,7 +87,7 @@ function subscribeToEvent(evId) {
 
   _sb.channel('np:' + evId)
     .on('postgres_changes', {event:'UPDATE', schema:'public', table:'now_playing', filter:'event_id=eq.'+evId},
-      p => { nowPlaying = {t: p.new.title, a: p.new.artist, coverUrl: p.new.cover_url || null}; updateNP(); })
+      p => { nowPlaying = {t: p.new.title, a: p.new.artist, coverUrl: p.new.cover_url || null, by: p.new.proposer_name || null}; updateNP(); })
     .subscribe(status => console.log('[pullup] Canal np:' + evId, '→', status));
 }
 
@@ -123,7 +123,7 @@ async function loadEvent(evId) {
     // Normalise cover_url (DB snake_case) → coverUrl (camelCase utilisé par render.js)
     proposals = Object.fromEntries(ps.map(x => [x.id, { ...x, coverUrl: x.cover_url || null }]));
     const np = await api('GET', '/now-playing/' + localEid);
-    if (np?.title) nowPlaying = {t: np.title, a: np.artist || '', coverUrl: np.cover_url || null};
+    if (np?.title) nowPlaying = {t: np.title, a: np.artist || '', coverUrl: np.cover_url || null, by: np.proposer_name || null};
     // Restaurer les votes de l'utilisateur courant après reload
     if (currentUser?.uid) {
       try {

@@ -3,7 +3,7 @@ let currentUser  = null;
 let confirmResult = null, otpPhase = false, resendTimer = null, resendCD = 30;
 let eid   = null, ename = '';
 let eventClosed = false; // soirée figée en lecture seule 24h après sa création
-let proposals = {}, myVotes = new Set(), nowPlaying = {t:'En attente…', a:''};
+let proposals = {}, myVotes = new Set(), nowPlaying = {t:'En attente…', a:'', by:null};
 let selModal = null, selModalMeta = null, selectedPlan = 'free', subscribed = false, subCount = 1284;
 let djLoggedIn = false;
 let _djPassword = null;
@@ -156,10 +156,11 @@ async function djPlay(id) {
   const title    = s?.n  || p?.title  || id;
   const artist   = s?.a  || p?.artist || '';
   const coverUrl = p?.coverUrl || artCache[title + artist] || null;
-  nowPlaying = {t: title, a: artist, coverUrl};
+  const proposerName = p?.proposer_name || null;
+  nowPlaying = {t: title, a: artist, coverUrl, by: proposerName};
   delete proposals[id]; renderAll(); toast(`▶ ${title}`);
   if (eid) {
-    api('PUT',    '/now-playing/' + eid, {title, artist, coverUrl}, {dj: true}).catch(() => {});
+    api('PUT',    '/now-playing/' + eid, {title, artist, coverUrl, proposer_name: proposerName}, {dj: true}).catch(() => {});
     api('DELETE', '/proposals/' + eid + '/' + id, null, {dj: true}).catch(() => {});
   }
 }

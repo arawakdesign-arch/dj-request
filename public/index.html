@@ -685,6 +685,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .bs2-now-txt{min-width:0;flex:1}
 .bs2-now-t{font-family:'Inter',sans-serif;font-weight:800;font-size:1.35rem;color:var(--tx);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bs2-now-a{font-weight:700;font-size:.92rem;color:var(--vi);margin-top:.15rem}
+.bs2-now-by{font-size:.72rem;color:var(--tx3);margin-top:.1rem}
 .bs2-eq{display:flex;align-items:flex-end;gap:3px;height:16px;margin-top:.5rem}
 .bs2-eq span{width:4px;border-radius:2px;background:var(--vi);animation:bs2eq 1s ease-in-out infinite}
 .bs2-eq span:nth-child(1){height:40%;animation-delay:0s}
@@ -709,25 +710,18 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .bs2-row-vn{font-family:'Inter',sans-serif;font-weight:800;font-size:1rem;color:var(--tx)}
 .bs2-row-vl{font-size:.6rem;color:var(--tx4);text-transform:uppercase}
 .bs2-chat-card{display:flex;flex-direction:column}
-@media (min-width:900px){.bs2-chat-card{min-height:0;overflow:hidden;align-self:stretch;align-items:center;justify-content:center}}
-.bs2-chatimg-wrap{position:relative;width:100%;aspect-ratio:486/790}
-/* Sur TV/écran large, la carte de chat s'étire pour remplir toute la hauteur
-   de la ligne (au lieu de sa hauteur naturelle) — l'image doit donc dériver
-   sa largeur de la hauteur disponible plutôt que l'inverse, sinon elle
-   déborde largement de la zone visible (image en portrait, colonne large). */
-@media (min-width:900px){.bs2-chatimg-wrap{width:auto;height:100%;max-width:100%}}
-.bs2-chatimg{width:100%;height:100%;object-fit:fill;display:block}
-.bs2-chat-feed{position:absolute;left:7.2%;top:12.7%;width:84.4%;height:82.3%;display:flex;flex-direction:column;gap:.6rem;overflow:hidden}
+@media (min-width:900px){.bs2-chat-card{flex:1;min-height:0;overflow:hidden}}
+.bs2-chat-feed{display:flex;flex-direction:column;gap:.5rem;overflow:hidden;flex:1;min-height:0}
 .bs2-card-fill{display:flex;flex-direction:column}
 @media (min-width:900px){.bs2-card-fill{flex:1;min-height:0;overflow:hidden}}
-.bs2-chat-msg{display:flex;gap:.6rem;align-items:flex-start}
-.bs2-chat-av{width:63px;height:63px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.35rem;font-weight:700;color:#fff;background-size:cover;background-position:center}
+.bs2-chat-msg{display:flex;gap:.5rem;align-items:flex-start}
+.bs2-chat-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;background-size:cover;background-position:center}
 .bs2-chat-body{min-width:0;flex:1}
 .bs2-chat-headrow{display:flex;align-items:baseline;gap:.4rem}
-.bs2-chat-name{font-family:'Inter',sans-serif;font-weight:800;font-size:1.58rem;color:var(--tx)}
+.bs2-chat-name{font-family:'Inter',sans-serif;font-weight:800;font-size:.85rem;color:var(--tx)}
 .bs2-chat-name.dj{color:var(--pk)}
-.bs2-chat-time{font-size:1.11rem;color:var(--tx4);margin-left:auto;flex-shrink:0}
-.bs2-chat-txt{font-size:1.53rem;color:var(--tx2);line-height:1.32;word-break:break-word}
+.bs2-chat-time{font-size:.68rem;color:var(--tx4);margin-left:auto;flex-shrink:0}
+.bs2-chat-txt{font-size:.82rem;color:var(--tx2);line-height:1.32;word-break:break-word}
 .bs2-wrap{gap:0}
 .bs2-footer-wrap{position:relative;width:calc(100% + 2.4rem);margin:.6rem -1.2rem -1.2rem;line-height:0;flex-shrink:0}
 .bs2-footer-img{display:block;width:100%;height:auto}
@@ -1739,6 +1733,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           <div class="bs2-now-txt">
             <div class="bs2-now-t" id="bs-np-t">En attente…</div>
             <div class="bs2-now-a" id="bs-np-a"></div>
+            <div class="bs2-now-by" id="bs-np-by"></div>
             <div class="bs2-eq"><span></span><span></span><span></span><span></span></div>
           </div>
         </div>
@@ -1754,8 +1749,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         </div>
       </div>
       <div class="bs2-chat-card">
-        <div class="bs2-chatimg-wrap">
-          <img src="/images/bs-chat-card.png?v=2" alt="Chat en direct" class="bs2-chatimg">
+        <div class="bs2-tag">Chat Club</div>
+        <div class="bs2-card bs2-card-fill">
           <div class="bs2-chat-feed" id="bs-chat-feed"><div class="empty-state"><div class="ei">💬</div><p>En attente de messages…</p></div></div>
         </div>
       </div>
@@ -1820,9 +1815,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </div>
 
 <script src="/js/config.js?v=2"></script>
-<script src="/js/api.js?v=15"></script>
-<script src="/js/app.js?v=53"></script>
-<script src="/js/render.js?v=23"></script>
+<script src="/js/api.js?v=16"></script>
+<script src="/js/app.js?v=54"></script>
+<script src="/js/render.js?v=24"></script>
 <script src="/js/chat.js?v=18"></script>
 <script src="/js/auth.js?v=31"></script>
 </body>
