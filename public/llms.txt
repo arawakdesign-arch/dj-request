@@ -1,0 +1,18 @@
+# Pull up
+
+> Pull up est l'application qui connecte les DJ à leur public en soirée : les invités proposent des morceaux et votent en direct pour la prochaine chanson, le DJ pilote sa playlist en temps réel, et l'écran géant de la salle affiche le classement live et un fil de chat.
+
+Pull up est une application web (pas de téléchargement, ça s'utilise directement dans le navigateur) pensée pour les clubs, bars et soirées privées.
+
+## Fonctionnement
+
+- Les invités scannent un QR code affiché en soirée pour rejoindre l'événement, proposer des titres et voter pour ceux déjà proposés.
+- Le classement des morceaux se met à jour en temps réel selon les votes.
+- Le DJ a un tableau de bord dédié pour gérer la file d'attente, lancer un morceau, et suivre l'activité de la soirée.
+- Un écran géant ("bigscreen") peut être branché en salle pour afficher le classement en direct, le morceau en cours, et un chat entre les invités.
+- Un chat en direct permet aux invités d'échanger pendant la soirée.
+
+## Pages
+
+- [Accueil](https://pull-up.live/): présentation de l'application.
+- [Sitemap](https://pull-up.live/sitemap.xml): plan du site.
