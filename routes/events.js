@@ -142,20 +142,21 @@ router.post('/events', requireAuth, async (req, res) => {
     return res.status(403).json({ error: 'Connecte-toi avec Google ou par email pour créer une soirée.' });
   }
 
-  // Un compte organisateur ne peut avoir qu'une seule soirée non close à la
-  // fois — live OU planifiée à venir — pour éviter la confusion de plusieurs
-  // soirées ouvertes/à venir en parallèle sous le même compte. Une fois la
-  // soirée fermée (24h après son démarrage, cf. isClosed()), il peut en
-  // recréer une.
-  {
+  // Un compte organisateur ne peut gérer qu'une seule soirée LIVE à la fois —
+  // évite la confusion de plusieurs soirées ouvertes en parallèle sous le même
+  // compte. Une fois la soirée fermée (24h, cf. isClosed()), il peut en
+  // recréer une. Ne s'applique que si la nouvelle soirée démarre immédiatement :
+  // planifier une soirée à venir (scheduledAt) reste toujours possible, même
+  // si une soirée est déjà live ou d'autres soirées à venir existent déjà.
+  if (!scheduledAt) {
     const { data: recent } = await supabase
       .from('events').select('id, name, created_at, scheduled_at')
       .eq('owner_id', ownerId).eq('is_active', true)
       .order('created_at', { ascending: false }).limit(5);
-    const ownActive = (recent || []).find(ev => !isClosed(ev.created_at, ev.scheduled_at));
+    const ownActive = (recent || []).find(ev => !isUpcoming(ev.scheduled_at) && !isClosed(ev.created_at, ev.scheduled_at));
     if (ownActive) {
       return res.status(409).json({
-        error: `Tu as déjà une soirée "${ownActive.name}" ${isUpcoming(ownActive.scheduled_at) ? 'planifiée' : 'en cours'} — attends sa clôture (24h après son démarrage) avant d'en créer une nouvelle.`,
+        error: `Ta soirée "${ownActive.name}" est encore en cours — attends sa clôture (24h) avant d'en créer une nouvelle.`,
         active_event_id: ownActive.id,
         active_event_name: ownActive.name,
       });

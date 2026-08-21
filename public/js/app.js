@@ -224,6 +224,7 @@ function switchOrgaTab(tab, btn) {
   if (btn) { btn.style.color = '#6F22FF'; btn.style.borderBottom = '2px solid #6F22FF'; btn.style.fontWeight = '700'; }
   if (tab === 'modo')                          loadOrgaChatList();
   if (tab === 'settings' || tab === 'orga')    populateSettingsForm();
+  if (tab === 'settings')                      loadOtherOwnedEvents();
   if (tab === 'orga') {
     loadOrgaContacts();
     loadOrgaProfile();
@@ -842,6 +843,27 @@ async function loadOwnedEvents() {
       <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
     </button>`).join('');
   box.style.display = 'block';
+}
+
+// Onglet SOIRÉE (Réglages) : les autres soirées non closes du compte (à venir
+// ou en cours ailleurs), pour basculer sans repasser par le profil.
+async function loadOtherOwnedEvents() {
+  const card = document.getElementById('orga-other-events-card');
+  const list = document.getElementById('orga-other-events-list');
+  if (!card || !list) return;
+  let events = [];
+  try { events = await api('GET', '/events/mine'); } catch(e) { card.style.display = 'none'; return; }
+  const others = events.filter(ev => ev.id !== eid && !ev.closed);
+  if (!others.length) { card.style.display = 'none'; list.innerHTML = ''; return; }
+  list.innerHTML = others.map(ev => `
+    <button onclick="${escapeHtml(`adminEnterEvent('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.6rem;padding:.7rem .85rem;border-radius:1rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;text-align:left">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.85rem;font-weight:700;color:var(--vi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
+        <div style="font-size:.68rem;color:var(--tx3);margin-top:2px">${ev.upcoming ? '📅 À venir · ' + new Date(ev.scheduled_at).toLocaleDateString('fr-FR') : '🔴 En cours'}</div>
+      </div>
+      <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
+    </button>`).join('');
+  card.style.display = 'block';
 }
 
 async function adminEnterEvent(id, name) {
