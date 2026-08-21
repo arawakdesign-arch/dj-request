@@ -737,6 +737,29 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .bs2-footer-tracks{left:93.3%}
 
 
+/* ── Page organisateur publique (pull-up.live/slug) ─────────────────── */
+.op-banner{width:100%;aspect-ratio:2.4/1;background:var(--grd);background-size:cover;background-position:center}
+.op-hero{padding:0 1.25rem 1rem;text-align:center;margin-top:-46px;position:relative}
+.op-logo{width:92px;height:92px;border-radius:1.6rem;background:var(--grd);background-size:cover;background-position:center;margin:0 auto .8rem;display:flex;align-items:center;justify-content:center;font-size:2.1rem;box-shadow:0 10px 26px rgba(20,10,45,.24);border:4px solid #FFFFFF}
+.op-name{font-family:'Inter',sans-serif;font-weight:800;font-size:1.55rem;letter-spacing:-.01em;color:var(--tx);text-wrap:balance}
+.op-bio{font-size:.85rem;color:var(--tx3);line-height:1.55;margin:.5rem auto 0;max-width:320px}
+.op-contact-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;margin-top:1rem;padding:.65rem 1.3rem;border-radius:1rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:700;text-decoration:none}
+.op-socials{display:flex;gap:.5rem;justify-content:center;margin-top:.85rem;flex-wrap:wrap}
+.op-socials a{display:flex;align-items:center;gap:.35rem;padding:.55rem .9rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.75rem;font-weight:600;color:var(--tx2);text-decoration:none;transition:transform .15s}
+.op-socials a:active{transform:scale(.96)}
+.op-section{padding:.5rem 1.25rem 1.25rem}
+.op-eyebrow{display:flex;align-items:center;gap:.4rem;font-size:.64rem;font-weight:800;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.7rem}
+.op-eyebrow-live{color:var(--red)}
+.op-live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:opLivePulse 1.6s infinite}
+@keyframes opLivePulse{
+  0%{box-shadow:0 0 0 0 rgba(255,59,87,.45)}
+  70%{box-shadow:0 0 0 8px rgba(255,59,87,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,59,87,0)}
+}
+.op-event-card{width:100%;display:flex;align-items:center;gap:.85rem;padding:.85rem 1rem;border-radius:1.1rem;border:1px solid var(--bdr);background:#FFFFFF;text-align:left;box-shadow:var(--shadow);transition:transform .15s}
+.op-event-card:active{transform:scale(.98)}
+.op-ev-icon{width:38px;height:38px;border-radius:.85rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.05rem}
+
 /* Prevent content jump when iOS keyboard opens */
 @supports (padding: env(safe-area-inset-bottom)) {
   .fab{margin-bottom:calc(.5rem + var(--safe-bot))}
@@ -1618,27 +1641,32 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <!-- PAGE ORGANISATEUR PUBLIQUE (pull-up.live/mon-club) -->
 <div class="page" id="pg-orga-public">
-  <div class="tb"><div class="tb-back" onclick="window.location.href='/'">←</div><div class="tb-title"><img src="/images/logo.png" alt="PULL UP!" style="height:44px;object-fit:contain;display:block"></div></div>
-  <div class="scroll">
-    <div id="op-banner" style="display:none;width:100%;aspect-ratio:3/1;background-size:cover;background-position:center;background-color:var(--dj-card)"></div>
-    <div style="padding:1.5rem 1.25rem 1rem;text-align:center">
-      <div id="op-logo" style="width:96px;height:96px;border-radius:1.4rem;background:var(--grd);background-size:cover;background-position:center;margin:0 auto .85rem;display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:var(--shadow)">🎪</div>
-      <div id="op-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.4rem;color:var(--tx)">—</div>
-      <div id="op-bio" style="font-size:.82rem;color:var(--tx3);line-height:1.5;margin-top:.5rem;max-width:320px;margin-left:auto;margin-right:auto"></div>
-      <a id="op-email-btn" href="#" target="_blank" style="display:none;align-items:center;justify-content:center;gap:.4rem;margin-top:.9rem;padding:.65rem 1.2rem;border-radius:1rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:700;text-decoration:none">✉️ Contacter</a>
-      <div id="op-socials" style="display:flex;gap:.5rem;justify-content:center;margin-top:.7rem;flex-wrap:wrap"></div>
+  <div class="tb" style="position:absolute;top:0;left:0;right:0;z-index:5;background:transparent;border:none;padding:.75rem">
+    <div class="tb-back" onclick="window.location.href='/'" style="background:rgba(16,16,20,.35);color:#fff;border:none">←</div>
+  </div>
+  <div class="scroll" style="padding-top:0">
+    <div id="op-banner" class="op-banner"></div>
+    <div class="op-hero">
+      <div id="op-logo" class="op-logo">🎪</div>
+      <div id="op-name" class="op-name">—</div>
+      <div id="op-bio" class="op-bio"></div>
+      <a id="op-email-btn" href="#" target="_blank" class="op-contact-btn" style="display:none">✉️ Contacter</a>
+      <div id="op-socials" class="op-socials"></div>
     </div>
-    <div id="op-sec-live" style="display:none;padding:.5rem 1.25rem 1.25rem">
-      <div style="font-size:.62rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">🔴 En direct</div>
+    <div id="op-sec-live" class="op-section" style="display:none">
+      <div class="op-eyebrow op-eyebrow-live"><span class="op-live-dot"></span> En direct</div>
       <div id="op-events-live" style="display:flex;flex-direction:column;gap:.6rem"></div>
     </div>
-    <div id="op-sec-upcoming" style="display:none;padding:.5rem 1.25rem 1.25rem">
-      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">À venir</div>
+    <div id="op-sec-upcoming" class="op-section" style="display:none">
+      <div class="op-eyebrow">📅 À venir</div>
       <div id="op-events-upcoming" style="display:flex;flex-direction:column;gap:.6rem"></div>
     </div>
-    <div id="op-sec-closed" style="display:none;padding:.5rem 1.25rem 2rem">
-      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">Passées</div>
+    <div id="op-sec-closed" class="op-section" style="display:none">
+      <div class="op-eyebrow">Passées</div>
       <div id="op-events-closed" style="display:flex;flex-direction:column;gap:.6rem"></div>
+    </div>
+    <div style="text-align:center;padding:0 1.25rem 2rem">
+      <img src="/images/logo.png" alt="PULL UP!" style="height:26px;object-fit:contain;opacity:.5">
     </div>
   </div>
 </div>
@@ -1855,6 +1883,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/app.js?v=75"></script>
 <script src="/js/render.js?v=30"></script>
 <script src="/js/chat.js?v=22"></script>
-<script src="/js/auth.js?v=38"></script>
+<script src="/js/auth.js?v=39"></script>
 </body>
 </html>

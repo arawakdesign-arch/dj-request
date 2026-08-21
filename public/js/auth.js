@@ -135,13 +135,12 @@ async function tryShowOrgaPublicPage(slug) {
   elt('op-name', page.name || slug);
   elt('op-bio', page.bio || '');
   const banner = document.getElementById('op-banner');
-  if (banner) {
-    if (page.banner_url) { banner.style.backgroundImage = `url(${page.banner_url})`; banner.style.display = 'block'; }
-    else                  { banner.style.backgroundImage = ''; banner.style.display = 'none'; }
-  }
+  // Pas de banner_url → le dégradé de marque (.op-banner en CSS) reste visible,
+  // pas de bandeau vide/plat.
+  if (banner) banner.style.backgroundImage = page.banner_url ? `url(${escapeHtml(page.banner_url)})` : '';
   const logo = document.getElementById('op-logo');
   if (logo) {
-    if (page.logo_url) { logo.style.backgroundImage = `url(${page.logo_url})`; logo.textContent = ''; }
+    if (page.logo_url) { logo.style.backgroundImage = `url(${escapeHtml(page.logo_url)})`; logo.textContent = ''; }
     else                { logo.style.backgroundImage = ''; logo.textContent = '🎪'; }
   }
 
@@ -157,17 +156,26 @@ async function tryShowOrgaPublicPage(slug) {
       ['🌐', 'Site web',    page.website_url], ['📷', 'Instagram', page.instagram_url],
       ['🎵', 'TikTok',      page.tiktok_url],   ['📘', 'Facebook',  page.facebook_url],
     ].filter(([,,url]) => url);
-    socials.innerHTML = links.map(([ico,label,url]) => `<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.35rem;padding:.55rem .9rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.75rem;font-weight:600;color:var(--tx2);text-decoration:none">${ico} ${label}</a>`).join('');
+    socials.innerHTML = links.map(([ico,label,url]) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${ico} ${label}</a>`).join('');
   }
 
-  const evCard = (ev, sub) => `
-    <button onclick="window.location.href='/?event=${ev.id}'" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:.9rem 1rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;text-align:left;box-shadow:var(--shadow)">
-      <div style="min-width:0">
-        <div style="font-size:.9rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>
-        <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">${sub}</div>
+  const EV_KIND = {
+    live:     { icon: '🔴', bg: 'rgba(255,59,87,.12)',  color: 'var(--red)' },
+    upcoming: { icon: '📅', bg: 'rgba(111,34,255,.1)',  color: 'var(--vi)' },
+    closed:   { icon: '✓',  bg: 'var(--ink5)',          color: 'var(--tx4)' },
+  };
+  const evCard = (ev, sub, kind) => {
+    const k = EV_KIND[kind];
+    return `
+    <button onclick="window.location.href='/?event=${ev.id}'" class="op-event-card">
+      <div class="op-ev-icon" style="background:${k.bg};color:${k.color}">${k.icon}</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:.9rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
+        <div style="font-size:.72rem;color:var(--tx3);margin-top:2px">${escapeHtml(sub)}</div>
       </div>
       <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
     </button>`;
+  };
   const fmtDate = iso => new Date(iso).toLocaleString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
 
   const events   = page.events || [];
@@ -176,17 +184,17 @@ async function tryShowOrgaPublicPage(slug) {
   const closed   = events.filter(e => e.closed);
 
   const sections = [
-    ['op-sec-live',     'op-events-live',     live,     ev => ev.club_name || ''],
-    ['op-sec-upcoming', 'op-events-upcoming', upcoming, ev => ev.scheduled_at ? fmtDate(ev.scheduled_at) : (ev.club_name || '')],
-    ['op-sec-closed',   'op-events-closed',   closed,   ev => ev.club_name || ''],
+    ['op-sec-live',     'op-events-live',     live,     ev => ev.club_name || '',                                              'live'],
+    ['op-sec-upcoming', 'op-events-upcoming', upcoming, ev => ev.scheduled_at ? fmtDate(ev.scheduled_at) : (ev.club_name || ''), 'upcoming'],
+    ['op-sec-closed',   'op-events-closed',   closed,   ev => ev.club_name || '',                                              'closed'],
   ];
-  sections.forEach(([secId, listId, list, subFn]) => {
+  sections.forEach(([secId, listId, list, subFn, kind]) => {
     const sec  = document.getElementById(secId);
     const list_ = document.getElementById(listId);
     if (!sec || !list_) return;
     if (!list.length) { sec.style.display = 'none'; return; }
     sec.style.display = 'block';
-    list_.innerHTML = list.map(ev => evCard(ev, subFn(ev))).join('');
+    list_.innerHTML = list.map(ev => evCard(ev, subFn(ev), kind)).join('');
   });
   return true;
 }
