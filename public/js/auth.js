@@ -99,7 +99,13 @@ window.addEventListener('load', async () => {
             showPage('dj-login');
             _djLoginShowCreate(); // le formulaire nom/mot de passe apparaît, currentUser.email est maintenant renseigné
           } else if (eid && !djLoggedIn) {
-            await loadEvent(eid).catch(() => {});
+            // DJ du line-up (accès admin avec son propre compte, cf. enterAsLineupDj)
+            // — restaurer le mode DJ après un refresh, pas seulement la page vote.
+            if (eid && localStorage.getItem('djr_lineup_event') === eid) {
+              await enterAsLineupDj(eid, ename || '');
+            } else {
+              await loadEvent(eid).catch(() => {});
+            }
           }
           // Nettoyer le hash OAuth ; conserver ou rétablir le paramètre ?event=
           if (window.location.hash) {

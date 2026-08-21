@@ -56,7 +56,7 @@ function showPage(id) {
 function navTo(id) {
   if (id === 'dj' && !djLoggedIn) { showPage('dj-login'); closeTopMenu(); return; }
   showPage(id);
-  if (id === 'profile') loadOwnedEvents();
+  if (id === 'profile') { loadOwnedEvents(); loadLineupEvents(); }
   ['vote','chat','profile','dj'].forEach(t => document.getElementById('nav-' + t)?.classList.remove('active'));
   const map = {client:'vote', chat:'chat', profile:'profile', presskit:'dj', dj:'dj'};
   const navId = map[id];
@@ -866,6 +866,39 @@ async function loadOtherOwnedEvents() {
   card.style.display = 'block';
 }
 
+// Soirées où le compte personnel est dans le line-up (DJ inscrit sur Pull
+// up) — accès admin avec son propre compte, en même temps que l'organisateur.
+async function loadLineupEvents() {
+  const box = document.getElementById('prof-lineup-events');
+  if (!box || !(_authToken || _sbSession)) return;
+  let events = [];
+  try { events = await api('GET', '/dj/my-events'); } catch(e) { return; }
+  if (!events.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+  box.innerHTML = events.map(ev => `
+    <button onclick="${escapeHtml(`enterAsLineupDj('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;transition:all .2s;margin-bottom:.5rem">
+      <div style="width:42px;height:42px;border-radius:12px;background:rgba(111,34,255,.15);border:1px solid rgba(111,34,255,.28);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🎧</div>
+      <div style="text-align:left;flex:1;min-width:0">
+        <div style="font-size:.88rem;font-weight:700;color:var(--vi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">DJ sur "${escapeHtml(ev.name)}"</div>
+        <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">${ev.upcoming ? 'À venir — tu es dans le line-up' : 'Tu es dans le line-up de cette soirée'}</div>
+      </div>
+      <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
+    </button>`).join('');
+  box.style.display = 'block';
+}
+
+// Contrairement à adminEnterEvent() (propriétaire, JWT organisateur dédié),
+// un DJ du line-up administre avec sa propre session personnelle — aucun
+// jeton à obtenir, le backend l'autorise déjà via isLineupMember().
+async function enterAsLineupDj(id, name) {
+  eid = id; ename = name;
+  localStorage.setItem('djr_eid', id);
+  localStorage.setItem('djr_ename', name);
+  localStorage.setItem('djr_lineup_event', id);
+  await _activateDJ(name, null);
+  toast(`🎧 Accès DJ — "${name}"`);
+}
+
 async function adminEnterEvent(id, name) {
   try {
     const res = await api('POST', '/events/' + id + '/admin-token');
@@ -1017,13 +1050,14 @@ function applyProfileToUI(profile) {
 // Envoi effectif au serveur — factorisé pour être réutilisable juste après la
 // création d'une soirée (eid/_authToken n'existent qu'à partir de ce moment-là).
 async function _persistFlyer(dataUrl) {
-  if (!eid || !(_authToken || _djPassword)) return;
+  const bearer = _authToken || _sbSession?.access_token;
+  if (!eid || !(bearer || _djPassword)) return;
   try {
     const blob = dataURLtoBlob(dataUrl);
     const form = new FormData();
     form.append('flyer', blob, 'flyer.jpg');
     const headers = {};
-    if (_authToken)  headers['Authorization']        = 'Bearer ' + _authToken;
+    if (bearer)      headers['Authorization']        = 'Bearer ' + bearer;
     if (_djPassword) headers['x-organizer-password'] = _djPassword;
     const r = await fetch(`/api/events/${eid}/flyer`, { method: 'POST', headers, body: form });
     if (r.ok) {
@@ -1088,9 +1122,10 @@ function removeFlyer() {
   toast('🗑️ Flyer retiré');
   // Sans ça, flyer_url reste en base côté serveur : le flyer "retiré"
   // revenait dès le prochain chargement (pour tout le monde).
-  if (eid && (_authToken || _djPassword)) {
+  const bearer = _authToken || _sbSession?.access_token;
+  if (eid && (bearer || _djPassword)) {
     const headers = {};
-    if (_authToken)  headers['Authorization']        = 'Bearer ' + _authToken;
+    if (bearer)      headers['Authorization']        = 'Bearer ' + bearer;
     if (_djPassword) headers['x-organizer-password'] = _djPassword;
     fetch(`/api/events/${eid}/flyer`, { method: 'DELETE', headers }).catch(e => {
       console.error('[pullup] Échec suppression flyer serveur :', e.message);

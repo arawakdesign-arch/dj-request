@@ -83,6 +83,14 @@ async function verifyOrganizerPassword(eventId, storedHash, password) {
   try { return bcrypt.compareSync(password, storedHash); } catch(e) { return false; }
 }
 
+// Un DJ inscrit sur Pull up et présent dans le line-up (type 'app', id =
+// user_profiles.id = dj_profiles.id) peut administrer la soirée avec son
+// propre compte, en même temps que l'organisateur — sans connaître le mot
+// de passe partagé.
+function isLineupMember(lineup, userId) {
+  return Array.isArray(lineup) && lineup.some(dj => dj.type === 'app' && dj.id === userId);
+}
+
 async function requireOrganizer(req, res, next) {
   const eventId = req.params.eventId || req.params.id;
 
@@ -94,6 +102,16 @@ async function requireOrganizer(req, res, next) {
       if (payload.role === 'organizer' && payload.event_id === eventId) return next();
       console.error('[requireOrganizer] JWT valide mais rôle/event_id ne correspondent pas —', req.method, req.originalUrl, '| payload.role=', payload.role, 'payload.event_id=', payload.event_id, 'eventId attendu=', eventId);
     } catch(e) { /* JWT expiré ou invalide — continuer avec le mot de passe */ }
+
+    // 1bis. Compte personnel Pull up (Google/email) — propriétaire de la
+    // soirée ou DJ du line-up.
+    try {
+      const { data: { user } } = await supabase.auth.getUser(bearer);
+      if (user) {
+        const { data: event } = await supabase.from('events').select('owner_id, lineup').eq('id', eventId).single();
+        if (event && (event.owner_id === user.id || isLineupMember(event.lineup, user.id))) return next();
+      }
+    } catch(e) { /* pas un token Supabase valide non plus — continuer avec le mot de passe */ }
   }
 
   // 2. Mot de passe direct (session active, _djPassword présent)
@@ -121,6 +139,14 @@ async function isOrganizer(req, eventId) {
       const payload = verifyToken(bearer);
       if (payload.role === 'organizer' && payload.event_id === eventId) return true;
     } catch(e) { /* on retente avec le mot de passe */ }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser(bearer);
+      if (user) {
+        const { data: event } = await supabase.from('events').select('owner_id, lineup').eq('id', eventId).single();
+        if (event && (event.owner_id === user.id || isLineupMember(event.lineup, user.id))) return true;
+      }
+    } catch(e) { /* pas un token Supabase valide non plus — continuer avec le mot de passe */ }
   }
 
   const password = req.headers['x-organizer-password'];

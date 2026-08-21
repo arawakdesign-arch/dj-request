@@ -3,9 +3,25 @@ const multer   = require('multer');
 const supabase = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
 const { validateDisplayName } = require('../lib/moderation');
+const { isClosed, isUpcoming } = require('./events');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+
+// ── Soirées où je suis dans le line-up (DJ inscrit sur Pull up) ───────
+// Permet d'entrer administrer la soirée avec son propre compte, sans
+// connaître le mot de passe partagé (cf. isLineupMember côté middleware).
+router.get('/dj/my-events', requireAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('events').select('id, name, created_at, scheduled_at, lineup')
+    .eq('is_active', true);
+  if (error) return res.status(500).json({ error: error.message });
+  const mine = (data || [])
+    .filter(ev => Array.isArray(ev.lineup) && ev.lineup.some(dj => dj.type === 'app' && dj.id === req.user.id))
+    .map(ev => ({ id: ev.id, name: ev.name, closed: isClosed(ev.created_at, ev.scheduled_at), upcoming: isUpcoming(ev.scheduled_at) }))
+    .filter(ev => !ev.closed);
+  res.json(mine);
+});
 
 // ── Mon profil DJ (édition) ─────────────────────────────────────────
 router.get('/dj/profile', requireAuth, async (req, res) => {
