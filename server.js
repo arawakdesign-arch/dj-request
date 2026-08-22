@@ -87,6 +87,13 @@ app.get('/', async (req, res, next) => {
   }
 });
 
+// ══ DIGITAL ASSET LINKS (app Android TV) ═══════════════════════════════
+// express.static ignore les dossiers pointés (.well-known) par défaut : route dédiée.
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.sendFile(path.join(__dirname, 'public', '.well-known', 'assetlinks.json'));
+});
+
 // ══ FICHIERS STATIQUES ════════════════════════════════════════════════
 const isDev = process.env.NODE_ENV !== 'production';
 app.use(express.static(path.join(__dirname, 'public'), {

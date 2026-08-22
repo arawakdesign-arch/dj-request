@@ -44,3 +44,13 @@ coverage/
 
 # Fichiers système
 Thumbs.db
+
+# Android TV (android-tv/)
+android-tv/.gradle/
+android-tv/local.properties
+android-tv/*/build/
+android-tv/app/build/
+*.keystore
+*.jks
+*.apk
+*.aab

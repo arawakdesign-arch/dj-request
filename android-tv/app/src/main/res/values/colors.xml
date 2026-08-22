@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Couleurs de marque PULL UP! (cf. public/css/app.css :root) -->
+    <color name="colorPrimary">#08080B</color>
+    <color name="colorPrimaryDark">#08080B</color>
+    <color name="navigationColor">#08080B</color>
+    <color name="backgroundColor">#08080B</color>
+</resources>
