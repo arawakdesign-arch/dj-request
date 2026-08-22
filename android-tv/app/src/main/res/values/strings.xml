@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PULL UP! TV</string>
+    <string name="launcher_name">PULL UP!</string>
+
+    <!-- URL par défaut ouverte au lancement : l'écran de pairing / bigscreen (public/js/auth.js) -->
+    <string name="default_url" translatable="false">https://pull-up.live/tv</string>
+
+    <!-- Doit correspondre au nom de package de l'app pour que la barre d'adresse Chrome
+         reste masquée (Digital Asset Links, cf. public/.well-known/assetlinks.json) -->
+    <string name="host" translatable="false">pull-up.live</string>
+</resources>

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "live.pullup.tv",
+      "sha256_cert_fingerprints": [
+        "REMPLACE_MOI_PAR_LE_SHA256_DE_TA_CLE_DE_SIGNATURE"
+      ]
+    }
+  }
+]
