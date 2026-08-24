@@ -25,8 +25,8 @@ html{scroll-behavior:smooth}
 body{background:#F3EFE7;overflow-x:hidden;font-family:-apple-system,system-ui,sans-serif}
 img{max-width:100%;display:block;width:100%;height:auto}
 a{display:block}
-.shots{max-width:960px;margin:0 auto}
-.shots > div{scroll-margin-top:0}
+.shots{max-width:960px;margin:0 auto;perspective:1500px}
+.shots > div{scroll-margin-top:0;transform-origin:center center;will-change:transform}
 
 /* ── menu trigger (positionné sur le hamburger déjà dessiné dans l'image) ── */
 .menu-btn{position:fixed;top:0;right:max(0px,calc((100vw - 960px)/2));z-index:60;width:min(20vw,192px);height:min(14vw,134px);background:transparent;border:none;cursor:pointer}
@@ -92,6 +92,32 @@ menuBtn.addEventListener('click', openMenu);
 menuClose.addEventListener('click', closeMenu);
 menuOverlay.addEventListener('click', (e) => { if (e.target === menuOverlay) closeMenu(); });
 document.querySelectorAll('[data-close]').forEach(a => a.addEventListener('click', closeMenu));
+
+// Tilt/parallax 3D léger au scroll — chaque image se redresse en passant
+// par le centre de l'écran, puis repart en bascule inverse.
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!reduceMotion) {
+  const cards = document.querySelectorAll('.shots > div');
+  let ticking = false;
+  function applyTilt() {
+    const vh = window.innerHeight;
+    const vpCenter = vh / 2;
+    cards.forEach(card => {
+      const r = card.getBoundingClientRect();
+      const cardCenter = r.top + r.height / 2;
+      const dist = Math.max(-1, Math.min(1, (cardCenter - vpCenter) / vh));
+      const rotate = dist * 14;
+      const scale = 1 - Math.abs(dist) * 0.07;
+      const ty = dist * 22;
+      card.style.transform = `perspective(1500px) rotateX(${rotate.toFixed(2)}deg) translateY(${ty.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+    });
+    ticking = false;
+  }
+  const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(applyTilt); } };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  applyTilt();
+}
 </script>
 </body>
 </html>
