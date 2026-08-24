@@ -87,6 +87,13 @@ app.get('/', async (req, res, next) => {
   }
 });
 
+// ══ TWA (Android) ═════════════════════════════════════════════════════
+// express.static ignore les fichiers/dossiers commençant par un point par
+// défaut, donc /.well-known a besoin d'une route dédiée.
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', '.well-known', 'assetlinks.json'));
+});
+
 // ══ FICHIERS STATIQUES ════════════════════════════════════════════════
 const isDev = process.env.NODE_ENV !== 'production';
 app.use(express.static(path.join(__dirname, 'public'), {

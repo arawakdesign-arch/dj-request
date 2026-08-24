@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "live.pull_up.twa",
+        "sha256_cert_fingerprints": ["D4:DD:56:18:3A:E1:68:EB:4A:69:A2:61:56:A9:AF:C1:37:CA:05:6E:3E:79:5E:DE:DB:A7:A7:1A:BB:BA:28:4B"]
+      }
+    }]
