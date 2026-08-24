@@ -10,138 +10,176 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://pull-up.live/">
 <meta property="og:title" content="Pull up — La playlist, c'est vous">
-<meta property="og:description" content="Les invités proposent et votent, le DJ garde le contrôle. La soirée, c'est vous.">
+<meta property="og:description" content="Scannez. Votez. Faites monter l'ambiance. Le DJ garde le contrôle.">
 <meta property="og:image" content="https://pull-up.live/images/icon-512.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Pull up — La playlist, c'est vous">
-<meta name="twitter:description" content="Les invités proposent et votent, le DJ garde le contrôle. La soirée, c'est vous.">
+<meta name="twitter:description" content="Scannez. Votez. Faites monter l'ambiance. Le DJ garde le contrôle.">
 <meta name="twitter:image" content="https://pull-up.live/images/icon-512.png">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" type="image/png" sizes="512x512" href="/images/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#0D0714;--paper:#FAF9F7;--paper2:#F2EFE9;
+  --paper:#F3EFE7;--paper2:#EAE4D8;
+  --ink:#121212;
   --vi:#6F22FF;--vi2:#4C00D8;--pk:#FF1C8E;--pk2:#C4127A;
-  --grd:linear-gradient(135deg,#6F22FF 0%,#8D2CFF 45%,#FF1C8E 100%);
-  --tx:#101014;--tx2:#33333D;--tx3:#646474;--tx4:#8A8A9A;
-  --bdr:#ECECF3;
-  --shadow:0 20px 60px rgba(20,10,45,.14);
+  --grd:linear-gradient(115deg,#6F22FF 0%,#8D2CFF 45%,#FF1C8E 100%);
+  --tx3:#5B5763;--tx4:#8A8494;
+  --bdr:rgba(18,18,18,.12);
+  --shadow:0 14px 34px rgba(20,10,45,.14);
 }
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{
-  background:var(--paper);color:var(--tx);
-  font-family:'Inter',-apple-system,'SF Pro Display',system-ui,sans-serif;
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
+  background:var(--paper);color:var(--ink);
+  font-family:'Inter',-apple-system,system-ui,sans-serif;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
 }
 a{color:inherit}
 img{max-width:100%;display:block}
-.wrap{max-width:1120px;margin:0 auto;padding:0 1.5rem}
+.wrap{max-width:1160px;margin:0 auto;padding:0 1.5rem;position:relative}
+.disp{font-family:'Anton',Impact,'Inter',sans-serif;font-weight:400;text-transform:none;letter-spacing:0}
+
+/* ── texture papier ─────────────────────────────────────────────── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.5;mix-blend-mode:multiply;
+  background-image:radial-gradient(rgba(18,18,18,.05) 1px,transparent 1px);
+  background-size:3px 3px;
+}
+
+/* ── doodles (traits violets à la main) ────────────────────────── */
+.doodle{position:absolute;pointer-events:none;color:var(--vi)}
 
 /* ── NAV ────────────────────────────────────────────────────────── */
 .nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.5rem;transition:background .25s,box-shadow .25s,backdrop-filter .25s}
-.nav.scrolled{background:rgba(250,249,247,.85);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--bdr)}
-.nav-logo{height:30px;object-fit:contain}
-.nav-cta{padding:.62rem 1.3rem;border-radius:14px;background:var(--ink);color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;white-space:nowrap;transition:transform .15s}
-.nav-cta:active{transform:scale(.96)}
+.nav.scrolled{background:rgba(243,239,231,.86);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--bdr)}
+.nav-logo{height:34px;object-fit:contain}
+.nav-burger{width:38px;height:38px;border-radius:10px;border:1.5px solid var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.nav-burger span{width:16px;height:2px;background:var(--ink)}
 
-/* ── HERO ───────────────────────────────────────────────────────── */
-.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:6.5rem 0 3rem;overflow:hidden}
-.hero-glow{position:absolute;inset:-20% -10% auto -10%;height:120%;background:radial-gradient(60% 55% at 30% 15%,rgba(111,34,255,.22),transparent 70%),radial-gradient(50% 45% at 85% 10%,rgba(255,28,142,.16),transparent 70%);pointer-events:none;z-index:0}
-.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:2.5rem;align-items:center}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:.45rem;font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--vi);background:rgba(111,34,255,.08);border:1px solid rgba(111,34,255,.2);padding:.4rem .8rem;border-radius:20px;margin-bottom:1.4rem}
-.hero-eyebrow span{width:6px;height:6px;border-radius:50%;background:var(--pk)}
-.hero h1{font-weight:900;font-size:clamp(2.6rem,6vw,4.4rem);line-height:.98;letter-spacing:-.03em}
-.hero h1 em{font-style:normal;background:var(--grd);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{margin-top:1.4rem;font-size:clamp(1rem,1.6vw,1.2rem);color:var(--tx3);max-width:34ch;line-height:1.55}
-.hero-ctas{display:flex;gap:.8rem;margin-top:2.2rem;flex-wrap:wrap}
-.btn-primary{padding:1rem 1.7rem;border-radius:18px;background:var(--grd);color:#fff;font-weight:700;font-size:.95rem;text-decoration:none;box-shadow:0 12px 28px rgba(111,34,255,.32);transition:transform .15s}
-.btn-ghost{padding:1rem 1.6rem;border-radius:18px;background:transparent;color:var(--tx);font-weight:700;font-size:.95rem;text-decoration:none;border:1.5px solid var(--bdr);transition:transform .15s,border-color .15s}
-.btn-primary:active,.btn-ghost:active{transform:scale(.97)}
-.hero-visual{position:relative;display:flex;justify-content:center}
-.hero-phone{width:min(78vw,340px);position:relative;z-index:1;will-change:transform;filter:drop-shadow(0 30px 50px rgba(20,10,45,.28))}
-.hero-blob{position:absolute;width:340px;height:340px;border-radius:50%;background:var(--grd);opacity:.16;filter:blur(50px);top:50%;left:50%;transform:translate(-50%,-50%);z-index:0}
-.scroll-cue{position:absolute;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;color:var(--tx4);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;z-index:1}
-.scroll-cue .stick{width:1.5px;height:26px;background:linear-gradient(var(--tx4),transparent);animation:cueMove 1.6s ease-in-out infinite}
-@keyframes cueMove{0%{opacity:0;transform:translateY(-6px)}40%{opacity:1}100%{opacity:0;transform:translateY(10px)}}
-@media (prefers-reduced-motion:reduce){.scroll-cue .stick{animation:none}}
+/* ── section shell ──────────────────────────────────────────────── */
+section{position:relative;z-index:2}
+.pad{padding:6rem 0}
+.eyebrow{display:inline-block;font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.02em;color:var(--vi);text-decoration:underline;text-decoration-color:rgba(111,34,255,.4);text-underline-offset:5px;margin-bottom:.6rem}
+.ttl{font-size:clamp(2.4rem,6vw,4.2rem);line-height:.94;letter-spacing:-.01em}
+.ttl .hl{position:relative;display:inline-block}
+.sub{margin-top:1.1rem;color:var(--tx3);font-size:1.02rem;line-height:1.6;max-width:38ch}
+.lock-note{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.92rem;margin-top:1.1rem}
 
-/* ── SECTION SHELL ──────────────────────────────────────────────── */
-section{position:relative}
-.section-pad{padding:5.5rem 0}
-.eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--vi);margin-bottom:.7rem}
-.section-ttl{font-weight:900;font-size:clamp(1.8rem,3.6vw,2.6rem);letter-spacing:-.02em;line-height:1.08;max-width:16ch}
-.section-sub{margin-top:.9rem;color:var(--tx3);font-size:1.02rem;line-height:1.6;max-width:44ch}
+/* ── buttons ────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:.6rem;padding:1rem 1.6rem;border-radius:14px;font-weight:700;font-size:.95rem;text-decoration:none;transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--grd);color:#fff;box-shadow:0 12px 26px rgba(111,34,255,.32)}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn-row{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:2rem}
 
-/* ── HOW IT WORKS ───────────────────────────────────────────────── */
-.how{background:var(--ink);color:#fff}
-.how .eyebrow{color:#C9A7FF}
-.how .section-ttl{color:#fff}
-.how .section-sub{color:rgba(255,255,255,.55)}
-.steps{margin-top:3rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
-.step{padding:1.8rem 1.5rem;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
-.step-n{width:38px;height:38px;border-radius:11px;background:var(--grd);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;color:#fff;margin-bottom:1.1rem}
-.step h3{font-size:1.15rem;font-weight:800;letter-spacing:-.01em;margin-bottom:.4rem}
-.step p{color:rgba(255,255,255,.5);font-size:.92rem;line-height:1.55}
+/* ── torn paper card ────────────────────────────────────────────── */
+.tag-card{
+  background:#FFFDF9;border:1px solid var(--bdr);box-shadow:0 10px 24px rgba(20,10,45,.08);
+  clip-path:polygon(0% 2%,3% 0%,97% 1%,100% 3%,99% 97%,96% 100%,4% 99%,1% 96%);
+  padding:1.1rem 1.3rem;
+}
 
-/* ── FEATURE ROWS ───────────────────────────────────────────────── */
-.feature{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center}
-.feature.rev .feature-media{order:2}
-.feature.rev .feature-copy{order:1}
-.feature-media{position:relative;display:flex;justify-content:center}
-.feature-media img{border-radius:26px;box-shadow:var(--shadow)}
-.feature-media.wide img{border-radius:16px}
-.feature-tag{display:inline-flex;align-items:center;gap:.4rem;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--pk2);background:rgba(255,28,142,.08);border:1px solid rgba(255,28,142,.18);padding:.35rem .7rem;border-radius:20px;margin-bottom:1rem}
-.feature h3{font-weight:900;font-size:clamp(1.5rem,2.6vw,2.05rem);letter-spacing:-.02em;line-height:1.12;max-width:14ch}
-.feature p{margin-top:1rem;color:var(--tx3);font-size:1rem;line-height:1.65;max-width:38ch}
-.feature-list{margin-top:1.3rem;display:flex;flex-direction:column;gap:.65rem}
-.feature-list li{list-style:none;display:flex;gap:.6rem;align-items:flex-start;font-size:.92rem;color:var(--tx2)}
-.feature-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--grd);margin-top:.5rem;flex-shrink:0}
+/* ── HERO (mobile-first) ────────────────────────────────────────── */
+.hero{position:relative;padding:6.5rem 0 3rem;overflow:hidden}
+.hero-top{position:relative;z-index:2}
+.hero h1{margin-top:.3rem}
+.hero-p{margin-top:1.4rem;font-weight:700;font-size:1.15rem;max-width:26ch;line-height:1.35}
+.hero-p2{margin-top:.9rem;color:var(--tx3);font-size:.98rem;max-width:32ch;line-height:1.55}
+.hero-visual{position:relative;display:flex;justify-content:center;margin-top:2.6rem;padding:1rem 0 3.5rem}
+.hero-splash{position:absolute;top:-2%;right:6%;width:76%;height:94%;background:var(--grd);z-index:0;
+  clip-path:polygon(8% 0%,100% 4%,96% 45%,100% 62%,88% 100%,40% 96%,18% 78%,0% 40%);
+}
+.hero-splash::after{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1px);background-size:5px 5px;mix-blend-mode:overlay}
+.hero-phone{width:min(76vw,300px);position:relative;z-index:2;will-change:transform;filter:drop-shadow(0 26px 46px rgba(20,10,45,.3))}
+.qr-tag{position:absolute;left:0;bottom:0;z-index:3;display:flex;align-items:center;gap:.8rem;max-width:230px;transform:rotate(-3deg)}
+.qr-tag .qr-ico{width:52px;height:52px;border-radius:8px;background:repeating-linear-gradient(45deg,var(--ink) 0 3px,transparent 3px 6px);flex-shrink:0;background-color:#fff;border:2px solid var(--ink)}
+.qr-tag p{font-size:.78rem;font-weight:600;line-height:1.4}
+.qr-tag p strong{text-decoration:underline;text-decoration-color:var(--vi)}
+.scroll-cue{display:flex;flex-direction:column;align-items:center;gap:.5rem;margin:1rem auto 0;color:var(--vi);font-weight:700;font-size:.85rem;text-align:center}
+.scroll-cue svg{animation:cueBounce 1.6s ease-in-out infinite}
+@keyframes cueBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){.scroll-cue svg{animation:none}}
+@media (min-width:900px){
+  .hero{padding:8rem 0 4rem}
+  .hero-top{display:grid;grid-template-columns:1.05fr .95fr;gap:2.5rem;align-items:center}
+  .hero-visual{margin-top:0;padding:0 0 3rem}
+  .qr-tag{left:-1rem;bottom:0}
+}
 
-/* ── ORGA / DJ BAND ─────────────────────────────────────────────── */
-.orga-band{background:var(--paper2)}
-.orga-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem}
-.orga-card{background:#fff;border:1px solid var(--bdr);border-radius:24px;padding:2rem;box-shadow:var(--shadow)}
-.orga-card .ico{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.2rem}
-.orga-card.a .ico{background:linear-gradient(135deg,var(--pk),var(--vi));color:#fff}
-.orga-card.b .ico{background:linear-gradient(135deg,#1B1B22,var(--pk2));color:#fff}
-.orga-card h4{font-weight:800;font-size:1.2rem;letter-spacing:-.01em;margin-bottom:.5rem}
-.orga-card p{color:var(--tx3);font-size:.92rem;line-height:1.6;margin-bottom:1.3rem}
-.orga-card a{display:inline-flex;align-items:center;gap:.35rem;font-weight:700;font-size:.85rem;color:var(--vi);text-decoration:none}
+/* ── STEPS ──────────────────────────────────────────────────────── */
+.steps{margin-top:3rem;display:flex;flex-direction:column;gap:2.4rem}
+.step{display:grid;grid-template-columns:auto 1fr;gap:1.2rem;align-items:flex-start}
+.step-n{font-family:'Anton',sans-serif;font-size:2.6rem;color:var(--vi);line-height:1;width:2.4ch}
+.step h3{font-size:1.5rem;margin-bottom:.4rem}
+.step p{color:var(--tx3);font-size:.96rem;line-height:1.55;max-width:44ch}
+.mini-features{margin-top:3.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.mini-card{background:#FFFDF9;border:1px solid var(--bdr);border-radius:20px;padding:1.4rem;box-shadow:var(--shadow)}
+.mini-card h4{display:flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:800;margin-bottom:.9rem}
+.mini-card img{border-radius:12px;margin-bottom:.9rem}
+.mini-card p{color:var(--tx3);font-size:.86rem;line-height:1.5}
+
+/* ── DJ / ORGA feature bands ───────────────────────────────────── */
+.feat-band{background:var(--ink);color:#fff}
+.feat-band .eyebrow{color:#C9A7FF;text-decoration-color:rgba(201,167,255,.4)}
+.feat-band .sub{color:rgba(255,255,255,.6)}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;margin-top:2.5rem}
+.feat-grid.rev .feat-media{order:2}
+.feat-list{margin-top:1.6rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:1.4rem}
+.feat-list .kicker{font-family:'Anton',sans-serif;font-size:1rem;letter-spacing:.02em;color:#fff;margin-bottom:.9rem;display:block}
+.feat-list ul{list-style:none;display:flex;flex-direction:column;gap:.65rem}
+.feat-list li{display:flex;align-items:center;gap:.6rem;font-size:.92rem;color:rgba(255,255,255,.85)}
+.feat-list li::before{content:'✓';color:var(--vi);font-weight:800}
+.feat-media{display:flex;justify-content:center}
+.feat-media img{border-radius:20px;box-shadow:0 24px 50px rgba(0,0,0,.4);max-height:520px;width:auto}
+.feat-info{margin-top:2.4rem;display:flex;flex-direction:column;gap:1rem}
+.feat-info-row{display:flex;align-items:flex-start;gap:1rem;padding:1.1rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px}
+.feat-info-row .ico{width:38px;height:38px;border-radius:10px;background:rgba(111,34,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
+.feat-info-row strong{display:block;font-size:.95rem;margin-bottom:.2rem}
+.feat-info-row span{font-size:.84rem;color:rgba(255,255,255,.55);line-height:1.5}
+
+/* ── USE-CASE GRID ──────────────────────────────────────────────── */
+.uc-grid{margin-top:3rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem}
+.uc-card{border-radius:18px;padding:1.3rem 1.1rem;min-height:150px;display:flex;flex-direction:column;justify-content:flex-end;gap:.3rem;position:relative;overflow:hidden;box-shadow:0 10px 22px rgba(20,10,45,.1)}
+.uc-card .emoji{position:absolute;top:1rem;left:1rem;font-size:1.6rem;opacity:.9}
+.uc-card strong{font-size:.92rem;font-weight:800;color:#fff}
+.uc-card span{font-size:.74rem;color:rgba(255,255,255,.85);line-height:1.4}
+.uc1{background:linear-gradient(150deg,#6F22FF,#2A0A66)}
+.uc2{background:linear-gradient(150deg,#FF1C8E,#7A0E45)}
+.uc3{background:linear-gradient(150deg,#8D2CFF,#391079)}
+.uc4{background:linear-gradient(150deg,#C4127A,#4C0430)}
+.uc5{background:linear-gradient(150deg,#4C00D8,#190057)}
+.uc6{background:linear-gradient(150deg,#FF6BB3,#8D2C6B)}
+.uc7{background:linear-gradient(150deg,#6F22FF,#8D2CFF)}
+.uc8{background:linear-gradient(150deg,#2A0A66,#6F22FF)}
 
 /* ── FINAL CTA ──────────────────────────────────────────────────── */
-.cta-band{background:var(--grd);color:#fff;text-align:center;padding:6rem 0}
-.cta-band h2{font-weight:900;font-size:clamp(2.1rem,5vw,3.2rem);letter-spacing:-.03em;line-height:1.02}
-.cta-band p{margin-top:1rem;color:rgba(255,255,255,.85);font-size:1.05rem}
-.cta-band .btn-primary{background:#fff;color:var(--ink);box-shadow:0 12px 28px rgba(13,7,20,.28);margin-top:2rem;display:inline-block}
+.cta-band{background:var(--grd);color:#fff;text-align:center;padding:5.5rem 0;position:relative;overflow:hidden}
+.cta-band::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1px);background-size:5px 5px;mix-blend-mode:overlay}
+.cta-band .wrap{position:relative;z-index:1}
+.cta-band h2{font-size:clamp(2rem,5vw,3rem)}
+.cta-band p{margin-top:.9rem;color:rgba(255,255,255,.88);font-size:1.02rem}
+.cta-band .btn-primary{background:#fff;color:var(--ink);box-shadow:0 12px 26px rgba(0,0,0,.22);margin-top:1.8rem}
 
 /* ── FOOTER ─────────────────────────────────────────────────────── */
 footer{padding:3rem 0 2.5rem;text-align:center;font-size:.72rem;color:var(--tx4);line-height:2}
 footer a{color:var(--tx3);text-decoration:none}
 footer a:hover{color:var(--vi)}
 
-/* ── REVEAL ─────────────────────────────────────────────────────── */
-.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+/* ── reveal ─────────────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
 
-@media (max-width:860px){
-  .hero-inner{grid-template-columns:1fr;text-align:center}
-  .hero p{margin-left:auto;margin-right:auto}
-  .hero-ctas{justify-content:center}
-  .hero-visual{margin-top:1rem;order:-1}
-  .hero-phone{width:min(62vw,280px)}
-  .steps{grid-template-columns:1fr}
-  .feature,.feature.rev{grid-template-columns:1fr}
-  .feature.rev .feature-media,.feature.rev .feature-copy{order:initial}
-  .feature-copy{text-align:left}
-  .feature h3,.feature p{max-width:none}
-  .orga-grid{grid-template-columns:1fr}
+@media (max-width:900px){
+  .mini-features{grid-template-columns:1fr}
+  .feat-grid,.feat-grid.rev{grid-template-columns:1fr}
+  .feat-grid.rev .feat-media{order:-1}
+  .uc-grid{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -149,120 +187,177 @@ footer a:hover{color:var(--vi)}
 
 <nav class="nav" id="nav">
   <img src="/images/LOGO120.png" alt="PULL UP!" class="nav-logo">
-  <a href="/app" class="nav-cta">Se connecter</a>
+  <a href="/app" class="nav-burger" aria-label="Se connecter"><span></span><span></span><span></span></a>
 </nav>
 
 <header class="hero">
-  <div class="hero-glow" id="heroGlow"></div>
-  <div class="wrap hero-inner">
-    <div>
-      <div class="hero-eyebrow"><span></span>L'app qui fait monter la salle</div>
-      <h1>La playlist,<br><em>c'est vous.</em></h1>
-      <p>Les invités proposent et votent pour la prochaine chanson. Le DJ garde le contrôle. Toute la salle décide de l'ambiance, en direct.</p>
-      <div class="hero-ctas">
-        <a href="/app" class="btn-primary">Rejoindre une soirée</a>
-        <a href="/app" class="btn-ghost">Je suis DJ / organisateur</a>
+  <div class="wrap">
+    <div class="hero-top">
+      <div>
+        <h1 class="ttl disp reveal">La playlist,<br>c'est <span class="hl">vous.</span></h1>
+        <p class="hero-p reveal">Scannez. Votez. Faites monter l'ambiance.</p>
+        <p class="hero-p2 reveal">Pour les mariages, cocktails et toutes les fêtes avec DJ.</p>
+        <div class="lock-note reveal">🔒 Le DJ garde le contrôle.</div>
+        <div class="btn-row reveal">
+          <a href="/app" class="btn btn-primary">Lancer une session →</a>
+          <a href="mailto:arawakdesign@gmail.com?subject=Demande%20de%20d%C3%A9mo%20Pull%20Up" class="btn btn-ghost">Demander une démo →</a>
+        </div>
+      </div>
+      <div class="hero-visual reveal">
+        <div class="hero-splash"></div>
+        <img src="/images/hero-phone-crop.png" alt="Pull up — l'appli de vote en direct" class="hero-phone" id="heroPhone">
+        <div class="qr-tag tag-card">
+          <div class="qr-ico"></div>
+          <p>Aucune application à télécharger. Un <strong>QR code</strong> suffit.</p>
+        </div>
       </div>
     </div>
-    <div class="hero-visual">
-      <div class="hero-blob" id="heroBlob"></div>
-      <img src="/images/hero-phone-crop.png" alt="Pull up — l'appli de vote en direct" class="hero-phone" id="heroPhone">
-    </div>
+    <a href="#how" class="scroll-cue">
+      Découvrez comment ça fonctionne
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 4v16M6 14l6 6 6-6"/></svg>
+    </a>
   </div>
-  <div class="scroll-cue"><span>Scroll</span><span class="stick"></span></div>
 </header>
 
-<section class="how section-pad">
+<section class="pad" id="how">
   <div class="wrap">
     <div class="eyebrow reveal">Comment ça marche</div>
-    <div class="section-ttl reveal">Trois étapes, zéro friction.</div>
+    <div class="ttl disp reveal" style="font-size:clamp(2rem,4.6vw,3.2rem)">Comment ça marche&nbsp;?</div>
     <div class="steps">
       <div class="step reveal">
-        <div class="step-n">1</div>
-        <h3>Scanne</h3>
-        <p>Le QR code affiché dans la soirée — ou le lien partagé par l'organisateur.</p>
+        <div class="step-n disp">1.</div>
+        <div>
+          <h3 class="disp">Scanne</h3>
+          <p>Le DJ lance sa soirée et un QR code est généré. Les invités le scannent pour rejoindre la playlist.</p>
+        </div>
       </div>
       <div class="step reveal">
-        <div class="step-n">2</div>
-        <h3>Vote</h3>
-        <p>Propose un son, vote pour tes titres préférés. Le classement bouge en temps réel.</p>
+        <div class="step-n disp">2.</div>
+        <div>
+          <h3 class="disp">Vote</h3>
+          <p>Les invités votent pour leurs sons préférés. Le classement se met à jour en temps réel.</p>
+        </div>
       </div>
       <div class="step reveal">
-        <div class="step-n">3</div>
-        <h3>Pull up</h3>
-        <p>Les morceaux les plus votés remontent en tête. Le DJ enchaîne avec ce que la salle veut.</p>
+        <div class="step-n disp">3.</div>
+        <div>
+          <h3 class="disp">Pull up</h3>
+          <p>Le DJ enchaîne avec les sons plébiscités par la foule. L'ambiance monte, tout le monde kiffe.</p>
+        </div>
+      </div>
+    </div>
+    <div class="mini-features">
+      <div class="mini-card reveal">
+        <h4>🖥️ Option Big Screen</h4>
+        <img src="/images/landing-bigscreen-crop.png" alt="Écran géant Pull up : classement en direct">
+        <p>Affichez le classement live, le son en cours et le QR code pour que toute la salle participe.</p>
+      </div>
+      <div class="mini-card reveal">
+        <h4>💬 Chat de soirée</h4>
+        <img src="/images/landing-chat.png" alt="Chat de soirée en direct dans Pull up" style="width:100%;height:260px;object-fit:cover;object-position:top">
+        <p>Un fil en direct pour commenter, chambrer le DJ et faire vivre l'ambiance entre deux votes.</p>
+      </div>
+    </div>
+    <div class="btn-row reveal" style="justify-content:center">
+      <a href="/app" class="btn btn-primary">Lancer une session →</a>
+    </div>
+  </div>
+</section>
+
+<section class="feat-band pad">
+  <div class="wrap">
+    <div class="eyebrow reveal">Espace DJ</div>
+    <div class="ttl disp reveal" style="font-size:clamp(2rem,4.6vw,3.2rem)">Espace DJ</div>
+    <div class="sub reveal">Une page dédiée pour vous mettre en avant, partager votre univers et développer votre fanbase.</div>
+    <div class="feat-grid">
+      <div class="reveal">
+        <div class="feat-list">
+          <span class="kicker disp">Press kit</span>
+          <ul>
+            <li>Photo de profil</li>
+            <li>Bio &amp; style musical</li>
+            <li>Réseaux (Instagram, SoundCloud, RA)</li>
+            <li>Contact booking</li>
+          </ul>
+        </div>
+        <div class="feat-info">
+          <div class="feat-info-row">
+            <div class="ico">🪪</div>
+            <div><strong>Votre page. Votre univers. Vos règles.</strong><span>Créez votre page DJ avec votre bio, vos réseaux et votre contact pro — tout pour vous rendre visible et crédible.</span></div>
+          </div>
+          <div class="feat-info-row">
+            <div class="ico">🔒</div>
+            <div><strong>Le DJ garde le contrôle.</strong><span>Vous décidez de ce que vous partagez. Nous protégeons votre image et vos données.</span></div>
+          </div>
+        </div>
+        <div class="btn-row"><a href="/app" class="btn btn-primary">Créer ma page DJ →</a></div>
+      </div>
+      <div class="feat-media reveal">
+        <img src="/images/landing-presskit.png" alt="Page press kit DJ sur Pull up">
       </div>
     </div>
   </div>
 </section>
 
-<section class="section-pad">
+<section class="feat-band pad" style="padding-top:0">
   <div class="wrap">
-    <div class="feature">
-      <div class="feature-media reveal">
-        <img src="/images/landing-vote.png" alt="Écran de vote Pull up : classement des propositions en direct">
+    <div class="eyebrow reveal">Espace Organisateur</div>
+    <div class="ttl disp reveal" style="font-size:clamp(2rem,4.6vw,3.2rem)">Espace Organisateur</div>
+    <div class="sub reveal">Une page dédiée pour créer vos soirées, gérer le line-up et suivre les votes en temps réel.</div>
+    <div class="feat-grid rev">
+      <div class="reveal">
+        <div class="feat-list">
+          <span class="kicker disp">Outils</span>
+          <ul>
+            <li>Créer une soirée</li>
+            <li>QR code invités</li>
+            <li>Suivi des votes en direct</li>
+            <li>Line-up &amp; chat club</li>
+          </ul>
+        </div>
+        <div class="feat-info">
+          <div class="feat-info-row">
+            <div class="ico">📋</div>
+            <div><strong>Votre tableau de bord. Votre soirée. Votre contrôle.</strong><span>Centralisez le line-up, la file d'attente et le chat pour piloter chaque soirée facilement.</span></div>
+          </div>
+          <div class="feat-info-row">
+            <div class="ico">🔐</div>
+            <div><strong>Un espace sécurisé.</strong><span>Vous gardez la main sur vos données, vos accès et votre organisation à chaque étape.</span></div>
+          </div>
+        </div>
+        <div class="btn-row"><a href="/app" class="btn btn-primary">Créer mon événement →</a></div>
       </div>
-      <div class="feature-copy reveal">
-        <div class="feature-tag">Pour les invités</div>
-        <h3>Chacun propose son son.</h3>
-        <p>Un classement live, alimenté par toute la salle. Les votes font remonter les meilleurs morceaux — pas de playlist figée, pas de demandes qui se perdent.</p>
-        <ul class="feature-list">
-          <li>Propositions et votes en temps réel</li>
-          <li>Chat club pour suivre l'ambiance</li>
-          <li>Aucun compte compliqué — Google, email ou SMS</li>
-        </ul>
+      <div class="feat-media reveal">
+        <img src="/images/landing-orga-dash-crop.png" alt="Tableau de bord organisateur sur Pull up">
       </div>
     </div>
   </div>
 </section>
 
-<section class="section-pad">
+<section class="pad">
   <div class="wrap">
-    <div class="feature rev">
-      <div class="feature-media wide reveal">
-        <img src="/images/landing-bigscreen-crop.png" alt="Écran géant Pull up affiché dans le club : classement, chat et morceau en cours">
-      </div>
-      <div class="feature-copy reveal">
-        <div class="feature-tag">Pour le club</div>
-        <h3>Un écran qui fait vibrer la salle.</h3>
-        <p>Classement en direct, chat club, morceau en cours affichés en grand sur l'écran de la soirée. Toute la salle suit l'ambiance monter.</p>
-        <ul class="feature-list">
-          <li>Se branche sur n'importe quel écran ou TV</li>
-          <li>QR code toujours visible pour rejoindre</li>
-          <li>Le DJ garde la main sur chaque titre joué</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="orga-band section-pad">
-  <div class="wrap">
-    <div class="eyebrow reveal">Organisateurs &amp; DJ</div>
-    <div class="section-ttl reveal">Ta soirée, prête en deux minutes.</div>
-    <div class="section-sub reveal">Nom, horaires, line-up, flyer — tout se configure d'un coup. Partage un lien ou un QR code, c'est prêt.</div>
-    <div class="orga-grid">
-      <div class="orga-card a reveal">
-        <div class="ico">🎛️</div>
-        <h4>Espace Organisateur</h4>
-        <p>Crée ta soirée, gère le line-up, ouvre le chat club et suis les votes en direct depuis ton tableau de bord.</p>
-        <a href="/app">Créer ma soirée →</a>
-      </div>
-      <div class="orga-card b reveal">
-        <div class="ico">🎧</div>
-        <h4>Espace DJ</h4>
-        <p>Enregistre-toi comme DJ, rejoins le line-up d'une soirée avec ton propre compte, garde le contrôle sur ta playlist.</p>
-        <a href="/app">S'enregistrer comme DJ →</a>
-      </div>
+    <div class="eyebrow reveal">Tous les contextes</div>
+    <div class="ttl disp reveal" style="font-size:clamp(2rem,4.6vw,3.2rem)">Utilisé partout.<br>Pour tous.</div>
+    <div class="sub reveal">Pull Up s'adapte à tous vos événements. Une seule app pour faire vivre la musique autrement, partout.</div>
+    <div class="uc-grid">
+      <div class="uc-card uc1 reveal"><span class="emoji">🎧</span><strong>Clubs &amp; Bars</strong><span>Animez vos soirées et laissez le public choisir les sons.</span></div>
+      <div class="uc-card uc2 reveal"><span class="emoji">🎪</span><strong>Festivals</strong><span>Faites participer des milliers de personnes en temps réel.</span></div>
+      <div class="uc-card uc3 reveal"><span class="emoji">🥂</span><strong>Soirées privées</strong><span>Anniversaires, soirées entre amis : l'ambiance entre leurs mains.</span></div>
+      <div class="uc-card uc4 reveal"><span class="emoji">💍</span><strong>Mariages</strong><span>Des playlists 100% personnalisées par vos invités.</span></div>
+      <div class="uc-card uc5 reveal"><span class="emoji">🏢</span><strong>Entreprises</strong><span>Team buildings, lancements, afterworks : fédérez vos équipes.</span></div>
+      <div class="uc-card uc6 reveal"><span class="emoji">🏖️</span><strong>Plages &amp; extérieurs</strong><span>Simple à déployer, efficace même sans réseau.</span></div>
+      <div class="uc-card uc7 reveal"><span class="emoji">📻</span><strong>Radios &amp; streams</strong><span>Intégrez les votes de votre audience à vos lives.</span></div>
+      <div class="uc-card uc8 reveal"><span class="emoji">🏟️</span><strong>Événements sportifs</strong><span>Animez les pauses, échauffez le public.</span></div>
     </div>
   </div>
 </section>
 
 <section class="cta-band">
   <div class="wrap">
-    <h2 class="reveal">La soirée,<br>c'est vous.</h2>
-    <p class="reveal">Rejoins une soirée ou crée la tienne — c'est gratuit.</p>
-    <a href="/app" class="btn-primary reveal">Se connecter</a>
+    <div class="disp reveal" style="font-size:.9rem;letter-spacing:.04em;opacity:.85;margin-bottom:.6rem">🔒 Le DJ garde le contrôle.</div>
+    <h2 class="disp reveal">Scannez. Votez.<br>Faites monter l'ambiance.</h2>
+    <p class="reveal">Pull Up. La playlist, c'est vous.</p>
+    <a href="/app" class="btn btn-primary reveal">Se connecter →</a>
   </div>
 </section>
 
@@ -275,40 +370,30 @@ footer a:hover{color:var(--vi)}
 </footer>
 
 <script>
-// Nav background au scroll
 const nav = document.getElementById('nav');
-const onScroll = () => {
-  nav.classList.toggle('scrolled', window.scrollY > 12);
-};
+const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 12);
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 
-// Parallax léger sur le visuel du hero (désactivé si mouvement réduit demandé)
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (!reduceMotion) {
   const phone = document.getElementById('heroPhone');
-  const blob  = document.getElementById('heroBlob');
-  const glow  = document.getElementById('heroGlow');
   let ticking = false;
   window.addEventListener('scroll', () => {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => {
-      const y = window.scrollY;
-      if (phone) phone.style.transform = `translateY(${y * 0.12}px)`;
-      if (blob)  blob.style.transform  = `translate(-50%,-50%) translateY(${y * 0.06}px)`;
-      if (glow)  glow.style.transform  = `translateY(${y * 0.18}px)`;
+      if (phone) phone.style.transform = `translateY(${window.scrollY * 0.1}px)`;
       ticking = false;
     });
   }, { passive: true });
 }
 
-// Reveal au scroll
 const revealEls = document.querySelectorAll('.reveal');
 if ('IntersectionObserver' in window) {
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
   revealEls.forEach(el => io.observe(el));
 } else {
   revealEls.forEach(el => el.classList.add('visible'));
