@@ -26,11 +26,10 @@ body{background:#F3EFE7;overflow-x:hidden;font-family:-apple-system,system-ui,sa
 img{max-width:100%;display:block;width:100%;height:auto}
 a{display:block}
 .shots{max-width:960px;margin:0 auto}
-.shots > div{scroll-margin-top:0}
 
-/* ── menu trigger (positionné sur le hamburger déjà dessiné dans l'image) ── */
-.menu-btn{position:fixed;top:0;right:max(0px,calc((100vw - 960px)/2));z-index:60;width:min(20vw,192px);height:min(14vw,134px);background:transparent;border:none;cursor:pointer}
-.menu-btn span{display:none}
+/* ── menu trigger (visible, toujours au même endroit) ──────────────── */
+.menu-btn{position:fixed;top:14px;right:14px;z-index:60;display:flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:12px;border:none;background:rgba(18,18,18,.92);color:#fff;font-weight:700;font-size:.8rem;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.25);backdrop-filter:blur(6px)}
+.menu-btn svg{width:16px;height:16px}
 
 /* ── overlay menu ───────────────────────────────────────────────────── */
 .menu-overlay{position:fixed;inset:0;z-index:70;background:rgba(18,18,18,.55);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s}
@@ -50,7 +49,10 @@ footer a:hover{color:#B98BFF}
 </head>
 <body>
 
-<button class="menu-btn" id="menuBtn" aria-label="Menu"><span>Menu</span></button>
+<button class="menu-btn" id="menuBtn" aria-label="Menu">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  Menu
+</button>
 
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
@@ -61,17 +63,19 @@ footer a:hover{color:#B98BFF}
       <a href="#dj" data-close>Espace DJ</a>
       <a href="#orga" data-close>Espace Organisateur</a>
       <a href="#everywhere" data-close>Utilisé partout</a>
+      <a href="#pricing" data-close>Tarifs</a>
     </div>
     <a href="/app" class="menu-cta">Se connecter →</a>
   </div>
 </div>
 
 <div class="shots">
-  <div id="hero"><a href="/app" aria-label="Rejoindre — La playlist, c'est vous"><img src="/images/site/site-hero.webp" alt="Pull up — La playlist, c'est vous. Scannez, votez, faites monter l'ambiance."></a></div>
-  <div id="how"><a href="/app" aria-label="Rejoindre — Comment ça marche"><img src="/images/site/site-how.webp" alt="Comment ça marche : scanne, vote, pull up."></a></div>
-  <div id="dj"><a href="/app" aria-label="Rejoindre — Espace DJ"><img src="/images/site/site-dj.webp" alt="Espace DJ : press kit, page DJ, réseaux."></a></div>
-  <div id="orga"><a href="/app" aria-label="Rejoindre — Espace Organisateur"><img src="/images/site/site-orga.webp" alt="Espace Organisateur : créer un événement, suivre les votes en direct."></a></div>
-  <div id="everywhere"><a href="/app" aria-label="Rejoindre — Utilisé partout"><img src="/images/site/site-everywhere.webp" alt="Utilisé partout : clubs, festivals, mariages, entreprises et plus."></a></div>
+  <div id="hero"><a href="/app" aria-label="Rejoindre — La playlist, c'est vous"><img src="/images/site/v2-hero.webp" alt="Pull up — La playlist, c'est vous. Scannez, votez, faites monter l'ambiance."></a></div>
+  <div id="how"><a href="/app" aria-label="Rejoindre — Comment ça marche"><img src="/images/site/v2-how.webp" alt="Comment ça marche : scanne, vote, pull up."></a></div>
+  <div id="dj"><a href="/app" aria-label="Rejoindre — Espace DJ"><img src="/images/site/v2-dj.webp" alt="Espace DJ : press kit, page DJ, réseaux."></a></div>
+  <div id="orga"><a href="/app" aria-label="Rejoindre — Espace Organisateur"><img src="/images/site/v2-orga.webp" alt="Espace Organisateur : créer un événement, suivre les votes en direct."></a></div>
+  <div id="everywhere"><a href="/app" aria-label="Rejoindre — Utilisé partout"><img src="/images/site/v2-everywhere.webp" alt="Utilisé partout : clubs, festivals, mariages, entreprises et plus."></a></div>
+  <div id="pricing"><a href="/app" aria-label="Rejoindre — Tarifs"><img src="/images/site/v2-pricing.webp" alt="Une seule formule, gratuite : tout inclus, sans engagement."></a></div>
 </div>
 
 <footer>
