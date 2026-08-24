@@ -20,27 +20,58 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/images/icon-512.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#F3EFE7;overflow-x:hidden}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:#F3EFE7;overflow-x:hidden;font-family:-apple-system,system-ui,sans-serif}
 img{max-width:100%;display:block;width:100%;height:auto}
 a{display:block}
-.nav{position:fixed;top:0;right:0;z-index:50;padding:1rem}
-.nav a{padding:.6rem 1.15rem;border-radius:12px;background:#121212;color:#fff;font-family:-apple-system,system-ui,sans-serif;font-weight:700;font-size:.82rem;text-decoration:none;box-shadow:0 8px 20px rgba(0,0,0,.25)}
 .shots{max-width:960px;margin:0 auto}
-footer{padding:2.5rem 1.5rem;text-align:center;font-size:.72rem;color:#8A8494;line-height:2;font-family:-apple-system,system-ui,sans-serif;background:#121212}
+.shots > div{scroll-margin-top:0}
+
+/* ── menu trigger (positionné sur le hamburger déjà dessiné dans l'image) ── */
+.menu-btn{position:fixed;top:0;right:0;z-index:60;width:15%;max-width:78px;aspect-ratio:1/1;background:transparent;border:none;cursor:pointer}
+.menu-btn span{display:none}
+
+/* ── overlay menu ───────────────────────────────────────────────────── */
+.menu-overlay{position:fixed;inset:0;z-index:70;background:rgba(18,18,18,.55);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s}
+.menu-overlay.open{opacity:1;pointer-events:auto}
+.menu-panel{position:absolute;top:0;right:0;bottom:0;width:min(84vw,340px);background:#FFFDF9;box-shadow:-20px 0 50px rgba(0,0,0,.25);transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;padding:1.5rem}
+.menu-overlay.open .menu-panel{transform:translateX(0)}
+.menu-close{align-self:flex-end;width:40px;height:40px;border-radius:10px;border:1.5px solid #121212;background:none;font-size:1.1rem;font-weight:700;cursor:pointer;margin-bottom:1.5rem}
+.menu-links{display:flex;flex-direction:column;gap:.3rem}
+.menu-links a{padding:.9rem .3rem;font-weight:800;font-size:1.15rem;color:#121212;text-decoration:none;border-bottom:1px solid rgba(18,18,18,.08)}
+.menu-links a:active{color:#6F22FF}
+.menu-cta{margin-top:1.6rem;padding:1rem;border-radius:14px;background:linear-gradient(115deg,#6F22FF,#8D2CFF,#FF1C8E);color:#fff;text-align:center;font-weight:700;text-decoration:none;box-shadow:0 12px 26px rgba(111,34,255,.32)}
+
+footer{padding:2.5rem 1.5rem;text-align:center;font-size:.72rem;color:#8A8494;line-height:2;background:#121212}
 footer a{color:rgba(255,255,255,.6);text-decoration:none;display:inline}
 footer a:hover{color:#B98BFF}
 </style>
 </head>
 <body>
 
-<nav class="nav"><a href="/app">Se connecter</a></nav>
+<button class="menu-btn" id="menuBtn" aria-label="Menu"><span>Menu</span></button>
+
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <button class="menu-close" id="menuClose" aria-label="Fermer">✕</button>
+    <div class="menu-links">
+      <a href="#hero" data-close>Accueil</a>
+      <a href="#how" data-close>Comment ça marche</a>
+      <a href="#dj" data-close>Espace DJ</a>
+      <a href="#orga" data-close>Espace Organisateur</a>
+      <a href="#everywhere" data-close>Utilisé partout</a>
+    </div>
+    <a href="/app" class="menu-cta">Se connecter →</a>
+  </div>
+</div>
 
 <div class="shots">
-  <a href="/app" aria-label="Rejoindre — La playlist, c'est vous"><img src="/images/site/site-hero.webp" alt="Pull up — La playlist, c'est vous. Scannez, votez, faites monter l'ambiance."></a>
-  <a href="/app" aria-label="Rejoindre — Comment ça marche"><img src="/images/site/site-how.webp" alt="Comment ça marche : scanne, vote, pull up."></a>
-  <a href="/app" aria-label="Rejoindre — Espace DJ"><img src="/images/site/site-dj.webp" alt="Espace DJ : press kit, page DJ, réseaux."></a>
-  <a href="/app" aria-label="Rejoindre — Espace Organisateur"><img src="/images/site/site-orga.webp" alt="Espace Organisateur : créer un événement, suivre les votes en direct."></a>
-  <a href="/app" aria-label="Rejoindre — Utilisé partout"><img src="/images/site/site-everywhere.webp" alt="Utilisé partout : clubs, festivals, mariages, entreprises et plus."></a>
+  <div id="hero"><a href="/app" aria-label="Rejoindre — La playlist, c'est vous"><img src="/images/site/site-hero.webp" alt="Pull up — La playlist, c'est vous. Scannez, votez, faites monter l'ambiance."></a></div>
+  <div id="how"><a href="/app" aria-label="Rejoindre — Comment ça marche"><img src="/images/site/site-how.webp" alt="Comment ça marche : scanne, vote, pull up."></a></div>
+  <div id="dj"><a href="/app" aria-label="Rejoindre — Espace DJ"><img src="/images/site/site-dj.webp" alt="Espace DJ : press kit, page DJ, réseaux."></a></div>
+  <div id="orga"><a href="/app" aria-label="Rejoindre — Espace Organisateur"><img src="/images/site/site-orga.webp" alt="Espace Organisateur : créer un événement, suivre les votes en direct."></a></div>
+  <div id="everywhere"><a href="/app" aria-label="Rejoindre — Utilisé partout"><img src="/images/site/site-everywhere.webp" alt="Utilisé partout : clubs, festivals, mariages, entreprises et plus."></a></div>
 </div>
 
 <footer>
@@ -51,5 +82,16 @@ footer a:hover{color:#B98BFF}
   <a href="mailto:arawakdesign@gmail.com">Contact</a>
 </footer>
 
+<script>
+const menuBtn = document.getElementById('menuBtn');
+const menuOverlay = document.getElementById('menuOverlay');
+const menuClose = document.getElementById('menuClose');
+const openMenu = () => menuOverlay.classList.add('open');
+const closeMenu = () => menuOverlay.classList.remove('open');
+menuBtn.addEventListener('click', openMenu);
+menuClose.addEventListener('click', closeMenu);
+menuOverlay.addEventListener('click', (e) => { if (e.target === menuOverlay) closeMenu(); });
+document.querySelectorAll('[data-close]').forEach(a => a.addEventListener('click', closeMenu));
+</script>
 </body>
 </html>
