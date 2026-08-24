@@ -112,7 +112,7 @@ window.addEventListener('load', async () => {
             history.replaceState(null, '', eid ? buildEventUrl(eid) : (window.location.pathname + window.location.search));
           }
         } else if (event !== 'INITIAL_SESSION' && !_loggedIn && !djLoggedIn) {
-          showPage('auth');
+          showPage(eid ? 'auth' : 'home');
         }
       });
       const { data: { session } } = await _sb.auth.getSession();
@@ -120,9 +120,11 @@ window.addEventListener('load', async () => {
     } catch(e) {}
   }
 
-  // 3. Ni organisateur ni identité personnelle → page d'auth (sauf si le
-  // mode DJ a déjà choisi sa page à l'étape 1 ci-dessus)
-  if (!djLoggedIn) showPage('auth');
+  // 3. Ni organisateur ni identité personnelle → accès direct à la connexion
+  // si on arrive avec un événement en contexte (lien/QR partagé), sinon
+  // l'accueil de découverte (sauf si le mode DJ a déjà choisi sa page à
+  // l'étape 1 ci-dessus)
+  if (!djLoggedIn) showPage(eid ? 'auth' : 'home');
 });
 
 // ── Page publique organisateur (pull-up.live/slug) ───────────────────
@@ -444,7 +446,7 @@ function _djLoginBack() {
   const onSubView = document.getElementById('dj-join-form').style.display   === 'block'
                  || document.getElementById('dj-create-flow').style.display === 'block';
   if (onSubView) { _djLoginShowChoice(); return; }
-  showPage('auth');
+  showPage('home');
 }
 
 function _djCreateSignInGoogle() {
@@ -606,7 +608,7 @@ function logout() {
   currentUser = null;
   _sbSession  = null;
   if (_sb) _sb.auth.signOut().catch(() => {});
-  showPage('auth');
+  showPage(eid ? 'auth' : 'home');
   closeTopMenu();
 }
 
