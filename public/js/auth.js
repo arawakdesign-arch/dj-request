@@ -35,7 +35,7 @@ window.addEventListener('load', async () => {
   // chemin, aucun des fichiers statiques connus. Si aucune page ne correspond
   // au slug, on laisse tomber sur le flux normal (auth/vote) plutôt que 404.
   const pathSlug = window.location.pathname.replace(/^\/+|\/+$/g, '');
-  const reserved = ['', 'tv', 'cgu.html', 'confidentialite.html'];
+  const reserved = ['', 'app', 'tv', 'cgu.html', 'confidentialite.html'];
   if (pathSlug && !reserved.includes(pathSlug) && !/^(images|js|css|api)\//.test(pathSlug) && !pathSlug.includes('.')) {
     if (await tryShowOrgaPublicPage(pathSlug)) return;
   }
@@ -264,7 +264,7 @@ async function signInGoogle() {
   try {
     // Préserver l'event ID avant la redirection OAuth (page rechargée)
     if (eid) sessionStorage.setItem('djr_pre_oauth_eid', eid);
-    const redirectTo = window.location.origin + '/';
+    const redirectTo = window.location.origin + '/app';
     const { data, error } = await _sb.auth.signInWithOAuth({
       provider: 'google',
       options:  { redirectTo, skipBrowserRedirect: true },
@@ -287,7 +287,7 @@ async function sendEmailLink() {
   btn.disabled = true; btn.textContent = 'Envoi…';
   try {
     if (eid) sessionStorage.setItem('djr_pre_oauth_eid', eid);
-    const redirectTo = window.location.origin + '/';
+    const redirectTo = window.location.origin + '/app';
     const { error } = await _sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
     if (error) throw error;
     inp.style.display = 'none';

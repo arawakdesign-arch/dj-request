@@ -346,9 +346,9 @@ function isValidUuid(id) { return typeof id === 'string' && _UUID_RE.test(id); }
 function buildEventUrl(eventId) {
   if (!isValidUuid(eventId)) {
     console.warn('[pullup] buildEventUrl: ID absent ou invalide →', eventId);
-    return window.location.origin + '/';
+    return window.location.origin + '/app';
   }
-  return window.location.origin + '/?event=' + encodeURIComponent(eventId);
+  return window.location.origin + '/app?event=' + encodeURIComponent(eventId);
 }
 
 // Lien court à partager (QR code, bouton Copier). Si l'organisateur a
@@ -359,7 +359,7 @@ function buildEventUrl(eventId) {
 // l'arrivée via GET /events/by-name : plus lisible sur un lien collé/affiché.
 function buildShortEventUrl(name, fallbackId) {
   if (evOrgaSlug) return window.location.origin + '/' + evOrgaSlug;
-  if (name) return window.location.origin + '/?event=' + encodeURIComponent(name);
+  if (name) return window.location.origin + '/app?event=' + encodeURIComponent(name);
   return buildEventUrl(fallbackId);
 }
 

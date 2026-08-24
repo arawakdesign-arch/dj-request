@@ -57,14 +57,17 @@ app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 500, message: { erro
 const escapeHtml = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-app.get('/', async (req, res, next) => {
+// Injecte le flyer de l'événement dans les balises og:/twitter: de index.html
+// avant de le servir, pour un bel aperçu de lien (WhatsApp, etc.) — les
+// crawlers de réseaux sociaux ne lisent que le HTML brut, jamais le JS.
+async function serveAppWithEventPreview(req, res, next) {
   const evParam = req.query.event;
-  if (!evParam) return next();
+  if (!evParam) return res.sendFile(path.join(__dirname, 'public', 'index.html'));
   try {
     let query = supabase.from('events').select('id, name, club_name, flyer_url, is_active');
     query = UUID_RE.test(evParam) ? query.eq('id', evParam) : query.eq('name', evParam).eq('is_active', true);
     const { data: ev } = await query.order('created_at', { ascending: false }).limit(1).maybeSingle();
-    if (!ev || !ev.flyer_url) return next();
+    if (!ev || !ev.flyer_url) return res.sendFile(path.join(__dirname, 'public', 'index.html'));
 
     let html  = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
     const title = escapeHtml(ev.name || 'Pull up');
@@ -83,9 +86,23 @@ app.get('/', async (req, res, next) => {
     res.setHeader('Content-Type', 'text/html; charset=UTF-8');
     res.send(html);
   } catch (e) {
-    next();
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
   }
+}
+
+// Racine du site : page de découverte (parallax) pour une visite à froid ;
+// l'appli (connexion/vote) reste accessible directement pour les liens de
+// soirée déjà en circulation (?event=, ?screen=) afin de ne rien casser.
+app.get('/', (req, res, next) => {
+  if (req.query.event) return serveAppWithEventPreview(req, res, next);
+  if (req.query.screen) return res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
 });
+
+// Nouveau chemin canonique de l'appli (liens/QR codes générés à partir de
+// maintenant) — mêmes aperçus de lien que la racine.
+app.get('/app', serveAppWithEventPreview);
 
 // ══ TWA (Android) ═════════════════════════════════════════════════════
 // express.static ignore les fichiers/dossiers commençant par un point par

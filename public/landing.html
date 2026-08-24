@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pull up — La playlist, c'est vous</title>
+<meta name="description" content="Pull up est l'application qui connecte les DJ à leur public : les invités proposent des morceaux et votent en direct pour la prochaine chanson, le DJ pilote sa playlist en temps réel.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://pull-up.live/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pull-up.live/">
+<meta property="og:title" content="Pull up — La playlist, c'est vous">
+<meta property="og:description" content="Les invités proposent et votent, le DJ garde le contrôle. La soirée, c'est vous.">
+<meta property="og:image" content="https://pull-up.live/images/icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pull up — La playlist, c'est vous">
+<meta name="twitter:description" content="Les invités proposent et votent, le DJ garde le contrôle. La soirée, c'est vous.">
+<meta name="twitter:image" content="https://pull-up.live/images/icon-512.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="512x512" href="/images/icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0D0714;--paper:#FAF9F7;--paper2:#F2EFE9;
+  --vi:#6F22FF;--vi2:#4C00D8;--pk:#FF1C8E;--pk2:#C4127A;
+  --grd:linear-gradient(135deg,#6F22FF 0%,#8D2CFF 45%,#FF1C8E 100%);
+  --tx:#101014;--tx2:#33333D;--tx3:#646474;--tx4:#8A8A9A;
+  --bdr:#ECECF3;
+  --shadow:0 20px 60px rgba(20,10,45,.14);
+}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--paper);color:var(--tx);
+  font-family:'Inter',-apple-system,'SF Pro Display',system-ui,sans-serif;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+img{max-width:100%;display:block}
+.wrap{max-width:1120px;margin:0 auto;padding:0 1.5rem}
+
+/* ── NAV ────────────────────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.5rem;transition:background .25s,box-shadow .25s,backdrop-filter .25s}
+.nav.scrolled{background:rgba(250,249,247,.85);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--bdr)}
+.nav-logo{height:30px;object-fit:contain}
+.nav-cta{padding:.62rem 1.3rem;border-radius:14px;background:var(--ink);color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;white-space:nowrap;transition:transform .15s}
+.nav-cta:active{transform:scale(.96)}
+
+/* ── HERO ───────────────────────────────────────────────────────── */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:6.5rem 0 3rem;overflow:hidden}
+.hero-glow{position:absolute;inset:-20% -10% auto -10%;height:120%;background:radial-gradient(60% 55% at 30% 15%,rgba(111,34,255,.22),transparent 70%),radial-gradient(50% 45% at 85% 10%,rgba(255,28,142,.16),transparent 70%);pointer-events:none;z-index:0}
+.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:2.5rem;align-items:center}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.45rem;font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--vi);background:rgba(111,34,255,.08);border:1px solid rgba(111,34,255,.2);padding:.4rem .8rem;border-radius:20px;margin-bottom:1.4rem}
+.hero-eyebrow span{width:6px;height:6px;border-radius:50%;background:var(--pk)}
+.hero h1{font-weight:900;font-size:clamp(2.6rem,6vw,4.4rem);line-height:.98;letter-spacing:-.03em}
+.hero h1 em{font-style:normal;background:var(--grd);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin-top:1.4rem;font-size:clamp(1rem,1.6vw,1.2rem);color:var(--tx3);max-width:34ch;line-height:1.55}
+.hero-ctas{display:flex;gap:.8rem;margin-top:2.2rem;flex-wrap:wrap}
+.btn-primary{padding:1rem 1.7rem;border-radius:18px;background:var(--grd);color:#fff;font-weight:700;font-size:.95rem;text-decoration:none;box-shadow:0 12px 28px rgba(111,34,255,.32);transition:transform .15s}
+.btn-ghost{padding:1rem 1.6rem;border-radius:18px;background:transparent;color:var(--tx);font-weight:700;font-size:.95rem;text-decoration:none;border:1.5px solid var(--bdr);transition:transform .15s,border-color .15s}
+.btn-primary:active,.btn-ghost:active{transform:scale(.97)}
+.hero-visual{position:relative;display:flex;justify-content:center}
+.hero-phone{width:min(78vw,340px);position:relative;z-index:1;will-change:transform;filter:drop-shadow(0 30px 50px rgba(20,10,45,.28))}
+.hero-blob{position:absolute;width:340px;height:340px;border-radius:50%;background:var(--grd);opacity:.16;filter:blur(50px);top:50%;left:50%;transform:translate(-50%,-50%);z-index:0}
+.scroll-cue{position:absolute;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;color:var(--tx4);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;z-index:1}
+.scroll-cue .stick{width:1.5px;height:26px;background:linear-gradient(var(--tx4),transparent);animation:cueMove 1.6s ease-in-out infinite}
+@keyframes cueMove{0%{opacity:0;transform:translateY(-6px)}40%{opacity:1}100%{opacity:0;transform:translateY(10px)}}
+@media (prefers-reduced-motion:reduce){.scroll-cue .stick{animation:none}}
+
+/* ── SECTION SHELL ──────────────────────────────────────────────── */
+section{position:relative}
+.section-pad{padding:5.5rem 0}
+.eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--vi);margin-bottom:.7rem}
+.section-ttl{font-weight:900;font-size:clamp(1.8rem,3.6vw,2.6rem);letter-spacing:-.02em;line-height:1.08;max-width:16ch}
+.section-sub{margin-top:.9rem;color:var(--tx3);font-size:1.02rem;line-height:1.6;max-width:44ch}
+
+/* ── HOW IT WORKS ───────────────────────────────────────────────── */
+.how{background:var(--ink);color:#fff}
+.how .eyebrow{color:#C9A7FF}
+.how .section-ttl{color:#fff}
+.how .section-sub{color:rgba(255,255,255,.55)}
+.steps{margin-top:3rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.step{padding:1.8rem 1.5rem;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.step-n{width:38px;height:38px;border-radius:11px;background:var(--grd);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;color:#fff;margin-bottom:1.1rem}
+.step h3{font-size:1.15rem;font-weight:800;letter-spacing:-.01em;margin-bottom:.4rem}
+.step p{color:rgba(255,255,255,.5);font-size:.92rem;line-height:1.55}
+
+/* ── FEATURE ROWS ───────────────────────────────────────────────── */
+.feature{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center}
+.feature.rev .feature-media{order:2}
+.feature.rev .feature-copy{order:1}
+.feature-media{position:relative;display:flex;justify-content:center}
+.feature-media img{border-radius:26px;box-shadow:var(--shadow)}
+.feature-media.wide img{border-radius:16px}
+.feature-tag{display:inline-flex;align-items:center;gap:.4rem;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--pk2);background:rgba(255,28,142,.08);border:1px solid rgba(255,28,142,.18);padding:.35rem .7rem;border-radius:20px;margin-bottom:1rem}
+.feature h3{font-weight:900;font-size:clamp(1.5rem,2.6vw,2.05rem);letter-spacing:-.02em;line-height:1.12;max-width:14ch}
+.feature p{margin-top:1rem;color:var(--tx3);font-size:1rem;line-height:1.65;max-width:38ch}
+.feature-list{margin-top:1.3rem;display:flex;flex-direction:column;gap:.65rem}
+.feature-list li{list-style:none;display:flex;gap:.6rem;align-items:flex-start;font-size:.92rem;color:var(--tx2)}
+.feature-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--grd);margin-top:.5rem;flex-shrink:0}
+
+/* ── ORGA / DJ BAND ─────────────────────────────────────────────── */
+.orga-band{background:var(--paper2)}
+.orga-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem}
+.orga-card{background:#fff;border:1px solid var(--bdr);border-radius:24px;padding:2rem;box-shadow:var(--shadow)}
+.orga-card .ico{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.2rem}
+.orga-card.a .ico{background:linear-gradient(135deg,var(--pk),var(--vi));color:#fff}
+.orga-card.b .ico{background:linear-gradient(135deg,#1B1B22,var(--pk2));color:#fff}
+.orga-card h4{font-weight:800;font-size:1.2rem;letter-spacing:-.01em;margin-bottom:.5rem}
+.orga-card p{color:var(--tx3);font-size:.92rem;line-height:1.6;margin-bottom:1.3rem}
+.orga-card a{display:inline-flex;align-items:center;gap:.35rem;font-weight:700;font-size:.85rem;color:var(--vi);text-decoration:none}
+
+/* ── FINAL CTA ──────────────────────────────────────────────────── */
+.cta-band{background:var(--grd);color:#fff;text-align:center;padding:6rem 0}
+.cta-band h2{font-weight:900;font-size:clamp(2.1rem,5vw,3.2rem);letter-spacing:-.03em;line-height:1.02}
+.cta-band p{margin-top:1rem;color:rgba(255,255,255,.85);font-size:1.05rem}
+.cta-band .btn-primary{background:#fff;color:var(--ink);box-shadow:0 12px 28px rgba(13,7,20,.28);margin-top:2rem;display:inline-block}
+
+/* ── FOOTER ─────────────────────────────────────────────────────── */
+footer{padding:3rem 0 2.5rem;text-align:center;font-size:.72rem;color:var(--tx4);line-height:2}
+footer a{color:var(--tx3);text-decoration:none}
+footer a:hover{color:var(--vi)}
+
+/* ── REVEAL ─────────────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+@media (max-width:860px){
+  .hero-inner{grid-template-columns:1fr;text-align:center}
+  .hero p{margin-left:auto;margin-right:auto}
+  .hero-ctas{justify-content:center}
+  .hero-visual{margin-top:1rem;order:-1}
+  .hero-phone{width:min(62vw,280px)}
+  .steps{grid-template-columns:1fr}
+  .feature,.feature.rev{grid-template-columns:1fr}
+  .feature.rev .feature-media,.feature.rev .feature-copy{order:initial}
+  .feature-copy{text-align:left}
+  .feature h3,.feature p{max-width:none}
+  .orga-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <img src="/images/LOGO120.png" alt="PULL UP!" class="nav-logo">
+  <a href="/app" class="nav-cta">Se connecter</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-glow" id="heroGlow"></div>
+  <div class="wrap hero-inner">
+    <div>
+      <div class="hero-eyebrow"><span></span>L'app qui fait monter la salle</div>
+      <h1>La playlist,<br><em>c'est vous.</em></h1>
+      <p>Les invités proposent et votent pour la prochaine chanson. Le DJ garde le contrôle. Toute la salle décide de l'ambiance, en direct.</p>
+      <div class="hero-ctas">
+        <a href="/app" class="btn-primary">Rejoindre une soirée</a>
+        <a href="/app" class="btn-ghost">Je suis DJ / organisateur</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-blob" id="heroBlob"></div>
+      <img src="/images/hero-phone-crop.png" alt="Pull up — l'appli de vote en direct" class="hero-phone" id="heroPhone">
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Scroll</span><span class="stick"></span></div>
+</header>
+
+<section class="how section-pad">
+  <div class="wrap">
+    <div class="eyebrow reveal">Comment ça marche</div>
+    <div class="section-ttl reveal">Trois étapes, zéro friction.</div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-n">1</div>
+        <h3>Scanne</h3>
+        <p>Le QR code affiché dans la soirée — ou le lien partagé par l'organisateur.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-n">2</div>
+        <h3>Vote</h3>
+        <p>Propose un son, vote pour tes titres préférés. Le classement bouge en temps réel.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-n">3</div>
+        <h3>Pull up</h3>
+        <p>Les morceaux les plus votés remontent en tête. Le DJ enchaîne avec ce que la salle veut.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-pad">
+  <div class="wrap">
+    <div class="feature">
+      <div class="feature-media reveal">
+        <img src="/images/landing-vote.png" alt="Écran de vote Pull up : classement des propositions en direct">
+      </div>
+      <div class="feature-copy reveal">
+        <div class="feature-tag">Pour les invités</div>
+        <h3>Chacun propose son son.</h3>
+        <p>Un classement live, alimenté par toute la salle. Les votes font remonter les meilleurs morceaux — pas de playlist figée, pas de demandes qui se perdent.</p>
+        <ul class="feature-list">
+          <li>Propositions et votes en temps réel</li>
+          <li>Chat club pour suivre l'ambiance</li>
+          <li>Aucun compte compliqué — Google, email ou SMS</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-pad">
+  <div class="wrap">
+    <div class="feature rev">
+      <div class="feature-media wide reveal">
+        <img src="/images/landing-bigscreen-crop.png" alt="Écran géant Pull up affiché dans le club : classement, chat et morceau en cours">
+      </div>
+      <div class="feature-copy reveal">
+        <div class="feature-tag">Pour le club</div>
+        <h3>Un écran qui fait vibrer la salle.</h3>
+        <p>Classement en direct, chat club, morceau en cours affichés en grand sur l'écran de la soirée. Toute la salle suit l'ambiance monter.</p>
+        <ul class="feature-list">
+          <li>Se branche sur n'importe quel écran ou TV</li>
+          <li>QR code toujours visible pour rejoindre</li>
+          <li>Le DJ garde la main sur chaque titre joué</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="orga-band section-pad">
+  <div class="wrap">
+    <div class="eyebrow reveal">Organisateurs &amp; DJ</div>
+    <div class="section-ttl reveal">Ta soirée, prête en deux minutes.</div>
+    <div class="section-sub reveal">Nom, horaires, line-up, flyer — tout se configure d'un coup. Partage un lien ou un QR code, c'est prêt.</div>
+    <div class="orga-grid">
+      <div class="orga-card a reveal">
+        <div class="ico">🎛️</div>
+        <h4>Espace Organisateur</h4>
+        <p>Crée ta soirée, gère le line-up, ouvre le chat club et suis les votes en direct depuis ton tableau de bord.</p>
+        <a href="/app">Créer ma soirée →</a>
+      </div>
+      <div class="orga-card b reveal">
+        <div class="ico">🎧</div>
+        <h4>Espace DJ</h4>
+        <p>Enregistre-toi comme DJ, rejoins le line-up d'une soirée avec ton propre compte, garde le contrôle sur ta playlist.</p>
+        <a href="/app">S'enregistrer comme DJ →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <h2 class="reveal">La soirée,<br>c'est vous.</h2>
+    <p class="reveal">Rejoins une soirée ou crée la tienne — c'est gratuit.</p>
+    <a href="/app" class="btn-primary reveal">Se connecter</a>
+  </div>
+</section>
+
+<footer>
+  © 2026 PULL UP! — HUSTLE &amp; FLOW<br>
+  <a href="/mentions-legales.html" target="_blank">Mentions légales</a> ·
+  <a href="/cgu.html" target="_blank">CGU</a> ·
+  <a href="/confidentialite.html" target="_blank">Politique de confidentialité</a> ·
+  <a href="mailto:arawakdesign@gmail.com">Contact</a>
+</footer>
+
+<script>
+// Nav background au scroll
+const nav = document.getElementById('nav');
+const onScroll = () => {
+  nav.classList.toggle('scrolled', window.scrollY > 12);
+};
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+// Parallax léger sur le visuel du hero (désactivé si mouvement réduit demandé)
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!reduceMotion) {
+  const phone = document.getElementById('heroPhone');
+  const blob  = document.getElementById('heroBlob');
+  const glow  = document.getElementById('heroGlow');
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      if (phone) phone.style.transform = `translateY(${y * 0.12}px)`;
+      if (blob)  blob.style.transform  = `translate(-50%,-50%) translateY(${y * 0.06}px)`;
+      if (glow)  glow.style.transform  = `translateY(${y * 0.18}px)`;
+      ticking = false;
+    });
+  }, { passive: true });
+}
+
+// Reveal au scroll
+const revealEls = document.querySelectorAll('.reveal');
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  revealEls.forEach(el => io.observe(el));
+} else {
+  revealEls.forEach(el => el.classList.add('visible'));
+}
+</script>
+</body>
+</html>
