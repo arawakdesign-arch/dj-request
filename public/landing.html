@@ -36,33 +36,33 @@ a{display:block;width:100%}
 .menu-btn{position:fixed;top:14px;right:14px;z-index:60;display:flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:12px;border:none;background:rgba(18,18,18,.92);color:#fff;font-weight:700;font-size:.8rem;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.25);backdrop-filter:blur(6px)}
 .menu-btn svg{width:16px;height:16px}
 
-/* ── overlay menu ───────────────────────────────────────────────────── */
-.menu-overlay{position:fixed;inset:0;z-index:70;background:rgba(8,6,14,.6);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s}
+/* ── overlay menu (plein écran) ───────────────────────────────────── */
+.menu-overlay{position:fixed;inset:0;z-index:70;background:#121016;opacity:0;pointer-events:none;transition:opacity .3s}
 .menu-overlay.open{opacity:1;pointer-events:auto}
-.menu-panel{position:absolute;top:0;right:0;bottom:0;width:min(88vw,380px);background:#121016;box-shadow:-30px 0 60px rgba(0,0,0,.45);transform:translateX(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;overflow:hidden}
-.menu-overlay.open .menu-panel{transform:translateX(0)}
-.menu-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#6F22FF,#8D2CFF,#FF1C8E)}
-.menu-panel::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:overlay;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:3px 3px}
-.menu-head{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.4rem 1rem;position:relative;z-index:1}
+.menu-panel{position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;transform:scale(1.04);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.menu-overlay.open .menu-panel{transform:scale(1)}
+.menu-panel::before{content:'';position:fixed;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#6F22FF,#8D2CFF,#FF1C8E);z-index:2}
+.menu-panel::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:overlay;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:3px 3px;z-index:0}
+.menu-head{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.4rem 1rem;position:relative;z-index:1;flex-shrink:0}
 .menu-logo{height:34px;object-fit:contain}
-.menu-close{width:38px;height:38px;border-radius:10px;border:1.5px solid rgba(255,255,255,.25);background:none;color:#fff;font-size:1rem;cursor:pointer;flex-shrink:0}
-.menu-eyebrow{font-family:'Inter',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#B98BFF;padding:0 1.4rem;margin-top:.4rem;position:relative;z-index:1}
-.menu-links{display:flex;flex-direction:column;padding:.6rem 0 1rem;position:relative;z-index:1;overflow-y:auto}
-.menu-links a{display:flex;align-items:baseline;gap:.85rem;padding:.85rem 1.4rem;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.08);opacity:0;transform:translateX(14px);transition:transform .35s ease,opacity .35s ease,background .15s ease}
-.menu-overlay.open .menu-links a{opacity:1;transform:translateX(0)}
-.menu-links a:nth-child(1){transition-delay:.06s}
-.menu-links a:nth-child(2){transition-delay:.11s}
-.menu-links a:nth-child(3){transition-delay:.16s}
-.menu-links a:nth-child(4){transition-delay:.21s}
-.menu-links a:nth-child(5){transition-delay:.26s}
-.menu-links a:nth-child(6){transition-delay:.31s}
-.menu-links a:active{background:rgba(111,34,255,.12)}
-.menu-num{font-family:'Anton',sans-serif;font-size:.85rem;color:#6F22FF;flex-shrink:0;width:1.6em}
-.menu-label{font-family:'Anton',sans-serif;font-weight:400;font-size:1.35rem;letter-spacing:.01em;color:#fff;line-height:1.1}
-.menu-cta-wrap{padding:1.2rem 1.4rem 1.6rem;position:relative;z-index:1;margin-top:auto}
-.menu-cta{padding:1.05rem;border-radius:14px;background:linear-gradient(115deg,#6F22FF,#8D2CFF,#FF1C8E);color:#fff;text-align:center;font-weight:700;text-decoration:none;box-shadow:0 12px 26px rgba(111,34,255,.4);font-family:'Inter',sans-serif}
-.menu-sub{font-family:'Inter',sans-serif;font-size:.72rem;color:rgba(255,255,255,.4);text-align:center;margin-top:.8rem}
-@media (prefers-reduced-motion:reduce){.menu-links a{transition:none;opacity:1;transform:none}}
+.menu-close{width:40px;height:40px;border-radius:10px;border:1.5px solid rgba(255,255,255,.25);background:none;color:#fff;font-size:1.1rem;cursor:pointer;flex-shrink:0}
+.menu-eyebrow{font-family:'Inter',sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:#B98BFF;padding:0 1.4rem;margin-top:.6rem;position:relative;z-index:1;flex-shrink:0}
+.menu-links{display:flex;flex-direction:column;justify-content:center;gap:.2rem;padding:1.6rem 1.4rem;position:relative;z-index:1;flex:1;min-height:0}
+.menu-links a{display:flex;align-items:baseline;gap:1rem;padding:1.05rem 0;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.08);opacity:0;transform:translateY(18px);transition:transform .4s ease,opacity .4s ease}
+.menu-overlay.open .menu-links a{opacity:1;transform:translateY(0)}
+.menu-links a:nth-child(1){transition-delay:.08s}
+.menu-links a:nth-child(2){transition-delay:.14s}
+.menu-links a:nth-child(3){transition-delay:.2s}
+.menu-links a:nth-child(4){transition-delay:.26s}
+.menu-links a:nth-child(5){transition-delay:.32s}
+.menu-links a:nth-child(6){transition-delay:.38s}
+.menu-links a:active .menu-label{color:#B98BFF}
+.menu-num{font-family:'Anton',sans-serif;font-size:1.1rem;color:#6F22FF;flex-shrink:0;width:1.6em}
+.menu-label{font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(1.8rem,8vw,2.6rem);letter-spacing:.01em;color:#fff;line-height:1.05;transition:color .15s}
+.menu-cta-wrap{padding:1.4rem 1.4rem 2rem;position:relative;z-index:1;flex-shrink:0}
+.menu-cta{padding:1.1rem;border-radius:14px;background:linear-gradient(115deg,#6F22FF,#8D2CFF,#FF1C8E);color:#fff;text-align:center;font-weight:700;text-decoration:none;box-shadow:0 12px 26px rgba(111,34,255,.4);font-family:'Inter',sans-serif;display:block}
+.menu-sub{font-family:'Inter',sans-serif;font-size:.75rem;color:rgba(255,255,255,.4);text-align:center;margin-top:.9rem}
+@media (prefers-reduced-motion:reduce){.menu-links a,.menu-panel{transition:none;opacity:1;transform:none}}
 
 footer{padding:2.5rem 1.5rem;text-align:center;font-size:.72rem;color:#8A8494;line-height:2;background:#121212}
 footer a{color:rgba(255,255,255,.6);text-decoration:none;display:inline}
@@ -119,8 +119,8 @@ footer a:hover{color:#B98BFF}
 const menuBtn = document.getElementById('menuBtn');
 const menuOverlay = document.getElementById('menuOverlay');
 const menuClose = document.getElementById('menuClose');
-const openMenu = () => menuOverlay.classList.add('open');
-const closeMenu = () => menuOverlay.classList.remove('open');
+const openMenu = () => { menuOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; };
+const closeMenu = () => { menuOverlay.classList.remove('open'); document.body.style.overflow = ''; };
 menuBtn.addEventListener('click', openMenu);
 menuClose.addEventListener('click', closeMenu);
 menuOverlay.addEventListener('click', (e) => { if (e.target === menuOverlay) closeMenu(); });
