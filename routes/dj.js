@@ -70,11 +70,11 @@ router.get('/dj/search', async (req, res) => {
 router.post('/dj/profile/photo', requireAuth, upload.single('photo'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Pas de fichier' });
 
-  let buffer = req.file.buffer;
+  let buffer;
   try {
     const sharp = require('sharp');
-    buffer = await sharp(buffer).resize(500, 500, { fit: 'cover' }).jpeg({ quality: 75, mozjpeg: true }).toBuffer();
-  } catch(e) {}
+    buffer = await sharp(req.file.buffer).resize(500, 500, { fit: 'cover' }).jpeg({ quality: 75, mozjpeg: true }).toBuffer();
+  } catch(e) { return res.status(400).json({ error: 'Fichier image invalide' }); }
 
   const fileName = `dj/${req.user.id}/avatar.jpg`;
   const { error } = await supabase.storage.from('profile-photos').upload(fileName, buffer, {

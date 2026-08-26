@@ -62,11 +62,11 @@ router.put('/orga/profile', requireAuth, async (req, res) => {
 router.post('/orga/profile/logo', requireAuth, upload.single('logo'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Pas de fichier' });
 
-  let buffer = req.file.buffer;
+  let buffer;
   try {
     const sharp = require('sharp');
-    buffer = await sharp(buffer).resize(500, 500, { fit: 'cover' }).jpeg({ quality: 75, mozjpeg: true }).toBuffer();
-  } catch(e) {}
+    buffer = await sharp(req.file.buffer).resize(500, 500, { fit: 'cover' }).jpeg({ quality: 75, mozjpeg: true }).toBuffer();
+  } catch(e) { return res.status(400).json({ error: 'Fichier image invalide' }); }
 
   const fileName = `${req.user.id}/logo.jpg`;
   const { error } = await supabase.storage.from('orga-logos').upload(fileName, buffer, {
@@ -84,11 +84,11 @@ router.post('/orga/profile/logo', requireAuth, upload.single('logo'), async (req
 router.post('/orga/profile/banner', requireAuth, upload.single('banner'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Pas de fichier' });
 
-  let buffer = req.file.buffer;
+  let buffer;
   try {
     const sharp = require('sharp');
-    buffer = await sharp(buffer).resize(1200, 400, { fit: 'cover' }).jpeg({ quality: 78, mozjpeg: true }).toBuffer();
-  } catch(e) {}
+    buffer = await sharp(req.file.buffer).resize(1200, 400, { fit: 'cover' }).jpeg({ quality: 78, mozjpeg: true }).toBuffer();
+  } catch(e) { return res.status(400).json({ error: 'Fichier image invalide' }); }
 
   const fileName = `${req.user.id}/banner.jpg`;
   const { error } = await supabase.storage.from('orga-logos').upload(fileName, buffer, {
@@ -167,7 +167,14 @@ router.get('/orga/clients', requireAuth, async (req, res) => {
 router.get('/orga/clients/export.csv', requireAuth, async (req, res) => {
   try {
     const clients = await collectClients(req.user.id);
-    const esc = s => `"${(s || '').toString().replace(/"/g, '""')}"`;
+    // Empêche l'injection de formule (un nom/email commençant par =, +, -, @ ou
+    // une tabulation/retour chariot serait interprété comme une formule par
+    // Excel/Sheets à l'ouverture) — on neutralise avec une apostrophe devant.
+    const esc = s => {
+      let v = (s || '').toString();
+      if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+      return `"${v.replace(/"/g, '""')}"`;
+    };
     const rows = [['Nom', 'Email', 'Téléphone'].map(esc).join(',')]
       .concat(clients.map(c => [c.name, c.email, c.phone].map(esc).join(',')));
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');

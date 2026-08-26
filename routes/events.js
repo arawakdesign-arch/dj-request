@@ -364,14 +364,14 @@ router.delete('/votes/:eventId/:proposalId', requireAuth, async (req, res) => {
 router.post('/events/:id/flyer', requireOrganizer, upload.single('flyer'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Pas de fichier' });
 
-  let buffer = req.file.buffer;
+  let buffer;
   try {
     const sharp = require('sharp');
-    buffer = await sharp(buffer)
+    buffer = await sharp(req.file.buffer)
       .resize(1200, 800, { fit: 'cover' })
       .jpeg({ quality: 78, mozjpeg: true })
       .toBuffer();
-  } catch(e) {}
+  } catch(e) { return res.status(400).json({ error: 'Fichier image invalide' }); }
 
   const fileName = `${req.params.id}/flyer.jpg`;
   const { error } = await supabase.storage.from('flyers').upload(fileName, buffer, {
