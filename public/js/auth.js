@@ -122,7 +122,14 @@ window.addEventListener('load', async () => {
 
   // 3. Ni organisateur ni identité personnelle → page d'auth (sauf si le
   // mode DJ a déjà choisi sa page à l'étape 1 ci-dessus)
-  if (!djLoggedIn) showPage('auth');
+  if (!djLoggedIn) {
+    // Lien profond depuis la landing page ("Créer mon événement" / "S'inscrire
+    // comme DJ") — ouvre directement le bon flux plutôt que l'accueil générique.
+    const intent = new URLSearchParams(window.location.search).get('intent');
+    if (intent === 'create-event')     { showPage('dj-login'); _djLoginShowCreate(); }
+    else if (intent === 'dj-register') { openDjRegister(); }
+    else                                showPage('auth');
+  }
 });
 
 // ── Page publique organisateur (pull-up.live/slug) ───────────────────
