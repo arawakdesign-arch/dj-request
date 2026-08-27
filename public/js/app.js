@@ -1211,6 +1211,22 @@ function saveSettings() {
   }
 }
 
+// Clôture manuelle par l'organisateur, avant les 24h automatiques (cf.
+// isClosed() côté serveur) — utile pour une soirée qui se termine plus tôt
+// que prévu. Fige le vote/la proposition/le chat, mais garde tout consultable.
+function stopEventNow() {
+  if (!eid) return;
+  if (!confirm('Arrêter la soirée maintenant ? Les invités ne pourront plus voter, proposer ou discuter — mais tout reste consultable.')) return;
+  api('POST', '/events/' + eid + '/close', {}, {dj: true}).then(() => {
+    eventClosed = true;
+    applyEventClosedState();
+    toast('⏹️ Soirée arrêtée');
+  }).catch(e => {
+    console.error('[pullup] Échec arrêt soirée :', e.message);
+    toast('⚠️ Arrêt non enregistré côté serveur — ' + e.message);
+  });
+}
+
 // ══ LOCALISATION ═════════════════════════════════════════════════════
 function toggleLocation() {
   locActive = !locActive;

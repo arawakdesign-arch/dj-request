@@ -19,13 +19,15 @@ const authAttemptLimiter = rateLimit({
 
 // Une soirée se ferme aux votes/propositions 24h après son démarrage — calculé
 // à la volée depuis scheduled_at (ou created_at si pas planifiée), pas de
-// tâche planifiée ni de colonne dédiée. Les données (votes, propositions,
-// chat) restent en base et consultables.
+// tâche planifiée. L'organisateur peut aussi la clore manuellement avant les
+// 24h (ended_at) — auquel cas c'est prioritaire sur le calcul temporel. Les
+// données (votes, propositions, chat) restent en base et consultables.
 const EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
 function isUpcoming(scheduledAt) {
   return !!scheduledAt && new Date(scheduledAt).getTime() > Date.now();
 }
-function isClosed(createdAt, scheduledAt) {
+function isClosed(createdAt, scheduledAt, endedAt) {
+  if (endedAt) return true; // clôturée manuellement par l'organisateur
   if (isUpcoming(scheduledAt)) return false; // pas encore démarrée → pas fermée
   const start = scheduledAt ? new Date(scheduledAt).getTime() : new Date(createdAt).getTime();
   return (Date.now() - start) > EVENT_DURATION_MS;
@@ -42,9 +44,9 @@ function bustFlyerCache(url, updatedAt) {
 }
 
 async function isEventClosed(eventId) {
-  const { data } = await supabase.from('events').select('created_at, scheduled_at').eq('id', eventId).single();
+  const { data } = await supabase.from('events').select('created_at, scheduled_at, ended_at').eq('id', eventId).single();
   if (!data) return true; // événement introuvable → traité comme fermé
-  return isClosed(data.created_at, data.scheduled_at);
+  return isClosed(data.created_at, data.scheduled_at, data.ended_at);
 }
 
 // ── Events ────────────────────────────────────────────────────────────
@@ -74,17 +76,17 @@ router.get('/events/by-name', async (req, res) => {
 router.get('/events/mine', requireAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, club_name, created_at, scheduled_at')
+    .select('id, name, club_name, created_at, scheduled_at, ended_at')
     .eq('owner_id', req.user.id)
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
-  res.json((data || []).map(ev => ({ ...ev, closed: isClosed(ev.created_at, ev.scheduled_at), upcoming: isUpcoming(ev.scheduled_at) })));
+  res.json((data || []).map(ev => ({ ...ev, closed: isClosed(ev.created_at, ev.scheduled_at, ev.ended_at), upcoming: isUpcoming(ev.scheduled_at) })));
 });
 
 router.get('/events/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at, scheduled_at, updated_at, owner_id')
+    .select('id, name, club_name, orga, address, hours, lineup, flyer_url, is_active, created_at, scheduled_at, ended_at, updated_at, owner_id')
     .eq('id', req.params.id).single();
   if (error || !data) return res.status(404).json({ error: 'Événement introuvable' });
   data.flyer_url = bustFlyerCache(data.flyer_url, data.updated_at);
@@ -98,7 +100,7 @@ router.get('/events/:id', async (req, res) => {
     orgaSlug = page?.slug || null;
   }
   const { owner_id, ...pub } = data;
-  res.json({ ...pub, orga_slug: orgaSlug, closed: isClosed(data.created_at, data.scheduled_at), upcoming: isUpcoming(data.scheduled_at) });
+  res.json({ ...pub, orga_slug: orgaSlug, closed: isClosed(data.created_at, data.scheduled_at, data.ended_at), upcoming: isUpcoming(data.scheduled_at) });
 });
 
 // Personnes ayant voté et/ou proposé un morceau sur cet événement — liste
@@ -159,10 +161,10 @@ router.post('/events', requireAuth, async (req, res) => {
   // si une soirée est déjà live ou d'autres soirées à venir existent déjà.
   if (!scheduledAt) {
     const { data: recent } = await supabase
-      .from('events').select('id, name, created_at, scheduled_at')
+      .from('events').select('id, name, created_at, scheduled_at, ended_at')
       .eq('owner_id', ownerId).eq('is_active', true)
       .order('created_at', { ascending: false }).limit(5);
-    const ownActive = (recent || []).find(ev => !isUpcoming(ev.scheduled_at) && !isClosed(ev.created_at, ev.scheduled_at));
+    const ownActive = (recent || []).find(ev => !isUpcoming(ev.scheduled_at) && !isClosed(ev.created_at, ev.scheduled_at, ev.ended_at));
     if (ownActive) {
       return res.status(409).json({
         error: `Ta soirée "${ownActive.name}" est encore en cours — attends sa clôture (24h) avant d'en créer une nouvelle.`,
@@ -177,10 +179,10 @@ router.post('/events', requireAuth, async (req, res) => {
   // Une fois la soirée existante fermée (24h, cf. isClosed()), le nom se
   // libère pour une nouvelle création.
   const { data: existingActive } = await supabase
-    .from('events').select('created_at, scheduled_at')
+    .from('events').select('created_at, scheduled_at, ended_at')
     .eq('name', name).eq('is_active', true)
     .order('created_at', { ascending: false }).limit(1).maybeSingle();
-  if (existingActive && !isClosed(existingActive.created_at, existingActive.scheduled_at)) {
+  if (existingActive && !isClosed(existingActive.created_at, existingActive.scheduled_at, existingActive.ended_at)) {
     return res.status(409).json({ error: `Une soirée "${name}" est déjà en cours — choisissez un autre nom.` });
   }
 
@@ -204,7 +206,18 @@ router.patch('/events/:id', requireOrganizer, async (req, res) => {
     .update(updates)
     .eq('id', req.params.id).select().single();
   if (error) return res.status(500).json({ error: error.message });
-  res.json({ ...data, closed: isClosed(data.created_at, data.scheduled_at), upcoming: isUpcoming(data.scheduled_at) });
+  res.json({ ...data, closed: isClosed(data.created_at, data.scheduled_at, data.ended_at), upcoming: isUpcoming(data.scheduled_at) });
+});
+
+// Clôture manuelle par l'organisateur, avant les 24h automatiques — les
+// données (votes, propositions, chat) restent en base et consultables,
+// seuls le vote/la proposition/le chat sont figés (cf. isClosed()).
+router.post('/events/:id/close', requireOrganizer, async (req, res) => {
+  const { data, error } = await supabase.from('events')
+    .update({ ended_at: new Date().toISOString() })
+    .eq('id', req.params.id).select().single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ...data, closed: isClosed(data.created_at, data.scheduled_at, data.ended_at), upcoming: isUpcoming(data.scheduled_at) });
 });
 
 router.post('/events/:id/auth', authAttemptLimiter, async (req, res) => {

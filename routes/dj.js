@@ -13,12 +13,12 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 *
 // connaître le mot de passe partagé (cf. isLineupMember côté middleware).
 router.get('/dj/my-events', requireAuth, async (req, res) => {
   const { data, error } = await supabase
-    .from('events').select('id, name, created_at, scheduled_at, lineup')
+    .from('events').select('id, name, created_at, scheduled_at, ended_at, lineup')
     .eq('is_active', true);
   if (error) return res.status(500).json({ error: error.message });
   const mine = (data || [])
     .filter(ev => Array.isArray(ev.lineup) && ev.lineup.some(dj => dj.type === 'app' && dj.id === req.user.id))
-    .map(ev => ({ id: ev.id, name: ev.name, closed: isClosed(ev.created_at, ev.scheduled_at), upcoming: isUpcoming(ev.scheduled_at) }))
+    .map(ev => ({ id: ev.id, name: ev.name, closed: isClosed(ev.created_at, ev.scheduled_at, ev.ended_at), upcoming: isUpcoming(ev.scheduled_at) }))
     .filter(ev => !ev.closed);
   res.json(mine);
 });

@@ -106,7 +106,7 @@ router.post('/orga/profile/banner', requireAuth, upload.single('banner'), async 
 router.get('/orga/events-stats', requireAuth, async (req, res) => {
   const { data: events, error } = await supabase
     .from('events')
-    .select('id, name, club_name, created_at, scheduled_at')
+    .select('id, name, club_name, created_at, scheduled_at, ended_at')
     .eq('owner_id', req.user.id)
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
@@ -123,7 +123,7 @@ router.get('/orga/events-stats', requireAuth, async (req, res) => {
 
   res.json(events.map(e => ({
     ...e,
-    closed: isClosed(e.created_at, e.scheduled_at),
+    closed: isClosed(e.created_at, e.scheduled_at, e.ended_at),
     upcoming: isUpcoming(e.scheduled_at),
     votes: votesByEv[e.id] || 0,
     proposals: propsByEv[e.id] || 0,
@@ -189,7 +189,7 @@ router.get('/orga/by-slug/:slug', async (req, res) => {
   if (!page) return res.status(404).json({ error: 'Page introuvable' });
 
   const { data: events } = await supabase
-    .from('events').select('id, name, club_name, created_at, scheduled_at, is_active')
+    .from('events').select('id, name, club_name, created_at, scheduled_at, ended_at, is_active')
     .eq('owner_id', page.owner_id).eq('is_active', true)
     .order('created_at', { ascending: false }).limit(20);
 
@@ -199,7 +199,7 @@ router.get('/orga/by-slug/:slug', async (req, res) => {
     instagram_url: page.instagram_url, tiktok_url: page.tiktok_url, facebook_url: page.facebook_url,
     events: (events || []).map(e => {
       const upcoming = isUpcoming(e.scheduled_at);
-      const closed   = isClosed(e.created_at, e.scheduled_at);
+      const closed   = isClosed(e.created_at, e.scheduled_at, e.ended_at);
       return { ...e, upcoming, closed, status: upcoming ? 'upcoming' : (closed ? 'closed' : 'live') };
     }),
   });
