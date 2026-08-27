@@ -468,6 +468,10 @@ async function populateSettingsForm() {
   if (!eid) return;
   try {
     const ev = await api('GET', '/events/' + eid);
+    // Soirée arrêtée (manuellement ou par les 24h automatiques) → elle
+    // disparaît de l'onglet SOIRÉE, il n'y a plus rien à éditer.
+    if (ev.closed) { _showNoCurrentEvent(); return; }
+    _hideNoCurrentEvent();
     const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v || ''; };
     set('settings-ev-name', ev.name);
     set('settings-club',    ev.club_name);
@@ -642,6 +646,18 @@ function _editSettingsCard() {
   const s = document.getElementById('settings-summary'), f = document.getElementById('settings-edit-fields');
   if (s) s.style.display = 'none';
   if (f) f.style.display = 'block';
+}
+// Masque la carte "Soirée en cours" (résumé + formulaire) au profit du
+// message "Aucune soirée en cours" — utilisé une fois la soirée arrêtée.
+function _showNoCurrentEvent() {
+  const s = document.getElementById('settings-summary'), f = document.getElementById('settings-edit-fields'), n = document.getElementById('settings-no-event');
+  if (s) s.style.display = 'none';
+  if (f) f.style.display = 'none';
+  if (n) n.style.display = 'block';
+}
+function _hideNoCurrentEvent() {
+  const n = document.getElementById('settings-no-event');
+  if (n) n.style.display = 'none';
 }
 
 // ── Planifier une soirée à venir (en plus de la soirée en cours) ──────
@@ -1220,6 +1236,7 @@ function stopEventNow() {
   api('POST', '/events/' + eid + '/close', {}, {dj: true}).then(() => {
     eventClosed = true;
     applyEventClosedState();
+    _showNoCurrentEvent();
     toast('⏹️ Soirée arrêtée');
   }).catch(e => {
     console.error('[pullup] Échec arrêt soirée :', e.message);
