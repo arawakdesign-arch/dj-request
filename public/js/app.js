@@ -1534,22 +1534,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
   }
 
-  // Bannière "Ajouter à l'écran d'accueil" : seule façon d'éliminer les barres
-  // Safari sur iOS (impossible à masquer autrement depuis un onglet du navigateur).
-  const isIOS       = /iPhone|iPod|iPad/.test(navigator.userAgent) ||
-                       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isSafari    = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent);
-  const isStandalone = window.navigator.standalone === true ||
-                        window.matchMedia('(display-mode: standalone)').matches;
-  const a2hsBanner  = document.getElementById('a2hs-banner');
-  if (a2hsBanner && isIOS && isSafari && !isStandalone && !localStorage.getItem('djr_a2hs_dismissed')) {
-    setTimeout(() => a2hsBanner.classList.add('show'), 3000);
-  }
-  on('a2hs-close', () => {
-    a2hsBanner.classList.remove('show');
-    localStorage.setItem('djr_a2hs_dismissed', '1');
-  });
-
   // Auth
   on('btn-google',       signInGoogle);
   on('btn-phone-action', phoneAction);
