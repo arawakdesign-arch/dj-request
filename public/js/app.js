@@ -879,10 +879,11 @@ async function loadOtherOwnedEvents() {
   if (!others.length) { card.style.display = 'none'; list.innerHTML = ''; }
   else {
     list.innerHTML = others.map(ev => `
-      <button onclick="${escapeHtml(`adminEnterEvent('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.6rem;padding:.7rem .85rem;border-radius:1rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;text-align:left">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.85rem;font-weight:700;color:var(--vi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
-          <div style="font-size:.68rem;color:var(--tx3);margin-top:2px">${ev.upcoming ? '📅 À venir · ' + new Date(ev.scheduled_at).toLocaleDateString('fr-FR') : '🔴 En cours'}</div>
+      <button onclick="${escapeHtml(`adminEnterEvent('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;transition:all .2s;margin-bottom:.5rem">
+        <div style="width:42px;height:42px;border-radius:12px;background:rgba(111,34,255,.15);border:1px solid rgba(111,34,255,.28);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">${ev.upcoming ? '📅' : '🔴'}</div>
+        <div style="text-align:left;flex:1;min-width:0">
+          <div style="font-size:.88rem;font-weight:700;color:var(--vi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
+          <div style="font-size:.7rem;color:var(--tx3);margin-top:2px">${ev.upcoming ? 'À venir · ' + new Date(ev.scheduled_at).toLocaleDateString('fr-FR') : 'En cours'}</div>
         </div>
         <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
       </button>`).join('');
@@ -897,10 +898,11 @@ async function loadOtherOwnedEvents() {
     if (!past.length) { pastCard.style.display = 'none'; pastList.innerHTML = ''; }
     else {
       pastList.innerHTML = past.map(ev => `
-        <button onclick="${escapeHtml(`adminEnterEvent('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.6rem;padding:.7rem .85rem;border-radius:1rem;border:1px solid var(--bdr);background:var(--ink5);cursor:pointer;text-align:left;opacity:.6">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:.85rem;font-weight:700;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
-            <div style="font-size:.68rem;color:var(--tx4);margin-top:2px">Terminée</div>
+        <button onclick="${escapeHtml(`adminEnterEvent('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-radius:1.25rem;border:1px solid var(--bdr);background:var(--ink5);cursor:pointer;transition:all .2s;margin-bottom:.5rem;opacity:.6">
+          <div style="width:42px;height:42px;border-radius:12px;background:var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">⏹️</div>
+          <div style="text-align:left;flex:1;min-width:0">
+            <div style="font-size:.88rem;font-weight:700;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
+            <div style="font-size:.7rem;color:var(--tx4);margin-top:2px">Terminée</div>
           </div>
           <div style="color:var(--tx4);font-size:1rem;flex-shrink:0">→</div>
         </button>`).join('');
