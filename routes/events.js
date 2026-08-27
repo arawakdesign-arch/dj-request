@@ -1,12 +1,21 @@
-const express  = require('express');
-const multer   = require('multer');
-const supabase = require('../lib/supabase');
+const express   = require('express');
+const multer    = require('multer');
+const rateLimit = require('express-rate-limit');
+const supabase  = require('../lib/supabase');
 const { requireAuth, requireOrganizer, hashPassword, verifyOrganizerPassword } = require('../middleware/auth');
 const { signToken } = require('../lib/jwt');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 const router = express.Router();
+
+// Limite dédiée sur la vérification de mot de passe (au-delà de la limite
+// globale de l'API) — ralentit le brute-force sur un mot de passe de soirée.
+const authAttemptLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, max: 10,
+  message: { error: 'Trop de tentatives — réessaie dans quelques minutes.' },
+  standardHeaders: true, legacyHeaders: false,
+});
 
 // Une soirée se ferme aux votes/propositions 24h après son démarrage — calculé
 // à la volée depuis scheduled_at (ou created_at si pas planifiée), pas de
@@ -198,7 +207,7 @@ router.patch('/events/:id', requireOrganizer, async (req, res) => {
   res.json({ ...data, closed: isClosed(data.created_at, data.scheduled_at), upcoming: isUpcoming(data.scheduled_at) });
 });
 
-router.post('/events/:id/auth', async (req, res) => {
+router.post('/events/:id/auth', authAttemptLimiter, async (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).json({ error: 'Mot de passe manquant' });
 

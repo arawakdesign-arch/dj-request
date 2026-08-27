@@ -1,11 +1,21 @@
-const express  = require('express');
-const supabase = require('../lib/supabase');
+const express   = require('express');
+const rateLimit = require('express-rate-limit');
+const supabase  = require('../lib/supabase');
 const { requireAuth, isOrganizer } = require('../middleware/auth');
 const { containsProfanity } = require('../lib/moderation');
 
 const ALLOWED_REACTIONS = ['🔥', '👍', '❤️', '💜'];
+const MAX_MESSAGE_LENGTH = 500;
 
 const router = express.Router();
+
+// Anti-spam dédié au chat, au-delà de la limite globale de l'API — un vrai
+// humain n'envoie pas plus de 20 messages par minute.
+const postMessageLimiter = rateLimit({
+  windowMs: 60 * 1000, max: 20,
+  message: { error: 'Tu envoies des messages trop vite — ralentis un peu.' },
+  standardHeaders: true, legacyHeaders: false,
+});
 
 // ── Messages (chat) ───────────────────────────────────────────────────
 router.get('/messages/:eventId', async (req, res) => {
@@ -19,8 +29,10 @@ router.get('/messages/:eventId', async (req, res) => {
   res.json(data || []);
 });
 
-router.post('/messages', requireAuth, async (req, res) => {
-  const { event_id, text, photo_url } = req.body;
+router.post('/messages', requireAuth, postMessageLimiter, async (req, res) => {
+  const { event_id, photo_url } = req.body;
+  let { text } = req.body;
+  if (text) text = String(text).slice(0, MAX_MESSAGE_LENGTH);
   if (!event_id || (!text && !photo_url)) return res.status(400).json({ error: 'Champs manquants' });
   if (text && containsProfanity(text)) return res.status(400).json({ error: 'Message non autorisé — merci de rester respectueux.' });
 

@@ -3,6 +3,26 @@ const bcrypt   = require('bcryptjs');
 const supabase = require('../lib/supabase');
 const { verifyToken } = require('../lib/jwt');
 
+// Limite légère anti-brute-force sur les tentatives de mot de passe
+// organisateur, en plus de la limite globale de l'API — ne s'applique
+// qu'au chemin "mot de passe" de requireOrganizer/isOrganizer (pas aux
+// requêtes JWT normales, qui restent illimitées). Compteur en mémoire par
+// IP, remis à zéro toutes les 10 minutes ; suffisant pour une seule
+// instance pm2 sans dépendance supplémentaire.
+const PASSWORD_ATTEMPT_WINDOW_MS = 10 * 60 * 1000;
+const PASSWORD_ATTEMPT_MAX       = 15;
+const _passwordAttempts = new Map(); // ip -> { count, resetAt }
+function passwordAttemptAllowed(ip) {
+  const now = Date.now();
+  const entry = _passwordAttempts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    _passwordAttempts.set(ip, { count: 1, resetAt: now + PASSWORD_ATTEMPT_WINDOW_MS });
+    return true;
+  }
+  entry.count++;
+  return entry.count <= PASSWORD_ATTEMPT_MAX;
+}
+
 // Tient user_profiles.email/phone à jour à partir de l'identité vue sur
 // chaque requête authentifiée (Google → email, Phone OTP → numéro) — sans
 // bloquer la requête ni la faire échouer si la synchro rate.
@@ -118,6 +138,10 @@ async function requireOrganizer(req, res, next) {
   const password = req.headers['x-organizer-password'];
   if (!password) { console.error('[requireOrganizer] Aucun mot de passe fourni —', req.method, req.originalUrl, '| eventId=', eventId); return res.status(403).json({ error: 'Mot de passe requis' }); }
 
+  if (!passwordAttemptAllowed(req.ip)) {
+    return res.status(429).json({ error: 'Trop de tentatives — réessaie dans quelques minutes.' });
+  }
+
   const { data: event } = await supabase
     .from('events').select('password').eq('id', eventId).single();
   if (!event) return res.status(404).json({ error: 'Événement introuvable' });
@@ -151,6 +175,7 @@ async function isOrganizer(req, eventId) {
 
   const password = req.headers['x-organizer-password'];
   if (!password) return false;
+  if (!passwordAttemptAllowed(req.ip)) return false;
 
   const { data: event } = await supabase
     .from('events').select('password').eq('id', eventId).single();
