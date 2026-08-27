@@ -441,7 +441,7 @@ async function _djCreateSyncGoogleState() {
   // Pré-remplit "Organisateur" avec le nom déjà enregistré sur "Ma page",
   // pour ne pas le refaire taper à chaque nouvelle soirée.
   try {
-    if (!_orgaProfileCache) _orgaProfileCache = await api('GET', '/orga/profile', null, { dj: true });
+    if (!_orgaProfileCache) _orgaProfileCache = await api('GET', '/orga/profile');
     const orgaField = document.getElementById('create-orga');
     if (orgaField && !orgaField.value) orgaField.value = _orgaProfileCache?.name || '';
   } catch(e) {}

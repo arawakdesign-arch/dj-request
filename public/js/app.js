@@ -266,10 +266,15 @@ let _orgaProfileCache = null;
 
 async function loadOrgaProfile() {
   try {
-    _orgaProfileCache = await api('GET', '/orga/profile', null, {dj: true});
+    // Profil personnel du compte propriétaire — jamais lié à une soirée en
+    // particulier, donc jamais via le JWT organisateur (_authToken) : un
+    // token organisateur qui traînerait en mémoire (soirée gérée plus tôt
+    // par mot de passe) résoudrait le mauvais owner_id et viderait la page.
+    _orgaProfileCache = await api('GET', '/orga/profile');
   } catch(e) { _orgaProfileCache = {}; }
   const p = _orgaProfileCache || {};
   const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v || ''; };
+  set('orga-name',      p.name);
   set('orga-email',     p.email);
   set('orga-bio',       p.bio);
   set('orga-slug',      p.slug);
@@ -297,7 +302,7 @@ async function loadOrgaProfile() {
 // ── Ma page organisateur : bascule résumé ⇄ formulaire d'édition ──────
 function _renderOrgaSummary(p) {
   const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v || ''; };
-  const name = p.name || document.getElementById('settings-orga')?.value.trim() || 'Organisateur';
+  const name = p.name || document.getElementById('orga-name')?.value.trim() || 'Organisateur';
   set('orga-summary-name',  name);
   set('orga-summary-email', p.email || '');
   set('orga-summary-bio',   p.bio || '');
@@ -336,7 +341,7 @@ function _editOrgaProfile() {
 async function saveOrgaProfile() {
   saveSettings(); // synchronise le nom "Orga" sur la soirée en cours, si une soirée est ouverte
   const body = {
-    name:          document.getElementById('settings-orga')?.value.trim(),
+    name:          document.getElementById('orga-name')?.value.trim(),
     email:         document.getElementById('orga-email')?.value.trim(),
     bio:           document.getElementById('orga-bio')?.value.trim(),
     slug:          document.getElementById('orga-slug')?.value.trim(),
@@ -346,7 +351,7 @@ async function saveOrgaProfile() {
     facebook_url:  document.getElementById('orga-facebook')?.value.trim(),
   };
   try {
-    _orgaProfileCache = await api('PUT', '/orga/profile', body, {dj: true});
+    _orgaProfileCache = await api('PUT', '/orga/profile', body);
     toast('✅ Page organisateur enregistrée');
     _renderOrgaSummary(_orgaProfileCache || {});
     _showOrgaSummary();
@@ -359,7 +364,7 @@ async function uploadOrgaLogo(input) {
   try {
     const r = await fetch('/api/orga/profile/logo', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + (_authToken || _sbSession?.access_token) },
+      headers: { 'Authorization': 'Bearer ' + _sbSession?.access_token },
       body: fd,
     });
     const data = await r.json().catch(() => ({}));
@@ -376,7 +381,7 @@ async function uploadOrgaBanner(input) {
   try {
     const r = await fetch('/api/orga/profile/banner', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + (_authToken || _sbSession?.access_token) },
+      headers: { 'Authorization': 'Bearer ' + _sbSession?.access_token },
       body: fd,
     });
     const data = await r.json().catch(() => ({}));
@@ -405,7 +410,7 @@ function viewOrgaPage() {
 async function loadOrgaEventsStats() {
   const list = document.getElementById('orga-events-list'); if (!list) return;
   try {
-    const events = await api('GET', '/orga/events-stats', null, {dj: true});
+    const events = await api('GET', '/orga/events-stats');
     if (!events.length) { list.innerHTML = '<div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--tx4)">Aucune soirée créée</div>'; return; }
     list.innerHTML = events.map(ev => `
       <div style="display:flex;align-items:center;gap:.6rem;padding:.65rem .75rem;background:var(--ink5);border-radius:.85rem">
@@ -424,13 +429,13 @@ async function loadOrgaEventsStats() {
 async function loadOrgaClientsCount() {
   const el = document.getElementById('orga-clients-count'); if (!el) return;
   try {
-    const clients = await api('GET', '/orga/clients', null, {dj: true});
+    const clients = await api('GET', '/orga/clients');
     el.textContent = clients.length + (clients.length > 1 ? ' clients' : ' client');
   } catch(e) { el.textContent = '—'; }
 }
 
 function downloadOrgaClients() {
-  const token = _authToken || _sbSession?.access_token;
+  const token = _sbSession?.access_token;
   fetch('/api/orga/clients/export.csv', { headers: { 'Authorization': 'Bearer ' + token } })
     .then(r => { if (!r.ok) throw new Error('Téléchargement impossible'); return r.blob(); })
     .then(blob => {
@@ -475,7 +480,6 @@ async function populateSettingsForm() {
     const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v || ''; };
     set('settings-ev-name', ev.name);
     set('settings-club',    ev.club_name);
-    set('settings-orga',    ev.orga);
     set('settings-address', ev.address);
     if (ev.scheduled_at) {
       const d = new Date(ev.scheduled_at);
@@ -496,7 +500,7 @@ async function populateSettingsForm() {
 
     // Nécessaire pour l'URL publique (pull-up.live/slug) affichée dans le
     // résumé — pas encore chargée si on arrive directement sur cet onglet.
-    if (!_orgaProfileCache) { try { _orgaProfileCache = await api('GET', '/orga/profile', null, {dj: true}); } catch(e) {} }
+    if (!_orgaProfileCache) { try { _orgaProfileCache = await api('GET', '/orga/profile'); } catch(e) {} }
 
     _renderSettingsSummary(ev);
     _showSettingsSummary();
@@ -1227,7 +1231,7 @@ function loadFlyerFromStorage() {
 function saveSettings() {
   const evName   = document.getElementById('settings-ev-name')?.value.trim();
   const clubName = document.getElementById('settings-club')?.value.trim();
-  const orga     = document.getElementById('settings-orga')?.value.trim();
+  const orga     = document.getElementById('orga-name')?.value.trim();
   const address  = document.getElementById('settings-address')?.value.trim();
   const hours    = document.getElementById('settings-hours')?.value.trim();
   const dateV    = document.getElementById('settings-date')?.value;
