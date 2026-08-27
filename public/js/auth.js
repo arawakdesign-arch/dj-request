@@ -81,18 +81,27 @@ window.addEventListener('load', async () => {
   if (_sb) {
     try {
       _sb.auth.onAuthStateChange(async (event, session) => {
-        if (session && !_loggedIn) {
-          // Restaurer l'event ID préservé avant la redirection OAuth
-          const savedEid = sessionStorage.getItem('djr_pre_oauth_eid');
-          if (savedEid) { eid = savedEid; sessionStorage.removeItem('djr_pre_oauth_eid'); }
+        // Le SDK Supabase rafraîchit le token d'accès en arrière-plan
+        // (événement TOKEN_REFRESHED) — sans ce miroir à CHAQUE événement
+        // (pas seulement au tout premier login), _sbSession restait figé sur
+        // le token initial, qui finissait par expirer (~1h) : tous les appels
+        // api() envoyaient alors un bearer expiré, échouant silencieusement
+        // (la plupart des appels avalent l'erreur dans un catch), donnant
+        // l'impression que des données "ne s'enregistraient pas".
+        if (session) {
           _sbSession = session;
-          const u   = session.user;
+          const u = session.user;
           currentUser = {
             displayName: u.user_metadata?.full_name || u.user_metadata?.name || u.phone || u.email || 'Invité',
             uid:         u.id,
             phoneNumber: u.phone  || null,
             email:       u.email  || null,
           };
+        }
+        if (session && !_loggedIn) {
+          // Restaurer l'event ID préservé avant la redirection OAuth
+          const savedEid = sessionStorage.getItem('djr_pre_oauth_eid');
+          if (savedEid) { eid = savedEid; sessionStorage.removeItem('djr_pre_oauth_eid'); }
           afterLogin();
           if (sessionStorage.getItem('djr_pending_create_intent')) {
             sessionStorage.removeItem('djr_pending_create_intent');
@@ -111,7 +120,7 @@ window.addEventListener('load', async () => {
           if (window.location.hash) {
             history.replaceState(null, '', eid ? buildEventUrl(eid) : (window.location.pathname + window.location.search));
           }
-        } else if (event !== 'INITIAL_SESSION' && !_loggedIn && !djLoggedIn) {
+        } else if (!session && event !== 'INITIAL_SESSION' && !_loggedIn && !djLoggedIn) {
           showPage('auth');
         }
       });
