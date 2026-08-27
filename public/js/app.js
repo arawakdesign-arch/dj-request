@@ -866,20 +866,47 @@ async function loadOwnedEvents() {
 async function loadOtherOwnedEvents() {
   const card = document.getElementById('orga-other-events-card');
   const list = document.getElementById('orga-other-events-list');
+  const pastCard = document.getElementById('orga-past-events-card');
+  const pastList = document.getElementById('orga-past-events-list');
   if (!card || !list) return;
   let events = [];
-  try { events = await api('GET', '/events/mine'); } catch(e) { card.style.display = 'none'; return; }
+  try { events = await api('GET', '/events/mine'); } catch(e) {
+    card.style.display = 'none';
+    if (pastCard) pastCard.style.display = 'none';
+    return;
+  }
   const others = events.filter(ev => ev.id !== eid && !ev.closed);
-  if (!others.length) { card.style.display = 'none'; list.innerHTML = ''; return; }
-  list.innerHTML = others.map(ev => `
-    <button onclick="${escapeHtml(`adminEnterEvent('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.6rem;padding:.7rem .85rem;border-radius:1rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;text-align:left">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:.85rem;font-weight:700;color:var(--vi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
-        <div style="font-size:.68rem;color:var(--tx3);margin-top:2px">${ev.upcoming ? '📅 À venir · ' + new Date(ev.scheduled_at).toLocaleDateString('fr-FR') : '🔴 En cours'}</div>
-      </div>
-      <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
-    </button>`).join('');
-  card.style.display = 'block';
+  if (!others.length) { card.style.display = 'none'; list.innerHTML = ''; }
+  else {
+    list.innerHTML = others.map(ev => `
+      <button onclick="${escapeHtml(`adminEnterEvent('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.6rem;padding:.7rem .85rem;border-radius:1rem;border:1px solid rgba(111,34,255,.2);background:rgba(111,34,255,.05);cursor:pointer;text-align:left">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.85rem;font-weight:700;color:var(--vi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
+          <div style="font-size:.68rem;color:var(--tx3);margin-top:2px">${ev.upcoming ? '📅 À venir · ' + new Date(ev.scheduled_at).toLocaleDateString('fr-FR') : '🔴 En cours'}</div>
+        </div>
+        <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
+      </button>`).join('');
+    card.style.display = 'block';
+  }
+
+  // Soirées terminées (arrêtées manuellement ou closes après 24h) — inclut la
+  // soirée courante si elle vient d'être arrêtée, contrairement à "others"
+  // ci-dessus qui l'exclut toujours par id.
+  if (pastCard && pastList) {
+    const past = events.filter(ev => ev.closed);
+    if (!past.length) { pastCard.style.display = 'none'; pastList.innerHTML = ''; }
+    else {
+      pastList.innerHTML = past.map(ev => `
+        <button onclick="${escapeHtml(`adminEnterEvent('${ev.id}','${ev.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)}" style="width:100%;display:flex;align-items:center;gap:.6rem;padding:.7rem .85rem;border-radius:1rem;border:1px solid var(--bdr);background:var(--ink5);cursor:pointer;text-align:left;opacity:.6">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.85rem;font-weight:700;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
+            <div style="font-size:.68rem;color:var(--tx4);margin-top:2px">Terminée</div>
+          </div>
+          <div style="color:var(--tx4);font-size:1rem;flex-shrink:0">→</div>
+        </button>`).join('');
+      pastCard.style.display = 'block';
+    }
+  }
 }
 
 // Soirées où le compte personnel est dans le line-up (DJ inscrit sur Pull
@@ -1237,6 +1264,7 @@ function stopEventNow() {
     eventClosed = true;
     applyEventClosedState();
     _showNoCurrentEvent();
+    loadOtherOwnedEvents();
     toast('⏹️ Soirée arrêtée');
   }).catch(e => {
     console.error('[pullup] Échec arrêt soirée :', e.message);

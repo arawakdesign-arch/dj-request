@@ -1466,6 +1466,12 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div id="orga-other-events-list" style="display:flex;flex-direction:column;gap:.5rem"></div>
     </div>
 
+    <!-- SOIRÉES PASSÉES (arrêtées ou terminées après 24h) -->
+    <div id="orga-past-events-card" style="display:none;margin-bottom:.75rem">
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Soirées passées</div>
+      <div id="orga-past-events-list" style="display:flex;flex-direction:column;gap:.5rem"></div>
+    </div>
+
     <!-- AUCUNE SOIRÉE EN COURS (soirée arrêtée ou terminée) -->
     <div id="settings-no-event" style="display:none;text-align:center;padding:2rem 1rem;color:var(--tx3);font-size:.85rem">Aucune soirée en cours pour l'instant.</div>
 
@@ -1887,7 +1893,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=22"></script>
-<script src="/js/app.js?v=77"></script>
+<script src="/js/app.js?v=78"></script>
 <script src="/js/render.js?v=30"></script>
 <script src="/js/chat.js?v=22"></script>
 <script src="/js/auth.js?v=42"></script>
