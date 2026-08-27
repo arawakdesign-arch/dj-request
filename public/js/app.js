@@ -1274,6 +1274,19 @@ function stopEventNow() {
   });
 }
 
+// Efface définitivement toutes les soirées passées du compte (votes,
+// propositions, chat inclus — cf. ON DELETE CASCADE côté serveur).
+function clearPastEvents() {
+  if (!confirm('Effacer définitivement toutes tes soirées passées ? Votes, propositions et chat associés seront perdus — action irréversible.')) return;
+  api('DELETE', '/orga/events/past').then(({ deleted }) => {
+    toast(deleted ? `🗑️ ${deleted} soirée(s) effacée(s)` : 'Aucune soirée passée à effacer');
+    loadOtherOwnedEvents();
+  }).catch(e => {
+    console.error('[pullup] Échec effacement soirées passées :', e.message);
+    toast('⚠️ Effacement non enregistré côté serveur — ' + e.message);
+  });
+}
+
 // ══ LOCALISATION ═════════════════════════════════════════════════════
 function toggleLocation() {
   locActive = !locActive;

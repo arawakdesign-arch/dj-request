@@ -1528,7 +1528,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     <div style="background:#FFFFFF;border:1px solid var(--bdr);border-radius:1.25rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)">
       <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">😬 Danger zone</div>
       <button onclick="stopEventNow()" style="width:100%;padding:.75rem;border-radius:1rem;border:1px solid rgba(255,59,87,.25);background:rgba(255,59,87,.06);color:var(--red);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.4rem">⏹️ Arrêter la soirée maintenant</button>
-      <button onclick="if(confirm('Vider toute la file ?')){proposals={};renderAll();toast('File vidée')}" style="width:100%;padding:.75rem;border-radius:1rem;border:1px solid rgba(255,59,87,.25);background:rgba(255,59,87,.06);color:var(--red);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.4rem">🗑️ Vider la file d'attente</button>
+      <button onclick="clearPastEvents()" style="width:100%;padding:.75rem;border-radius:1rem;border:1px solid rgba(255,59,87,.25);background:rgba(255,59,87,.06);color:var(--red);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.4rem">🗑️ Effacer les événements passés</button>
       <button onclick="djLogout()" style="width:100%;padding:.75rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);font-size:.85rem;font-weight:600;font-family:Inter,sans-serif">Déconnexion organisateur</button>
     </div>
   </div>
@@ -1878,7 +1878,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=22"></script>
-<script src="/js/app.js?v=80"></script>
+<script src="/js/app.js?v=81"></script>
 <script src="/js/render.js?v=30"></script>
 <script src="/js/chat.js?v=22"></script>
 <script src="/js/auth.js?v=42"></script>
