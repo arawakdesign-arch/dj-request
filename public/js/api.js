@@ -186,7 +186,7 @@ setInterval(() => {
   if (document.visibilityState !== 'visible') return;
   if (!isValidUuid(eid)) return;
   refreshProposals(eid).catch(() => {});
-}, 15000);
+}, 6000);
 
 // ── Filet de sécurité : rafraîchissement périodique du morceau en cours ──
 // Même problème que ci-dessus pour le canal np: — l'Écran Géant (TV, jamais
@@ -205,4 +205,16 @@ setInterval(() => {
   if (document.visibilityState !== 'visible') return;
   if (!isValidUuid(eid)) return;
   refreshNowPlaying(eid);
-}, 10000);
+}, 6000);
+
+// ── Rattrapage immédiat au retour au premier plan ───────────────────────
+// Le canal Realtime ET les setInterval ci-dessus peuvent être suspendus par
+// l'OS quand le téléphone se verrouille ou qu'on change d'appli (throttling
+// navigateur en arrière-plan) — sans ça, l'utilisateur revenait sur un état
+// figé jusqu'au prochain tick (voire jamais) et devait recharger la page.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (!isValidUuid(eid)) return;
+  refreshProposals(eid).catch(() => {});
+  refreshNowPlaying(eid);
+});
