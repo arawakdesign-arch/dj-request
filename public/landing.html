@@ -34,22 +34,25 @@ a{display:block;width:100%}
 .shots > div{width:100%}
 
 /* ── menu trigger (visible, toujours au même endroit) ──────────────── */
-.menu-btn{position:fixed;top:14px;right:14px;z-index:60;display:flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:12px;border:none;background:rgba(18,18,18,.92);color:#fff;font-weight:700;font-size:.8rem;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.25);backdrop-filter:blur(6px)}
-.menu-btn svg{width:16px;height:16px}
+.menu-btn{position:fixed;top:14px;right:14px;z-index:60;display:flex;align-items:center;gap:.5rem;padding:.62rem 1.1rem;border-radius:999px;border:2px solid rgba(255,255,255,.85);background:linear-gradient(115deg,#6F22FF,#8D2CFF,#FF1C8E);color:#fff;font-weight:800;font-size:.8rem;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 10px 26px rgba(111,34,255,.45);transform:rotate(-2deg);transition:transform .15s}
+.menu-btn svg{width:15px;height:15px;flex-shrink:0}
+.menu-btn:active{transform:rotate(-2deg) scale(.94)}
 
 /* ── overlay menu (plein écran) ───────────────────────────────────── */
 .menu-overlay{position:fixed;inset:0;z-index:70;background:#121016;opacity:0;pointer-events:none;transition:opacity .3s}
 .menu-overlay.open{opacity:1;pointer-events:auto}
 .menu-panel{position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;transform:scale(1.04);transition:transform .4s cubic-bezier(.16,1,.3,1)}
 .menu-overlay.open .menu-panel{transform:scale(1)}
-.menu-panel::before{content:'';position:fixed;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#6F22FF,#8D2CFF,#FF1C8E);z-index:2}
-.menu-panel::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:overlay;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:3px 3px;z-index:0}
+.menu-panel::before{content:'';position:fixed;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#6F22FF,#8D2CFF,#FF1C8E);z-index:2}
+.menu-panel::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.55;mix-blend-mode:overlay;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:3px 3px;z-index:0}
+.menu-watermark{position:absolute;right:-8vw;bottom:2vh;width:70vw;max-width:420px;opacity:.06;transform:rotate(-8deg);pointer-events:none;z-index:0;filter:brightness(0) invert(1)}
 .menu-head{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.4rem 1rem;position:relative;z-index:1;flex-shrink:0}
 .menu-logo{height:34px;object-fit:contain}
-.menu-close{width:40px;height:40px;border-radius:10px;border:1.5px solid rgba(255,255,255,.25);background:none;color:#fff;font-size:1.1rem;cursor:pointer;flex-shrink:0}
-.menu-eyebrow{font-family:'Inter',sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:#B98BFF;padding:0 1.4rem;margin-top:.6rem;position:relative;z-index:1;flex-shrink:0}
+.menu-close{width:42px;height:42px;border-radius:50%;border:2px solid rgba(255,255,255,.85);background:rgba(255,255,255,.06);color:#fff;font-size:1.1rem;font-weight:700;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
+.menu-close:active{transform:scale(.9);background:rgba(255,255,255,.18)}
+.menu-eyebrow{display:inline-flex;align-items:center;gap:.4rem;font-family:'Inter',sans-serif;font-weight:800;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:rgba(111,34,255,.4);border:1.5px solid rgba(185,139,255,.55);padding:.4rem .85rem;border-radius:999px;margin:.5rem 1.4rem 0;position:relative;z-index:1;flex-shrink:0;transform:rotate(-1.5deg);width:fit-content}
 .menu-links{display:flex;flex-direction:column;justify-content:center;gap:.2rem;padding:1.6rem 1.4rem;position:relative;z-index:1;flex:1;min-height:0}
-.menu-links a{display:flex;align-items:baseline;gap:1rem;padding:1.05rem 0;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.08);opacity:0;transform:translateY(18px);transition:transform .4s ease,opacity .4s ease}
+.menu-links a{display:flex;align-items:center;gap:1rem;padding:1.05rem 0;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.08);opacity:0;transform:translateY(18px);transition:transform .4s ease,opacity .4s ease}
 .menu-overlay.open .menu-links a{opacity:1;transform:translateY(0)}
 .menu-links a:nth-child(1){transition-delay:.08s}
 .menu-links a:nth-child(2){transition-delay:.14s}
@@ -58,10 +61,11 @@ a{display:block;width:100%}
 .menu-links a:nth-child(5){transition-delay:.32s}
 .menu-links a:nth-child(6){transition-delay:.38s}
 .menu-links a:active .menu-label{color:#B98BFF}
-.menu-num{font-family:'Anton',sans-serif;font-size:1.1rem;color:#6F22FF;flex-shrink:0;width:1.6em}
+.menu-num{font-family:'Anton',sans-serif;font-size:1rem;color:#fff;flex-shrink:0;width:2.15rem;height:2.15rem;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6F22FF,#8D2CFF);border-radius:8px;box-shadow:0 4px 12px rgba(111,34,255,.4);transform:rotate(-4deg)}
+.menu-links a:nth-child(even) .menu-num{transform:rotate(4deg)}
 .menu-label{font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(1.8rem,8vw,2.6rem);letter-spacing:.01em;color:#fff;line-height:1.05;transition:color .15s}
 .menu-cta-wrap{padding:1.4rem 1.4rem 2rem;position:relative;z-index:1;flex-shrink:0}
-.menu-cta{padding:1.1rem;border-radius:14px;background:linear-gradient(115deg,#6F22FF,#8D2CFF,#FF1C8E);color:#fff;text-align:center;font-weight:700;text-decoration:none;box-shadow:0 12px 26px rgba(111,34,255,.4);font-family:'Inter',sans-serif;display:block}
+.menu-cta{padding:1.1rem;border-radius:14px;border:2px solid rgba(255,255,255,.15);background:linear-gradient(115deg,#6F22FF,#8D2CFF,#FF1C8E);color:#fff;text-align:center;font-weight:700;text-decoration:none;box-shadow:0 12px 26px rgba(111,34,255,.4);font-family:'Inter',sans-serif;display:block}
 .menu-sub{font-family:'Inter',sans-serif;font-size:.75rem;color:rgba(255,255,255,.4);text-align:center;margin-top:.9rem}
 @media (prefers-reduced-motion:reduce){.menu-links a,.menu-panel{transition:none;opacity:1;transform:none}}
 
@@ -79,18 +83,19 @@ footer a:hover{color:#B98BFF}
 
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
+    <img src="/images/LOGO120.png" alt="" class="menu-watermark">
     <div class="menu-head">
       <img src="/images/LOGO120.png" alt="PULL UP!" class="menu-logo">
       <button class="menu-close" id="menuClose" aria-label="Fermer">✕</button>
     </div>
-    <div class="menu-eyebrow">La playlist, c'est vous</div>
+    <div class="menu-eyebrow">⚡ La playlist, c'est vous</div>
     <nav class="menu-links">
-      <a href="#hero" data-close><span class="menu-num">01</span><span class="menu-label">Accueil</span></a>
-      <a href="#how" data-close><span class="menu-num">02</span><span class="menu-label">Comment ça marche</span></a>
-      <a href="#dj" data-close><span class="menu-num">03</span><span class="menu-label">Espace DJ</span></a>
-      <a href="#orga" data-close><span class="menu-num">04</span><span class="menu-label">Espace Organisateur</span></a>
-      <a href="#everywhere" data-close><span class="menu-num">05</span><span class="menu-label">Utilisé partout</span></a>
-      <a href="#pricing" data-close><span class="menu-num">06</span><span class="menu-label">Tarifs</span></a>
+      <a href="#hero" data-close><span class="menu-num">1</span><span class="menu-label">Accueil</span></a>
+      <a href="#how" data-close><span class="menu-num">2</span><span class="menu-label">Comment ça marche</span></a>
+      <a href="#dj" data-close><span class="menu-num">3</span><span class="menu-label">Espace DJ</span></a>
+      <a href="#orga" data-close><span class="menu-num">4</span><span class="menu-label">Espace Organisateur</span></a>
+      <a href="#everywhere" data-close><span class="menu-num">5</span><span class="menu-label">Utilisé partout</span></a>
+      <a href="#pricing" data-close><span class="menu-num">6</span><span class="menu-label">Tarifs</span></a>
     </nav>
     <div class="menu-cta-wrap">
       <a href="/app" class="menu-cta">Se connecter →</a>
