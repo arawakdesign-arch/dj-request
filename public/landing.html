@@ -74,9 +74,17 @@ a{display:block;width:100%}
 .ov-txt{position:absolute;font-family:'Inter',sans-serif;font-weight:600;color:#121016;font-size:1rem;line-height:1.3}
 .ov-cta{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;gap:.4rem;min-height:44px;border-radius:999px;background:linear-gradient(115deg,#6F22FF,#8D2CFF,#FF1C8E);color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;text-decoration:none;box-shadow:0 8px 20px rgba(111,34,255,.4)}
 
-footer{padding:2.5rem 1.5rem;text-align:center;font-size:.72rem;color:#8A8494;line-height:2;background:#121212}
-footer a{color:rgba(255,255,255,.6);text-decoration:none;display:inline}
-footer a:hover{color:#B98BFF}
+footer{position:relative;padding:3rem 1.5rem 2.2rem;text-align:center;background:#121016;overflow:hidden}
+footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#6F22FF,#8D2CFF,#FF1C8E)}
+.ft-logo{height:44px;object-fit:contain;margin:0 auto 1.4rem}
+.ft-socials{display:flex;justify-content:center;gap:.75rem;margin-bottom:1.8rem}
+.ft-social{width:42px;height:42px;border-radius:50%;border:1.5px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;color:#fff;transition:border-color .15s,transform .15s}
+.ft-social:hover{border-color:#B98BFF;transform:translateY(-2px)}
+.ft-social svg{width:18px;height:18px}
+.ft-legal{font-family:'Inter',sans-serif;font-size:.72rem;color:rgba(255,255,255,.4);display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem .7rem;margin-bottom:1.4rem}
+.ft-legal a{color:rgba(255,255,255,.55);text-decoration:none}
+.ft-legal a:hover{color:#B98BFF}
+.ft-copy{font-family:'Inter',sans-serif;font-size:.68rem;color:rgba(255,255,255,.3);letter-spacing:.02em}
 </style>
 </head>
 <body>
@@ -119,13 +127,25 @@ footer a:hover{color:#B98BFF}
 </div>
 
 <footer>
-  © 2026 PULL UP!<br>
-  <a href="https://www.instagram.com/pullup.live" target="_blank" rel="noopener">Instagram</a> ·
-  <a href="https://www.tiktok.com/@pullup.live" target="_blank" rel="noopener">TikTok</a><br>
-  <a href="/mentions-legales.html" target="_blank">Mentions légales</a> ·
-  <a href="/cgu.html" target="_blank">CGU</a> ·
-  <a href="/confidentialite.html" target="_blank">Politique de confidentialité</a> ·
-  <a href="mailto:arawakdesign@gmail.com">Contact</a>
+  <img src="/images/LOGO120.png" alt="PULL UP!" class="ft-logo">
+  <div class="ft-socials">
+    <a class="ft-social" href="https://www.instagram.com/pullup.live" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+    </a>
+    <a class="ft-social" href="https://www.tiktok.com/@pullup.live" target="_blank" rel="noopener" aria-label="TikTok">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82c-.9-.63-1.5-1.6-1.63-2.72h-3.02v13.1a2.68 2.68 0 1 1-2.68-2.68c.24 0 .48.03.7.09V10.6a5.68 5.68 0 1 0 4.98 5.64V9.2a6.6 6.6 0 0 0 3.87 1.24V7.42c-.8 0-1.58-.24-2.22-.6-.02 0-.02-.01 0 0z"/></svg>
+    </a>
+  </div>
+  <div class="ft-legal">
+    <a href="/mentions-legales.html" target="_blank">Mentions légales</a>
+    <span>·</span>
+    <a href="/cgu.html" target="_blank">CGU</a>
+    <span>·</span>
+    <a href="/confidentialite.html" target="_blank">Politique de confidentialité</a>
+    <span>·</span>
+    <a href="mailto:arawakdesign@gmail.com">Contact</a>
+  </div>
+  <div class="ft-copy">© 2026 PULL UP!</div>
 </footer>
 
 <script>
