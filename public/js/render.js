@@ -7,7 +7,9 @@ function escapeHtml(s) {
 }
 function sorted()     { return Object.entries(proposals).map(([id,p]) => ({id,...p})).sort((a,b) => (b.votes||0) - (a.votes||0)); }
 function totalVotes() { return Object.values(proposals).reduce((s,p) => s + (p.votes||0), 0); }
-function totalVoters(){ const s = new Set(); Object.values(proposals).forEach(p => Object.keys(p.voters||{}).forEach(v => s.add(v))); return s.size; }
+// Le serveur renvoie directement le nombre de votants distincts (jamais leur
+// identité — cf. GET /proposals/:eventId) sur chaque proposition.
+function totalVoters(){ return Object.values(proposals)[0]?.total_voters || 0; }
 function renderAll()  { renderClient(); renderDJ(); renderBS(); updateNP(); updateDJStats(); }
 
 // ── Album art (Deezer via le serveur, iTunes en repli) ─────────────────

@@ -3,6 +3,7 @@ const rateLimit = require('express-rate-limit');
 const supabase  = require('../lib/supabase');
 const { requireAuth, isOrganizer } = require('../middleware/auth');
 const { containsProfanity } = require('../lib/moderation');
+const { isEventClosed } = require('./events');
 
 const ALLOWED_REACTIONS = ['🔥', '👍', '❤️', '💜'];
 const MAX_MESSAGE_LENGTH = 500;
@@ -34,6 +35,7 @@ router.post('/messages', requireAuth, postMessageLimiter, async (req, res) => {
   let { text } = req.body;
   if (text) text = String(text).slice(0, MAX_MESSAGE_LENGTH);
   if (!event_id || (!text && !photo_url)) return res.status(400).json({ error: 'Champs manquants' });
+  if (await isEventClosed(event_id)) return res.status(403).json({ error: 'Cette soirée est terminée.' });
   if (text && containsProfanity(text)) return res.status(400).json({ error: 'Message non autorisé — merci de rester respectueux.' });
 
   const profile   = await supabase.from('user_profiles').select('display_name, photo_url').eq('id', req.user.id).single();
@@ -94,8 +96,9 @@ router.patch('/messages/:eventId/:id/pin', requireAuth, async (req, res) => {
   await supabase.from('messages').update({ pinned: false })
     .eq('event_id', req.params.eventId).eq('pinned', true);
   const { data, error } = await supabase.from('messages')
-    .update({ pinned: true }).eq('id', req.params.id).select().single();
+    .update({ pinned: true }).eq('id', req.params.id).eq('event_id', req.params.eventId).select().maybeSingle();
   if (error) return res.status(500).json({ error: error.message });
+  if (!data) return res.status(404).json({ error: 'Message introuvable' });
   res.json(data);
 });
 
@@ -103,7 +106,8 @@ router.patch('/messages/:eventId/:id/unpin', requireAuth, async (req, res) => {
   const authorized = await isOrganizer(req, req.params.eventId);
   if (!authorized) return res.status(403).json({ error: 'Non autorisé' });
 
-  const { error } = await supabase.from('messages').update({ pinned: false }).eq('id', req.params.id);
+  const { error } = await supabase.from('messages').update({ pinned: false })
+    .eq('id', req.params.id).eq('event_id', req.params.eventId);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
 });

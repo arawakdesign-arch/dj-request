@@ -33,6 +33,9 @@ compte-rendu-claude
 .tmp/
 .cache/
 
+# État local du CLI Supabase (référence de projet lié, etc. — jamais à versionner)
+supabase/.temp/
+
 # Python
 __pycache__/
 *.pyc

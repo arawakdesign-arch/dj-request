@@ -39,7 +39,7 @@ function appendChatMsg(msg, msgKey) {
   const avatar = document.createElement('div');
   avatar.className = 'chat-avatar' + (isDJ ? ' dj' : '');
   if (isDJ) {
-    avatar.style.backgroundImage = "url('/images/dj-avatar.png')";
+    avatar.style.backgroundImage = "url('/images/dj-avatar.webp')";
   } else if (msg.avatarUrl) {
     avatar.style.backgroundImage = `url('${msg.avatarUrl}')`;
   } else {
@@ -202,7 +202,7 @@ function renderPinnedMessage(msg) {
   const d = new Date(msg.created_at);
   const time = d.getHours() + ':' + (d.getMinutes()+'').padStart(2,'0');
   const avatarHTML = isDJ
-    ? `<img class="chat-pinned-av" src="/images/dj-avatar.png" alt="">`
+    ? `<img class="chat-pinned-av" src="/images/dj-avatar.webp" alt="">`
     : msg.user_photo
       ? `<img class="chat-pinned-av" src="${escapeHtml(msg.user_photo)}" alt="">`
       : `<div class="chat-pinned-av" style="background:${avatarColor(msg.user_name)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">${escapeHtml((msg.user_name||'?')[0].toUpperCase())}</div>`;
@@ -227,7 +227,7 @@ function bsChatMsgNode(m) {
 
   const av = document.createElement('div');
   av.className = 'bs2-chat-av';
-  if (isDJ) { av.style.backgroundImage = "url('/images/dj-avatar.png')"; }
+  if (isDJ) { av.style.backgroundImage = "url('/images/dj-avatar.webp')"; }
   else if (m.user_photo) { av.style.backgroundImage = `url('${m.user_photo}')`; }
   else { av.style.background = avatarColor(m.user_name); av.textContent = (m.user_name || '?')[0].toUpperCase(); }
 

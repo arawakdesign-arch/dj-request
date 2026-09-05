@@ -32,7 +32,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc:  ["'self'"],
-      scriptSrc:     ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com"],
+      // 'unsafe-inline' retiré : un <script> injecté (XSS) ne s'exécuterait
+      // plus. Le seul <script> inline légitime (JSON-LD SEO dans index.html)
+      // est autorisé par son hash exact — à recalculer si son contenu change
+      // (voir le commentaire au-dessus de la balise dans index.html).
+      scriptSrc:     ["'self'", "sha256-XWZn3h8/cHcntD2SyhGI2rguiFgYmnBBH7XVqW7BoVc=", "cdn.jsdelivr.net", "cdnjs.cloudflare.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc:      ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
       fontSrc:       ["'self'", "fonts.gstatic.com"],

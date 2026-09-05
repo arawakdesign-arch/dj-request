@@ -147,16 +147,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   </div>
 </footer>
 
-<script>
-const menuBtn = document.getElementById('menuBtn');
-const menuOverlay = document.getElementById('menuOverlay');
-const menuClose = document.getElementById('menuClose');
-const openMenu = () => { menuOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; };
-const closeMenu = () => { menuOverlay.classList.remove('open'); document.body.style.overflow = ''; };
-menuBtn.addEventListener('click', openMenu);
-menuClose.addEventListener('click', closeMenu);
-menuOverlay.addEventListener('click', (e) => { if (e.target === menuOverlay) closeMenu(); });
-document.querySelectorAll('[data-close]').forEach(a => a.addEventListener('click', closeMenu));
-</script>
+<script src="/js/landing.js?v=1"></script>
 </body>
 </html>

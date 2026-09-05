@@ -258,15 +258,20 @@ router.get('/proposals/:eventId', async (req, res) => {
     .order('votes', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
 
-  // Attache la liste des votants par proposition : le frontend (totalVoters()
-  // dans render.js) en a besoin pour le compteur "connectés" de la bannière,
-  // qui restait bloqué à 0 faute de cette donnée.
+  // Le frontend (totalVoters() dans render.js) a seulement besoin du nombre
+  // total de votants distincts pour le compteur "connectés" de la bannière —
+  // jamais leur identité. On renvoyait auparavant l'user_id de chaque votant
+  // par proposition (route publique, sans authentification), ce qui permettait
+  // de reconstituer qui avait voté pour quoi en recoupant avec les profils.
   const { data: allVotes } = await supabase
     .from('votes').select('proposal_id, user_id').eq('event_id', req.params.eventId);
   const votersByProposal = {};
+  const distinctVoters = new Set();
   (allVotes || []).forEach(v => {
-    (votersByProposal[v.proposal_id] ??= {})[v.user_id] = true;
+    (votersByProposal[v.proposal_id] ??= new Set()).add(v.user_id);
+    distinctVoters.add(v.user_id);
   });
+  const totalVoters = distinctVoters.size;
 
   // Nom de la personne qui a proposé chaque morceau — affiché sur la carte
   // dans la liste des propositions côté vote.
@@ -280,7 +285,8 @@ router.get('/proposals/:eventId', async (req, res) => {
 
   const enriched = (data || []).map(p => ({
     ...p,
-    voters: votersByProposal[p.id] || {},
+    voter_count: votersByProposal[p.id]?.size || 0,
+    total_voters: totalVoters,
     proposer_name: proposerNames[p.proposed_by] || null,
   }));
   res.json(enriched);
@@ -353,6 +359,13 @@ router.post('/votes', requireAuth, async (req, res) => {
   if (!proposal_id || !event_id) return res.status(400).json({ error: 'Champs manquants' });
   if (await isEventClosed(event_id)) return res.status(403).json({ error: 'Cette soirée est terminée.' });
 
+  // Vérifie que la proposition appartient bien à cet event_id — sans ça, un
+  // event_id et un proposal_id incohérents (fournis par le client) créeraient
+  // un vote qui contourne la clôture de la vraie soirée du morceau.
+  const { data: prop } = await supabase.from('proposals')
+    .select('id').eq('id', proposal_id).eq('event_id', event_id).maybeSingle();
+  if (!prop) return res.status(404).json({ error: 'Proposition introuvable pour cette soirée' });
+
   const { error } = await supabase.from('votes').insert({
     user_id: req.user.id, proposal_id, event_id,
   });
@@ -417,3 +430,4 @@ router.delete('/events/:id/flyer', requireOrganizer, async (req, res) => {
 module.exports = router;
 module.exports.isClosed = isClosed;
 module.exports.isUpcoming = isUpcoming;
+module.exports.isEventClosed = isEventClosed;
