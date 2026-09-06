@@ -21,10 +21,15 @@ router.put('/now-playing/:eventId', requireOrganizer, async (req, res) => {
 });
 
 // ── Locations ─────────────────────────────────────────────────────────
+// Route publique (pas de session requise) — ne renvoie qu'un décompte par
+// zone, jamais l'identité de qui s'y trouve (user_id/user_name), pour ne
+// pas exposer qui est présent et où à n'importe qui interroge l'API.
 router.get('/locations/:eventId', async (req, res) => {
-  const { data } = await supabase.from('locations').select('*')
+  const { data } = await supabase.from('locations').select('zone')
     .eq('event_id', req.params.eventId).eq('is_active', true);
-  res.json(data || []);
+  const counts = {};
+  (data || []).forEach(({ zone }) => { if (zone) counts[zone] = (counts[zone] || 0) + 1; });
+  res.json(counts);
 });
 
 router.put('/locations/:eventId', requireAuth, async (req, res) => {

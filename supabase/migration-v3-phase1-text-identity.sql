@@ -250,10 +250,10 @@ CREATE POLICY "messages_read"   ON messages FOR SELECT USING (deleted = false);
 CREATE POLICY "messages_insert" ON messages FOR INSERT WITH CHECK (false);
 CREATE POLICY "messages_update" ON messages FOR UPDATE USING (false);
 
--- Reports : lecture publique conservée telle quelle (comportement hérité,
--- non modifié ici — hors périmètre identité, signalé comme risque ouvert),
--- écriture fermée côté client.
-CREATE POLICY "reports_read"   ON reports FOR SELECT USING (true);
+-- Reports : lecture réservée au serveur (service_role) pour l'organisateur —
+-- jamais publique, un signalement identifie qui a signalé qui.
+-- Écriture fermée côté client.
+CREATE POLICY "reports_read"   ON reports FOR SELECT USING (false);
 CREATE POLICY "reports_insert" ON reports FOR INSERT WITH CHECK (false);
 
 -- Now playing : lecture publique, écriture fermée

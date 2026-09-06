@@ -20,6 +20,14 @@ const djRouter       = require('./routes/dj');
 const screenRouter   = require('./routes/screen');
 const orgaRouter     = require('./routes/orga');
 
+// En production, un APP_URL absent ferait retomber CORS sur '*' (n'importe
+// quel site pourrait appeler l'API avec les identifiants d'un utilisateur) —
+// on refuse de démarrer plutôt que de tourner avec cette config dangereuse.
+if (process.env.NODE_ENV === 'production' && !process.env.APP_URL) {
+  console.error('[FATAL] APP_URL absent du .env en production — démarrage interrompu (CORS retomberait sur \'*\').');
+  process.exit(1);
+}
+
 const app  = express();
 const PORT = process.env.PORT || 3000;
 

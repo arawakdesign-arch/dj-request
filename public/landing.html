@@ -89,12 +89,12 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
 </head>
 <body>
 
-<button class="menu-btn" id="menuBtn" aria-label="Menu">
+<button class="menu-btn" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false" aria-controls="menuOverlay">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
   Menu
 </button>
 
-<div class="menu-overlay" id="menuOverlay">
+<div class="menu-overlay" id="menuOverlay" role="dialog" aria-modal="true" aria-label="Menu de navigation">
   <div class="menu-panel">
     <img src="/images/LOGO120.png" alt="" class="menu-watermark">
     <div class="menu-head">
@@ -118,12 +118,12 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
 </div>
 
 <div class="shots">
-  <div id="hero"><a href="/app" aria-label="Rejoindre — La playlist, c'est vous"><img src="/images/site/v10-hero.webp" width="972" height="1665" alt="Pull up — La playlist, c'est vous. Ils proposent leurs sons. Ils votent. Le DJ fait le reste."></a></div>
-  <div id="how"><a href="/app" aria-label="Rejoindre — Comment ça marche"><img src="/images/site/v10-how.webp" width="972" height="1875" alt="Comment ça marche : scanne, vote, pull up."></a></div>
-  <div id="dj" style="position:relative"><a href="/app" aria-label="Rejoindre — Espace DJ"><img src="/images/site/v10-dj.webp" width="972" height="1740" alt="Espace DJ : press kit, page DJ, réseaux."></a><a href="/app?intent=dj-register" aria-label="S'inscrire comme DJ" style="position:absolute;left:5.97%;top:27.18%;width:39.92%;height:4.77%;z-index:2"></a></div>
-  <div id="orga" style="position:relative"><a href="/app" aria-label="Rejoindre — Espace Organisateur"><img src="/images/site/v10-orga.webp" width="972" height="1820" alt="Espace Organisateur : créer un événement, suivre les votes en direct."></a><a href="/app?intent=create-event" aria-label="Créer mon événement" style="position:absolute;left:5.35%;top:23.68%;width:39.92%;height:4.56%;z-index:2"></a></div>
-  <div id="everywhere"><a href="/app" aria-label="Rejoindre — Utilisé partout"><img src="/images/site/v10-everywhere.webp" width="972" height="1650" alt="Utilisé partout : clubs, festivals, mariages, entreprises et plus."></a></div>
-  <div id="pricing"><a href="/app" aria-label="Rejoindre — Tarifs"><img src="/images/site/v4-pricing.webp" width="972" height="1750" alt="Une seule formule, gratuite : tout inclus, sans engagement."></a></div>
+  <div id="hero"><a href="/app" aria-label="Rejoindre — La playlist, c'est vous"><img src="/images/site/v10-hero.webp" width="972" height="1665" alt="Pull up — La playlist, c'est vous. Ils proposent leurs sons. Ils votent. Le DJ fait le reste." loading="eager" fetchpriority="high"></a></div>
+  <div id="how"><a href="/app" aria-label="Rejoindre — Comment ça marche"><img src="/images/site/v10-how.webp" width="972" height="1875" alt="Comment ça marche : scanne, vote, pull up." loading="lazy"></a></div>
+  <div id="dj" style="position:relative"><a href="/app" aria-label="Rejoindre — Espace DJ"><img src="/images/site/v10-dj.webp" width="972" height="1740" alt="Espace DJ : press kit, page DJ, réseaux." loading="lazy"></a><a href="/app?intent=dj-register" aria-label="S'inscrire comme DJ" style="position:absolute;left:5.97%;top:27.18%;width:39.92%;height:4.77%;z-index:2"></a></div>
+  <div id="orga" style="position:relative"><a href="/app" aria-label="Rejoindre — Espace Organisateur"><img src="/images/site/v10-orga.webp" width="972" height="1820" alt="Espace Organisateur : créer un événement, suivre les votes en direct." loading="lazy"></a><a href="/app?intent=create-event" aria-label="Créer mon événement" style="position:absolute;left:5.35%;top:23.68%;width:39.92%;height:4.56%;z-index:2"></a></div>
+  <div id="everywhere"><a href="/app" aria-label="Rejoindre — Utilisé partout"><img src="/images/site/v10-everywhere.webp" width="972" height="1650" alt="Utilisé partout : clubs, festivals, mariages, entreprises et plus." loading="lazy"></a></div>
+  <div id="pricing"><a href="/app" aria-label="Rejoindre — Tarifs"><img src="/images/site/v4-pricing.webp" width="972" height="1750" alt="Une seule formule, gratuite : tout inclus, sans engagement." loading="lazy"></a></div>
 </div>
 
 <footer>
@@ -147,6 +147,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   </div>
 </footer>
 
-<script src="/js/landing.js?v=1"></script>
+<script src="/js/landing.js?v=2"></script>
 </body>
 </html>

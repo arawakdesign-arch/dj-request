@@ -206,7 +206,9 @@ CREATE POLICY "messages_update" ON messages FOR UPDATE TO authenticated USING (a
 
 -- Reports : insert authentifié
 CREATE POLICY "reports_insert" ON reports FOR INSERT TO authenticated WITH CHECK (auth.uid() = reported_by);
-CREATE POLICY "reports_read" ON reports FOR SELECT USING (true);
+-- Lecture réservée au serveur (service_role, contourne RLS) pour l'organisateur —
+-- jamais public : un signalement identifie qui a signalé qui.
+CREATE POLICY "reports_read" ON reports FOR SELECT USING (false);
 
 -- Now playing : lecture publique
 CREATE POLICY "np_read" ON now_playing FOR SELECT USING (true);
