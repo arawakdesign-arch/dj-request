@@ -313,11 +313,6 @@ function _renderOrgaSummary(p) {
     if (p.logo_url) { logo.style.backgroundImage = `url(${p.logo_url})`; logo.textContent = ''; }
     else             { logo.style.backgroundImage = ''; logo.textContent = '🎪'; }
   }
-  const banner = document.getElementById('orga-summary-banner');
-  if (banner) {
-    if (p.banner_url) { banner.style.backgroundImage = `url(${p.banner_url})`; banner.style.display = 'block'; }
-    else               { banner.style.backgroundImage = ''; banner.style.display = 'none'; }
-  }
   const socials = document.getElementById('orga-summary-socials');
   if (socials) {
     const links = [
