@@ -494,6 +494,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 /* ── Assistant "Créer ta soirée" (3 étapes, une seule page qui défile) ── */
 .dj-login-card.cw-mode{max-width:460px;padding:0;overflow:visible}
 .dj-login-card.cw-mode #dj-login-generic-header{display:none}
+#btn-dj-back{display:block}
 .dj-login-card.cw-mode #btn-dj-back{display:none}
 .cw-topbar{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.25rem 0}
 .cw-back{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--ink5);border:none;color:var(--tx);font-size:1rem;cursor:pointer;flex-shrink:0}
@@ -527,7 +528,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .cw-input-ico{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--tx4);pointer-events:none;font-size:.9rem}
 .cw-pwd-toggle{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx4);cursor:pointer;padding:.4rem;font-size:1rem}
 .cw-bottom{position:sticky;bottom:0;background:linear-gradient(0deg,#FFFFFF 65%,rgba(255,255,255,0));padding:1.1rem 1.25rem .3rem;text-align:center;margin-top:-.5rem}
-.cw-continue{width:100%;padding:.95rem;border-radius:1.15rem;border:none;background:var(--grd);color:#fff;font-size:.95rem;font-weight:800;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:.5rem;cursor:pointer}
+.cw-btn-row{display:flex;gap:.6rem}
+.cw-continue{flex:1;padding:.95rem;border-radius:1.15rem;border:none;background:var(--grd);color:#fff;font-size:.95rem;font-weight:800;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:.5rem;cursor:pointer}
+.cw-prev{flex:0 0 auto;padding:.95rem 1.1rem;border-radius:1.15rem;border:1.5px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.95rem;font-weight:700;font-family:'Inter',sans-serif;display:none;align-items:center;justify-content:center;gap:.4rem;cursor:pointer}
 .cw-step-caption{font-size:.72rem;color:var(--tx4);margin-top:.55rem;font-family:'Inter',sans-serif}
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1461,14 +1464,17 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           </div>
 
           <div class="cw-bottom">
-            <button type="button" class="cw-continue" id="btn-dj-create-submit">Continuer <span>→</span></button>
+            <div class="cw-btn-row">
+              <button type="button" class="cw-prev" id="btn-cw-prev" onclick="_cwPrevClick()">← <span>Précédent</span></button>
+              <button type="button" class="cw-continue" id="btn-dj-create-submit">Continuer <span>→</span></button>
+            </div>
             <div class="cw-step-caption" id="cw-step-caption">Étape 1 sur 3</div>
           </div>
         </div>
         <div class="auth-err" id="dj-create-err" style="margin:.5rem 1.15rem 0"></div>
       </div>
 
-      <button id="btn-dj-back" style="display:block;text-align:center;margin-top:.85rem;background:none;border:none;color:var(--tx4);font-size:.8rem;width:100%">← Retour</button>
+      <button id="btn-dj-back" style="text-align:center;margin-top:.85rem;background:none;border:none;color:var(--tx4);font-size:.8rem;width:100%">← Retour</button>
     </div>
   </div>
 </div>
@@ -1976,7 +1982,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=23"></script>
-<script src="/js/app.js?v=87"></script>
+<script src="/js/app.js?v=88"></script>
 <script src="/js/render.js?v=30"></script>
 <script src="/js/chat.js?v=22"></script>
 <script src="/js/auth.js?v=46"></script>

@@ -407,29 +407,18 @@ function viewOrgaPage() {
   window.open(url, '_blank');
 }
 
-// ── Assistant "Crée ta soirée" (3 étapes sur une seule page qui défile) ──
-// Le bandeau 1/2/3 est un simple indicateur de progression pendant le
-// scroll (via IntersectionObserver) — pas un vrai changement d'écran.
+// ── Assistant "Crée ta soirée" (vrai assistant multi-écrans) ───────────
+// Une seule carte (étape) visible à la fois ; le bandeau 1/2/3 reflète
+// l'écran réellement affiché, pas une position de scroll.
 let _cwStep = 1;
-let _cwObserver = null;
 function _cwInitWizard() {
   _cwSetStep(1);
-  if (_cwObserver) _cwObserver.disconnect();
-  const cards = [...document.querySelectorAll('#dj-create-form .cw-card')];
-  const root = document.getElementById('pg-dj-login');
-  if (!cards.length || !root) return;
-  _cwObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const step = parseInt(e.target.dataset.step, 10);
-        if (step) _cwSetStep(step);
-      }
-    });
-  }, { root, threshold: 0.5 });
-  cards.forEach(c => _cwObserver.observe(c));
 }
 function _cwSetStep(step) {
   _cwStep = step;
+  document.querySelectorAll('#dj-create-form .cw-card').forEach(el => {
+    el.style.display = parseInt(el.dataset.step, 10) === step ? 'block' : 'none';
+  });
   document.querySelectorAll('#cw-stepper .cw-step').forEach(el => {
     const s = parseInt(el.dataset.step, 10);
     el.classList.toggle('active', s === step);
@@ -438,16 +427,19 @@ function _cwSetStep(step) {
   document.querySelectorAll('#cw-stepper .cw-step-line').forEach((el, i) => {
     el.classList.toggle('done', i + 1 < step);
   });
+  const prevBtn = document.getElementById('btn-cw-prev');
+  if (prevBtn) prevBtn.style.display = step > 1 ? 'flex' : 'none';
   const btn = document.getElementById('btn-dj-create-submit');
   if (btn) btn.innerHTML = step < 3 ? 'Continuer <span>→</span>' : '🎉 Créer mon événement';
   elt('cw-step-caption', `Étape ${step} sur 3`);
+  document.getElementById('dj-create-form')?.scrollIntoView({ block: 'start' });
 }
 function _cwContinueClick() {
-  if (_cwStep < 3) {
-    document.querySelector(`#dj-create-form .cw-card[data-step="${_cwStep + 1}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } else {
-    djCreateSubmit();
-  }
+  if (_cwStep < 3) _cwSetStep(_cwStep + 1);
+  else djCreateSubmit();
+}
+function _cwPrevClick() {
+  if (_cwStep > 1) _cwSetStep(_cwStep - 1);
 }
 function _toggleCwPwd(btn, inputId) {
   const input = document.getElementById(inputId);
