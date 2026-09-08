@@ -410,9 +410,12 @@ function viewOrgaPage() {
 // Invite un DJ pas encore inscrit à créer son profil — une fois fait,
 // l'organisateur peut le retrouver via "Chercher un DJ inscrit sur Pull up".
 function inviteDjToRegister() {
-  const url = window.location.origin + '/app?intent=dj-register';
-  if (navigator.share) { navigator.share({ title: 'Inscris-toi comme DJ sur PULL UP!', url }).catch(() => {}); return; }
-  if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('🔗 Lien d\'inscription DJ copié !'));
+  const eventName = document.getElementById('dj-create-name')?.value.trim() || ename || 'ma soirée';
+  const orgaName  = document.getElementById('create-orga')?.value.trim() || _orgaProfileCache?.name || 'L\'organisateur';
+  const url  = window.location.origin + '/app?intent=dj-register';
+  const text = `${orgaName} t'invite à t'inscrire sur PULL UP! pour la soirée "${eventName}", pour que les invités puissent échanger avec toi pendant l'événement.`;
+  if (navigator.share) { navigator.share({ title: 'Inscris-toi comme DJ sur PULL UP!', text, url }).catch(() => {}); return; }
+  if (navigator.clipboard) navigator.clipboard.writeText(text + '\n' + url).then(() => toast('🔗 Message d\'invitation copié !'));
 }
 
 async function loadOrgaEventsStats() {
