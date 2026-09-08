@@ -789,6 +789,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .op-stat-n{font-family:'Inter',sans-serif;font-weight:800;font-size:1.7rem;color:#0A0A0C;line-height:1.1}
 .op-stat-l{font-size:.72rem;color:var(--tx3)}
 .op-actions{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
+.op-follow-btn{background:var(--grd);color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;padding:.75rem 1.4rem;border-radius:0;cursor:pointer;flex-shrink:0}
+.op-follow-btn.op-following{background:none;color:#0A0A0C;border:1.5px solid #0A0A0C}
 .op-share-btn{background:#0A0A0C;color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;padding:.75rem 1.4rem;border-radius:0;cursor:pointer;flex-shrink:0}
 .op-socials{display:flex;gap:.9rem;flex-wrap:wrap}
 .op-socials a{font-size:.82rem;font-weight:700;color:#0A0A0C;text-decoration:none;white-space:nowrap}
@@ -1774,6 +1776,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <p id="op-bio" class="op-bio"></p>
         <div class="op-stats" id="op-stats"></div>
         <div class="op-actions">
+          <button class="op-follow-btn" id="op-follow-btn" onclick="toggleFollowOrga()">+ Suivre</button>
           <button class="op-share-btn" onclick="shareOrgaPagePublic()">Partager</button>
           <a id="op-email-btn" href="#" target="_blank" style="display:none">✉️ Contacter</a>
           <div id="op-socials" class="op-socials"></div>
@@ -2016,6 +2019,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/app.js?v=88"></script>
 <script src="/js/render.js?v=30"></script>
 <script src="/js/chat.js?v=22"></script>
-<script src="/js/auth.js?v=53"></script>
+<script src="/js/auth.js?v=54"></script>
 </body>
 </html>

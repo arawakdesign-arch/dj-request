@@ -31,13 +31,47 @@ window.addEventListener('load', async () => {
     return;
   }
 
+  // Suivi d'organisateur en attente : Google/email quittent forcément la page
+  // publique le temps de la connexion (redirection OAuth vers /app) — dès
+  // qu'une session existe au rechargement, on termine l'abonnement puis on
+  // revient sur la page d'origine plutôt que de laisser l'utilisateur sur /app.
+  const pendingFollowSlug = sessionStorage.getItem('djr_pending_follow_slug');
+  if (pendingFollowSlug && _sb) {
+    const { data: { session } } = await _sb.auth.getSession();
+    if (session) {
+      sessionStorage.removeItem('djr_pending_follow_slug');
+      _sbSession = session;
+      try { await api('POST', '/orga/by-slug/' + encodeURIComponent(pendingFollowSlug) + '/follow', {}); } catch(e) {}
+      window.location.href = '/' + pendingFollowSlug;
+      return;
+    }
+  }
+
   // Page publique organisateur (pull-up.live/mon-club) — un seul segment de
   // chemin, aucun des fichiers statiques connus. Si aucune page ne correspond
   // au slug, on laisse tomber sur le flux normal (auth/vote) plutôt que 404.
   const pathSlug = window.location.pathname.replace(/^\/+|\/+$/g, '');
   const reserved = ['', 'app', 'tv', 'cgu.html', 'confidentialite.html'];
   if (pathSlug && !reserved.includes(pathSlug) && !/^(images|js|css|api)\//.test(pathSlug) && !pathSlug.includes('.')) {
-    if (await tryShowOrgaPublicPage(pathSlug)) return;
+    if (await tryShowOrgaPublicPage(pathSlug)) {
+      // Écoute minimale : sans elle, un code SMS saisi depuis cette page
+      // resterait bloqué (verifyOTP() attend l'évènement SIGNED_IN pour
+      // finaliser la connexion) — on évite volontairement la logique vote/
+      // évènement plus bas, qui ne s'applique pas à cette page.
+      if (_sb) {
+        _sb.auth.onAuthStateChange((event, session) => {
+          if (!session) return;
+          _sbSession = session;
+          if (_opPendingFollow) {
+            const slug = _opPendingFollow; _opPendingFollow = null;
+            api('POST', '/orga/by-slug/' + encodeURIComponent(slug) + '/follow', {})
+              .then(() => tryShowOrgaPublicPage(slug))
+              .catch(() => {});
+          }
+        });
+      }
+      return;
+    }
   }
 
   const urlEid = new URLSearchParams(window.location.search).get('event');
@@ -148,12 +182,46 @@ function shareOrgaPagePublic() {
   if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('🔗 Lien copié !'));
 }
 
+let _opCurrentSlug     = null; // slug affiché, pour le bouton Suivre
+let _opPendingFollow   = null; // suivi en attente d'une connexion lancée depuis cette page
+
+function updateFollowBtnUI(following) {
+  const btn = document.getElementById('op-follow-btn');
+  if (!btn) return;
+  btn.textContent = following ? 'Suivi ✓' : '+ Suivre';
+  btn.classList.toggle('op-following', !!following);
+}
+
+// Suivre/ne plus suivre exige un compte (comme voter/discuter ailleurs dans
+// l'app) — sans session, on part vers la connexion et on garde le suivi en
+// mémoire pour le terminer automatiquement au retour.
+async function toggleFollowOrga() {
+  const slug = _opCurrentSlug; if (!slug || !_sb) return;
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) {
+    sessionStorage.setItem('djr_pending_follow_slug', slug);
+    _opPendingFollow = slug;
+    showPage('auth');
+    return;
+  }
+  _sbSession = session;
+  const btn = document.getElementById('op-follow-btn');
+  const nowFollowing = !btn?.classList.contains('op-following');
+  try {
+    await api(nowFollowing ? 'POST' : 'DELETE', '/orga/by-slug/' + encodeURIComponent(slug) + '/follow', nowFollowing ? {} : null);
+    updateFollowBtnUI(nowFollowing);
+    tryShowOrgaPublicPage(slug); // rafraîchit le compteur affiché
+  } catch(e) { toast('⚠️ ' + (e.message || 'Action impossible')); }
+}
+
 async function tryShowOrgaPublicPage(slug) {
   let page;
   try { page = await api('GET', '/orga/by-slug/' + encodeURIComponent(slug)); }
   catch(e) { return false; } // pas de page à cette adresse → flux normal
 
+  _opCurrentSlug = slug;
   showPage('orga-public');
+  updateFollowBtnUI(!!page.following);
   elt('op-name', page.name || slug);
   // Le texte de présentation reste court à côté du titre en gros caractères —
   // tronqué plutôt que de déséquilibrer la mise en page avec un pavé de texte.
@@ -191,8 +259,11 @@ async function tryShowOrgaPublicPage(slug) {
   const upcoming = events.filter(e => e.upcoming);
   const closed   = events.filter(e => e.closed);
 
+  const followersCount = page.followers_count || 0;
   const stats = document.getElementById('op-stats');
-  if (stats) stats.innerHTML = `<div class="op-stat"><span class="op-stat-n">${events.length}</span><span class="op-stat-l">événement${events.length>1?'s':''}</span></div>`;
+  if (stats) stats.innerHTML = `
+    <div class="op-stat"><span class="op-stat-n">${events.length}</span><span class="op-stat-l">événement${events.length>1?'s':''}</span></div>
+    <div class="op-stat"><span class="op-stat-n">${followersCount}</span><span class="op-stat-l">abonné${followersCount>1?'s':''}</span></div>`;
 
   const liveCard = ev => `
     <div class="op-live-wrap">

@@ -217,16 +217,56 @@ router.get('/orga/by-slug/:slug', async (req, res) => {
     .eq('owner_id', page.owner_id).eq('is_active', true)
     .order('created_at', { ascending: false }).limit(20);
 
+  const { count: followersCount } = await supabase
+    .from('organizer_followers').select('*', { count: 'exact', head: true }).eq('organizer_id', page.owner_id);
+
+  // Le visiteur est-il déjà abonné ? Optionnel — un bearer absent ou invalide
+  // n'empêche pas d'afficher la page publique, il donne juste following:false.
+  let following = false;
+  const bearer = req.headers.authorization?.replace('Bearer ', '');
+  if (bearer) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser(bearer);
+      if (user) {
+        const { data: f } = await supabase.from('organizer_followers').select('follower_id')
+          .eq('organizer_id', page.owner_id).eq('follower_id', user.id).maybeSingle();
+        following = !!f;
+      }
+    } catch(e) { /* bearer non-Supabase (JWT organisateur) ou invalide → following reste false */ }
+  }
+
   res.json({
     name: page.name, bio: page.bio, email: page.email, logo_url: bustLogoCache(page.logo_url, page.updated_at),
     banner_url: bustLogoCache(page.banner_url, page.updated_at), website_url: page.website_url,
     instagram_url: page.instagram_url, tiktok_url: page.tiktok_url, facebook_url: page.facebook_url,
+    followers_count: followersCount || 0, following,
     events: (events || []).map(e => {
       const upcoming = isUpcoming(e.scheduled_at);
       const closed   = isClosed(e.created_at, e.scheduled_at, e.ended_at);
       return { ...e, upcoming, closed, status: upcoming ? 'upcoming' : (closed ? 'closed' : 'live') };
     }),
   });
+});
+
+// ── Suivre / ne plus suivre un organisateur ───────────────────────────
+router.post('/orga/by-slug/:slug/follow', requireAuth, async (req, res) => {
+  const { data: page } = await supabase.from('organizer_pages').select('owner_id').eq('slug', req.params.slug).maybeSingle();
+  if (!page) return res.status(404).json({ error: 'Page introuvable' });
+
+  const { error } = await supabase.from('organizer_followers')
+    .upsert({ organizer_id: page.owner_id, follower_id: req.user.id }, { onConflict: 'organizer_id,follower_id' });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ following: true });
+});
+
+router.delete('/orga/by-slug/:slug/follow', requireAuth, async (req, res) => {
+  const { data: page } = await supabase.from('organizer_pages').select('owner_id').eq('slug', req.params.slug).maybeSingle();
+  if (!page) return res.status(404).json({ error: 'Page introuvable' });
+
+  const { error } = await supabase.from('organizer_followers')
+    .delete().eq('organizer_id', page.owner_id).eq('follower_id', req.user.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ following: false });
 });
 
 module.exports = router;
