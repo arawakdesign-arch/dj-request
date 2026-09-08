@@ -538,6 +538,31 @@ function _renderLineup(scope = 'create') {
     </div>`).join('');
 }
 
+// ── Autocomplétion d'adresse (champ "Adresse du club") ────────────────
+let _addressSearchTimer = null;
+function _addressSearch(q, inputId) {
+  clearTimeout(_addressSearchTimer);
+  const box = document.getElementById(inputId + '-results');
+  if (!box) return;
+  q = q.trim();
+  if (q.length < 3) { box.innerHTML = ''; return; }
+  _addressSearchTimer = setTimeout(async () => {
+    try {
+      const results = await api('GET', '/search/address?q=' + encodeURIComponent(q));
+      box.innerHTML = results.length
+        ? results.map(r => `
+          <button onclick='_addressPick("${inputId}", ${JSON.stringify(r.label).replace(/'/g, "&#39;")})' style="display:block;width:100%;padding:.5rem .7rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left;font-size:.8rem;color:var(--tx)">${escapeHtml(r.label)}</button>`).join('')
+        : '';
+    } catch(e) { box.innerHTML = ''; }
+  }, 300);
+}
+function _addressPick(inputId, label) {
+  const input = document.getElementById(inputId);
+  if (input) input.value = label;
+  const box = document.getElementById(inputId + '-results');
+  if (box) box.innerHTML = '';
+}
+
 function _lineupSearch(q, scope = 'create') {
   clearTimeout(_lineupSearchTimer);
   const ids = _LINEUP_IDS[scope];

@@ -76,6 +76,28 @@ router.get('/songs', async (req, res) => {
   }
 });
 
+// ── Autocomplétion d'adresse (API Adresse du gouvernement, gratuite,
+// sans clé, basée sur la BAN) — utilisée pour le champ "Adresse du club"
+// à la création/l'édition d'une soirée.
+router.get('/address', async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q || q.length < 3) return res.json([]);
+  try {
+    const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=5`;
+    const r   = await fetch(url);
+    if (!r.ok) throw new Error('Adresse API ' + r.status);
+    const data = await r.json();
+    const results = (data.features || []).map(f => ({
+      label: f.properties.label,
+      city:  f.properties.city || '',
+    }));
+    res.json(results);
+  } catch(e) {
+    console.warn('[search] API Adresse indisponible :', e.message);
+    res.json([]);
+  }
+});
+
 // ── Recherche DJ sur SoundCloud (line-up) — dégrade en silence : si
 // SoundCloud est indisponible ou bloque, on renvoie juste [] plutôt qu'une
 // erreur, pour que l'organisateur retombe sur l'ajout manuel du lien.

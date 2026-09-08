@@ -1326,7 +1326,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           <div class="fl"><label>Nom de la soirée</label><input class="fi" id="dj-create-name" type="text" placeholder="Ex: Nuit Électrique" maxlength="40"></div>
           <div class="fl"><label>Mot de passe</label><input class="fi" id="dj-create-pwd" type="password" placeholder="••••••••"></div>
           <div class="fl"><label>Nom du club</label><input class="fi" id="create-club" type="text" placeholder="Warehouse 42"></div>
-          <div class="fl"><label>Adresse du club</label><input class="fi" id="create-address" type="text" placeholder="32 Av. Corentin Cariou, Paris 19e"></div>
+          <div class="fl"><label>Adresse du club</label><input class="fi" id="create-address" type="text" placeholder="32 Av. Corentin Cariou, Paris 19e" oninput="_addressSearch(this.value,'create-address')" autocomplete="off"><div id="create-address-results" style="display:flex;flex-direction:column;gap:.3rem;margin-top:.3rem"></div></div>
           <div class="fl"><label>Date de l'événement (vide = déjà en cours)</label><input class="fi" id="create-date" type="datetime-local"></div>
           <div class="fl">
             <label>Horaires</label>
@@ -1470,7 +1470,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">Soirée en cours</div>
       <div class="fl"><label>Nom de l'événement</label><input class="fi" id="settings-ev-name" type="text" placeholder="Nuit Électrique"></div>
       <div class="fl"><label>Nom du club</label><input class="fi" id="settings-club" type="text" placeholder="Warehouse 42"></div>
-      <div class="fl"><label>Adresse</label><input class="fi" id="settings-address" type="text" placeholder="32 Av. Corentin Cariou, Paris 19e"></div>
+      <div class="fl"><label>Adresse</label><input class="fi" id="settings-address" type="text" placeholder="32 Av. Corentin Cariou, Paris 19e" oninput="_addressSearch(this.value,'settings-address')" autocomplete="off"><div id="settings-address-results" style="display:flex;flex-direction:column;gap:.3rem;margin-top:.3rem"></div></div>
       <div class="fl"><label>Date (optionnel — vide = déjà en cours)</label><input class="fi" id="settings-date" type="datetime-local"></div>
       <div class="fl" style="margin-bottom:0">
         <label>Horaires</label>
@@ -1879,7 +1879,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=22"></script>
-<script src="/js/app.js?v=82"></script>
+<script src="/js/app.js?v=83"></script>
 <script src="/js/render.js?v=30"></script>
 <script src="/js/chat.js?v=22"></script>
 <script src="/js/auth.js?v=44"></script>
