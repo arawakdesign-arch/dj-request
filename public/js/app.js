@@ -563,6 +563,38 @@ function _addressPick(inputId, label) {
   if (box) box.innerHTML = '';
 }
 
+// ── Autocomplétion par nom d'établissement (champ "Nom du club") ──────
+// clubInputId/addressInputId : remplit aussi le champ adresse associé
+// quand on choisit un lieu, plutôt que de laisser l'organisateur retaper.
+let _venueSearchTimer = null;
+function _venueSearch(q, clubInputId, addressInputId) {
+  clearTimeout(_venueSearchTimer);
+  const box = document.getElementById(clubInputId + '-results');
+  if (!box) return;
+  q = q.trim();
+  if (q.length < 3) { box.innerHTML = ''; return; }
+  _venueSearchTimer = setTimeout(async () => {
+    try {
+      const results = await api('GET', '/search/venue?q=' + encodeURIComponent(q));
+      box.innerHTML = results.length
+        ? results.map(r => `
+          <button onclick='_venuePick("${clubInputId}","${addressInputId}", ${JSON.stringify(r.name).replace(/'/g, "&#39;")}, ${JSON.stringify(r.address).replace(/'/g, "&#39;")})' style="display:block;width:100%;padding:.5rem .7rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
+            <div style="font-size:.8rem;font-weight:700;color:var(--tx)">${escapeHtml(r.name)}</div>
+            ${r.address ? `<div style="font-size:.68rem;color:var(--tx3)">${escapeHtml(r.address)}</div>` : ''}
+          </button>`).join('')
+        : '';
+    } catch(e) { box.innerHTML = ''; }
+  }, 300);
+}
+function _venuePick(clubInputId, addressInputId, name, address) {
+  const clubInput = document.getElementById(clubInputId);
+  if (clubInput) clubInput.value = name;
+  const addressInput = document.getElementById(addressInputId);
+  if (addressInput && address) addressInput.value = address;
+  const box = document.getElementById(clubInputId + '-results');
+  if (box) box.innerHTML = '';
+}
+
 function _lineupSearch(q, scope = 'create') {
   clearTimeout(_lineupSearchTimer);
   const ids = _LINEUP_IDS[scope];

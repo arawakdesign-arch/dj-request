@@ -98,6 +98,33 @@ router.get('/address', async (req, res) => {
   }
 });
 
+// ── Autocomplétion par nom d'établissement (Photon/OpenStreetMap, gratuit,
+// sans clé) — utilisée pour le champ "Nom du club" : contrairement à l'API
+// Adresse ci-dessus (qui ne connaît que des adresses), Photon indexe aussi
+// les noms de lieux (bars, clubs...) tagués dans OpenStreetMap.
+router.get('/venue', async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q || q.length < 3) return res.json([]);
+  try {
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lang=fr&limit=5`;
+    const r   = await fetch(url);
+    if (!r.ok) throw new Error('Photon ' + r.status);
+    const data = await r.json();
+    const results = (data.features || [])
+      .filter(f => f.properties.name)
+      .map(f => {
+        const p = f.properties;
+        const street = [p.housenumber, p.street].filter(Boolean).join(' ');
+        const address = [street, [p.postcode, p.city].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+        return { name: p.name, address };
+      });
+    res.json(results);
+  } catch(e) {
+    console.warn('[search] Photon indisponible :', e.message);
+    res.json([]);
+  }
+});
+
 // ── Recherche DJ sur SoundCloud (line-up) — dégrade en silence : si
 // SoundCloud est indisponible ou bloque, on renvoie juste [] plutôt qu'une
 // erreur, pour que l'organisateur retombe sur l'ajout manuel du lien.
