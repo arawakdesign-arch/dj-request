@@ -155,19 +155,23 @@ async function tryShowOrgaPublicPage(slug) {
 
   showPage('orga-public');
   elt('op-name', page.name || slug);
-  elt('op-bio', page.bio || '');
+  // Le texte de présentation reste court à côté du titre en gros caractères —
+  // tronqué plutôt que de déséquilibrer la mise en page avec un pavé de texte.
+  const bio = (page.bio || '').trim();
+  elt('op-bio', bio.length > 50 ? bio.slice(0, 50).trimEnd() + '…' : bio);
   const banner = document.getElementById('op-banner');
-  // Pas de banner_url → le dégradé de marque + le mini-logo (fallback déjà
-  // dans le HTML) restent visibles, pas un bloc vide/plat.
+  // Pas de banner_url → le dégradé de marque (fallback déjà dans le HTML)
+  // reste visible, pas un bloc vide/plat.
   if (banner) {
     banner.style.backgroundImage = page.banner_url ? `url(${escapeHtml(page.banner_url)})` : '';
     const fallback = banner.querySelector('.op-visual-fallback');
     if (fallback) fallback.style.display = page.banner_url ? 'none' : 'flex';
   }
+  const logoFrame = document.getElementById('op-logo-frame');
   const logo = document.getElementById('op-logo');
-  if (logo) {
-    if (page.logo_url) { logo.style.backgroundImage = `url(${escapeHtml(page.logo_url)})`; logo.style.backgroundSize = 'cover'; logo.textContent = ''; }
-    else                { logo.style.backgroundImage = ''; logo.textContent = '🎪'; }
+  if (logoFrame && logo) {
+    if (page.logo_url) { logoFrame.style.backgroundImage = `url(${escapeHtml(page.logo_url)})`; logo.textContent = ''; }
+    else                { logoFrame.style.backgroundImage = ''; logo.textContent = '🎪'; }
   }
 
   const emailBtn = document.getElementById('op-email-btn');
