@@ -550,6 +550,12 @@ async function djCreateSubmit() {
     eid = ev.id;
     localStorage.setItem('djr_eid',   eid);
     localStorage.setItem('djr_ename', n);
+    // Mémorise le nom d'organisateur sur le profil (pas seulement sur cette
+    // soirée) pour qu'il soit déjà rempli la prochaine fois — sinon il fallait
+    // le retaper à chaque nouvelle soirée créée.
+    if (orga) {
+      api('PUT', '/orga/profile', { name: orga }).then(p => { _orgaProfileCache = p; }).catch(() => {});
+    }
     // Obtenir le token organizer immédiatement après création pour survivre au refresh
     const authRes = await api('POST', '/events/' + eid + '/auth', { password: p });
     if (authRes.token) saveToken(authRes.token);
