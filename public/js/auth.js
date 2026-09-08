@@ -142,6 +142,12 @@ window.addEventListener('load', async () => {
 });
 
 // ── Page publique organisateur (pull-up.live/slug) ───────────────────
+function shareOrgaPagePublic() {
+  const url = window.location.href;
+  if (navigator.share) { navigator.share({ title: document.getElementById('op-name')?.textContent || 'PULL UP!', url }).catch(() => {}); return; }
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('🔗 Lien copié !'));
+}
+
 async function tryShowOrgaPublicPage(slug) {
   let page;
   try { page = await api('GET', '/orga/by-slug/' + encodeURIComponent(slug)); }
@@ -151,12 +157,16 @@ async function tryShowOrgaPublicPage(slug) {
   elt('op-name', page.name || slug);
   elt('op-bio', page.bio || '');
   const banner = document.getElementById('op-banner');
-  // Pas de banner_url → le dégradé de marque (.op-banner en CSS) reste visible,
-  // pas de bandeau vide/plat.
-  if (banner) banner.style.backgroundImage = page.banner_url ? `url(${escapeHtml(page.banner_url)})` : '';
+  // Pas de banner_url → le dégradé de marque + le mini-logo (fallback déjà
+  // dans le HTML) restent visibles, pas un bloc vide/plat.
+  if (banner) {
+    banner.style.backgroundImage = page.banner_url ? `url(${escapeHtml(page.banner_url)})` : '';
+    const fallback = banner.querySelector('.op-visual-fallback');
+    if (fallback) fallback.style.display = page.banner_url ? 'none' : 'flex';
+  }
   const logo = document.getElementById('op-logo');
   if (logo) {
-    if (page.logo_url) { logo.style.backgroundImage = `url(${escapeHtml(page.logo_url)})`; logo.textContent = ''; }
+    if (page.logo_url) { logo.style.backgroundImage = `url(${escapeHtml(page.logo_url)})`; logo.style.backgroundSize = 'cover'; logo.textContent = ''; }
     else                { logo.style.backgroundImage = ''; logo.textContent = '🎪'; }
   }
 
@@ -169,49 +179,71 @@ async function tryShowOrgaPublicPage(slug) {
   const socials = document.getElementById('op-socials');
   if (socials) {
     const links = [
-      ['🌐', 'Site web',    page.website_url], ['📷', 'Instagram', page.instagram_url],
-      ['🎵', 'TikTok',      page.tiktok_url],   ['📘', 'Facebook',  page.facebook_url],
-    ].filter(([,,url]) => url);
-    socials.innerHTML = links.map(([ico,label,url]) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${ico} ${label}</a>`).join('');
+      ['Site web',  page.website_url], ['Instagram', page.instagram_url],
+      ['TikTok',    page.tiktok_url],  ['Facebook',  page.facebook_url],
+    ].filter(([,url]) => url);
+    socials.innerHTML = links.map(([label,url]) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(label)} ↗</a>`).join('');
   }
-
-  const EV_KIND = {
-    live:     { icon: '🔴', bg: 'rgba(255,59,87,.12)',  color: 'var(--red)' },
-    upcoming: { icon: '📅', bg: 'rgba(111,34,255,.1)',  color: 'var(--vi)' },
-    closed:   { icon: '✓',  bg: 'var(--ink5)',          color: 'var(--tx4)' },
-  };
-  const evCard = (ev, sub, kind) => {
-    const k = EV_KIND[kind];
-    return `
-    <button onclick="window.location.href='/?event=${ev.id}'" class="op-event-card">
-      <div class="op-ev-icon" style="background:${k.bg};color:${k.color}">${k.icon}</div>
-      <div style="min-width:0;flex:1">
-        <div style="font-size:.9rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(ev.name)}</div>
-        <div style="font-size:.72rem;color:var(--tx3);margin-top:2px">${escapeHtml(sub)}</div>
-      </div>
-      <div style="color:var(--vi);font-size:1rem;flex-shrink:0">→</div>
-    </button>`;
-  };
-  const fmtDate = iso => new Date(iso).toLocaleString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
 
   const events   = page.events || [];
   const live     = events.filter(e => !e.upcoming && !e.closed);
   const upcoming = events.filter(e => e.upcoming);
   const closed   = events.filter(e => e.closed);
 
-  const sections = [
-    ['op-sec-live',     'op-events-live',     live,     ev => ev.club_name || '',                                              'live'],
-    ['op-sec-upcoming', 'op-events-upcoming', upcoming, ev => ev.scheduled_at ? fmtDate(ev.scheduled_at) : (ev.club_name || ''), 'upcoming'],
-    ['op-sec-closed',   'op-events-closed',   closed,   ev => ev.club_name || '',                                              'closed'],
-  ];
-  sections.forEach(([secId, listId, list, subFn, kind]) => {
-    const sec  = document.getElementById(secId);
-    const list_ = document.getElementById(listId);
-    if (!sec || !list_) return;
-    if (!list.length) { sec.style.display = 'none'; return; }
-    sec.style.display = 'block';
-    list_.innerHTML = list.map(ev => evCard(ev, subFn(ev), kind)).join('');
-  });
+  elt('op-stats', ''); // reset avant reconstruction ci-dessous
+  const stats = document.getElementById('op-stats');
+  if (stats) stats.innerHTML = `<span class="op-stat-n">${events.length}</span><span class="op-stat-l">événement${events.length>1?'s':''}</span>`;
+
+  const liveCard = ev => `
+    <button onclick="window.location.href='/?event=${ev.id}'" class="op-live-card">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start">
+        <div class="op-live-badge"><span class="op-live-dot"></span>En direct</div>
+        <div class="op-live-name">${escapeHtml(ev.name)}</div>
+        ${ev.club_name ? `<div class="op-live-sub">${escapeHtml(ev.club_name)}</div>` : ''}
+        <div class="op-live-meta">Maintenant</div>
+        <div class="op-live-cta" style="width:100%">Rejoindre la soirée →</div>
+      </div>
+      <div class="op-live-visual" style="${ev.flyer_url ? `background-image:url(${escapeHtml(ev.flyer_url)})` : ''}"></div>
+    </button>`;
+
+  const DATE_COLORS = ['#E9DEFF', '#FFD9EC', '#DDEBFF', '#FFF0D6'];
+  const upRow = (ev, i) => {
+    const d = ev.scheduled_at ? new Date(ev.scheduled_at) : null;
+    const day   = d ? String(d.getDate()).padStart(2,'0') : '—';
+    const month = d ? d.toLocaleDateString('fr-FR', { month: 'short' }).toUpperCase().replace('.','') : '';
+    const bg = DATE_COLORS[i % DATE_COLORS.length];
+    return `
+    <button onclick="window.location.href='/?event=${ev.id}'" class="op-up-row">
+      <div class="op-up-date" style="background:${bg};color:var(--tx)"><b>${day}</b><span>${month}</span></div>
+      <div style="flex:1;min-width:0">
+        <div class="op-up-name">${escapeHtml(ev.name)}</div>
+        ${ev.club_name ? `<div class="op-up-club">${escapeHtml(ev.club_name)}</div>` : ''}
+      </div>
+      <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">→</div>
+    </button>`;
+  };
+  const closedRow = ev => `
+    <button onclick="window.location.href='/?event=${ev.id}'" class="op-up-row">
+      <div class="op-up-date" style="background:var(--ink5);color:var(--tx4)"><b>✓</b></div>
+      <div style="flex:1;min-width:0">
+        <div class="op-up-name">${escapeHtml(ev.name)}</div>
+        ${ev.club_name ? `<div class="op-up-club">${escapeHtml(ev.club_name)}</div>` : ''}
+      </div>
+      <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">→</div>
+    </button>`;
+
+  const secLive = document.getElementById('op-sec-live'), listLive = document.getElementById('op-events-live');
+  if (live.length) { secLive.style.display = 'block'; listLive.innerHTML = live.map(liveCard).join(''); }
+  else secLive.style.display = 'none';
+
+  const secUp = document.getElementById('op-sec-upcoming'), listUp = document.getElementById('op-events-upcoming');
+  if (upcoming.length) { secUp.style.display = 'block'; listUp.innerHTML = upcoming.map(upRow).join(''); }
+  else secUp.style.display = 'none';
+
+  const secClosed = document.getElementById('op-sec-closed'), listClosed = document.getElementById('op-events-closed');
+  if (closed.length) { secClosed.style.display = 'block'; listClosed.innerHTML = closed.map(closedRow).join(''); }
+  else secClosed.style.display = 'none';
+
   return true;
 }
 

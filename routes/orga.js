@@ -211,7 +211,7 @@ router.get('/orga/by-slug/:slug', async (req, res) => {
   if (!page) return res.status(404).json({ error: 'Page introuvable' });
 
   const { data: events } = await supabase
-    .from('events').select('id, name, club_name, created_at, scheduled_at, ended_at, is_active')
+    .from('events').select('id, name, club_name, created_at, scheduled_at, ended_at, is_active, flyer_url')
     .eq('owner_id', page.owner_id).eq('is_active', true)
     .order('created_at', { ascending: false }).limit(20);
 
