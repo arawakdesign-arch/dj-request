@@ -16,19 +16,31 @@ const _configReady = _initSupabase();
 
 // ── Fetch helper vers le serveur Node.js ─────────────────────────────
 async function api(method, path, body, { dj, token } = {}) {
-  const headers = { 'Content-Type': 'application/json' };
   // _authToken est un JWT organisateur lié à un event_id (pas une identité
   // personnelle) — ne jamais l'utiliser pour une action "normale" (voter,
   // discuter, lister ses soirées...), sinon le serveur résout l'id de
   // l'événement à la place du vrai compte de la personne.
-  const bearer = token || (dj ? (_authToken || _sbSession?.access_token) : _sbSession?.access_token);
-  if (bearer) headers['Authorization'] = 'Bearer ' + bearer;
-  if (dj && _djPassword) headers['x-organizer-password'] = _djPassword;
-  const r = await fetch('/api' + path, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  const usesSupabaseBearer = !token && !(dj && _authToken);
+  const doRequest = () => {
+    const headers = { 'Content-Type': 'application/json' };
+    const bearer = token || (dj ? (_authToken || _sbSession?.access_token) : _sbSession?.access_token);
+    if (bearer) headers['Authorization'] = 'Bearer ' + bearer;
+    if (dj && _djPassword) headers['x-organizer-password'] = _djPassword;
+    return fetch('/api' + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  };
+
+  let r = await doRequest();
+  // Le token Supabase a pu expirer pendant que l'onglet était en arrière-plan
+  // (le rafraîchissement auto du SDK est mis en pause par le navigateur, ex :
+  // téléphone verrouillé pendant qu'on remplissait un long formulaire) — on
+  // tente un rafraîchissement explicite puis on rejoue la requête une fois,
+  // plutôt que de faire perdre le formulaire avec un "Token invalide".
+  if (r.status === 401 && usesSupabaseBearer && _sb && _sbSession) {
+    try {
+      const { data, error } = await _sb.auth.refreshSession();
+      if (!error && data?.session) { _sbSession = data.session; r = await doRequest(); }
+    } catch(e) {}
+  }
   if (!r.ok) {
     const e = await r.json().catch(() => ({}));
     const err = new Error(e.error || 'Erreur');
