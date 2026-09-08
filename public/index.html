@@ -1351,6 +1351,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
               <label style="font-size:.72rem;font-weight:600;color:var(--tx3);display:block;margin-bottom:.4rem">DJ pas encore inscrit sur Pull up ?</label>
               <input class="fi" id="create-lineup-sc-search" type="text" placeholder="🔍 Chercher sur SoundCloud…" style="margin-bottom:.4rem" oninput="_lineupScSearch(this.value)" autocomplete="off">
               <div id="create-lineup-sc-results" style="display:flex;flex-direction:column;gap:.4rem"></div>
+              <button type="button" onclick="inviteDjToRegister()" style="width:100%;padding:.6rem;border-radius:.85rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:600;font-family:Inter,sans-serif;margin-top:.5rem">📤 Inviter ce DJ à s'inscrire sur Pull up</button>
             </div>
           </div>
 
@@ -1495,6 +1496,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           <label style="font-size:.72rem;font-weight:600;color:var(--tx3);display:block;margin-bottom:.4rem">DJ pas encore inscrit sur Pull up ?</label>
           <input class="fi" id="lineup-sc-search" type="text" placeholder="🔍 Chercher sur SoundCloud…" style="margin-bottom:.4rem" oninput="_lineupScSearch(this.value,'settings')" autocomplete="off">
           <div id="lineup-sc-results" style="display:flex;flex-direction:column;gap:.4rem"></div>
+          <button type="button" onclick="inviteDjToRegister()" style="width:100%;padding:.6rem;border-radius:.85rem;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);font-size:.78rem;font-weight:600;font-family:Inter,sans-serif;margin-top:.5rem">📤 Inviter ce DJ à s'inscrire sur Pull up</button>
         </div>
       </div>
 
@@ -1879,7 +1881,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=22"></script>
-<script src="/js/app.js?v=84"></script>
+<script src="/js/app.js?v=85"></script>
 <script src="/js/render.js?v=30"></script>
 <script src="/js/chat.js?v=22"></script>
 <script src="/js/auth.js?v=45"></script>

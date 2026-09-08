@@ -407,6 +407,14 @@ function viewOrgaPage() {
   window.open(url, '_blank');
 }
 
+// Invite un DJ pas encore inscrit à créer son profil — une fois fait,
+// l'organisateur peut le retrouver via "Chercher un DJ inscrit sur Pull up".
+function inviteDjToRegister() {
+  const url = window.location.origin + '/app?intent=dj-register';
+  if (navigator.share) { navigator.share({ title: 'Inscris-toi comme DJ sur PULL UP!', url }).catch(() => {}); return; }
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('🔗 Lien d\'inscription DJ copié !'));
+}
+
 async function loadOrgaEventsStats() {
   const list = document.getElementById('orga-events-list'); if (!list) return;
   try {
