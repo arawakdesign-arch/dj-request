@@ -785,30 +785,30 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .op-hero{display:flex;gap:.85rem;padding:1.1rem 1.15rem .9rem;align-items:stretch}
 .op-hero-text{flex:1.2;min-width:0}
 .op-eyebrow{font-family:'Inter',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:.5rem}
-.op-name{font-family:'Anton',sans-serif;font-weight:400;font-size:2.5rem;line-height:.92;letter-spacing:0;color:#0A0A0C;text-wrap:balance;margin-bottom:.65rem;text-transform:uppercase}
+.op-name{font-family:'Anton',sans-serif;font-weight:400;font-size:min(3.2rem,11vw);line-height:.9;letter-spacing:0;color:#0A0A0C;text-wrap:balance;margin-bottom:.65rem;text-transform:uppercase}
 .op-bio{font-size:.86rem;color:var(--tx2);line-height:1.5;margin-bottom:1.1rem}
 .op-stats{display:flex;align-items:baseline;gap:.9rem;margin-bottom:1.2rem}
 .op-stats .op-stat{display:flex;flex-direction:column}
 .op-stats .op-stat + .op-stat{padding-left:.9rem;border-left:1px solid var(--bdr)}
-.op-stat-n{font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;color:#0A0A0C;line-height:1.1}
+.op-stat-n{font-family:'Inter',sans-serif;font-weight:800;font-size:1.7rem;color:#0A0A0C;line-height:1.1}
 .op-stat-l{font-size:.72rem;color:var(--tx3)}
 .op-actions{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
 .op-share-btn{background:#0A0A0C;color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;padding:.75rem 1.4rem;border-radius:.9rem;cursor:pointer;flex-shrink:0}
 .op-socials{display:flex;gap:.9rem;flex-wrap:wrap}
 .op-socials a{font-size:.82rem;font-weight:700;color:#0A0A0C;text-decoration:none;white-space:nowrap}
-.op-visual{flex:.95;border-radius:1.4rem;background:linear-gradient(165deg,#6F22FF 0%,#7B3FF2 55%,#8D2CFF 100%);position:relative;overflow:hidden;min-height:180px;display:flex;background-size:cover;background-position:center}
+.op-visual{flex:.95;border-radius:1.4rem;background:linear-gradient(165deg,#6F22FF 0%,#7B3FF2 55%,#8D2CFF 100%);position:relative;overflow:hidden;min-height:230px;display:flex;background-size:cover;background-position:center}
 .op-visual-fallback{position:absolute;inset:0;padding:.9rem;display:flex;flex-direction:column;justify-content:space-between;font-family:'Inter',sans-serif;font-weight:800;font-size:.62rem;letter-spacing:.08em;color:rgba(255,255,255,.92);line-height:1.75;text-transform:uppercase}
 
 .op-section{padding:.8rem 1.15rem 1.4rem}
 .op-section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.85rem;padding-bottom:.7rem;border-bottom:1.5px solid #0A0A0C}
-.op-section-head span{font-family:'Anton',sans-serif;font-weight:400;font-size:1.15rem;letter-spacing:.01em;text-transform:uppercase;color:#0A0A0C}
+.op-section-head span{font-family:'Anton',sans-serif;font-weight:400;font-size:1.4rem;letter-spacing:.01em;text-transform:uppercase;color:#0A0A0C}
 
 .op-live-wrap{display:flex;gap:.7rem;align-items:stretch}
 .op-live-card{flex:1.25;display:flex;flex-direction:column;align-items:flex-start;gap:.35rem;background:#FBE4EF;border-radius:1.3rem;padding:1rem;text-align:left;border:none;cursor:pointer}
 .op-live-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--pk);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.32rem .65rem;border-radius:.6rem;margin-bottom:.3rem}
 .op-live-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:opLivePulse 1.6s infinite}
 @keyframes opLivePulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
-.op-live-name{font-family:'Anton',sans-serif;font-weight:400;font-size:1.35rem;line-height:1.02;color:#0A0A0C;text-transform:uppercase}
+.op-live-name{font-family:'Anton',sans-serif;font-weight:400;font-size:1.65rem;line-height:.98;color:#0A0A0C;text-transform:uppercase}
 .op-live-sub{font-size:.78rem;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.02em}
 .op-live-meta{font-size:.72rem;font-weight:700;color:var(--pk2)}
 .op-live-cta{background:var(--grd);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.02em;padding:.75rem .9rem;border-radius:.85rem;text-align:center;display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;text-transform:uppercase;margin-top:.3rem}
@@ -816,10 +816,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 .op-up-row{display:flex;align-items:center;gap:.9rem;width:100%;border:none;background:none;text-align:left;cursor:pointer;padding:.75rem 0;border-bottom:1px solid var(--bdr)}
 .op-up-row:last-child{border-bottom:none}
-.op-up-date{width:60px;height:60px;border-radius:.9rem;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Anton',sans-serif;text-transform:uppercase}
-.op-up-date b{font-size:1.5rem;font-weight:400;line-height:1}
+.op-up-date{width:68px;height:68px;border-radius:1rem;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Anton',sans-serif;text-transform:uppercase}
+.op-up-date b{font-size:1.8rem;font-weight:400;line-height:1}
 .op-up-date span{font-size:.62rem;font-weight:400;letter-spacing:.03em;margin-top:1px}
-.op-up-name{font-family:'Anton',sans-serif;font-weight:400;font-size:1.15rem;color:#0A0A0C;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}
+.op-up-name{font-family:'Anton',sans-serif;font-weight:400;font-size:1.4rem;color:#0A0A0C;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.05}
 .op-up-club{font-size:.76rem;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.02em;margin-top:2px}
 
 .op-bottom-cta{display:flex;align-items:center;gap:.9rem;background:var(--grd);color:#fff;text-decoration:none;padding:1.3rem 1.15rem;margin-top:.4rem}
