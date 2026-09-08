@@ -190,21 +190,20 @@ async function tryShowOrgaPublicPage(slug) {
   const upcoming = events.filter(e => e.upcoming);
   const closed   = events.filter(e => e.closed);
 
-  elt('op-stats', ''); // reset avant reconstruction ci-dessous
   const stats = document.getElementById('op-stats');
-  if (stats) stats.innerHTML = `<span class="op-stat-n">${events.length}</span><span class="op-stat-l">événement${events.length>1?'s':''}</span>`;
+  if (stats) stats.innerHTML = `<div class="op-stat"><span class="op-stat-n">${events.length}</span><span class="op-stat-l">événement${events.length>1?'s':''}</span></div>`;
 
   const liveCard = ev => `
-    <button onclick="window.location.href='/?event=${ev.id}'" class="op-live-card">
-      <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start">
+    <div class="op-live-wrap">
+      <button onclick="window.location.href='/?event=${ev.id}'" class="op-live-card">
         <div class="op-live-badge"><span class="op-live-dot"></span>En direct</div>
         <div class="op-live-name">${escapeHtml(ev.name)}</div>
         ${ev.club_name ? `<div class="op-live-sub">${escapeHtml(ev.club_name)}</div>` : ''}
         <div class="op-live-meta">Maintenant</div>
-        <div class="op-live-cta" style="width:100%">Rejoindre la soirée →</div>
-      </div>
+        <div class="op-live-cta">Rejoindre la soirée →</div>
+      </button>
       <div class="op-live-visual" style="${ev.flyer_url ? `background-image:url(${escapeHtml(ev.flyer_url)})` : ''}"></div>
-    </button>`;
+    </div>`;
 
   const DATE_COLORS = ['#E9DEFF', '#FFD9EC', '#DDEBFF', '#FFF0D6'];
   const upRow = (ev, i) => {
