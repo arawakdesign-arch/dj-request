@@ -433,6 +433,7 @@ async function _djCreateSyncGoogleState() {
   document.getElementById('dj-create-google').style.display   = authed ? 'none' : 'block';
   document.getElementById('dj-create-existing').style.display = 'none';
   document.getElementById('dj-create-form').style.display     = 'none';
+  document.querySelector('.dj-login-card')?.classList.remove('cw-mode');
   if (!authed) return;
 
   try {
@@ -455,6 +456,8 @@ async function _djCreateSyncGoogleState() {
     if (orgaField && !orgaField.value) orgaField.value = _orgaProfileCache?.name || '';
   } catch(e) {}
   document.getElementById('dj-create-form').style.display = 'block';
+  document.querySelector('.dj-login-card')?.classList.add('cw-mode');
+  if (typeof _cwInitWizard === 'function') _cwInitWizard();
 }
 function _djLoginBack() {
   const onSubView = document.getElementById('dj-join-form').style.display   === 'block'

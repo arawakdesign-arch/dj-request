@@ -407,6 +407,56 @@ function viewOrgaPage() {
   window.open(url, '_blank');
 }
 
+// ── Assistant "Crée ta soirée" (3 étapes sur une seule page qui défile) ──
+// Le bandeau 1/2/3 est un simple indicateur de progression pendant le
+// scroll (via IntersectionObserver) — pas un vrai changement d'écran.
+let _cwStep = 1;
+let _cwObserver = null;
+function _cwInitWizard() {
+  _cwSetStep(1);
+  if (_cwObserver) _cwObserver.disconnect();
+  const cards = [...document.querySelectorAll('#dj-create-form .cw-card')];
+  const root = document.getElementById('pg-dj-login');
+  if (!cards.length || !root) return;
+  _cwObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const step = parseInt(e.target.dataset.step, 10);
+        if (step) _cwSetStep(step);
+      }
+    });
+  }, { root, threshold: 0.5 });
+  cards.forEach(c => _cwObserver.observe(c));
+}
+function _cwSetStep(step) {
+  _cwStep = step;
+  document.querySelectorAll('#cw-stepper .cw-step').forEach(el => {
+    const s = parseInt(el.dataset.step, 10);
+    el.classList.toggle('active', s === step);
+    el.classList.toggle('done', s < step);
+  });
+  document.querySelectorAll('#cw-stepper .cw-step-line').forEach((el, i) => {
+    el.classList.toggle('done', i + 1 < step);
+  });
+  const btn = document.getElementById('btn-dj-create-submit');
+  if (btn) btn.innerHTML = step < 3 ? 'Continuer <span>→</span>' : '🎉 Créer mon événement';
+  elt('cw-step-caption', `Étape ${step} sur 3`);
+}
+function _cwContinueClick() {
+  if (_cwStep < 3) {
+    document.querySelector(`#dj-create-form .cw-card[data-step="${_cwStep + 1}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    djCreateSubmit();
+  }
+}
+function _toggleCwPwd(btn, inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁️';
+}
+
 // Invite un DJ pas encore inscrit à créer son profil — une fois fait,
 // l'organisateur peut le retrouver via "Chercher un DJ inscrit sur Pull up".
 function inviteDjToRegister() {
@@ -1635,7 +1685,7 @@ document.addEventListener('DOMContentLoaded', () => {
   on('btn-dj-choice-create', _djLoginShowCreate);
   on('btn-dj-login',         djJoin);
   on('btn-dj-create-google', _djCreateSignInGoogle);
-  on('btn-dj-create-submit', djCreateSubmit);
+  on('btn-dj-create-submit', _cwContinueClick);
   on('btn-dj-back',          _djLoginBack);
 
   // Modal Proposer
