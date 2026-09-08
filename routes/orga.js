@@ -79,7 +79,8 @@ router.post('/orga/profile/logo', requireAuth, upload.single('logo'), async (req
 
   const { data: { publicUrl } } = supabase.storage.from('orga-logos').getPublicUrl(fileName);
   const updatedAt = new Date().toISOString();
-  await supabase.from('organizer_pages').upsert({ owner_id: req.user.id, logo_url: publicUrl, updated_at: updatedAt });
+  const { error: dbError } = await supabase.from('organizer_pages').upsert({ owner_id: req.user.id, logo_url: publicUrl, updated_at: updatedAt });
+  if (dbError) return res.status(500).json({ error: dbError.message });
   res.json({ url: bustLogoCache(publicUrl, updatedAt) });
 });
 
@@ -101,7 +102,8 @@ router.post('/orga/profile/banner', requireAuth, upload.single('banner'), async 
 
   const { data: { publicUrl } } = supabase.storage.from('orga-logos').getPublicUrl(fileName);
   const updatedAt = new Date().toISOString();
-  await supabase.from('organizer_pages').upsert({ owner_id: req.user.id, banner_url: publicUrl, updated_at: updatedAt });
+  const { error: dbError } = await supabase.from('organizer_pages').upsert({ owner_id: req.user.id, banner_url: publicUrl, updated_at: updatedAt });
+  if (dbError) return res.status(500).json({ error: dbError.message });
   res.json({ url: bustLogoCache(publicUrl, updatedAt) });
 });
 
