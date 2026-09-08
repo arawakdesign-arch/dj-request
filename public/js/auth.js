@@ -158,7 +158,7 @@ async function tryShowOrgaPublicPage(slug) {
   // Le texte de présentation reste court à côté du titre en gros caractères —
   // tronqué plutôt que de déséquilibrer la mise en page avec un pavé de texte.
   const bio = (page.bio || '').trim();
-  elt('op-bio', bio.length > 50 ? bio.slice(0, 50).trimEnd() + '…' : bio);
+  elt('op-bio', bio.length > 300 ? bio.slice(0, 300).trimEnd() + '…' : bio);
   const banner = document.getElementById('op-banner');
   // Pas de banner_url → le dégradé de marque (fallback déjà dans le HTML)
   // reste visible, pas un bloc vide/plat.
