@@ -45,7 +45,10 @@ router.put('/orga/profile', requireAuth, async (req, res) => {
   if (tiktok_url   !== undefined) updates.tiktok_url   = tiktok_url;
   if (facebook_url !== undefined) updates.facebook_url = facebook_url;
 
-  if (slug !== undefined) {
+  // Une chaîne vide veut dire "champ pas encore rempli", pas "je veux une URL
+  // vide" — sinon enregistrer juste le nom (par exemple) avant d'avoir choisi
+  // une adresse de page bloquait toute la sauvegarde avec "URL invalide".
+  if (slug !== undefined && slug !== '') {
     const clean = slugify(slug);
     if (!clean) return res.status(400).json({ error: 'URL invalide' });
     const { data: taken } = await supabase.from('organizer_pages').select('owner_id').eq('slug', clean).maybeSingle();
