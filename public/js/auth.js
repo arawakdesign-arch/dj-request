@@ -160,12 +160,9 @@ async function tryShowOrgaPublicPage(slug) {
   const bio = (page.bio || '').trim();
   elt('op-bio', bio.length > 100 ? bio.slice(0, 100).trimEnd() + '…' : bio);
   const banner = document.getElementById('op-banner');
-  // Pas de banner_url → le dégradé de marque (fallback déjà dans le HTML)
-  // reste visible, pas un bloc vide/plat.
+  // Pas de banner_url → le dégradé de marque reste visible tel quel.
   if (banner) {
     banner.style.backgroundImage = page.banner_url ? `url(${escapeHtml(page.banner_url)})` : '';
-    const fallback = banner.querySelector('.op-visual-fallback');
-    if (fallback) fallback.style.display = page.banner_url ? 'none' : 'flex';
   }
   const logoFrame = document.getElementById('op-logo-frame');
   const logo = document.getElementById('op-logo');
