@@ -380,7 +380,7 @@ function generateQR(activeEid) {
     el.innerHTML = '';
     try { new QRCode(el, {text: url, width: sz, height: sz, colorDark:'#000', colorLight:'#fff'}); } catch(e) {}
   });
-  elt('dj-qr-url', url); elt('dj-qr-evname', ename); elt('bs-ev-lbl', ename);
+  elt('dj-qr-url', ename); elt('bs-ev-lbl', ename);
 }
 
 function openQRModal() {
