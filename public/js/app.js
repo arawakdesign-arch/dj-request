@@ -207,13 +207,10 @@ function djReject(id) {
 }
 function djLogout() {
   djLoggedIn = false;
-  eid = null;
-  _djPassword = null;
-  clearToken();
-  localStorage.removeItem('djr_eid');
-  localStorage.removeItem('djr_ename');
-  localStorage.removeItem('djr_lineup_event');
-  window.location.href = '/';
+  document.getElementById('nav-dj').onclick = () => navTo('presskit');
+  document.querySelector('#nav-dj .nav-tab-ico').textContent = '🎧';
+  document.querySelector('#nav-dj .nav-tab-lbl').textContent = "DJ's";
+  showPage('client');
 }
 async function createNewEvent(n) {
   // Vider l'event courant pour repartir d'un login propre
