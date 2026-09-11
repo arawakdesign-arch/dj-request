@@ -82,9 +82,19 @@ async function refreshProposals(evId) {
   loadVoteRate(evId);
 }
 
+// Reflète l'état réel des canaux Realtime — le polling de secours ci-dessous
+// ne doit tourner que quand ils ne sont PAS connectés, sinon on double
+// inutilement chaque requête pour tout le monde alors que le Realtime suffit
+// déjà (il pousse les mises à jour en moins d'une seconde).
+let _proposalsChannelStatus = null;
+let _npChannelStatus        = null;
+
 function subscribeToEvent(evId) {
   console.log('[pullup] subscribeToEvent() evId=', evId);
   if (!_sb) { console.warn('[pullup] subscribeToEvent: Supabase non initialisé'); return; }
+  _proposalsChannelStatus = 'CONNECTING';
+  _npChannelStatus        = 'CONNECTING';
+
   _sb.channel('proposals:' + evId)
     .on('postgres_changes', {event:'*', schema:'public', table:'proposals', filter:'event_id=eq.'+evId},
       async (payload) => {
@@ -92,7 +102,7 @@ function subscribeToEvent(evId) {
         await refreshProposals(evId);
         console.log('[pullup] Realtime proposals rechargés');
       })
-    .subscribe(status => console.log('[pullup] Canal proposals:' + evId, '→', status));
+    .subscribe(status => { _proposalsChannelStatus = status; console.log('[pullup] Canal proposals:' + evId, '→', status); });
 
   let _messagesEverSubscribed = false;
   _sb.channel('messages:' + evId)
@@ -112,7 +122,7 @@ function subscribeToEvent(evId) {
   _sb.channel('np:' + evId)
     .on('postgres_changes', {event:'UPDATE', schema:'public', table:'now_playing', filter:'event_id=eq.'+evId},
       p => { nowPlaying = {t: p.new.title, a: p.new.artist, coverUrl: p.new.cover_url || null, by: p.new.proposer_name || null}; updateNP(); })
-    .subscribe(status => console.log('[pullup] Canal np:' + evId, '→', status));
+    .subscribe(status => { _npChannelStatus = status; console.log('[pullup] Canal np:' + evId, '→', status); });
 }
 
 // ── Chargement d'un événement ─────────────────────────────────────────
@@ -194,9 +204,14 @@ async function loadVoteRate(evId) {
 // Le canal Realtime peut se couper sans se resouscrire (verrouillage
 // téléphone, changement de réseau) — ce polling garantit que les votes
 // finissent toujours par apparaître, même sans recharger la page.
+// Ne tourne que si le canal Realtime n'est PAS connecté : quand il l'est
+// (cas normal), les votes arrivent déjà en moins d'une seconde par ce
+// canal — poller en plus ne fait que multiplier la charge serveur pour
+// rien, sans rien apporter à la réactivité perçue.
 setInterval(() => {
   if (document.visibilityState !== 'visible') return;
   if (!isValidUuid(eid)) return;
+  if (_proposalsChannelStatus === 'SUBSCRIBED') return;
   refreshProposals(eid).catch(() => {});
 }, 6000);
 
@@ -216,6 +231,7 @@ async function refreshNowPlaying(evId) {
 setInterval(() => {
   if (document.visibilityState !== 'visible') return;
   if (!isValidUuid(eid)) return;
+  if (_npChannelStatus === 'SUBSCRIBED') return;
   refreshNowPlaying(eid);
 }, 6000);
 
