@@ -4,6 +4,7 @@ const supabase  = require('../lib/supabase');
 const { requireAuth, isOrganizer } = require('../middleware/auth');
 const { containsProfanity } = require('../lib/moderation');
 const { isEventClosed } = require('./events');
+const { storagePathFromUrl } = require('../lib/account');
 
 const ALLOWED_REACTIONS = ['🔥', '👍', '❤️', '💜'];
 const MAX_MESSAGE_LENGTH = 500;
@@ -50,14 +51,21 @@ router.post('/messages', requireAuth, postMessageLimiter, async (req, res) => {
 });
 
 router.delete('/messages/:id', requireAuth, async (req, res) => {
-  const { data: msg } = await supabase.from('messages').select('user_id, event_id').eq('id', req.params.id).single();
+  const { data: msg } = await supabase.from('messages').select('user_id, event_id, photo_url').eq('id', req.params.id).single();
   if (!msg) return res.status(404).json({ error: 'Message introuvable' });
 
   if (msg.user_id !== req.user.id) {
     const authorized = await isOrganizer(req, msg.event_id);
     if (!authorized) return res.status(403).json({ error: 'Non autorisé' });
   }
-  const { error } = await supabase.from('messages').update({ deleted: true }).eq('id', req.params.id);
+  // "Supprimer" efface vraiment le contenu (texte + photo), pas seulement un
+  // drapeau deleted=true qui le laissait consultable en base indéfiniment.
+  if (msg.photo_url) {
+    const filePath = storagePathFromUrl('chat-photos', msg.photo_url);
+    if (filePath) await supabase.storage.from('chat-photos').remove([filePath]).catch(() => {});
+  }
+  const { error } = await supabase.from('messages')
+    .update({ deleted: true, text: null, photo_url: null }).eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
 });

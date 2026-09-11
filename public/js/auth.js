@@ -377,8 +377,16 @@ function afterLogin() {
   }, 600);
 }
 
+// ── Confirmation d'âge (16 ans minimum, cf. CGU/confidentialité) ───────
+function ageConfirmed() {
+  const chk = document.getElementById('chk-age-confirm');
+  if (chk && !chk.checked) { setErr('Merci de confirmer que tu as 16 ans ou plus.'); return false; }
+  return true;
+}
+
 // ── Google OAuth ──────────────────────────────────────────────────────
 async function signInGoogle() {
+  if (!ageConfirmed()) return;
   if (!_sb) { setErr('Service d\'authentification non disponible.'); return; }
   try {
     // Préserver l'event ID avant la redirection OAuth (page rechargée)
@@ -398,6 +406,7 @@ async function signInGoogle() {
 
 // ── Email — Supabase Magic Link natif (aucun fournisseur externe requis) ──
 async function sendEmailLink() {
+  if (!ageConfirmed()) return;
   if (!_sb) { setErr('Service d\'authentification non disponible.'); return; }
   const inp   = document.getElementById('email-inp');
   const email = inp.value.trim();
@@ -428,6 +437,7 @@ function toE164(cc, raw) {
 }
 
 async function sendSMS() {
+  if (!ageConfirmed()) return;
   if (!_sb) { setErr('Service d\'authentification non disponible.'); return; }
   const cc  = document.getElementById('cc').value;
   const raw = document.getElementById('phone-inp').value;

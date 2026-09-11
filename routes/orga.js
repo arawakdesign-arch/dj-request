@@ -171,14 +171,17 @@ async function collectClients(ownerId) {
   if (!userIds.length) return [];
 
   const { data: profiles } = await supabase
-    .from('user_profiles').select('id, display_name, email, phone').in('id', userIds);
+    .from('user_profiles').select('id, display_name, email, phone, share_contact_ok').in('id', userIds);
   const byId = {};
   (profiles || []).forEach(p => { byId[p.id] = p; });
+  // Voter/proposer un morceau ne vaut pas consentement à être contacté —
+  // email/téléphone ne sortent que si la personne l'a explicitement accepté
+  // dans ses réglages (share_contact_ok).
   return userIds.map(id => ({
     id,
     name:  byId[id]?.display_name || 'Invité',
-    email: byId[id]?.email || '',
-    phone: byId[id]?.phone || '',
+    email: byId[id]?.share_contact_ok ? (byId[id]?.email || '') : '',
+    phone: byId[id]?.share_contact_ok ? (byId[id]?.phone || '') : '',
   }));
 }
 

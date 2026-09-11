@@ -95,7 +95,7 @@
 
   <h2>5. Qui a accès à vos données</h2>
   <ul>
-    <li><strong>L'organisateur de l'événement</strong> auquel vous participez, pour les contenus liés à cet événement (messages, propositions, signalements), dans le cadre de la modération.</li>
+    <li><strong>L'organisateur de l'événement</strong> auquel vous participez, pour les contenus liés à cet événement (messages, propositions, signalements), dans le cadre de la modération. Votre email et votre téléphone ne lui sont accessibles que si vous avez explicitement activé le partage de vos coordonnées dans votre profil — ce n'est jamais le cas par défaut.</li>
     <li><strong>Les autres participants</strong> de l'événement, pour les contenus publics de celui-ci (chat, propositions, classement blind-test).</li>
     <li><strong>Nos sous-traitants techniques</strong>, qui hébergent ou traitent les données pour notre compte :</li>
   </ul>
@@ -103,9 +103,10 @@
     <tr><th>Sous-traitant</th><th>Rôle</th></tr>
     <tr><td>Supabase</td><td>Hébergement de la base de données, authentification, stockage des photos</td></tr>
     <tr><td>Google (via Supabase Auth)</td><td>Authentification par compte Google, si vous choisissez ce mode de connexion</td></tr>
+    <tr><td>Google Fonts</td><td>Chargement des polices d'écriture du Service — votre navigateur contacte directement les serveurs de Google, qui reçoivent votre adresse IP</td></tr>
     <tr><td>Deezer / iTunes (Apple)</td><td>Recherche de morceaux — seul le terme recherché est transmis, sans donnée personnelle associée</td></tr>
   </table>
-  <p>Les données sont hébergées par Supabase dans la région <strong>eu-west-1 (Irlande)</strong>, au sein de l'Union européenne. Aucun transfert hors UE n'est effectué pour l'hébergement de la base de données.</p>
+  <p>Les données sont hébergées par Supabase dans la région <strong>eu-west-1 (Irlande)</strong>, au sein de l'Union européenne : aucun transfert hors UE n'est effectué pour l'hébergement de la base de données. En revanche, Google (authentification et polices d'écriture) est un sous-traitant établi hors UE ; ces transferts reposent sur les clauses contractuelles types de la Commission européenne, le mécanisme de conformité reconnu par Google pour ces services.</p>
 
   <h2>6. Durée de conservation</h2>
   <ul>
@@ -137,7 +138,7 @@
   <p>La suppression est définitive et traitée sous 30 jours maximum.</p>
 
   <h2>9. Mineurs</h2>
-  <p>Le Service est réservé aux personnes âgées d'au moins 16 ans. Nous ne collectons pas sciemment de données concernant des personnes plus jeunes.</p>
+  <p>Le Service est réservé aux personnes âgées d'au moins 16 ans. Une confirmation d'âge est demandée avant toute connexion. Il s'agit d'une déclaration sur l'honneur : nous ne procédons à aucune vérification d'identité, et ne collectons pas sciemment de données concernant des personnes plus jeunes.</p>
 
   <h2>10. Stockage local et cookies</h2>
   <p>Le Service n'utilise pas de cookies de suivi publicitaire. Il utilise le stockage local de votre navigateur pour conserver votre jeton de connexion et certaines préférences d'affichage, exclusivement à des fins de fonctionnement du Service. Ces données restent sur votre appareil et peuvent être effacées à tout moment via les réglages de votre navigateur.</p>

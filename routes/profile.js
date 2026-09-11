@@ -3,6 +3,7 @@ const multer   = require('multer');
 const supabase = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
 const { validateDisplayName } = require('../lib/moderation');
+const { deleteUserAccount } = require('../lib/account');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -14,15 +15,16 @@ router.get('/profile', requireAuth, async (req, res) => {
 });
 
 router.patch('/profile', requireAuth, async (req, res) => {
-  const { display_name, bio, friend_code } = req.body;
+  const { display_name, bio, friend_code, share_contact_ok } = req.body;
   if (display_name !== undefined) {
     const check = validateDisplayName(display_name);
     if (!check.ok) return res.status(400).json({ error: check.reason });
   }
   const updates = { updated_at: new Date().toISOString() };
-  if (display_name !== undefined) updates.display_name = display_name;
-  if (bio          !== undefined) updates.bio          = bio;
-  if (friend_code  !== undefined) updates.friend_code  = friend_code;
+  if (display_name     !== undefined) updates.display_name     = display_name;
+  if (bio              !== undefined) updates.bio              = bio;
+  if (friend_code      !== undefined) updates.friend_code      = friend_code;
+  if (share_contact_ok !== undefined) updates.share_contact_ok = !!share_contact_ok;
 
   const { data, error } = await supabase.from('user_profiles')
     .upsert({ id: req.user.id, ...updates })
@@ -33,17 +35,13 @@ router.patch('/profile', requireAuth, async (req, res) => {
 
 // ── Suppression du compte (droit à l'effacement) ───────────────────────
 router.delete('/profile/account', requireAuth, async (req, res) => {
-  const uid = req.user.id;
-  await Promise.all([
-    supabase.from('user_profiles').delete().eq('id', uid),
-    supabase.from('dj_profiles').delete().eq('id', uid),
-    supabase.from('organizer_pages').delete().eq('owner_id', uid),
-  ]);
-  // Comptes invités (guest_*) : pas d'utilisateur Supabase Auth associé, rien de plus à faire.
-  if (!uid.startsWith('guest_')) {
-    try { await supabase.auth.admin.deleteUser(uid); } catch(e) {}
+  try {
+    await deleteUserAccount(req.user.id);
+    res.json({ ok: true });
+  } catch(e) {
+    console.error('[DELETE /profile/account] échec —', req.user.id, e.message);
+    res.status(500).json({ error: 'Suppression incomplète — réessaie ou contacte le support.' });
   }
-  res.json({ ok: true });
 });
 
 // ── Stats réelles du profil ───────────────────────────────────────────

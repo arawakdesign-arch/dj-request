@@ -85,6 +85,21 @@ function openModal(id) {
   document.getElementById(id).classList.add('open');
 }
 function closeModal(id)          { document.getElementById(id).classList.remove('open'); }
+
+// ══ CONSENTEMENT COORDONNÉES ═══════════════════════════════════════════
+// Voter/proposer un morceau ne veut pas dire accepter que l'organisateur
+// voie son email/téléphone — on le demande explicitement, une seule fois,
+// à la première interaction ; réponse modifiable ensuite dans le profil.
+function maybeAskContactConsent() {
+  if (!_sbSession || localStorage.getItem('djr_contact_consent_asked')) return;
+  localStorage.setItem('djr_contact_consent_asked', '1');
+  setTimeout(() => openModal('modal-contact-consent'), 900);
+}
+function answerContactConsent(accepted) {
+  closeModal('modal-contact-consent');
+  api('PATCH', '/profile', { share_contact_ok: accepted }).catch(() => {});
+  toast(accepted ? '✅ Préférence enregistrée' : 'Compris, tes coordonnées restent privées');
+}
 function closeModalOut(id, e)    { if (e.target === document.getElementById(id)) closeModal(id); }
 
 // ══ VOTE & PROPOSE ═══════════════════════════════════════════════════
@@ -110,6 +125,7 @@ function vote(id) {
     myVotes.add(id);
     proposals[id].votes = (proposals[id].votes || 0) + 1;
     renderAll(); toast('Voté ! 🎵');
+    maybeAskContactConsent();
     if (eid && _sbSession) api('POST', '/votes', {proposal_id: id, event_id: eid}).catch(e => {
       if (e.message === 'Vous avez déjà voté pour ce morceau') {
         // Le vote existait déjà côté serveur (ex : myVotes pas encore restauré après
@@ -144,6 +160,7 @@ async function submitProposal() {
   renderAll();
   closeModal('modal-propose');
   toast(`🎵 "${meta.title}" proposé !`);
+  maybeAskContactConsent();
   if (eid && _sbSession) {
     api('POST', '/proposals', { song_id: meta.id, event_id: eid,
       title: meta.title, artist: meta.artist, cover_url: meta.coverUrl || null }).catch(e => {
@@ -863,6 +880,8 @@ async function loadRemoteProfile() {
   try {
     const p = await api('GET', '/profile');
     if (!p || !p.id) return; // rien enregistré côté serveur pour l'instant
+    const contactChk = document.getElementById('chk-share-contact');
+    if (contactChk) contactChk.checked = !!p.share_contact_ok;
     const saved  = JSON.parse(localStorage.getItem('djr_profile') || '{}');
     const merged = { ...saved, name: p.display_name || saved.name, photo: p.photo_url || saved.photo, bio: p.bio || saved.bio };
     localStorage.setItem('djr_profile', JSON.stringify(merged));

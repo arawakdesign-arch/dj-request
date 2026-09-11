@@ -19,6 +19,7 @@ const profileRouter  = require('./routes/profile');
 const djRouter       = require('./routes/dj');
 const screenRouter   = require('./routes/screen');
 const orgaRouter     = require('./routes/orga');
+const { schedulePurge } = require('./lib/retention');
 
 // En production, un APP_URL absent ferait retomber CORS sur '*' (n'importe
 // quel site pourrait appeler l'API avec les identifiants d'un utilisateur) —
@@ -170,6 +171,7 @@ app.listen(PORT, () => {
   ║   Env  : ${process.env.NODE_ENV || 'development'}              ║
   ╚══════════════════════════════════════╝
   `);
+  schedulePurge();
 });
 
 module.exports = app;
