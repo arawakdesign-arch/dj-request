@@ -212,6 +212,12 @@ function djLogout() {
   document.querySelector('#nav-dj .nav-tab-lbl').textContent = "DJ's";
   showPage('client');
 }
+// Aperçu de l'app côté participant sans se déconnecter de l'espace
+// organisateur — l'onglet "DJ" du bas de l'app reste sur 🎛️ et ramène
+// directement au tableau de bord.
+function orgaViewApp() {
+  showPage('client');
+}
 async function createNewEvent(n) {
   // Vider l'event courant pour repartir d'un login propre
   eid = null;
