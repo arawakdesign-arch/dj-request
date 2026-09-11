@@ -232,18 +232,17 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .app-logo-hero{width:360px;max-width:92%;object-fit:contain;display:block;margin:0 auto .75rem}
 .auth-appname{font-family:'Inter',sans-serif;font-weight:800;font-size:2.4rem;letter-spacing:-.02em;line-height:1;color:var(--tx)}
 .auth-tagline{font-size:.82rem;color:var(--tx3);font-weight:400;margin-top:.25rem}
-.auth-card{background:#FFFFFF;border:1px solid var(--bdr);border-radius:20px;padding:1.5rem;position:relative;overflow:hidden;box-shadow:var(--shadow)}
-.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grd)}
-.auth-card-ttl{font-size:.68rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1rem;text-align:center}
+.auth-card{background:#FFFFFF;border:1.5px solid #0A0A0C;border-radius:0;padding:1.5rem;position:relative;overflow:hidden;box-shadow:none}
+.auth-card-ttl{font-family:'Anton',sans-serif;font-weight:400;font-size:1.4rem;text-transform:uppercase;letter-spacing:0;color:#0A0A0C;margin-bottom:1.1rem;text-align:center}
 .btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:.7rem;padding:.85rem;border-radius:12px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx);font-size:.9rem;font-weight:600;transition:all .2s}
 .btn-google:hover{border-color:var(--bdr2);transform:translateY(-1px)}
 .div-or{display:flex;align-items:center;gap:.65rem;margin:.85rem 0}
 .div-line{flex:1;height:1px;background:var(--bdr)}
 .div-txt{font-size:.7rem;color:var(--tx4)}
 .phone-row{display:flex;gap:.4rem;margin-bottom:.65rem}
-.cc-sel{background:#FFFFFF;border:1px solid var(--bdr);border-radius:10px;padding:.68rem .65rem;color:var(--tx);font-size:16px;outline:none;width:95px;flex-shrink:0;appearance:none;-webkit-appearance:none;text-align:center;transition:border-color .2s;min-height:50px}
+.cc-sel{background:#FFFFFF;border:1px solid var(--bdr);border-radius:0;padding:.68rem .65rem;color:var(--tx);font-size:16px;outline:none;width:95px;flex-shrink:0;appearance:none;-webkit-appearance:none;text-align:center;transition:border-color .2s;min-height:50px}
 .cc-sel:focus{border-color:var(--bdr2)}
-.phone-inp{flex:1;background:#FFFFFF;border:1px solid var(--bdr);border-radius:10px;padding:.68rem .9rem;color:var(--tx);font-size:16px;font-family:'Inter',sans-serif;outline:none;transition:all .2s;letter-spacing:.02em;min-height:50px;-webkit-appearance:none}
+.phone-inp{flex:1;background:#FFFFFF;border:1px solid var(--bdr);border-radius:0;padding:.68rem .9rem;color:var(--tx);font-size:16px;font-family:'Inter',sans-serif;outline:none;transition:all .2s;letter-spacing:.02em;min-height:50px;-webkit-appearance:none}
 .phone-inp:focus{border-color:var(--bdr2);background:rgba(111,34,255,.03)}
 .phone-inp::placeholder{color:var(--tx4);font-family:'Inter',sans-serif;letter-spacing:0;font-size:14px}
 .otp-wrap{display:none;flex-direction:column;gap:.6rem}
@@ -251,7 +250,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .otp-hint{font-size:.78rem;color:var(--tx3);text-align:center;line-height:1.5}
 .otp-hint strong{color:var(--tx2)}
 .otp-boxes{display:flex;gap:.4rem;justify-content:center}
-.otp-b{width:46px;height:56px;border-radius:10px;border:1.5px solid var(--bdr);background:#FFFFFF;color:var(--tx);font-size:20px;font-family:'Inter',sans-serif;font-weight:700;text-align:center;outline:none;transition:all .2s;caret-color:var(--vi)}
+.otp-b{width:46px;height:56px;border-radius:0;border:1.5px solid var(--bdr);background:#FFFFFF;color:var(--tx);font-size:20px;font-family:'Inter',sans-serif;font-weight:700;text-align:center;outline:none;transition:all .2s;caret-color:var(--vi)}
 .otp-b:focus{border-color:var(--vi);background:rgba(111,34,255,.04);box-shadow:0 0 0 3px rgba(111,34,255,.1)}
 .otp-b.filled{border-color:rgba(111,34,255,.35);background:rgba(111,34,255,.04)}
 .resend-btn{background:none;border:none;color:var(--vi);font-size:.78rem;text-align:center;padding:.2rem;transition:color .2s}
@@ -911,23 +910,23 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     </div>
     <div class="auth-card" style="margin-top:-20px">
       <div class="auth-card-ttl">Connectez-vous pour voter</div>
-      <label style="display:flex;align-items:center;gap:.65rem;margin:.2rem 0 .8rem;padding:.7rem .85rem;border-radius:14px;background:rgba(111,34,255,.07);border:1.5px solid rgba(111,34,255,.28);font-size:.85rem;font-weight:600;color:var(--tx);line-height:1.35;cursor:pointer;text-align:left">
+      <label style="display:flex;align-items:center;gap:.65rem;margin:.2rem 0 .8rem;padding:.7rem .85rem;border-radius:0;background:rgba(111,34,255,.07);border:1.5px solid rgba(111,34,255,.28);font-size:.85rem;font-weight:600;color:var(--tx);line-height:1.35;cursor:pointer;text-align:left">
         <input type="checkbox" id="chk-age-confirm" style="width:22px;height:22px;flex-shrink:0;accent-color:#6F22FF">
         <span>Je confirme avoir 16 ans ou plus</span>
       </label>
-      <button class="btn-google" id="btn-google" style="background:linear-gradient(135deg,#0D0714,#6F22FF);border:none;color:#fff;border-radius:18px;box-shadow:0 8px 24px rgba(13,7,20,.35)">
+      <button class="btn-google" id="btn-google" style="background:#0A0A0C;border:none;color:#fff;border-radius:0;box-shadow:none">
         <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Continuer avec Google
       </button>
       <div class="div-or"><div class="div-line"></div><div class="div-txt">ou par email</div><div class="div-line"></div></div>
       <div id="auth-email-form">
-        <input class="fi" id="email-inp" type="email" placeholder="ton@email.com" autocomplete="email" oninput="setErr('')">
-        <button class="btn-g" id="btn-email-action" style="margin-top:.55rem;background:linear-gradient(135deg,#0D0714,#6F22FF);box-shadow:0 8px 24px rgba(13,7,20,.35)" onclick="sendEmailLink()">Recevoir le lien de connexion</button>
+        <input class="fi" id="email-inp" type="email" placeholder="ton@email.com" autocomplete="email" oninput="setErr('')" style="border-radius:0;border:1.5px solid var(--bdr)">
+        <button class="btn-g" id="btn-email-action" style="margin-top:.55rem;background:#0A0A0C;border-radius:0;box-shadow:none" onclick="sendEmailLink()">Recevoir le lien de connexion</button>
         <div id="email-sent-msg" style="display:none;font-size:.78rem;color:var(--tx3);text-align:center;margin-top:.7rem;line-height:1.5">
           ✉️ Vérifie ta boîte mail (<strong id="email-sent-addr"></strong>) et clique sur le lien pour te connecter.
         </div>
       </div>
-      <button class="btn-google" id="btn-apple" disabled style="margin-top:.65rem;opacity:.45;pointer-events:none;font-size:.8rem;white-space:nowrap;background:linear-gradient(135deg,#0D0714,#6F22FF);border:none;color:#fff;border-radius:18px">
+      <button class="btn-google" id="btn-apple" disabled style="margin-top:.65rem;opacity:.45;pointer-events:none;font-size:.8rem;white-space:nowrap;background:#0A0A0C;border:none;color:#fff;border-radius:0">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.014-.06-.043-.23-.043-.4 0-1.13.535-2.27 1.207-3.05.744-.87 2.05-1.53 3.02-1.57.014.13.03.27.03.4zm4.2 17.14c-.44.99-.65 1.44-1.22 2.32-.79 1.22-1.9 2.75-3.28 2.77-1.23.02-1.55-.8-3.21-.79-1.67.01-2.02.81-3.25.79-1.38-.02-2.43-1.4-3.22-2.62-2.2-3.42-2.43-7.43-1.08-9.57.96-1.53 2.47-2.42 3.9-2.42 1.45 0 2.37.8 3.57.8 1.16 0 1.88-.8 3.57-.8 1.28 0 2.63.7 3.6 1.9-3.17 1.74-2.66 6.27.6 7.62z"/></svg>
         Apple — bientôt disponible
       </button>
