@@ -442,7 +442,10 @@ function _cwSetStep(step) {
   const prevBtn = document.getElementById('btn-cw-prev');
   if (prevBtn) prevBtn.style.display = step > 1 ? 'flex' : 'none';
   const btn = document.getElementById('btn-dj-create-submit');
-  if (btn) btn.innerHTML = step < 3 ? 'Continuer <span>→</span>' : '🎉 Créer mon événement';
+  if (btn) {
+    btn.innerHTML = step < 3 ? 'Continuer <span>→</span>' : 'Créer mon événement <span>→</span>';
+    btn.classList.toggle('cw-final', step === 3);
+  }
   elt('cw-step-caption', `Étape ${step} sur 3`);
   document.getElementById('dj-create-form')?.scrollIntoView({ block: 'start' });
 }
