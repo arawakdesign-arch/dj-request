@@ -215,8 +215,20 @@ function djLogout() {
 // Aperçu de l'app côté participant sans se déconnecter de l'espace
 // organisateur — l'onglet "DJ" du bas de l'app reste sur 🎛️ et ramène
 // directement au tableau de bord.
-function orgaViewApp() {
+// showPage('client') ne re-render pas cette page (seul 'dj' le fait) — sans
+// ce renderAll()/applyProfileToUI(), le profil pouvait rester figé sur l'état
+// "Invité" pris au tout premier chargement, avant que l'identité personnelle
+// (Google/téléphone) n'ait fini de se résoudre en arrière-plan. On regénère
+// aussi myVotes ici pour la même raison : loadEvent() avait pu tourner AVANT
+// que currentUser soit connu, laissant tous les votes comme "non votés".
+async function orgaViewApp() {
   showPage('client');
+  if (currentUser?.uid && isValidUuid(eid)) {
+    try { myVotes = new Set(await api('GET', '/votes/' + eid)); } catch(e) {}
+  }
+  renderAll();
+  if (typeof applyProfileToUI === 'function') applyProfileToUI(JSON.parse(localStorage.getItem('djr_profile') || '{}'));
+  if (typeof loadRemoteProfile === 'function') loadRemoteProfile();
 }
 async function createNewEvent(n) {
   // Vider l'event courant pour repartir d'un login propre
