@@ -1,6 +1,29 @@
 -- ══════════════════════════════════════════════════════════════════
--- DJ REQUEST — Schéma Supabase (PostgreSQL)
--- À exécuter dans : Supabase → SQL Editor → New Query
+-- ⚠️  FICHIER OBSOLÈTE — NE PAS EXÉCUTER TEL QUEL ⚠️
+--
+-- Ce schéma initial (UUID + FK vers auth.users, policies RLS ouvertes
+-- en lecture publique) a été entièrement remplacé par
+-- migration-v3-phase1-text-identity.sql, qui redéfinit les mêmes tables
+-- avec des identifiants TEXT (guest_*/phone_*/UUID Google en texte) —
+-- le code actuel (routes/*.js) suppose CE schéma-là, pas celui-ci.
+-- L'exécuter sur une base neuve recréerait des colonnes du mauvais type
+-- ET les anciennes policies publiques (user_profiles_read, messages_read,
+-- proposals_read, etc.) corrigées depuis dans des migrations dédiées.
+--
+-- Pour une nouvelle installation : partir de
+-- migration-v3-phase1-text-identity.sql, puis appliquer dans l'ordre
+-- chronologique (par date de création du fichier) tous les
+-- migration-*.sql du dossier supabase/ — en particulier les correctifs
+-- de sécurité les plus récents :
+--   migration-fix-public-data-exposure.sql
+--   migration-fix-votes-locations-scores-rls.sql
+--   migration-add-contact-consent.sql
+--   migration-add-contact-consent-provenance.sql
+--   migration-lock-user-profiles-rls.sql
+--   migration-restrict-messages-proposals-columns.sql
+--
+-- Ce fichier est conservé uniquement comme trace historique du tout
+-- premier schéma du projet.
 -- ══════════════════════════════════════════════════════════════════
 
 -- Extension pour UUID

@@ -355,19 +355,21 @@ function updateDjBubble(text) {
 }
 
 // ── Réception temps réel (autres participants) ─────────────────────────
+// user_id/deleted ne sont plus accordés à la clé anon (colonnes retirées
+// còté Supabase — cf. migration-restrict-messages-proposals-columns.sql,
+// n'importe qui pouvait sinon lire l'identifiant interne de chaque auteur
+// de message via l'API REST directe) : m.user_id/m.deleted valent donc
+// toujours undefined ici désormais. Le dé-doublonnage de notre propre
+// message repose uniquement sur l'id réel déjà posé par
+// _replaceOptimisticMsg() une fois la réponse du POST reçue — en pratique
+// toujours plus rapide que l'aller-retour Realtime, donc fiable.
 function handleRealtimeMessage(m) {
-  if (!m || m.deleted) return;
+  if (!m) return;
   // Le dernier message du DJ reste épinglé dans le cadre, indépendamment
   // de l'affichage/dédoublonnage de la liste de messages ci-dessous.
   if (isDjName(m.user_name)) renderPinnedMessage(m);
   appendBSChatMsg(m); // Écran Géant : tous les messages, y compris les nôtres
   if (document.getElementById('msg-' + m.id)) return; // déjà affiché
-
-  if (m.user_id === currentUser?.uid) {
-    // Notre propre message est déjà affiché en optimiste (id tmp_…) — on ne le
-    // duplique pas. Le tmp reste tel quel, ce qui suffit visuellement.
-    return;
-  }
 
   appendChatMsg({
     uid:  m.user_id,
