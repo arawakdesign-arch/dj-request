@@ -534,7 +534,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
    PAGE — DJ DASHBOARD
 ══════════════════════════════════════════════════════════════════ */
 #pg-dj{background:var(--ink)}
-.dj-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;padding:.75rem}
 .dj-st{background:#FFFFFF;border:1px solid var(--bdr);border-radius:12px;padding:.68rem .6rem;text-align:center;box-shadow:var(--shadow)}
 .dj-st-n{font-family:'Inter',sans-serif;font-size:1.4rem;font-weight:800;color:var(--vi)}
 .dj-st-l{font-size:.58rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
@@ -1546,12 +1545,23 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
   <!-- ONGLET LIVE -->
   <div class="scroll" id="orga-live">
-    <div class="dj-stats">
-      <div class="dj-st"><div class="dj-st-n" id="dj-s1">0</div><div class="dj-st-l">Demandes</div></div>
-      <div class="dj-st"><div class="dj-st-n" id="dj-s2">0</div><div class="dj-st-l">Votes</div></div>
-      <div class="dj-st"><div class="dj-st-n" id="dj-s3">0</div><div class="dj-st-l">Votants</div></div>
+    <div style="display:flex;gap:.65rem;margin:.2rem .75rem .65rem;align-items:stretch">
+      <div class="np-dj" style="flex:1;margin:0;padding:0;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:flex-end;min-width:0">
+        <img id="dj-np-cover-img" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none">
+        <div id="dj-np-cover-fallback" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.4rem;color:rgba(255,255,255,.25)">🎵</div>
+        <div class="np-dj-glow"></div>
+        <div style="position:relative;z-index:2;padding:.8rem;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent)">
+          <div class="np-tag">▶ En cours</div>
+          <div class="np-t" id="dj-np-t">En attente…</div>
+          <div class="np-a" id="dj-np-a"></div>
+        </div>
+      </div>
+      <div style="flex:0 0 108px;display:flex;flex-direction:column;gap:.45rem">
+        <div class="dj-st" style="flex:1;display:flex;flex-direction:column;justify-content:center"><div class="dj-st-n" id="dj-s1">0</div><div class="dj-st-l">Demandes</div></div>
+        <div class="dj-st" style="flex:1;display:flex;flex-direction:column;justify-content:center"><div class="dj-st-n" id="dj-s2">0</div><div class="dj-st-l">Votes</div></div>
+        <div class="dj-st" style="flex:1;display:flex;flex-direction:column;justify-content:center"><div class="dj-st-n" id="dj-s3">0</div><div class="dj-st-l">Votants</div></div>
+      </div>
     </div>
-    <div class="np-dj"><div class="np-dj-glow"></div><div class="np-tag">▶ En cours</div><div class="np-t" id="dj-np-t">En attente…</div><div class="np-a" id="dj-np-a"></div></div>
     <div class="qr-card" style="flex-direction:column;align-items:stretch;gap:.6rem">
       <div class="qr-url" id="dj-qr-url" style="color:var(--blue)"></div>
       <div style="display:flex;align-items:flex-start;gap:.85rem">
@@ -2044,7 +2054,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=25"></script>
 <script src="/js/app.js?v=95"></script>
-<script src="/js/render.js?v=32"></script>
+<script src="/js/render.js?v=33"></script>
 <script src="/js/chat.js?v=22"></script>
 <script src="/js/auth.js?v=55"></script>
 </body>

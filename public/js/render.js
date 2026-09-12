@@ -220,6 +220,19 @@ function updateNP() {
     }
   }
 
+  const npCoverImg = document.getElementById('dj-np-cover-img');
+  const npCoverFb  = document.getElementById('dj-np-cover-fallback');
+  if (npCoverImg && npCoverFb) {
+    if (nowPlaying.coverUrl) {
+      npCoverImg.src = nowPlaying.coverUrl;
+      npCoverImg.style.display = 'block';
+      npCoverFb.style.display  = 'none';
+    } else {
+      npCoverImg.style.display = 'none';
+      npCoverFb.style.display  = 'flex';
+    }
+  }
+
   const bsCover   = document.getElementById('bs-np-cover');
   const bsCoverFb = document.getElementById('bs-np-cover-fb');
   if (bsCover && bsCoverFb) {
