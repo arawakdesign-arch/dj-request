@@ -415,10 +415,7 @@ async function sendChatMsg() {
   // Affichage optimiste immédiat
   const tmpId = 'tmp_' + Date.now();
   appendChatMsg({uid, name, text, avatarUrl, ts: Date.now()}, tmpId);
-  if (djLoggedIn) {
-    updateDjBubble(text);
-    renderPinnedMessage({ id: tmpId, text, user_name: name, created_at: new Date().toISOString() });
-  }
+  if (djLoggedIn) updateDjBubble(text);
   if (inp) { inp.value = ''; inp.style.height = 'auto'; }
   document.getElementById('chat-send-btn').disabled = true;
   document.getElementById('chat-send-btn').style.opacity = '.4';
@@ -430,12 +427,20 @@ async function sendChatMsg() {
     try {
       const saved = await api('POST', '/messages', { event_id: eid, text });
       _replaceOptimisticMsg(tmpId, saved);
+      // Épinglage seulement une fois l'envoi confirmé par le serveur — épingler
+      // en même temps que la bulle optimiste laissait le bandeau affiché même
+      // quand l'envoi échouait ensuite (ex : session personnelle expirée), donnant
+      // l'impression que le message était "épinglé mais absent du chat".
+      if (djLoggedIn) renderPinnedMessage({ id: saved.id, text, user_name: name, created_at: saved.created_at });
     } catch(e) {
-      // Refusé par le serveur (ex : message filtré) — retirer la bulle optimiste,
-      // sinon le message a l'air d'être bien envoyé alors qu'il n'a jamais atteint
-      // les autres participants.
+      // Refusé par le serveur (ex : message filtré, session expirée) — retirer
+      // la bulle optimiste, sinon le message a l'air d'être bien envoyé alors
+      // qu'il n'a jamais atteint les autres participants.
       document.getElementById('msg-' + tmpId)?.remove();
-      toast('⚠️ ' + e.message);
+      const msg = e.message === 'Non authentifié'
+        ? 'Connexion expirée — reconnecte-toi avec Google pour envoyer un message'
+        : e.message;
+      toast('⚠️ ' + msg);
     }
   }
 }
