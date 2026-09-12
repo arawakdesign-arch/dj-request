@@ -554,8 +554,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .qr-btn{font-size:.68rem;padding:.28rem .6rem;border-radius:7px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);transition:all .15s}
 .qr-btn:hover{border-color:var(--bdr2);color:var(--vi)}
 .qr-btn.new{border-color:rgba(111,34,255,.3);color:var(--vi)}
-.qr-acts-big{display:flex;flex-direction:column;gap:.55rem}
-.qr-btn-big{width:100%;padding:.9rem;border-radius:0;border:1.5px solid #0A0A0C;background:#FFFFFF;color:#0A0A0C;font-size:.92rem;font-weight:700;font-family:'Inter',sans-serif;transition:background .15s,color .15s}
+.qr-acts-big{display:flex;flex-direction:column;gap:.4rem}
+.qr-btn-big{width:100%;padding:.55rem .5rem;border-radius:0;border:1.5px solid #0A0A0C;background:#FFFFFF;color:#0A0A0C;font-size:.74rem;font-weight:700;font-family:'Inter',sans-serif;white-space:nowrap;transition:background .15s,color .15s}
 .qr-btn-big:active{background:#0A0A0C;color:#fff}
 /* Queue */
 .q-card{background:#FFFFFF;border:1px solid var(--bdr);border-radius:18px;padding:.7rem .85rem;display:flex;align-items:center;gap:.65rem;margin-bottom:.4rem;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(55,30,100,.05)}
@@ -1552,15 +1552,15 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div class="dj-st"><div class="dj-st-n" id="dj-s3">0</div><div class="dj-st-l">Votants</div></div>
     </div>
     <div class="np-dj"><div class="np-dj-glow"></div><div class="np-tag">▶ En cours</div><div class="np-t" id="dj-np-t">En attente…</div><div class="np-a" id="dj-np-a"></div></div>
-    <div class="qr-card" style="flex-direction:column;align-items:stretch;gap:.85rem">
-      <div style="display:flex;gap:.85rem;align-items:center">
-        <div class="qr-box"><div id="dj-qr"></div></div>
-        <div class="qr-info"><div class="qr-url" id="dj-qr-url"></div></div>
-      </div>
-      <div class="qr-acts-big">
-        <button class="qr-btn-big" onclick="copyUrl()">📋 Copier le lien</button>
-        <button class="qr-btn-big" onclick="showPage('bigscreen')">📺 Écran géant</button>
-        <button class="qr-btn-big" onclick="orgaViewApp()">📱 Ouvrir l'app</button>
+    <div class="qr-card" style="align-items:flex-start">
+      <div class="qr-box"><div id="dj-qr"></div></div>
+      <div class="qr-info" style="display:flex;flex-direction:column;gap:.5rem">
+        <div class="qr-url" id="dj-qr-url"></div>
+        <div class="qr-acts-big">
+          <button class="qr-btn-big" onclick="copyUrl()">📋 Copier le lien</button>
+          <button class="qr-btn-big" onclick="showPage('bigscreen')">📺 Écran géant</button>
+          <button class="qr-btn-big" onclick="orgaViewApp()">📱 Ouvrir l'app</button>
+        </div>
       </div>
     </div>
     <div class="qr-card" style="flex-direction:column;align-items:stretch;gap:.55rem">
