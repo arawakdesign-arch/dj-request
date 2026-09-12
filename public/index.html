@@ -1194,12 +1194,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div id="prof-owned-events" style="display:none;margin-bottom:.5rem"></div>
       <div id="prof-lineup-events" style="display:none;margin-bottom:.5rem"></div>
 
-      <!-- Confidentialité : partage email/téléphone avec les organisateurs -->
-      <label style="display:flex;align-items:flex-start;gap:.6rem;padding:.7rem .1rem;margin-bottom:.5rem;font-size:.78rem;color:var(--tx2);line-height:1.4;cursor:pointer">
-        <input type="checkbox" id="chk-share-contact" onchange="api('PATCH','/profile',{share_contact_ok:this.checked}).then(()=>toast(this.checked?'✅ Préférence enregistrée':'Compris, tes coordonnées restent privées')).catch(()=>{})" style="margin-top:.15rem;flex-shrink:0">
-        <span>Partager mon email/téléphone avec les organisateurs des soirées auxquelles je participe</span>
-      </label>
-
       <!-- Déconnexion utilisateur -->
       <button id="btn-user-logout" style="width:100%;padding:.72rem;border-radius:1rem;border:1px solid rgba(255,59,87,.2);background:rgba(255,59,87,.05);color:var(--red);font-size:.82rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.5rem">
         Se déconnecter
@@ -2043,7 +2037,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=25"></script>
-<script src="/js/app.js?v=93"></script>
+<script src="/js/app.js?v=94"></script>
 <script src="/js/render.js?v=32"></script>
 <script src="/js/chat.js?v=22"></script>
 <script src="/js/auth.js?v=55"></script>
