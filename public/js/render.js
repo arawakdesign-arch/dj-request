@@ -353,14 +353,13 @@ function buildEventUrl(eventId) {
   return window.location.origin + '/app?event=' + encodeURIComponent(eventId);
 }
 
-// Lien court à partager (QR code, bouton Copier). Si l'organisateur a
-// configuré sa page publique (pull-up.live/slug), on redirige vers elle en
-// priorité — page à sa marque (logo, bio, réseaux) listant ses soirées —
-// plutôt que de tomber directement dans le flux d'inscription. Sinon, on
-// utilise le nom de la soirée plutôt que l'UUID technique, résolu à
+// Lien court à partager (QR code, bouton Copier, invitation) — droit vers
+// la soirée en cours, pas vers la page publique de l'organisateur : le but
+// est de voter tout de suite, un détour par la page organisateur (qui liste
+// toutes ses soirées) ajoute juste un clic en trop pour rien.
+// Utilise le nom de la soirée plutôt que l'UUID technique, résolu à
 // l'arrivée via GET /events/by-name : plus lisible sur un lien collé/affiché.
 function buildShortEventUrl(name, fallbackId) {
-  if (evOrgaSlug) return window.location.origin + '/' + evOrgaSlug;
   if (name) return window.location.origin + '/app?event=' + encodeURIComponent(name);
   return buildEventUrl(fallbackId);
 }
