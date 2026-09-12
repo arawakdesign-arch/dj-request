@@ -785,12 +785,13 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .op-stats .op-stat + .op-stat{padding-left:.9rem;border-left:1px solid var(--bdr)}
 .op-stat-n{font-family:'Inter',sans-serif;font-weight:800;font-size:1.7rem;color:#0A0A0C;line-height:1.1}
 .op-stat-l{font-size:.72rem;color:var(--tx3)}
-.op-actions{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
-.op-follow-btn{background:var(--grd);color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;padding:.75rem 1.4rem;border-radius:0;cursor:pointer;flex-shrink:0}
+.op-actions{display:flex;align-items:center;gap:.55rem;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 1.15rem 1.2rem;padding-bottom:2px}
+.op-actions::-webkit-scrollbar{display:none}
+.op-follow-btn{background:var(--grd);color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.8rem;padding:.65rem 1rem;border-radius:0;cursor:pointer;flex-shrink:0;white-space:nowrap}
 .op-follow-btn.op-following{background:none;color:#0A0A0C;border:1.5px solid #0A0A0C}
-.op-share-btn{background:#0A0A0C;color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;padding:.75rem 1.4rem;border-radius:0;cursor:pointer;flex-shrink:0}
-.op-socials{display:flex;gap:.9rem;flex-wrap:wrap}
-.op-socials a{font-size:.82rem;font-weight:700;color:#0A0A0C;text-decoration:none;white-space:nowrap}
+.op-share-btn{width:36px;height:36px;flex-shrink:0;border-radius:0;border:1.5px solid #0A0A0C;background:none;color:#0A0A0C;font-size:.95rem;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-left:auto}
+.op-socials{display:flex;gap:.55rem;flex-wrap:nowrap;flex-shrink:0}
+.op-socials a{font-size:.72rem;font-weight:700;color:#0A0A0C;text-decoration:none;white-space:nowrap}
 .op-visual{width:200px;height:300px;flex-shrink:0;border-radius:0;background:linear-gradient(165deg,#6F22FF 0%,#7B3FF2 55%,#8D2CFF 100%);position:relative;overflow:hidden;background-size:cover;background-position:center}
 
 .op-section{padding:.8rem 1.15rem 1.4rem}
@@ -1817,16 +1818,16 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <h1 id="op-name" class="op-name">—</h1>
         <p id="op-bio" class="op-bio"></p>
         <div class="op-stats" id="op-stats"></div>
-        <div class="op-actions">
-          <button class="op-follow-btn" id="op-follow-btn" onclick="toggleFollowOrga()">+ Suivre</button>
-          <button class="op-share-btn" onclick="shareOrgaPagePublic()">Partager</button>
-          <a id="op-email-btn" href="#" target="_blank" style="display:none">✉️ Contacter</a>
-          <div id="op-socials" class="op-socials"></div>
-        </div>
       </div>
       <div id="op-banner" class="op-visual">
         <div id="op-logo-frame" class="op-logo-frame"><span id="op-logo">🎪</span></div>
       </div>
+    </div>
+    <div class="op-actions">
+      <button class="op-follow-btn" id="op-follow-btn" onclick="toggleFollowOrga()">+ Suivre</button>
+      <a id="op-email-btn" href="#" target="_blank" style="display:none" title="Contacter" aria-label="Contacter">✉️</a>
+      <div id="op-socials" class="op-socials"></div>
+      <button class="op-share-btn" onclick="shareOrgaPagePublic()" aria-label="Partager" title="Partager">⬆</button>
     </div>
 
     <div id="op-sec-live" class="op-section" style="display:none">
