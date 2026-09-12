@@ -775,10 +775,14 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 /* ── Page organisateur publique (pull-up.live/slug) ─────────────────── */
 #pg-orga-public{background:#F3F1EC}
 #pg-orga-public .scroll{padding-top:0}
-.op-hero{display:flex;gap:.85rem;padding:1.6rem 1.15rem .9rem;align-items:flex-start}
+.op-header{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.15rem .2rem}
+.op-header-logo{height:32px;width:auto;object-fit:contain}
+.op-open-app-btn{background:#0A0A0C;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:.8rem;padding:.6rem 1.1rem;border-radius:14px;text-decoration:none;white-space:nowrap}
+.op-eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);margin-bottom:.5rem}
+.op-hero{display:flex;gap:.85rem;padding:.6rem 1.15rem .9rem;align-items:flex-start}
 .op-hero-text{flex:1;min-width:0}
 .op-name{font-family:'Anton',sans-serif;font-weight:400;font-size:min(3.2rem,11vw);line-height:1.05;letter-spacing:0;color:#0A0A0C;text-wrap:balance;margin-bottom:.6rem;text-transform:uppercase}
-.op-logo-frame{position:absolute;top:16px;left:0;width:120px;height:120px;border-radius:0;background:var(--ink5);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:2rem;background-size:cover;background-position:center;overflow:hidden}
+.op-logo-frame{position:absolute;top:20px;left:20px;width:110px;height:110px;border-radius:20px;background:#FFFFFF;box-shadow:0 10px 26px rgba(20,10,45,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:2rem;background-size:cover;background-position:center;overflow:hidden}
 .op-bio{font-size:.86rem;color:var(--tx2);line-height:1.5;margin-bottom:1.1rem}
 .op-stats{display:flex;align-items:baseline;gap:.9rem;margin-bottom:1.2rem}
 .op-stats .op-stat{display:flex;flex-direction:column}
@@ -786,31 +790,31 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .op-stat-n{font-family:'Inter',sans-serif;font-weight:800;font-size:1.7rem;color:#0A0A0C;line-height:1.1}
 .op-stat-l{font-size:.72rem;color:var(--tx3)}
 .op-actions{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
-.op-follow-btn{background:var(--grd);color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;padding:.75rem 1.4rem;border-radius:0;cursor:pointer;flex-shrink:0}
+.op-follow-btn{background:var(--grd);color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;padding:.75rem 1.4rem;border-radius:14px;cursor:pointer;flex-shrink:0}
 .op-follow-btn.op-following{background:none;color:#0A0A0C;border:1.5px solid #0A0A0C}
-.op-share-btn{background:#0A0A0C;color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;padding:.75rem 1.4rem;border-radius:0;cursor:pointer;flex-shrink:0}
-.op-socials{display:flex;gap:.9rem;flex-wrap:wrap}
+.op-share-btn{width:40px;height:40px;flex-shrink:0;border-radius:12px;border:1.5px solid #0A0A0C;background:none;color:#0A0A0C;font-size:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.op-socials{display:flex;gap:.9rem;flex-wrap:wrap;align-items:center}
 .op-socials a{font-size:.82rem;font-weight:700;color:#0A0A0C;text-decoration:none;white-space:nowrap}
-.op-visual{width:200px;height:300px;flex-shrink:0;border-radius:0;background:linear-gradient(165deg,#6F22FF 0%,#7B3FF2 55%,#8D2CFF 100%);position:relative;overflow:hidden;background-size:cover;background-position:center}
+.op-visual{width:200px;height:300px;flex-shrink:0;border-radius:22px;background:linear-gradient(165deg,#6F22FF 0%,#7B3FF2 55%,#8D2CFF 100%);position:relative;overflow:hidden;background-size:cover;background-position:center}
 
 .op-section{padding:.8rem 1.15rem 1.4rem}
 .op-section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.85rem;padding-bottom:.7rem;border-bottom:1.5px solid #0A0A0C}
 .op-section-head span{font-family:'Anton',sans-serif;font-weight:400;font-size:1.4rem;letter-spacing:.01em;text-transform:uppercase;color:#0A0A0C}
 
 .op-live-wrap{display:flex;gap:.7rem;align-items:stretch}
-.op-live-card{flex:1.25;display:flex;flex-direction:column;align-items:flex-start;gap:.35rem;background:#FBE4EF;border-radius:0;padding:1rem;text-align:left;border:none;cursor:pointer}
-.op-live-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--pk);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.32rem .65rem;border-radius:0;margin-bottom:.3rem}
+.op-live-card{flex:1.25;display:flex;flex-direction:column;align-items:flex-start;gap:.35rem;background:#FBE4EF;border-radius:20px;padding:1rem;text-align:left;border:none;cursor:pointer}
+.op-live-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--pk);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.32rem .65rem;border-radius:999px;margin-bottom:.3rem}
 .op-live-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:opLivePulse 1.6s infinite}
 @keyframes opLivePulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
 .op-live-name{font-family:'Anton',sans-serif;font-weight:400;font-size:1.65rem;line-height:.98;color:#0A0A0C;text-transform:uppercase}
 .op-live-sub{font-size:.78rem;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.02em}
 .op-live-meta{font-size:.72rem;font-weight:700;color:var(--pk2)}
-.op-live-cta{background:var(--grd);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.02em;padding:.75rem .9rem;border-radius:0;text-align:center;display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;text-transform:uppercase;margin-top:.3rem}
-.op-live-visual{flex:1;border-radius:0;background:var(--grd);background-size:cover;background-position:center;min-width:90px}
+.op-live-cta{background:var(--grd);color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.02em;padding:.75rem .9rem;border-radius:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;text-transform:uppercase;margin-top:.3rem}
+.op-live-visual{flex:1;border-radius:20px;background:var(--grd);background-size:cover;background-position:center;min-width:90px}
 
 .op-up-row{display:flex;align-items:center;gap:.9rem;width:100%;border:none;background:none;text-align:left;cursor:pointer;padding:.75rem 0;border-bottom:1px solid var(--bdr)}
 .op-up-row:last-child{border-bottom:none}
-.op-up-date{width:68px;height:68px;border-radius:0;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Anton',sans-serif;text-transform:uppercase}
+.op-up-date{width:68px;height:68px;border-radius:16px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Anton',sans-serif;text-transform:uppercase}
 .op-up-date b{font-size:1.8rem;font-weight:400;line-height:1}
 .op-up-date span{font-size:.62rem;font-weight:400;letter-spacing:.03em;margin-top:1px}
 .op-up-name{font-family:'Anton',sans-serif;font-weight:400;font-size:1.4rem;color:#0A0A0C;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.05}
@@ -1812,16 +1816,21 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <!-- PAGE ORGANISATEUR PUBLIQUE (pull-up.live/mon-club) -->
 <div class="page" id="pg-orga-public">
   <div class="scroll">
+    <div class="op-header">
+      <img src="/images/LOGO120.png" alt="Pull up" class="op-header-logo">
+      <a href="/app" class="op-open-app-btn">Ouvrir l'app</a>
+    </div>
     <div class="op-hero">
       <div class="op-hero-text">
+        <div class="op-eyebrow">Organisateur</div>
         <h1 id="op-name" class="op-name">—</h1>
         <p id="op-bio" class="op-bio"></p>
         <div class="op-stats" id="op-stats"></div>
         <div class="op-actions">
           <button class="op-follow-btn" id="op-follow-btn" onclick="toggleFollowOrga()">+ Suivre</button>
-          <button class="op-share-btn" onclick="shareOrgaPagePublic()">Partager</button>
           <a id="op-email-btn" href="#" target="_blank" style="display:none">✉️ Contacter</a>
           <div id="op-socials" class="op-socials"></div>
+          <button class="op-share-btn" onclick="shareOrgaPagePublic()" aria-label="Partager" title="Partager">⬆</button>
         </div>
       </div>
       <div id="op-banner" class="op-visual">
