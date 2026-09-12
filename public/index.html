@@ -1552,11 +1552,11 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div class="dj-st"><div class="dj-st-n" id="dj-s3">0</div><div class="dj-st-l">Votants</div></div>
     </div>
     <div class="np-dj"><div class="np-dj-glow"></div><div class="np-tag">▶ En cours</div><div class="np-t" id="dj-np-t">En attente…</div><div class="np-a" id="dj-np-a"></div></div>
-    <div class="qr-card" style="align-items:flex-start">
-      <div class="qr-box"><div id="dj-qr"></div></div>
-      <div class="qr-info" style="display:flex;flex-direction:column;gap:.5rem">
-        <div class="qr-url" id="dj-qr-url"></div>
-        <div class="qr-acts-big">
+    <div class="qr-card" style="flex-direction:column;align-items:stretch;gap:.6rem">
+      <div class="qr-url" id="dj-qr-url" style="color:var(--blue)"></div>
+      <div style="display:flex;align-items:flex-start;gap:.85rem">
+        <div class="qr-box"><div id="dj-qr"></div></div>
+        <div class="qr-acts-big" style="flex:1">
           <button class="qr-btn-big" onclick="copyUrl()">📋 Copier le lien</button>
           <button class="qr-btn-big" onclick="showPage('bigscreen')">📺 Écran géant</button>
           <button class="qr-btn-big" onclick="orgaViewApp()">📱 Ouvrir l'app</button>
