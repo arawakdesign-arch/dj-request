@@ -889,6 +889,8 @@ async function loadRemoteProfile() {
   try {
     const p = await api('GET', '/profile');
     if (!p || !p.id) return; // rien enregistré côté serveur pour l'instant
+    const contactChk = document.getElementById('chk-share-contact');
+    if (contactChk) contactChk.checked = !!p.share_contact_ok;
     const saved  = JSON.parse(localStorage.getItem('djr_profile') || '{}');
     const merged = { ...saved, name: p.display_name || saved.name, photo: p.photo_url || saved.photo, bio: p.bio || saved.bio };
     localStorage.setItem('djr_profile', JSON.stringify(merged));
