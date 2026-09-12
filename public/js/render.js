@@ -386,7 +386,7 @@ function generateQR(activeEid) {
     return;
   }
   const url = buildShortEventUrl(ename, id);
-  const sizes = { 'dj-qr': 110, 'bs-qr-big': 260 };
+  const sizes = { 'dj-qr': 130, 'bs-qr-big': 260 };
   Object.entries(sizes).forEach(([elemId, sz]) => {
     const el = document.getElementById(elemId); if (!el) return;
     el.innerHTML = '';
