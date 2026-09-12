@@ -20,9 +20,13 @@ const postMessageLimiter = rateLimit({
 });
 
 // ── Messages (chat) ───────────────────────────────────────────────────
+// select('*') renvoyait aussi event_id/deleted, jamais lus par le client —
+// on ne garde que les colonnes réellement affichées (cf. appendChatMsg/
+// loadChatHistory côté public/js/chat.js).
 router.get('/messages/:eventId', async (req, res) => {
   const { data, error } = await supabase
-    .from('messages').select('*')
+    .from('messages')
+    .select('id, user_id, user_name, user_photo, text, photo_url, reported, reactions, pinned, created_at')
     .eq('event_id', req.params.eventId)
     .eq('deleted', false)
     .order('created_at', { ascending: true })

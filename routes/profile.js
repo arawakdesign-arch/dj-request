@@ -8,6 +8,11 @@ const { deleteUserAccount } = require('../lib/account');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
+// Identifie le texte de consentement au moment où il a été accepté (utile en
+// cas de litige) — à faire évoluer si le texte de la modale/case à cocher
+// change de sens.
+const CONTACT_CONSENT_VERSION = '2026-09-12';
+
 // ── Profil utilisateur ────────────────────────────────────────────────
 router.get('/profile', requireAuth, async (req, res) => {
   const { data } = await supabase.from('user_profiles').select('*').eq('id', req.user.id).single();
@@ -24,7 +29,18 @@ router.patch('/profile', requireAuth, async (req, res) => {
   if (display_name     !== undefined) updates.display_name     = display_name;
   if (bio              !== undefined) updates.bio              = bio;
   if (friend_code      !== undefined) updates.friend_code      = friend_code;
-  if (share_contact_ok !== undefined) updates.share_contact_ok = !!share_contact_ok;
+  if (share_contact_ok !== undefined) {
+    updates.share_contact_ok = !!share_contact_ok;
+    // Preuve du consentement (RGPD) : date + version du texte accepté ; date
+    // de retrait distincte si la personne revient sur son choix.
+    if (share_contact_ok) {
+      updates.share_contact_ok_at      = new Date().toISOString();
+      updates.share_contact_ok_version = CONTACT_CONSENT_VERSION;
+      updates.share_contact_withdrawn_at = null;
+    } else {
+      updates.share_contact_withdrawn_at = new Date().toISOString();
+    }
+  }
 
   const { data, error } = await supabase.from('user_profiles')
     .upsert({ id: req.user.id, ...updates })

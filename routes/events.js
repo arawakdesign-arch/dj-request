@@ -283,11 +283,14 @@ router.get('/proposals/:eventId', async (req, res) => {
     (profiles || []).forEach(u => { proposerNames[u.id] = u.display_name; });
   }
 
-  const enriched = (data || []).map(p => ({
+  // proposed_by (identifiant interne de la personne qui a proposé le morceau)
+  // n'est jamais affiché côté client — seul proposer_name l'est — et cette
+  // route est publique : on ne le renvoie pas dans la réponse.
+  const enriched = (data || []).map(({ proposed_by, ...p }) => ({
     ...p,
     voter_count: votersByProposal[p.id]?.size || 0,
     total_voters: totalVoters,
-    proposer_name: proposerNames[p.proposed_by] || null,
+    proposer_name: proposerNames[proposed_by] || null,
   }));
   res.json(enriched);
 });
