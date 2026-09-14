@@ -137,10 +137,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .top-menu-overlay.open{opacity:1;pointer-events:auto}
 .top-menu{
   position:fixed;top:calc(var(--safe-top) + 4.6rem);left:max(.65rem, var(--safe-left));
-  width:200px;
+  width:210px;
   background:#FFFFFF;
-  border:1px solid var(--bdr);
-  border-radius:18px;
+  border:1.5px solid #0A0A0C;
+  border-radius:0;
   box-shadow:0 16px 40px rgba(30,15,60,.22);
   z-index:200;
   padding:.4rem;
@@ -150,19 +150,20 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 }
 .top-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
 .top-menu-item{
-  display:flex;align-items:center;gap:.7rem;
-  padding:.65rem .7rem;border-radius:12px;
+  display:flex;align-items:center;gap:.75rem;
+  padding:.7rem .75rem;border-radius:0;
   border:none;background:none;cursor:pointer;
   position:relative;text-align:left;width:100%;
   touch-action:manipulation;
 }
 .top-menu-item:hover{background:var(--ink5)}
-.top-menu-item.active{background:rgba(111,34,255,.08)}
-.top-menu-item .nav-tab-ico{font-size:1.1rem;line-height:1;opacity:.55;filter:grayscale(1);flex-shrink:0;width:22px;text-align:center;transition:opacity .2s}
-.top-menu-item.active .nav-tab-ico{opacity:1;filter:none}
+.top-menu-item.active{background:#0A0A0C}
+.top-menu-item .nav-tab-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:22px;color:var(--tx3);transition:color .2s}
+.top-menu-item .nav-tab-ico svg{width:19px;height:19px}
+.top-menu-item.active .nav-tab-ico{color:#fff}
 .nav-tab-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;display:block}
 .top-menu-item .nav-tab-lbl{font-size:.85rem;font-weight:600;color:var(--tx2);text-transform:none;letter-spacing:0;transition:color .2s}
-.top-menu-item.active .nav-tab-lbl{color:var(--vi);font-weight:700}
+.top-menu-item.active .nav-tab-lbl{color:#fff;font-weight:700}
 .nav-tab-badge{margin-left:auto;background:var(--pk);color:white;font-size:.62rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 
 /* ══ SHARED COMPONENTS ════════════════════════════════════════════ */
@@ -2020,29 +2021,29 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <div class="top-menu-overlay" id="top-menu-overlay" onclick="closeTopMenu()"></div>
 <div class="top-menu" id="top-menu">
   <button class="top-menu-item active" id="nav-vote">
-    <div class="nav-tab-ico">🎵</div>
+    <div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="16.5" r="2.5"/></svg></div>
     <div class="nav-tab-lbl">Voter</div>
   </button>
   <button class="top-menu-item" id="nav-chat">
-    <div class="nav-tab-ico">💬</div>
+    <div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.94 8.37 8.5 8.5 0 0 1-3.8-.9L3 21l1.05-3.16A8.5 8.5 0 1 1 21 11.5Z"/></svg></div>
     <div class="nav-tab-lbl">Chat</div>
     <div class="nav-tab-badge" id="chat-badge" style="display:none">0</div>
   </button>
   <button class="top-menu-item" id="nav-profile">
-    <div class="nav-tab-ico">👤</div>
+    <div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-6 8-6s8 2 8 6"/></svg></div>
     <div class="nav-tab-lbl">Profil</div>
   </button>
   <button class="top-menu-item" id="nav-dj">
-    <div class="nav-tab-ico">🎧</div>
+    <div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2" y="14" width="5" height="7" rx="1.5"/><rect x="17" y="14" width="5" height="7" rx="1.5"/></svg></div>
     <div class="nav-tab-lbl">DJ's</div>
   </button>
 </div>
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=25"></script>
-<script src="/js/app.js?v=96"></script>
+<script src="/js/app.js?v=97"></script>
 <script src="/js/render.js?v=37"></script>
 <script src="/js/chat.js?v=24"></script>
-<script src="/js/auth.js?v=55"></script>
+<script src="/js/auth.js?v=56"></script>
 </body>
 </html>
