@@ -137,29 +137,40 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .top-menu-overlay.open{opacity:1;pointer-events:auto}
 .top-menu{
   position:fixed;top:calc(var(--safe-top) + 4.6rem);left:max(.65rem, var(--safe-left));
-  width:210px;
+  width:190px;
   background:#FFFFFF;
   border:1.5px solid #0A0A0C;
-  border-radius:0;
+  border-radius:40px;
   box-shadow:0 16px 40px rgba(30,15,60,.22);
   z-index:200;
-  padding:.4rem;
-  display:flex;flex-direction:column;gap:2px;
+  padding:1.1rem .5rem .6rem;
+  display:flex;flex-direction:column;gap:3px;
   opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;
   transition:opacity .18s,transform .18s;
 }
 .top-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.top-menu-avatar-wrap{display:flex;justify-content:center;margin-bottom:.7rem}
+.top-menu-avatar{width:56px;height:56px;border:1.5px solid #0A0A0C}
 .top-menu-item{
-  display:flex;align-items:center;gap:.75rem;
-  padding:.7rem .75rem;border-radius:0;
+  display:flex;align-items:center;gap:.7rem;
+  padding:.65rem .85rem;border-radius:999px;
   border:none;background:none;cursor:pointer;
   position:relative;text-align:left;width:100%;
   touch-action:manipulation;
+  opacity:0;transform:translateX(-10px);
+  animation:menu-item-in .32s ease forwards;
 }
+.top-menu.open .top-menu-item:nth-child(2){animation-delay:.03s}
+.top-menu.open .top-menu-item:nth-child(3){animation-delay:.08s}
+.top-menu.open .top-menu-item:nth-child(4){animation-delay:.13s}
+.top-menu.open .top-menu-item:nth-child(5){animation-delay:.18s}
+@keyframes menu-item-in{to{opacity:1;transform:translateX(0)}}
+.top-menu-item:active{transform:scale(.96)}
 .top-menu-item:hover{background:var(--ink5)}
 .top-menu-item.active{background:#0A0A0C}
-.top-menu-item .nav-tab-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:22px;color:var(--tx3);transition:color .2s}
+.top-menu-item .nav-tab-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:22px;color:var(--tx3);transition:color .2s,transform .25s}
 .top-menu-item .nav-tab-ico svg{width:19px;height:19px}
+.top-menu-item:active .nav-tab-ico{transform:scale(1.15) rotate(-6deg)}
 .top-menu-item.active .nav-tab-ico{color:#fff}
 .nav-tab-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;display:block}
 .top-menu-item .nav-tab-lbl{font-size:.85rem;font-weight:600;color:var(--tx2);text-transform:none;letter-spacing:0;transition:color .2s}
@@ -2020,6 +2031,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <!-- MENU DÉROULANT (remplace l'ancien menu du bas) -->
 <div class="top-menu-overlay" id="top-menu-overlay" onclick="closeTopMenu()"></div>
 <div class="top-menu" id="top-menu">
+  <div class="top-menu-avatar-wrap"><div class="tb-avatar top-menu-avatar" onclick="navTo('profile')"></div></div>
   <button class="top-menu-item active" id="nav-vote">
     <div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="16.5" r="2.5"/></svg></div>
     <div class="nav-tab-lbl">Voter</div>
