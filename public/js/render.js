@@ -47,7 +47,7 @@ function renderClient() {
   elt('cli-total', t ? `${t} vote${t > 1 ? 's' : ''}` : '-');
   elt('venue-connected', totalVoters());
   const list = document.getElementById('cli-list'); if (!list) return;
-  if (!s.length) { list.innerHTML = `<div class="empty-state"><img src="/images/proposeimagedefond.png" alt="Le classement commence ici — propose un titre, les participants voteront pour le faire monter" style="width:100%;max-width:360px;height:auto;display:block"></div>`; return; }
+  if (!s.length) { list.innerHTML = `<div class="empty-state" style="padding:.5rem 1rem 6rem"><img src="/images/proposeimagedefond.png" alt="Le classement commence ici — propose un titre, les participants voteront pour le faire monter" style="width:100%;max-width:360px;height:auto;display:block"></div>`; return; }
   const mx     = s[0]?.votes || 1;
   // Réconciliation par id (pas de list.innerHTML='') : on réutilise et déplace les
   // nœuds existants au lieu de tout détruire/recréer à chaque rendu. Ça évite qu'un
