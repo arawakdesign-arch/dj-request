@@ -339,7 +339,13 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .empty-state p{font-size:.83rem;color:var(--tx3);line-height:1.6}
 
 /* ── PROPOSE TON SON ──────────────────────────────────────────────── */
-.propose-card{position:fixed;left:.65rem;right:.65rem;bottom:calc(var(--safe-bot) + .65rem);z-index:150;cursor:pointer}
+.propose-card{position:fixed;left:.65rem;right:.65rem;bottom:calc(var(--safe-bot) + .65rem);z-index:150;cursor:pointer;border-radius:20px;overflow:hidden}
+.propose-card::after{content:'';position:absolute;top:0;left:-150%;width:55%;height:100%;background:linear-gradient(115deg,transparent,rgba(255,255,255,.65),transparent);transform:skewX(-20deg);animation:propose-shine 3.4s ease-in-out infinite;pointer-events:none}
+@keyframes propose-shine{
+  0%{left:-150%}
+  30%{left:150%}
+  100%{left:150%}
+}
 @keyframes propose-shake{
   0%,100%{transform:translateX(0) rotate(0)}
   15%{transform:translateX(-6px) rotate(-1.5deg)}
