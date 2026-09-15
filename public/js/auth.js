@@ -389,9 +389,14 @@ async function signInGoogle() {
   if (!ageConfirmed()) return;
   if (!_sb) { setErr('Service d\'authentification non disponible.'); return; }
   try {
-    // Préserver l'event ID avant la redirection OAuth (page rechargée)
+    // Préserver l'event ID avant la redirection OAuth (page rechargée) — dans
+    // l'URL de retour elle-même, pas seulement en sessionStorage : un lien
+    // magique/OAuth cliqué depuis l'appli mail peut s'ouvrir dans un tout
+    // autre onglet/navigateur (in-app browser), qui ne partage pas le
+    // sessionStorage de l'onglet d'origine. Le paramètre ?event= dans l'URL
+    // de redirection, lui, survit dans tous les cas.
     if (eid) sessionStorage.setItem('djr_pre_oauth_eid', eid);
-    const redirectTo = window.location.origin + '/app';
+    const redirectTo = window.location.origin + '/app' + (eid ? '?event=' + encodeURIComponent(eid) : '');
     const { data, error } = await _sb.auth.signInWithOAuth({
       provider: 'google',
       options:  { redirectTo, skipBrowserRedirect: true },
@@ -414,8 +419,13 @@ async function sendEmailLink() {
   const btn = document.getElementById('btn-email-action');
   btn.disabled = true; btn.textContent = 'Envoi…';
   try {
+    // Le lien magique par email est très souvent ouvert depuis l'appli mail
+    // (in-app browser), pas depuis l'onglet où le lien a été demandé — le
+    // sessionStorage de ce dernier n'est alors pas partagé. On encode donc
+    // aussi l'event directement dans l'URL de retour, qui survit dans tous
+    // les cas contrairement au sessionStorage seul.
     if (eid) sessionStorage.setItem('djr_pre_oauth_eid', eid);
-    const redirectTo = window.location.origin + '/app';
+    const redirectTo = window.location.origin + '/app' + (eid ? '?event=' + encodeURIComponent(eid) : '');
     const { error } = await _sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
     if (error) throw error;
     inp.style.display = 'none';
