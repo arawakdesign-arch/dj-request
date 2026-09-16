@@ -54,7 +54,7 @@ function showPage(id) {
 }
 
 function navTo(id) {
-  if (id === 'dj' && !djLoggedIn) { showPage('dj-login'); closeTopMenu(); return; }
+  if (id === 'dj' && !djLoggedIn) { enterOrgaSpace(); closeTopMenu(); return; }
   showPage(id);
   if (id === 'profile') { loadOwnedEvents(); loadLineupEvents(); }
   ['vote','chat','profile','dj'].forEach(t => document.getElementById('nav-' + t)?.classList.remove('active'));
