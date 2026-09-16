@@ -53,6 +53,12 @@ function showPage(id) {
   if (id === 'presskit')  { if (_djProfileCache) applyDjProfileToPresskit(); else loadDjProfile(); }
 }
 
+// Clic sur la venue-card (nom/infos/flyer de la soirée) → page publique de
+// l'organisateur, si celui-ci en a une (sinon rien, pas de page à montrer).
+function goToOrgaPublicPage() {
+  if (venueOrgaSlug && typeof tryShowOrgaPublicPage === 'function') tryShowOrgaPublicPage(venueOrgaSlug);
+}
+
 function navTo(id) {
   if (id === 'dj' && !djLoggedIn) { enterOrgaSpace(); closeTopMenu(); return; }
   showPage(id);

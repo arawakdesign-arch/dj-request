@@ -2,6 +2,7 @@
 // Chargé dynamiquement depuis /api/config/public pour ne pas hardcoder
 // les clés publiques dans le code source.
 let _sb = null, _sbSession = null;
+let venueOrgaSlug = null; // slug de la page publique organisateur de la soirée en cours, cf. venue-card → goToOrgaPublicPage()
 
 async function _initSupabase() {
   try {
@@ -132,6 +133,7 @@ async function loadEvent(evId) {
     const ev = await api('GET', '/events/' + evId);
     eid = ev.id; ename = ev.name;
     eventClosed = !!ev.closed;
+    venueOrgaSlug = ev.orga_slug || null;
     if (typeof applyEventClosedState === 'function') applyEventClosedState();
     // Figer l'ID dans une variable locale : eid global peut être muté
     // entre deux await par du code concurrent (onAuthStateChange, etc.)
