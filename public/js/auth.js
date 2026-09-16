@@ -143,7 +143,10 @@ window.addEventListener('load', async () => {
             _djLoginShowCreate(); // le formulaire nom/mot de passe apparaît, currentUser.email est maintenant renseigné
           } else if (sessionStorage.getItem('djr_pending_orga_entry')) {
             sessionStorage.removeItem('djr_pending_orga_entry');
-            showPage('dj-login');
+            // showPage('dj-login') n'est PAS appelé ici : _djEnterOrgaAfterAuth()
+            // s'en charge lui-même, seulement s'il doit vraiment afficher l'écran
+            // Créer/Rejoindre — sinon on resterait un instant sur son état par
+            // défaut (Créer/Rejoindre visible) pendant l'auto-connexion.
             await _djEnterOrgaAfterAuth(); // identité désormais connue → auto-connexion si soirée active, sinon Créer/Rejoindre
           } else if (eid && !djLoggedIn) {
             // DJ du line-up (accès admin avec son propre compte, cf. enterAsLineupDj)
@@ -546,7 +549,11 @@ function setErr(msg) { const e = document.getElementById('auth-err'); if (e) e.t
 //   d'abord, sans écran de choix intermédiaire ; la décision se prend au
 //   retour d'OAuth (cf. onAuthStateChange, flag djr_pending_orga_entry).
 async function enterOrgaSpace() {
-  showPage('dj-login');
+  // On ne bascule pas encore sur la page dj-login ici : son écran Créer/
+  // Rejoindre est visible par défaut dès que la page s'affiche, donc le
+  // faire trop tôt le laisse flasher pendant la vérification ci-dessous.
+  // On ne l'affiche qu'au moment où on sait vraiment en avoir besoin.
+  //
   // On revérifie la session directement ici plutôt que de se fier à
   // `currentUser` (rempli en arrière-plan par le listener de window.load) :
   // ce bouton est cliquable dès l'affichage de la page, potentiellement avant
@@ -584,6 +591,7 @@ async function _djEnterOrgaAfterAuth() {
     const active = (mine || []).find(ev => !ev.closed && !ev.upcoming);
     if (active) { await adminEnterEvent(active.id, active.name); return; }
   } catch(e) {}
+  showPage('dj-login');
   _djLoginShowChoice();
 }
 
