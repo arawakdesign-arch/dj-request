@@ -133,8 +133,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .tb-avatar{width:36px;height:36px;border-radius:8px;object-fit:cover;border:2px solid var(--bdr);cursor:pointer;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.85rem;font-family:'Inter',sans-serif;background-color:var(--vi)}
 
 /* ══ MENU DÉROULANT (haut gauche) ════════════════════════════════════ */
-.top-menu-overlay{position:fixed;inset:0;background:rgba(16,16,20,.32);z-index:199;opacity:0;pointer-events:none;transition:opacity .2s}
-.top-menu-overlay.open{opacity:1;pointer-events:auto}
+.top-menu-overlay{position:fixed;inset:0;background:rgba(16,16,20,.32);backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);z-index:199;opacity:0;pointer-events:none;transition:opacity .2s,backdrop-filter .3s,-webkit-backdrop-filter .3s}
+.top-menu-overlay.open{opacity:1;pointer-events:auto;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .top-menu{
   position:fixed;top:0;left:0;bottom:0;
   width:70px;
