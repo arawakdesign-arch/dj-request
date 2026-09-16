@@ -284,7 +284,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 #pg-client{background:var(--ink)}
 /* ── VENUE CARD ───────────────────────────────────────────────────── */
 .venue-card{margin:0 .65rem .5rem;background:#FFFFFF;border-radius:20px;box-shadow:var(--shadow);padding:.7rem;display:flex;align-items:center;gap:.55rem;position:relative;z-index:3}
-.venue-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-start;gap:4px;align-self:stretch;padding-top:20px}
+.venue-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-start;gap:4px;align-self:stretch;padding-top:0}
 .venue-event-name{font-family:'Inter',sans-serif;font-weight:800;font-size:1.15rem;letter-spacing:0;color:var(--tx);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;margin-top:0}
 .venue-event-name:empty{display:none}
 .venue-orga{font-size:.66rem;color:var(--tx3);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -302,10 +302,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .venue-stats-row{display:flex;align-items:center;gap:.35rem;font-size:.66rem;color:var(--tx3);flex-wrap:nowrap;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .venue-photo{width:100px;height:100px;border-radius:16px;flex-shrink:0;position:relative;overflow:hidden;background:var(--dj-card)}
 .venue-photo img{width:100%;height:100%;object-fit:cover;display:block}
-.venue-qr{background:transparent;border:none;box-shadow:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;width:90px;height:auto;padding:0;border-radius:0;overflow:visible}
-.venue-qr-box{width:100%;height:auto;display:flex;align-items:center;justify-content:center;background:transparent}
+.venue-qr{background:transparent;border:none;box-shadow:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;width:90px;height:100px;padding:0;border-radius:0;overflow:visible}
+.venue-qr-box{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:transparent}
 .venue-qr-box canvas{width:100%!important;height:100%!important}
-.venue-qr-box img{width:100%!important;height:auto!important;object-fit:contain;display:block}
+.venue-qr-box img{width:100%!important;height:100%!important;object-fit:contain;display:block}
 .venue-qr-wrap{flex-shrink:0;display:flex;align-items:center;margin-right:-.7rem}
 .venue-qr-info{max-width:64px;text-align:center}
 .venue-qr-title{font-family:'Inter',sans-serif;font-weight:800;font-size:.6rem;color:var(--vi);text-transform:uppercase;letter-spacing:.02em;line-height:1.15}
