@@ -141,6 +141,10 @@ window.addEventListener('load', async () => {
             sessionStorage.removeItem('djr_pending_create_intent');
             showPage('dj-login');
             _djLoginShowCreate(); // le formulaire nom/mot de passe apparaît, currentUser.email est maintenant renseigné
+          } else if (sessionStorage.getItem('djr_pending_orga_entry')) {
+            sessionStorage.removeItem('djr_pending_orga_entry');
+            showPage('dj-login');
+            await _djEnterOrgaAfterAuth(); // identité désormais connue → auto-connexion si soirée active, sinon Créer/Rejoindre
           } else if (eid && !djLoggedIn) {
             // DJ du line-up (accès admin avec son propre compte, cf. enterAsLineupDj)
             // — restaurer le mode DJ après un refresh, pas seulement la page vote.
@@ -385,8 +389,13 @@ function ageConfirmed() {
 }
 
 // ── Google OAuth ──────────────────────────────────────────────────────
-async function signInGoogle() {
-  if (!ageConfirmed()) return;
+// skipAgeCheck : la case "16 ans ou plus" vit sur l'écran de connexion
+// participant (#pg-auth) — invisible depuis l'écran Espace Organisateur, la
+// vérifier là échouerait silencieusement (case jamais cochée, erreur posée
+// sur une page cachée). Les entrées organisateur (public professionnel)
+// passent donc true ici.
+async function signInGoogle(skipAgeCheck) {
+  if (!skipAgeCheck && !ageConfirmed()) return;
   if (!_sb) { setErr('Service d\'authentification non disponible.'); return; }
   try {
     // Préserver l'event ID avant la redirection OAuth (page rechargée) — dans
@@ -527,20 +536,21 @@ function otpKey(e, idx) {
 function setErr(msg) { const e = document.getElementById('auth-err'); if (e) e.textContent = msg; }
 
 // ── Espace Organisateur — point d'entrée ────────────────────────────────
-// Si une session personnelle est déjà active (retour sur le même appareil)
-// et que son email a une soirée en cours, on y entre directement — pas
-// besoin de repasser par l'écran de choix ni de redemander Google. Sinon
-// (soirée terminée, aucune soirée, ou pas encore connecté) on affiche
-// l'écran de choix habituel (Créer / Rejoindre).
+// Objectif : ne jamais faire deviner "Créer" ou "Rejoindre" à l'aveugle à
+// quelqu'un qui a déjà une soirée en cours — on connaît la réponse dès que
+// son identité (email Google) est connue, donc on la détermine D'ABORD.
 //
-// On revérifie la session directement ici plutôt que de se fier à
-// `currentUser` (rempli en arrière-plan par le listener de window.load) :
-// ce bouton est cliquable dès l'affichage de la page, potentiellement avant
-// que cette restauration de session n'ait fini de tourner — sans ce
-// re-check, l'auto-connexion échouait silencieusement selon la rapidité du
-// clic ("ça marche un coup sur deux").
+// - Identité déjà connue (session personnelle déjà active sur cet appareil)
+//   → décision immédiate : voir _djEnterOrgaAfterAuth().
+// - Identité inconnue (pas encore connecté du tout) → connexion Google
+//   d'abord, sans écran de choix intermédiaire ; la décision se prend au
+//   retour d'OAuth (cf. onAuthStateChange, flag djr_pending_orga_entry).
 async function enterOrgaSpace() {
   showPage('dj-login');
+  // On revérifie la session directement ici plutôt que de se fier à
+  // `currentUser` (rempli en arrière-plan par le listener de window.load) :
+  // ce bouton est cliquable dès l'affichage de la page, potentiellement avant
+  // que cette restauration de session n'ait fini de tourner.
   let email = currentUser?.email || null;
   if (!email && _sb) {
     try {
@@ -556,13 +566,24 @@ async function enterOrgaSpace() {
       }
     } catch(e) {}
   }
-  if (email) {
-    try {
-      const mine = await api('GET', '/events/mine');
-      const active = (mine || []).find(ev => !ev.closed && !ev.upcoming);
-      if (active) { await adminEnterEvent(active.id, active.name); return; }
-    } catch(e) {}
-  }
+  if (email) { await _djEnterOrgaAfterAuth(); return; }
+  // Pas encore connecté : connexion Google d'abord — clearToken() comme dans
+  // _djCreateSignInGoogle(), pour ne pas laisser une session invité/téléphone
+  // stockée empêcher la restauration de la session Google au retour d'OAuth.
+  clearToken();
+  sessionStorage.setItem('djr_pending_orga_entry', '1');
+  signInGoogle(true);
+}
+
+// Une fois l'identité (email Google) connue — soit déjà présente, soit tout
+// juste obtenue via OAuth — décide où envoyer l'organisateur : direct dans
+// sa soirée si elle est en cours, sinon l'écran Créer/Rejoindre habituel.
+async function _djEnterOrgaAfterAuth() {
+  try {
+    const mine = await api('GET', '/events/mine');
+    const active = (mine || []).find(ev => !ev.closed && !ev.upcoming);
+    if (active) { await adminEnterEvent(active.id, active.name); return; }
+  } catch(e) {}
   _djLoginShowChoice();
 }
 
@@ -635,7 +656,7 @@ function _djCreateSignInGoogle() {
   clearToken();
   // Revenir sur l'étape "créer" de l'Espace Organisateur au retour d'OAuth (cf. onAuthStateChange)
   sessionStorage.setItem('djr_pending_create_intent', '1');
-  signInGoogle();
+  signInGoogle(true);
 }
 
 // ── Rejoindre une soirée existante — nom + mot de passe uniquement ─────
