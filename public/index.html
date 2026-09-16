@@ -136,45 +136,60 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .top-menu-overlay{position:fixed;inset:0;background:rgba(16,16,20,.32);z-index:199;opacity:0;pointer-events:none;transition:opacity .2s}
 .top-menu-overlay.open{opacity:1;pointer-events:auto}
 .top-menu{
-  position:fixed;top:calc(var(--safe-top) + 2.2rem);left:max(.65rem, var(--safe-left));
-  width:146px;
-  background:#FFFFFF;
-  border:1.5px solid #0A0A0C;
-  border-radius:73px;
-  box-shadow:0 16px 40px rgba(30,15,60,.22);
+  position:fixed;top:0;left:0;bottom:0;
+  width:112px;
+  background:#0A0A0C;
   z-index:200;
-  padding:1.5rem .5rem 1.3rem;
-  display:flex;flex-direction:column;gap:1rem;
-  opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;
+  padding:calc(var(--safe-top) + 1.1rem) 0 calc(var(--safe-bot) + 1.5rem);
+  display:flex;flex-direction:column;align-items:center;gap:1.15rem;
+  transform:translateX(-100%);pointer-events:none;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  box-shadow:12px 0 40px rgba(0,0,0,.25);
+}
+.top-menu.open{transform:translateX(0);pointer-events:auto}
+.top-menu-close{
+  width:38px;height:38px;flex-shrink:0;margin-bottom:.6rem;
+  display:flex;align-items:center;justify-content:center;
+  border:none;background:none;color:#fff;cursor:pointer;
+  opacity:.85;transition:opacity .2s,transform .2s;
+}
+.top-menu-close:active{transform:scale(.9);opacity:1}
+.top-menu-close svg{width:20px;height:20px}
+.top-menu-item{
+  position:relative;
+  width:50px;height:50px;flex-shrink:0;
+  border-radius:50%;
+  border:none;background:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.5);
+  touch-action:manipulation;
+  transition:color .2s,background .25s,box-shadow .25s;
+  opacity:0;transform:translateX(-14px);
+  animation:menu-item-in .34s ease forwards;
+}
+.top-menu.open .top-menu-item:nth-child(2){animation-delay:.04s}
+.top-menu.open .top-menu-item:nth-child(3){animation-delay:.09s}
+.top-menu.open .top-menu-item:nth-child(4){animation-delay:.14s}
+.top-menu.open .top-menu-item:nth-child(5){animation-delay:.19s}
+.top-menu.open .top-menu-item:nth-child(6){animation-delay:.24s}
+@keyframes menu-item-in{to{opacity:1;transform:translateX(0)}}
+.top-menu-item:active{transform:scale(.9)}
+.top-menu-item:hover{color:#fff}
+.top-menu-item.active{background:var(--grd);color:#fff;box-shadow:0 8px 22px rgba(111,34,255,.5)}
+.top-menu-item .nav-tab-ico{display:flex;align-items:center;justify-content:center}
+.top-menu-item .nav-tab-ico svg{width:21px;height:21px}
+.top-menu-item.active .nav-tab-ico{transform:scale(1.08)}
+.nav-tab-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;display:block}
+.top-menu-item .nav-tab-lbl{
+  position:absolute;left:100%;top:50%;transform:translateY(-50%) translateX(4px);
+  margin-left:.55rem;background:#0A0A0C;color:#fff;
+  font-size:.76rem;font-weight:700;white-space:nowrap;
+  padding:.5rem .85rem;border-radius:12px;
+  opacity:0;pointer-events:none;
   transition:opacity .18s,transform .18s;
 }
-.top-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
-.top-menu-avatar-wrap{display:flex;justify-content:center;margin-bottom:.4rem}
-.top-menu-avatar{width:62px;height:62px;border:1.5px solid #0A0A0C}
-.top-menu-item{
-  display:flex;align-items:center;gap:.5rem;
-  padding:.6rem .6rem;border-radius:999px;
-  border:none;background:none;cursor:pointer;
-  position:relative;text-align:left;width:100%;
-  touch-action:manipulation;
-  opacity:0;transform:translateX(-10px);
-  animation:menu-item-in .32s ease forwards;
-}
-.top-menu.open .top-menu-item:nth-child(2){animation-delay:.03s}
-.top-menu.open .top-menu-item:nth-child(3){animation-delay:.08s}
-.top-menu.open .top-menu-item:nth-child(4){animation-delay:.13s}
-.top-menu.open .top-menu-item:nth-child(5){animation-delay:.18s}
-@keyframes menu-item-in{to{opacity:1;transform:translateX(0)}}
-.top-menu-item:active{transform:scale(.96)}
-.top-menu-item:hover{background:var(--ink5)}
-.top-menu-item.active{background:#0A0A0C}
-.top-menu-item .nav-tab-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:18px;color:var(--tx3);transition:color .2s,transform .25s}
-.top-menu-item .nav-tab-ico svg{width:16px;height:16px}
-.top-menu-item:active .nav-tab-ico{transform:scale(1.15) rotate(-6deg)}
-.top-menu-item.active .nav-tab-ico{color:#fff}
-.nav-tab-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;display:block}
-.top-menu-item .nav-tab-lbl{font-size:.76rem;font-weight:600;color:var(--tx2);text-transform:none;letter-spacing:0;transition:color .2s;white-space:nowrap}
-.top-menu-item.active .nav-tab-lbl{color:#fff;font-weight:700}
+.top-menu-item.active .nav-tab-lbl{opacity:1;transform:translateY(-50%) translateX(0)}
+.top-menu-item .nav-tab-badge{position:absolute;top:2px;right:2px}
 .nav-tab-badge{margin-left:auto;background:var(--pk);color:white;font-size:.62rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 
 /* ══ SHARED COMPONENTS ════════════════════════════════════════════ */
@@ -2021,7 +2036,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <!-- MENU DÉROULANT (remplace l'ancien menu du bas) -->
 <div class="top-menu-overlay" id="top-menu-overlay" onclick="closeTopMenu()"></div>
 <div class="top-menu" id="top-menu">
-  <div class="top-menu-avatar-wrap"><div class="tb-avatar top-menu-avatar" onclick="navTo('profile')"></div></div>
+  <button class="top-menu-close" onclick="closeTopMenu()" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
   <button class="top-menu-item active" id="nav-vote">
     <div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="16.5" r="2.5"/></svg></div>
     <div class="nav-tab-lbl">Voter</div>
@@ -2038,6 +2053,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   <button class="top-menu-item" id="nav-dj">
     <div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2" y="14" width="5" height="7" rx="1.5"/><rect x="17" y="14" width="5" height="7" rx="1.5"/></svg></div>
     <div class="nav-tab-lbl">DJ's</div>
+  </button>
+  <button class="top-menu-item" onclick="openAddFriend();closeTopMenu()">
+    <div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg></div>
+    <div class="nav-tab-lbl">Amis</div>
   </button>
 </div>
 
