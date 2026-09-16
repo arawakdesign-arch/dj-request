@@ -1768,3 +1768,16 @@ document.addEventListener('fullscreenchange', () => {
     el.title = on ? 'Quitter le plein écran' : 'Plein écran';
   });
 });
+
+// ── Repli mise en page après rotation ────────────────────────────────
+// Bug connu Safari/Chrome mobile : après une rotation d'écran, les éléments
+// en position fixe (barre du haut, cartes, boutons flottants) peuvent rester
+// mal placés tant que la page n'est pas forcée à se recalculer — on force ce
+// recalcul juste après la rotation.
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    document.body.style.display = 'none';
+    void document.body.offsetHeight; // force le reflow
+    document.body.style.display = '';
+  }, 50);
+});
