@@ -526,6 +526,24 @@ function otpKey(e, idx) {
 
 function setErr(msg) { const e = document.getElementById('auth-err'); if (e) e.textContent = msg; }
 
+// ── Espace Organisateur — point d'entrée ────────────────────────────────
+// Si une session personnelle est déjà active (retour sur le même appareil)
+// et que son email a une soirée en cours, on y entre directement — pas
+// besoin de repasser par l'écran de choix ni de redemander Google. Sinon
+// (soirée terminée, aucune soirée, ou pas encore connecté) on affiche
+// l'écran de choix habituel (Créer / Rejoindre).
+async function enterOrgaSpace() {
+  showPage('dj-login');
+  if (currentUser?.email) {
+    try {
+      const mine = await api('GET', '/events/mine');
+      const active = (mine || []).find(ev => !ev.closed && !ev.upcoming);
+      if (active) { await adminEnterEvent(active.id, active.name); return; }
+    } catch(e) {}
+  }
+  _djLoginShowChoice();
+}
+
 // ── Espace Organisateur — navigation entre les 2 accès ─────────────────
 function _djLoginShowChoice() {
   document.getElementById('dj-choice').style.display      = 'block';
@@ -554,7 +572,6 @@ function _djLoginShowCreate() {
 async function _djCreateSyncGoogleState() {
   const authed = !!currentUser?.email;
   document.getElementById('dj-create-google').style.display   = authed ? 'none' : 'block';
-  document.getElementById('dj-create-existing').style.display = 'none';
   document.getElementById('dj-create-form').style.display     = 'none';
   document.querySelector('.dj-login-card')?.classList.remove('cw-mode');
   if (!authed) return;
@@ -563,9 +580,9 @@ async function _djCreateSyncGoogleState() {
     const mine = await api('GET', '/events/mine');
     const active = (mine || []).find(ev => !ev.closed && !ev.upcoming);
     if (active) {
-      document.getElementById('dj-create-existing-name').textContent = active.name;
-      document.getElementById('dj-create-existing-btn').onclick = () => adminEnterEvent(active.id, active.name);
-      document.getElementById('dj-create-existing').style.display = 'block';
+      // On sait déjà (via l'email Google) que cette soirée lui appartient —
+      // pas besoin d'un clic de confirmation supplémentaire, on y entre direct.
+      await adminEnterEvent(active.id, active.name);
       return;
     }
   } catch(e) {}

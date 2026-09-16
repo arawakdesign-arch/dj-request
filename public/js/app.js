@@ -1699,7 +1699,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auth
   on('btn-google',       signInGoogle);
   on('btn-phone-action', phoneAction);
-  on('btn-orga',         () => { showPage('dj-login'); _djLoginShowChoice(); });
+  on('btn-orga',         enterOrgaSpace);
 
   // Nav
   on('nav-vote',    () => navTo('client'));
