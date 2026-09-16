@@ -532,9 +532,31 @@ function setErr(msg) { const e = document.getElementById('auth-err'); if (e) e.t
 // besoin de repasser par l'écran de choix ni de redemander Google. Sinon
 // (soirée terminée, aucune soirée, ou pas encore connecté) on affiche
 // l'écran de choix habituel (Créer / Rejoindre).
+//
+// On revérifie la session directement ici plutôt que de se fier à
+// `currentUser` (rempli en arrière-plan par le listener de window.load) :
+// ce bouton est cliquable dès l'affichage de la page, potentiellement avant
+// que cette restauration de session n'ait fini de tourner — sans ce
+// re-check, l'auto-connexion échouait silencieusement selon la rapidité du
+// clic ("ça marche un coup sur deux").
 async function enterOrgaSpace() {
   showPage('dj-login');
-  if (currentUser?.email) {
+  let email = currentUser?.email || null;
+  if (!email && _sb) {
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session) {
+        _sbSession = session;
+        const u = session.user;
+        currentUser = {
+          displayName: u.user_metadata?.full_name || u.user_metadata?.name || u.phone || u.email || 'Invité',
+          uid: u.id, phoneNumber: u.phone || null, email: u.email || null,
+        };
+        email = currentUser.email;
+      }
+    } catch(e) {}
+  }
+  if (email) {
     try {
       const mine = await api('GET', '/events/mine');
       const active = (mine || []).find(ev => !ev.closed && !ev.upcoming);
