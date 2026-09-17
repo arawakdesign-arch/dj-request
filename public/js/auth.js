@@ -391,6 +391,14 @@ function ageConfirmed() {
   return true;
 }
 
+// Google/email restent grisés et non cliquables tant que la case "16 ans ou
+// plus" n'est pas activée — évite d'avoir à cliquer pour découvrir l'erreur.
+function toggleAgeLock() {
+  const row = document.getElementById('auth-login-row');
+  const chk = document.getElementById('chk-age-confirm');
+  if (row) row.classList.toggle('age-locked', !chk?.checked);
+}
+
 // ── Google OAuth ──────────────────────────────────────────────────────
 // skipAgeCheck : la case "16 ans ou plus" vit sur l'écran de connexion
 // participant (#pg-auth) — invisible depuis l'écran Espace Organisateur, la
