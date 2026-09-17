@@ -536,7 +536,15 @@ function otpKey(e, idx) {
   }
 }
 
-function setErr(msg) { const e = document.getElementById('auth-err'); if (e) e.textContent = msg; }
+// setErr() cible #auth-err, qui vit sur la page de connexion participant —
+// invisible depuis l'écran Espace Organisateur (dj-login). Sans le toast,
+// une erreur là (ex: Supabase non initialisé, bloqué par une extension)
+// ne montrait STRICTEMENT rien à l'écran : le clic semblait "ne rien faire".
+function setErr(msg) {
+  const e = document.getElementById('auth-err');
+  if (e) e.textContent = msg;
+  if (msg && typeof toast === 'function') toast('⚠️ ' + msg);
+}
 
 // ── Espace Organisateur — point d'entrée ────────────────────────────────
 // Objectif : ne jamais faire deviner "Créer" ou "Rejoindre" à l'aveugle à
