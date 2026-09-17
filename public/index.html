@@ -227,10 +227,11 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 /* ══════════════════════════════════════════════════════════════════
    PAGE — AUTH
 ══════════════════════════════════════════════════════════════════ */
-#pg-auth{justify-content:flex-start;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:clamp(.75rem,4vw,1.75rem);background:#FAF9F7}
-.auth-hero{margin:calc(-1 * clamp(.75rem,4vw,1.75rem)) calc(-1 * clamp(.75rem,4vw,1.75rem)) .75rem}
+#pg-auth{justify-content:flex-start;align-items:center;overflow:hidden;padding:clamp(.75rem,4vw,1.75rem);background:#FAF9F7}
+.auth-hero{margin:calc(-1 * clamp(.75rem,4vw,1.75rem)) calc(-1 * clamp(.75rem,4vw,1.75rem)) .75rem;flex:1 1 auto;min-height:0;overflow:hidden}
+.auth-hero .auth-promo-img{width:100%;height:100%;object-fit:cover;object-position:top}
 .auth-promo-img{width:100%;height:auto;display:block;position:relative;z-index:1}
-.auth-wrap{width:100%;max-width:360px;display:flex;flex-direction:column;gap:.4rem;padding:0 0 clamp(.4rem,2vh,.75rem)}
+.auth-wrap{width:100%;max-width:360px;height:100%;display:flex;flex-direction:column;gap:.4rem;padding:0 0 clamp(.4rem,2vh,.75rem)}
 .auth-ring{width:74px;height:74px;border-radius:50%;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto .6rem;box-shadow:0 8px 30px rgba(111,34,255,.3)}
 /* Cartes Espace Organisateur / S'enregistrer DJ (façon mockup 3D) */
 .entry-card{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.5rem;padding:1.35rem .5rem 1rem;height:148px;border-radius:20px;border:1px solid var(--bdr);background:#fff;cursor:pointer;overflow:hidden;isolation:isolate;transition:transform .15s ease}
@@ -259,7 +260,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .app-logo-hero{width:360px;max-width:92%;object-fit:contain;display:block;margin:0 auto .75rem}
 .auth-appname{font-family:'Inter',sans-serif;font-weight:800;font-size:2.4rem;letter-spacing:-.02em;line-height:1;color:var(--tx)}
 .auth-tagline{font-size:.82rem;color:var(--tx3);font-weight:400;margin-top:.25rem}
-.auth-card{background:rgba(250,249,247,.85);border:none;border-radius:28px 28px 0 0;padding:0 1.5rem 1.5rem;position:relative;z-index:2;overflow:hidden;box-shadow:0 -12px 30px rgba(20,10,40,.12)}
+.auth-card{background:rgba(250,249,247,.85);border:none;border-radius:28px 28px 0 0;padding:0 1.5rem 1.5rem;position:relative;z-index:2;overflow:hidden;box-shadow:0 -12px 30px rgba(20,10,40,.12);flex-shrink:0}
 .auth-card-ttl{font-family:'Anton',sans-serif;font-weight:400;font-size:1.4rem;text-transform:uppercase;letter-spacing:0;color:#0A0A0C;margin-bottom:1.1rem;text-align:center}
 .age-toggle{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0}
 .age-toggle-input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
@@ -991,7 +992,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <button class="btn-g" id="btn-phone-action" style="margin-top:.2rem" disabled><span id="phone-btn-txt">Recevoir le code SMS</span></button>
       </div>
     </div>
-    <div style="margin-top:.35rem">
+    <div style="display:none">
       <div style="display:flex;gap:.55rem">
         <button id="btn-orga" class="entry-card orga" style="height:auto;padding:0;display:block">
           <img src="/images/organisateur.webp?v=2" alt="Espace Organisateur" style="width:100%;height:auto;display:block;border-radius:20px">
@@ -1000,19 +1001,19 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           <img src="/images/enregistementdj.webp?v=2" alt="S'enregistrer comme DJ" style="width:100%;height:auto;display:block;border-radius:20px">
         </button>
       </div>
-    </div>
-    <p style="font-size:.72rem;color:var(--tx3);text-align:center;padding:1.2rem 1.3rem 0;line-height:1.55">
-      <strong>Pull up</strong> est l'application qui connecte les DJ à leur public : les invités proposent des morceaux et votent en direct pour la prochaine chanson, et le DJ pilote sa playlist en fonction des votes en temps réel.
-    </p>
-    <!-- Footer légal -->
-    <div style="text-align:center;padding:1.5rem 0 .5rem;font-size:.68rem;color:var(--tx4);line-height:2">
-      © 2026 PULL UP! — HUSTLE &amp; FLOW<br>
-      <a href="/mentions-legales.html" target="_blank" style="color:var(--tx3)">Mentions légales</a> ·
-      <a href="/cgu.html" target="_blank" style="color:var(--tx3)">CGU</a> ·
-      <a href="/confidentialite.html" target="_blank" style="color:var(--tx3)">Politique de confidentialité</a> ·
-      <a href="#" onclick="confirmDeleteAccount();return false" style="color:var(--tx3)">Supprimer mon compte</a> ·
-      <a href="mailto:arawakdesign@gmail.com?subject=Signalement%20PULL%20UP%21" style="color:var(--tx3)">Signaler un abus</a> ·
-      <a href="mailto:arawakdesign@gmail.com" style="color:var(--tx3)">Contact</a>
+      <p style="font-size:.72rem;color:var(--tx3);text-align:center;padding:1.2rem 1.3rem 0;line-height:1.55">
+        <strong>Pull up</strong> est l'application qui connecte les DJ à leur public : les invités proposent des morceaux et votent en direct pour la prochaine chanson, et le DJ pilote sa playlist en fonction des votes en temps réel.
+      </p>
+      <!-- Footer légal -->
+      <div style="text-align:center;padding:1.5rem 0 .5rem;font-size:.68rem;color:var(--tx4);line-height:2">
+        © 2026 PULL UP! — HUSTLE &amp; FLOW<br>
+        <a href="/mentions-legales.html" target="_blank" style="color:var(--tx3)">Mentions légales</a> ·
+        <a href="/cgu.html" target="_blank" style="color:var(--tx3)">CGU</a> ·
+        <a href="/confidentialite.html" target="_blank" style="color:var(--tx3)">Politique de confidentialité</a> ·
+        <a href="#" onclick="confirmDeleteAccount();return false" style="color:var(--tx3)">Supprimer mon compte</a> ·
+        <a href="mailto:arawakdesign@gmail.com?subject=Signalement%20PULL%20UP%21" style="color:var(--tx3)">Signaler un abus</a> ·
+        <a href="mailto:arawakdesign@gmail.com" style="color:var(--tx3)">Contact</a>
+      </div>
     </div>
   </div>
   <div id="recaptcha-container"></div>
