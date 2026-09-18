@@ -807,6 +807,8 @@ async function _activateDJ(n, p) {
   document.getElementById('nav-dj').onclick = () => navTo('dj');
   document.querySelector('#nav-dj .nav-tab-ico').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="5" y1="21" x2="5" y2="12"/><line x1="5" y1="8" x2="5" y2="3"/><circle cx="5" cy="10" r="2"/><line x1="12" y1="21" x2="12" y2="15"/><line x1="12" y1="11" x2="12" y2="3"/><circle cx="12" cy="13" r="2"/><line x1="19" y1="21" x2="19" y2="17"/><line x1="19" y1="13" x2="19" y2="3"/><circle cx="19" cy="15" r="2"/></svg>';
   document.querySelector('#nav-dj .nav-tab-lbl').textContent = 'DJ';
+  const navAdmin = document.getElementById('nav-admin');
+  if (navAdmin) navAdmin.style.display = 'flex';
   showPage('dj'); renderAll();
   // showPage('dj') déclenche generateQR() via app.js:37 — QR immédiat avec l'eid courant
   if (eid) {
@@ -837,6 +839,8 @@ function logout() {
   _djPassword = null;
   currentUser = null;
   _sbSession  = null;
+  const navAdmin = document.getElementById('nav-admin');
+  if (navAdmin) navAdmin.style.display = 'none';
   if (_sb) _sb.auth.signOut().catch(() => {});
   showPage('auth');
   closeTopMenu();

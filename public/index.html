@@ -171,6 +171,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .top-menu.open .top-menu-item:nth-child(4){animation-delay:.09s}
 .top-menu.open .top-menu-item:nth-child(5){animation-delay:.12s}
 .top-menu.open .top-menu-item:nth-child(6){animation-delay:.15s}
+.top-menu.open .top-menu-item:nth-child(7){animation-delay:.18s}
 @keyframes menu-item-in{to{opacity:1;transform:translateX(0)}}
 .top-menu-item:active{transform:scale(.96)}
 .top-menu-item:hover{color:#fff}
@@ -2075,13 +2076,17 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     <div class="top-menu-ico-wrap"><div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg></div></div>
     <div class="nav-tab-lbl">Inviter</div>
   </button>
+  <button class="top-menu-item" id="nav-admin" style="display:none" onclick="navTo('dj');closeTopMenu()">
+    <div class="top-menu-ico-wrap"><div class="nav-tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div></div>
+    <div class="nav-tab-lbl">Admin</div>
+  </button>
 </div>
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=26"></script>
-<script src="/js/app.js?v=101"></script>
-<script src="/js/render.js?v=37"></script>
+<script src="/js/app.js?v=102"></script>
+<script src="/js/render.js?v=38"></script>
 <script src="/js/chat.js?v=24"></script>
-<script src="/js/auth.js?v=64"></script>
+<script src="/js/auth.js?v=65"></script>
 </body>
 </html>

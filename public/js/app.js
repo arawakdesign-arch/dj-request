@@ -216,6 +216,8 @@ function djLogout() {
   document.getElementById('nav-dj').onclick = () => navTo('presskit');
   document.querySelector('#nav-dj .nav-tab-ico').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2" y="14" width="5" height="7" rx="1.5"/><rect x="17" y="14" width="5" height="7" rx="1.5"/></svg>';
   document.querySelector('#nav-dj .nav-tab-lbl').textContent = "DJ's";
+  const navAdmin = document.getElementById('nav-admin');
+  if (navAdmin) navAdmin.style.display = 'none';
   showPage('client');
 }
 // Aperçu de l'app côté participant sans se déconnecter de l'espace
