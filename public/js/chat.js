@@ -325,9 +325,12 @@ async function loadChatHistory() {
     renderPinnedMessage(pinned || djMsgs[djMsgs.length - 1] || null);
     renderBSChatFeed(messages);
     const container = document.getElementById('chat-messages');
-    if (!container || !messages.length) return;
-    // Vider les messages de démo avant d'afficher l'historique réel
+    if (!container) return;
+    // Vider le contenu précédent (démo, ou messages d'une autre soirée
+    // affichés avant que ce rechargement n'arrive) avant d'afficher
+    // l'historique réel — y compris quand cette soirée n'a aucun message.
     container.innerHTML = '<div style="text-align:center;padding:1rem 0"><div style="font-size:.68rem;color:var(--tx4);background:var(--ink3);border:1px solid var(--bdr);border-radius:18px;padding:.3rem .85rem;display:inline-block">Bienvenue dans le chat de la soirée 🎵</div></div>';
+    if (!messages.length) return;
     messages.forEach(m => appendChatMsg({
       uid:  m.user_id,
       name: m.user_name || 'Invité',

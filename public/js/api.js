@@ -156,6 +156,11 @@ async function loadEvent(evId) {
     // Bannière DJ de la page vote — affiche le nom (et photo si dispo) du
     // premier DJ du line-up de la soirée, au lieu du texte générique "DJ".
     if (typeof applyDjBanner === 'function') applyDjBanner(ev.lineup);
+    // Recharger le chat pour CETTE soirée — initChat() ne s'exécute qu'une
+    // fois par session (cf. chat.js), donc changer de soirée sans recharger
+    // la page (nouvelle création, changement de line-up...) laissait le chat
+    // affiché figé sur les messages de l'ancienne soirée.
+    if (typeof loadChatHistory === 'function') loadChatHistory();
     loadVoteRate(localEid);
     const ps = await api('GET', '/proposals/' + localEid);
     console.log('[pullup] loadEvent() proposals reçus :', ps.length, 'items pour localEid=', localEid);
