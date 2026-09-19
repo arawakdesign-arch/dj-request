@@ -378,6 +378,38 @@ function buildShortEventUrl(name, fallbackId) {
 }
 
 // Accepte un ID explicite ; se replie sur le global eid si omis
+// ── QR codes avec logo PULL UP! au centre ───────────────────────────────
+// correctLevel H (~30% de tolérance aux erreurs) laisse la place de couvrir
+// le centre avec le logo sans casser le scan. Le dessin se fait sur le
+// <canvas> généré par qrcodejs, une fois le logo (préchargé une seule fois,
+// réutilisé pour tous les QR) disponible.
+const _qrLogoImg = new Image();
+_qrLogoImg.src = '/images/LOGO120.png';
+
+function _drawQRLogo(canvas, size) {
+  if (!canvas || canvas.tagName !== 'CANVAS') return;
+  const draw = () => {
+    const ctx = canvas.getContext('2d');
+    const logoSize = Math.round(size * 0.22);
+    const pad = Math.round(logoSize * 0.14);
+    const x = (size - logoSize) / 2;
+    const y = (size - logoSize) / 2;
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(x - pad, y - pad, logoSize + pad * 2, logoSize + pad * 2);
+    ctx.drawImage(_qrLogoImg, x, y, logoSize, logoSize);
+  };
+  if (_qrLogoImg.complete) draw();
+  else _qrLogoImg.addEventListener('load', draw, { once: true });
+}
+
+function renderQRWithLogo(el, url, size) {
+  el.innerHTML = '';
+  try {
+    new QRCode(el, {text: url, width: size, height: size, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H});
+    _drawQRLogo(el.querySelector('canvas'), size);
+  } catch(e) {}
+}
+
 function generateQR(activeEid) {
   const id = activeEid !== undefined ? activeEid : eid;
   console.log('[pullup] generateQR() id=', id, '| eid_global=', eid, '| caller:', new Error().stack.split('\n')[2]?.trim());
@@ -389,8 +421,7 @@ function generateQR(activeEid) {
   const sizes = { 'dj-qr': 130, 'bs-qr-big': 260 };
   Object.entries(sizes).forEach(([elemId, sz]) => {
     const el = document.getElementById(elemId); if (!el) return;
-    el.innerHTML = '';
-    try { new QRCode(el, {text: url, width: sz, height: sz, colorDark:'#000', colorLight:'#fff'}); } catch(e) {}
+    renderQRWithLogo(el, url, sz);
   });
   elt('dj-qr-url', ename); elt('bs-ev-lbl', ename);
 }
@@ -400,7 +431,7 @@ function openQRModal() {
   const url = buildEventUrl(id);
   const box  = document.getElementById('modal-qr-box');
   const urlEl = document.getElementById('modal-qr-url');
-  if (box) { box.innerHTML = ''; try { new QRCode(box, {text:url, width:140, height:140, colorDark:'#000', colorLight:'#fff'}); } catch(e) { box.innerHTML = '<div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#333">QR Code</div>'; } }
+  if (box) { try { renderQRWithLogo(box, url, 140); } catch(e) { box.innerHTML = '<div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#333">QR Code</div>'; } }
   if (urlEl) urlEl.textContent = url;
   openModal('modal-qr');
 }
