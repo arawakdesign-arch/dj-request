@@ -74,8 +74,17 @@ window.addEventListener('load', async () => {
     }
   }
 
+  // Distingue un lien explicite (?event=...) d'une simple restauration depuis
+  // le cache (visite nue de /app, ex: bouton de la page d'accueil) — un lien
+  // explicite reste affiché même fermé (ex: consulter les résultats), mais
+  // une soirée mise en cache il y a longtemps et depuis terminée ne doit pas
+  // s'afficher silencieusement à quelqu'un qui n'a rien demandé de précis
+  // (cf. plus bas, après le chargement : "aucune info" pour un visiteur qui
+  // atterrit sur une vieille soirée de test fermée).
+  let eidWasExplicit = false;
   const urlEid = new URLSearchParams(window.location.search).get('event');
   if (urlEid) {
+    eidWasExplicit = true;
     if (isValidUuid(urlEid)) {
       eid = urlEid;
     } else {
@@ -135,7 +144,7 @@ window.addEventListener('load', async () => {
         if (session && !_loggedIn) {
           // Restaurer l'event ID préservé avant la redirection OAuth
           const savedEid = sessionStorage.getItem('djr_pre_oauth_eid');
-          if (savedEid) { eid = savedEid; sessionStorage.removeItem('djr_pre_oauth_eid'); }
+          if (savedEid) { eid = savedEid; eidWasExplicit = true; sessionStorage.removeItem('djr_pre_oauth_eid'); }
           afterLogin();
           if (sessionStorage.getItem('djr_pending_create_intent')) {
             sessionStorage.removeItem('djr_pending_create_intent');
@@ -155,6 +164,15 @@ window.addEventListener('load', async () => {
               await enterAsLineupDj(eid, ename || '');
             } else {
               await loadEvent(eid).catch(() => {});
+              // Soirée restaurée depuis le cache (pas un lien explicite) et
+              // déjà terminée entre-temps : ne pas l'afficher silencieusement
+              // à quelqu'un qui n'a rien demandé de précis — ça ressemblait à
+              // une soirée "sans aucune info" plutôt qu'à un état clair.
+              if (!eidWasExplicit && eventClosed) {
+                eid = null; ename = ''; eventClosed = false;
+                localStorage.removeItem('djr_eid');
+                renderAll();
+              }
             }
           }
           // Nettoyer le hash OAuth ; conserver ou rétablir le paramètre ?event=
