@@ -873,6 +873,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="/css/dj-register.css">
 </head>
 <body>
 
@@ -1340,66 +1341,39 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   </div>
 </div>
 
-<!-- MODAL INSCRIPTION / ÉDITION PROFIL DJ -->
-<!-- INSCRIPTION / ÉDITION PROFIL DJ (page dédiée) -->
+<!-- INSCRIPTION / ÉDITION PROFIL DJ -->
 <div class="page" id="pg-dj-register">
-  <div class="tb"><div class="tb-back" onclick="showPage(currentUser?'profile':'auth')">←</div><div class="tb-title">Profil DJ</div></div>
-  <div class="scroll" style="padding:1rem 1rem 2rem">
-
-    <div style="padding:.2rem 0 1.1rem;margin-bottom:1.1rem;border-bottom:1.5px solid #0A0A0C">
-      <h1 style="font-family:'Anton',sans-serif;font-weight:400;font-size:1.9rem;line-height:1;letter-spacing:0;text-transform:uppercase;color:#0A0A0C;margin-bottom:.3rem">Profil DJ</h1>
-      <p style="font-size:.82rem;color:var(--tx3)">Ton press-kit public — visible par les organisateurs et les invités.</p>
-    </div>
-
-    <!-- Photo -->
-    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:1.5rem">
-      <div id="dj-edit-avatar" onclick="document.getElementById('dj-photo-input').click()" style="width:96px;height:96px;border-radius:0;background:#0A0A0C;overflow:hidden;position:relative;cursor:pointer;border:1.5px solid #0A0A0C;margin-bottom:.6rem">
-        <img id="dj-edit-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none">
-        <div id="dj-edit-initials" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff">🎧</div>
-        <div style="position:absolute;inset:0;background:rgba(10,10,12,.45);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff">📷</div>
+  <div class="tb">
+    <button type="button" class="tb-back" onclick="showPage(currentUser?'profile':'auth')" aria-label="Revenir au profil">←</button>
+    <div class="tb-title">Espace DJ</div>
+    <span class="djr-top-label">PULL UP!</span>
+  </div>
+  <div class="scroll djr-scroll">
+    <div class="djr-layout">
+      <header class="djr-hero">
+        <div class="djr-eyebrow"><span></span> TON PRESS KIT DIGITAL</div>
+        <h1>TON SON.<br>TON NOM.<br><em>TA PAGE.</em></h1>
+        <p>Donne une scène à ton univers. Un profil pour te découvrir, t’écouter et te booker.</p>
+        <div class="djr-record" aria-hidden="true"><span>PU!</span></div>
+        <div class="djr-hero-footer"><span>FAIT POUR LES DJ.</span><span>↗</span></div>
+      </header>
+      <div class="djr-editor">
+        <div class="djr-intro"><span>LE PROFIL ARTISTE</span><p>Commence par ton nom. Le reste, à ton rythme.</p></div>
+        <div class="djr-photo-row">
+          <button type="button" id="dj-edit-avatar" onclick="document.getElementById('dj-photo-input').click()" aria-label="Ajouter ou changer la photo de profil">
+            <img id="dj-edit-img" alt="Ta photo de profil DJ" style="display:none">
+            <span id="dj-edit-initials" aria-hidden="true">↗</span>
+            <span class="djr-photo-plus" aria-hidden="true">+</span>
+          </button>
+          <div><h2>Un visage sur ton son.</h2><button type="button" class="djr-photo-link" onclick="document.getElementById('dj-photo-input').click()">Ajouter une photo ↗</button><p>Choisis un portrait qui te ressemble.</p></div>
+          <input type="file" id="dj-photo-input" accept="image/*" hidden onchange="uploadDjPhoto(this)">
+        </div>
+<section class="djr-section" aria-labelledby="djr-section-01"><div class="djr-section-heading"><span class="djr-number">01</span><div><h2 id="djr-section-01">Ton identité</h2><p>Fais-toi un nom.</p></div></div><div class="djr-fields"><div class="fl djr-wide"><label for="dj-edit-stage-name">Nom de scène <span>*</span></label><input class="fi" id="dj-edit-stage-name" type="text" placeholder="Ex. DJ Nova" maxlength="30" required aria-required="true"></div><div class="fl djr-wide"><label for="dj-edit-tagline">Accroche</label><input class="fi" id="dj-edit-tagline" type="text" placeholder="Une phrase pour donner le ton" maxlength="90"></div><div class="fl"><label for="dj-edit-city">Ville</label><input class="fi" id="dj-edit-city" type="text" placeholder="Paris, France" maxlength="60"></div><div class="fl"><label for="dj-edit-genres">Genres musicaux</label><input class="fi" id="dj-edit-genres" type="text" placeholder="House, Techno, Électro" maxlength="80"></div></div></section>
+<section class="djr-section" aria-labelledby="djr-section-02"><div class="djr-section-heading"><span class="djr-number">02</span><div><h2 id="djr-section-02">Ton univers</h2><p>Raconte ce qui te fait vibrer.</p></div></div><div class="djr-fields"><div class="fl djr-wide"><label for="dj-edit-bio">Biographie</label><textarea class="fi" id="dj-edit-bio" placeholder="Ton parcours, tes influences, l’énergie de tes sets…" maxlength="500" rows="4"></textarea></div><div class="fl"><label for="dj-edit-soundcloud">SoundCloud</label><input class="fi" id="dj-edit-soundcloud" type="text" placeholder="soundcloud.com/tonprofil" maxlength="120"></div><div class="fl"><label for="dj-edit-ra">Resident Advisor</label><input class="fi" id="dj-edit-ra" type="text" placeholder="ra.co/dj/tonprofil" maxlength="120"></div></div></section>
+<section class="djr-section" aria-labelledby="djr-section-03"><div class="djr-section-heading"><span class="djr-number">03</span><div><h2 id="djr-section-03">Tes contacts</h2><p>Du premier contact au prochain set.</p></div></div><div class="djr-fields"><div class="fl"><label for="dj-edit-instagram">Instagram</label><input class="fi" id="dj-edit-instagram" type="text" placeholder="@tonprofil" maxlength="60"></div><div class="fl"><label for="dj-edit-booking-email">Email de booking</label><input class="fi" id="dj-edit-booking-email" type="email" placeholder="booking@exemple.fr"></div></div></section>
+        <div class="djr-save"><p><span>*</span> Seul le nom de scène est obligatoire.<br>Les informations enregistrées sont publiques.</p><button type="button" class="btn-g" id="btn-save-dj-profile">Enregistrer mon profil <span aria-hidden="true">↗</span></button></div>
       </div>
-      <input type="file" id="dj-photo-input" accept="image/*" style="display:none" onchange="uploadDjPhoto(this)">
-      <div style="font-size:.7rem;color:var(--tx4)">Appuyer pour changer</div>
     </div>
-
-    <div class="fl">
-      <label>Nom de scène</label>
-      <input class="fi" id="dj-edit-stage-name" type="text" placeholder="DJ Nova" maxlength="30" style="border-radius:0">
-    </div>
-    <div class="fl">
-      <label>Accroche</label>
-      <input class="fi" id="dj-edit-tagline" type="text" placeholder="Producteur et DJ français…" maxlength="90" style="border-radius:0">
-    </div>
-    <div class="fl">
-      <label>Bio</label>
-      <textarea class="fi" id="dj-edit-bio" placeholder="Parle de ton parcours, ton style…" maxlength="500" rows="3" style="resize:none;height:auto;line-height:1.5;border-radius:0"></textarea>
-    </div>
-    <div class="fl">
-      <label>Ville</label>
-      <input class="fi" id="dj-edit-city" type="text" placeholder="Paris, France" maxlength="60" style="border-radius:0">
-    </div>
-    <div class="fl">
-      <label>Genres</label>
-      <input class="fi" id="dj-edit-genres" type="text" placeholder="Techno, House, Électro" maxlength="80" style="border-radius:0">
-    </div>
-    <div class="fl">
-      <label>Instagram</label>
-      <input class="fi" id="dj-edit-instagram" type="text" placeholder="@djnova (optionnel)" maxlength="60" style="border-radius:0">
-    </div>
-    <div class="fl">
-      <label>SoundCloud</label>
-      <input class="fi" id="dj-edit-soundcloud" type="text" placeholder="soundcloud.com/djnova (optionnel)" maxlength="120" style="border-radius:0">
-    </div>
-    <div class="fl">
-      <label>Resident Advisor</label>
-      <input class="fi" id="dj-edit-ra" type="text" placeholder="ra.co/dj/djnova (optionnel)" maxlength="120" style="border-radius:0">
-    </div>
-    <div class="fl" style="margin-bottom:1.25rem">
-      <label>Email de booking</label>
-      <input class="fi" id="dj-edit-booking-email" type="email" placeholder="booking@djnova.fr" style="border-radius:0">
-    </div>
-
-    <button class="btn-g" id="btn-save-dj-profile" style="background:#0A0A0C;border-radius:0;box-shadow:none">Enregistrer</button>
   </div>
 </div>
 
