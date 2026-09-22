@@ -1135,6 +1135,25 @@ async function openDjRegister() {
 function elt2val(id, v) { const e = document.getElementById(id); if (e) e.value = v || ''; }
 
 async function saveDjProfile() {
+  // Revérifier la session directement ici plutôt que de se fier uniquement à
+  // _sbSession (rempli en arrière-plan par le listener de window.load) : ce
+  // bouton est cliquable dès l'affichage de la page, potentiellement avant
+  // que cette restauration de session n'ait fini de tourner — sans ce
+  // re-check, "Enregistrer" pouvait dire "connecte-toi" à quelqu'un déjà
+  // connecté à Google.
+  if (!_authToken && !_sbSession && _sb) {
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session) {
+        _sbSession = session;
+        const u = session.user;
+        currentUser = currentUser || {
+          displayName: u.user_metadata?.full_name || u.user_metadata?.name || u.phone || u.email || 'Invité',
+          uid: u.id, phoneNumber: u.phone || null, email: u.email || null,
+        };
+      }
+    } catch(e) {}
+  }
   if (!(_authToken || _sbSession)) { toast('⚠️ Connecte-toi (Google) pour enregistrer ton profil DJ'); return; }
   const stage_name = document.getElementById('dj-edit-stage-name')?.value.trim();
   if (!stage_name) { toast('⚠️ Le nom de scène est requis'); return; }
