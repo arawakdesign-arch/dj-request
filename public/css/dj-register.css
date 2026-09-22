@@ -41,3 +41,43 @@
   .djr-intro h1{font-size:1.8rem}
 }
 @media(max-width:400px){.djr-fields{grid-template-columns:1fr}.djr-photo-row{gap:16px}}
+/* Extended artist profile */
+#pg-dj-register .djr-section>h2{margin-bottom:22px;font-size:1.1rem}
+#pg-dj-register .djr-section h3{font-size:.85rem}
+#pg-dj-register .djr-fields:has(textarea){grid-template-columns:1fr}
+.djr-help{font-size:.75rem;color:#68636d;line-height:1.6;margin:8px 0 16px}
+.djr-error{display:block;color:#b51b30;font-size:.75rem;line-height:1.5;margin-top:6px}
+.djr-error:empty{display:none}
+#djr-feedback:not(:empty){padding:12px;border-left:3px solid #b51b30;margin:16px 0;font-size:.82rem;background:#fff4f5}
+#pg-dj-register [aria-invalid="true"]{border-color:#b51b30}
+.djr-choice-field{border:0;min-width:0}
+.djr-choice-field legend{font-weight:600;font-size:.8rem;margin-bottom:12px}
+.djr-choices{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.djr-choice{display:flex;align-items:center;gap:7px;border:1px solid #ddd;padding:9px 11px;font-size:.75rem;cursor:pointer;border-radius:3px}
+.djr-choice:has(input:checked){background:#111;color:white;border-color:#111}
+.djr-choice input{accent-color:#111;width:16px;height:16px}
+.djr-choice:has(input:disabled){opacity:.4;cursor:default}
+.djr-cover-picker summary{cursor:pointer;font-size:.85rem;font-weight:600;padding:12px 0}
+.djr-cover-picker summary span{display:block;font-weight:400;font-size:.7rem;color:#666;margin-top:5px}
+.djr-covers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+.djr-cover-option{position:relative;cursor:pointer;font-size:.7rem;text-align:center}
+.djr-cover-option img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border:2px solid transparent;border-radius:3px;margin-bottom:6px}
+.djr-cover-option:has(input:checked) img{border-color:#111}
+.djr-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.djr-gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px}
+.djr-gallery button{width:100%;padding:8px;background:white;border:1px solid #ccc;cursor:pointer;font-size:.7rem}
+#pg-dj-register button:disabled{opacity:.5;cursor:wait}
+#pg-dj-register .djr-photo-row{margin:0;padding:0 0 16px;border:0}
+.djr-photo-link{display:block;margin-top:5px}
+.djr-sr{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+#pk-profile-details{padding:20px 16px}
+#pk-profile-details section{margin-bottom:24px}
+#pk-profile-details h2{font-size:1rem;margin-bottom:12px}
+#pk-profile-details p{font-size:.85rem;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.pk-profile-links{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.pk-profile-links a{border:1px solid #ddd;padding:10px;color:inherit;font-size:.8rem;text-decoration:none;border-radius:4px}
+.pk-profile-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pk-profile-gallery img{width:100%;aspect-ratio:1;object-fit:cover}
+.pk-cover-avatar{width:100%;aspect-ratio:3/2;object-fit:cover;margin-bottom:16px}
+@media(max-width:440px){.djr-covers{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){#pg-dj-register .fi{font-size:16px}}

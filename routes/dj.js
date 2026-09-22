@@ -3,6 +3,8 @@ const multer   = require('multer');
 const supabase = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
 const { validateDisplayName } = require('../lib/moderation');
+const DjProfileSchema = require('../public/js/dj-profile-schema');
+const { randomUUID } = require('node:crypto');
 const { isClosed, isUpcoming } = require('./events');
 
 const router = express.Router();
@@ -30,21 +32,19 @@ router.get('/dj/profile', requireAuth, async (req, res) => {
 });
 
 router.post('/dj/profile', requireAuth, async (req, res) => {
-  const { stage_name, tagline, bio, city, genres, instagram, soundcloud, resident_advisor, booking_email, available } = req.body;
-  if (!stage_name) return res.status(400).json({ error: 'Nom de scène requis' });
-  const nameCheck = validateDisplayName(stage_name);
-  if (!nameCheck.ok) return res.status(400).json({ error: nameCheck.reason });
-
-  const updates = { id: req.user.id, stage_name, updated_at: new Date().toISOString() };
-  if (tagline           !== undefined) updates.tagline          = tagline;
-  if (bio                !== undefined) updates.bio              = bio;
-  if (city               !== undefined) updates.city             = city;
-  if (genres             !== undefined) updates.genres           = genres;
-  if (instagram          !== undefined) updates.instagram        = instagram;
-  if (soundcloud         !== undefined) updates.soundcloud       = soundcloud;
-  if (resident_advisor   !== undefined) updates.resident_advisor = resident_advisor;
-  if (booking_email      !== undefined) updates.booking_email    = booking_email;
-  if (available          !== undefined) updates.available        = available;
+  const { data: existing, error: readError } = await supabase.from('dj_profiles').select('photo_url, gallery').eq('id', req.user.id).maybeSingle();
+  if (readError) return res.status(500).json({ error: 'Impossible de charger le profil. Vérifie la migration des profils DJ.' });
+  const { value, errors } = DjProfileSchema.validate(req.body, existing?.photo_url);
+  const nameCheck = validateDisplayName(value.stage_name || '');
+  if (!nameCheck.ok) errors.stage_name = nameCheck.reason;
+  if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], fields: errors });
+  // Only retain gallery images previously uploaded by this user.
+  const gallery = req.body.gallery === undefined ? (existing?.gallery || []) : req.body.gallery;
+  if (!Array.isArray(gallery) || gallery.length > 6 || new Set(gallery).size !== gallery.length || gallery.some(url => !(existing?.gallery || []).includes(url))) {
+    return res.status(400).json({ error: 'Galerie invalide : 6 photos maximum, importées depuis ton compte.' });
+  }
+  const updates = { ...value, id: req.user.id, updated_at: new Date().toISOString() };
+  if (typeof req.body.available === 'boolean') updates.available = req.body.available;
 
   const { data, error } = await supabase.from('dj_profiles').upsert(updates).select().single();
   if (error) return res.status(500).json({ error: error.message });
@@ -73,7 +73,7 @@ router.post('/dj/profile/photo', requireAuth, upload.single('photo'), async (req
   let buffer;
   try {
     const sharp = require('sharp');
-    buffer = await sharp(req.file.buffer).resize(500, 500, { fit: 'cover' }).jpeg({ quality: 75, mozjpeg: true }).toBuffer();
+    buffer = await sharp(req.file.buffer).rotate().resize(500, 500, { fit: 'cover' }).jpeg({ quality: 75, mozjpeg: true }).toBuffer();
   } catch(e) { return res.status(400).json({ error: 'Fichier image invalide' }); }
 
   const fileName = `dj/${req.user.id}/avatar.jpg`;
@@ -83,9 +83,57 @@ router.post('/dj/profile/photo', requireAuth, upload.single('photo'), async (req
   if (error) return res.status(500).json({ error: error.message });
 
   const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(fileName);
-  const { error: dbError } = await supabase.from('dj_profiles').upsert({ id: req.user.id, photo_url: publicUrl, updated_at: new Date().toISOString() });
+  const photoUrl = publicUrl + '?v=' + Date.now();
+  const { error: dbError } = await supabase.from('dj_profiles').upsert({ id: req.user.id, photo_url: photoUrl, updated_at: new Date().toISOString() });
   if (dbError) { console.error('[dj profile photo] échec écriture DB —', req.user.id, dbError.message); return res.status(500).json({ error: dbError.message }); }
-  res.json({ url: publicUrl });
+  res.json({ url: photoUrl });
+});
+
+// Add gallery images one at a time; the client serializes uploads.
+router.post('/dj/profile/gallery', requireAuth, upload.single('photo'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Choisis une image.' });
+  const { data: profile, error: readError } = await supabase.from('dj_profiles').select('gallery').eq('id', req.user.id).maybeSingle();
+  if (readError) return res.status(500).json({ error: 'Galerie indisponible. Vérifie la migration des profils DJ.' });
+  const gallery = profile?.gallery || [];
+  if (gallery.length >= 6) return res.status(400).json({ error: 'La galerie est limitée à 6 photos.' });
+  let buffer;
+  try { buffer = await require('sharp')(req.file.buffer).rotate().resize(1600,1600,{fit:'inside',withoutEnlargement:true}).jpeg({quality:82}).toBuffer(); }
+  catch { return res.status(400).json({error:'Image invalide.'}); }
+  const path = `dj/${req.user.id}/gallery-${randomUUID()}.jpg`;
+  const { error } = await supabase.storage.from('profile-photos').upload(path, buffer, {contentType:'image/jpeg'});
+  if (error) return res.status(500).json({error:'Échec de l’envoi de la photo.'});
+  const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(path);
+  // Compare-and-swap prevents concurrent uploads from losing a photo or exceeding six.
+  let write;
+  if (profile) write = await supabase.from('dj_profiles').update({gallery:[...gallery,publicUrl],updated_at:new Date().toISOString()}).eq('id',req.user.id).eq('gallery',JSON.stringify(gallery)).select('gallery').maybeSingle();
+  else write = await supabase.from('dj_profiles').insert({id:req.user.id,gallery:[publicUrl]}).select('gallery').single();
+  if (write.error || !write.data) {
+    await supabase.storage.from('profile-photos').remove([path]);
+    return res.status(409).json({error:'La galerie a changé. Rouvre ton profil puis réessaie.'});
+  }
+  res.json({url:publicUrl,gallery:write.data.gallery});
+});
+
+router.delete('/dj/profile/gallery', requireAuth, async (req, res) => {
+  const { data: profile, error } = await supabase.from('dj_profiles').select('gallery').eq('id',req.user.id).maybeSingle();
+  if (error) return res.status(500).json({error:'Impossible de charger la galerie.'});
+  const gallery = profile?.gallery || [];
+  if (!gallery.includes(req.body.url)) return res.status(404).json({error:'Photo introuvable.'});
+  const nextGallery = gallery.filter(url=>url!==req.body.url);
+  const write = await supabase.from('dj_profiles').update({gallery:nextGallery,updated_at:new Date().toISOString()}).eq('id',req.user.id).eq('gallery',JSON.stringify(gallery)).select('gallery').maybeSingle();
+  if (write.error || !write.data) return res.status(409).json({error:'La galerie a changé. Rouvre ton profil puis réessaie.'});
+  // Remove only an object under this account's gallery prefix.
+  const prefix = supabase.storage.from('profile-photos').getPublicUrl(`dj/${req.user.id}/`).data.publicUrl;
+  if (typeof req.body.url === 'string' && req.body.url.startsWith(prefix+'gallery-')) {
+    const path = `dj/${req.user.id}/`+req.body.url.slice(prefix.length);
+    await supabase.storage.from('profile-photos').remove([path]);
+  }
+  res.json({gallery:nextGallery});
+});
+
+router.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) return res.status(400).json({error:err.code==='LIMIT_FILE_SIZE'?'Chaque image doit faire moins de 5 Mo.':'Envoi de fichier invalide.'});
+  next(err);
 });
 
 // ── Profil public (page press kit partageable) ──────────────────────

@@ -1,0 +1,85 @@
+// Run with PLAYWRIGHT_MODULE pointing to an installed Playwright package, or install it separately.
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const path=require('node:path');
+const root=path.resolve(__dirname,'../public');
+const express=require('express');
+const assert=require('node:assert/strict');
+(async()=>{
+ const app=express();app.use(express.static(root));
+ const server=app.listen(3107,'127.0.0.1');
+ let browser;
+ try{
+ browser=await chromium.launch({...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{channel:'chrome'}),headless:true});
+ const page=await browser.newPage({viewport:{width:390,height:844}});
+ let photoFailure=true, gallery=[], saved=null;
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',async route=>{
+  const u=new URL(route.request().url());
+  if(u.hostname!=='127.0.0.1')return route.abort();
+  if(u.pathname==='/api/dj/profile/photo')return route.fulfill({status:photoFailure?500:200,contentType:'application/json',body:JSON.stringify(photoFailure?{error:'Échec photo simulé'}:{url:'/images/logo.png'})});
+  if(u.pathname==='/api/dj/profile/gallery'){
+   if(route.request().method()==='DELETE')gallery=gallery.filter(x=>x!==route.request().postDataJSON().url);
+   else gallery.push('/images/logo.png?gallery='+gallery.length);
+   return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({gallery,url:gallery.at(-1)})});
+  }
+  if(u.pathname==='/api/dj/profile' && route.request().method()==='POST') {saved=route.request().postDataJSON();return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...saved,id:'test',photo_url:'/images/logo.png',gallery})});}
+  if(u.pathname.startsWith('/api/'))return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(u.pathname==='/api/config/public'?{}:[])});
+  return route.continue();
+ });
+ await page.goto('http://127.0.0.1:3107/index.html');
+ await page.waitForTimeout(500);
+ await page.evaluate(()=>{
+  _sbSession={access_token:'test',user:{id:'test'}};currentUser={uid:'test',displayName:'DJ Test'};_djProfileCache={};
+  openDjRegister();
+ });
+ await page.locator('#djr-editor').waitFor({state:'visible'});
+ assert.equal(await page.locator('#dj-edit-tagline').getAttribute('maxlength'),'150');
+ await page.locator('#btn-save-dj-profile').click();
+ assert.match(await page.locator('#djr-feedback').innerText(),/Complète/);
+ const genreInputs=page.locator('#djr-genres input');for(let i=0;i<6;i++)await genreInputs.nth(i).check();
+ assert.equal(await genreInputs.nth(6).isDisabled(),true);
+ await genreInputs.nth(0).uncheck();assert.equal(await genreInputs.nth(6).isDisabled(),false);
+ await page.locator('#djr-genre-search').fill('zouk');assert.equal(await page.locator('#djr-genres label:visible').count(),5);
+ await page.locator('#djr-genre-search').fill('');
+ await page.locator('.djr-cover-picker summary').click();
+ assert.equal(await page.locator('#djr-cover-options input').count(),21);
+ await page.locator('#djr-cover-options img').evaluateAll(images=>images.forEach(img=>img.loading='eager'));
+ await page.waitForFunction(()=>[...document.querySelectorAll('#djr-cover-options img')].every(img=>img.complete&&img.naturalWidth>0));
+ assert.ok(await page.locator('#djr-cities option').count()>40);
+ assert.equal(await page.evaluate(()=>document.querySelector('#djr-editor').scrollWidth<=document.querySelector('#djr-editor').clientWidth),true);
+ await page.evaluate(()=>{_djProfileCache={photo_url:'/images/logo.png'};initDjProfileEditor({stage_name:'DJ Nova',city:'Paris, France',tagline:'House music',bio:'Biographie',genres:'House',service_types:['Club'],soundcloud:'https://soundcloud.com/nova',booking_email:'booking@example.com'});});
+ const result=await page.evaluate(()=>collectDjProfile());assert.equal(result.stage_name,'DJ Nova');assert.equal(result.genres,'House');
+ await page.evaluate(()=>{_djProfileCache={};});
+ await page.locator('#dj-photo-input').setInputFiles(path.join(root,'images/logo.png'));
+ await page.waitForFunction(()=>!djMediaBusy);assert.match(await page.locator('#djr-feedback').innerText(),/Échec/);
+ assert.equal(await page.evaluate(()=>!!_djProfileCache.photo_url),false);
+ photoFailure=false;
+ await page.locator('#dj-photo-input').setInputFiles(path.join(root,'images/logo.png'));
+ await page.waitForFunction(()=>!djMediaBusy);assert.equal(await page.evaluate(()=>_djProfileCache.photo_url),'/images/logo.png');
+ await page.locator('#djr-gallery-input').setInputFiles(path.join(root,'images/logo.png'));
+ await page.waitForFunction(()=>!djMediaBusy);assert.equal(await page.locator('#djr-gallery img').count(),1);
+ await page.locator('#djr-gallery button').click();await page.waitForFunction(()=>!djMediaBusy);assert.equal(await page.locator('#djr-gallery img').count(),0);
+ await page.evaluate(()=>{djGallery=Array.from({length:6},(_,i)=>'/images/logo.png?'+i);renderDjGallery();});
+ await page.locator('#djr-gallery-input').setInputFiles(path.join(root,'images/logo.png'));
+ assert.match(await page.locator('#djr-feedback').innerText(),/6 photos/);assert.equal(gallery.length,0);
+ await page.evaluate(()=>{djGallery=[];renderDjGallery();});
+ await page.locator('#djr-cover-options input[value="3"]').check();
+ await page.locator('#btn-save-dj-profile').click();await page.waitForFunction(()=>document.getElementById('btn-save-dj-profile').textContent==='Enregistrer mon profil');
+ assert.equal(saved.cover_avatar,3);assert.equal(saved.service_types[0],'Club');assert.equal(saved.soundcloud,'https://soundcloud.com/nova');
+ await page.evaluate(()=>{openDjRegister();document.querySelector('#pg-dj-register .scroll').scrollTop=0;});
+ await page.locator('.djr-cover-picker').evaluate(el=>el.open=false);
+ await page.waitForTimeout(500);
+ await page.screenshot({path:path.join(require('node:os').tmpdir(),'dj-profile-mobile.png'),fullPage:true});
+ await page.setViewportSize({width:1280,height:900});await page.screenshot({path:path.join(require('node:os').tmpdir(),'dj-profile-desktop.png'),fullPage:true});
+ await page.evaluate(()=>{_djProfileCache={..._djProfileCache,bio:'Présentation test',experience:'Club test',service_types:['Club'],genres:'House',gallery:['/images/logo.png'],tiktok:'https://tiktok.com/@test',website:'https://example.com',video_url:'https://youtube.com/watch?v=test',phone:'+33 6 12 34 56 78',travel_areas:'France'};showPage('presskit');});
+ assert.match(await page.locator('#pk-profile-details').innerText(),/Présentation test/);
+ assert.match(await page.locator('#pk-profile-details').innerText(),/Club test/);
+ assert.equal(await page.locator('#pk-profile-details a[href="https://tiktok.com/@test"]').count(),1);
+ assert.equal(await page.locator('#pk-profile-details .pk-profile-gallery img').count(),1);
+ assert.match(await page.locator('#pk-photo').evaluate(el=>el.parentElement.style.backgroundImage),/avatar-03/);
+ const relevant=errors.filter(e=>!e.includes('supabase')&&!e.includes('QRCode'));
+ console.log('Browser errors:',errors);
+ assert.deepEqual(relevant,[]);
+ console.log('PASS: mobile/desktop, validation, six styles, search, 20 covers, city suggestions, form round-trip; screenshots in /private/tmp.');
+ }finally{await browser?.close();server.close();}
+})().catch(e=>{console.error(e);process.exitCode=1});
