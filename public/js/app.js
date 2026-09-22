@@ -1115,7 +1115,35 @@ async function adminEnterEvent(id, name) {
 
 async function openDjRegister() {
   showPage('dj-register');
-  if (!(_authToken || _sbSession)) return; // formulaire consultable ; connexion requise seulement à l'enregistrement
+  // Revérifier la session directement ici plutôt que de se fier uniquement à
+  // _sbSession (rempli en arrière-plan par le listener de window.load) : ce
+  // bouton est cliquable dès l'affichage de la page, potentiellement avant
+  // que cette restauration de session n'ait fini de tourner.
+  if (!_authToken && !_sbSession && _sb) {
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session) {
+        _sbSession = session;
+        const u = session.user;
+        currentUser = currentUser || {
+          displayName: u.user_metadata?.full_name || u.user_metadata?.name || u.phone || u.email || 'Invité',
+          uid: u.id, phoneNumber: u.phone || null, email: u.email || null,
+        };
+      }
+    } catch(e) {}
+  }
+  const gate   = document.getElementById('djr-google-gate');
+  const editor = document.getElementById('djr-editor');
+  if (!(_authToken || _sbSession)) {
+    // Connexion Google requise avant de pouvoir créer/éditer la page DJ —
+    // le formulaire ne s'affiche qu'une fois connecté, pour ne pas faire
+    // remplir tout un profil avant de découvrir qu'il faut se connecter.
+    if (gate)   gate.style.display   = 'block';
+    if (editor) editor.style.display = 'none';
+    return;
+  }
+  if (gate)   gate.style.display   = 'none';
+  if (editor) editor.style.display = '';
   if (!_djProfileCache) await loadDjProfile();
   const p = _djProfileCache || {};
   elt2val('dj-edit-stage-name',     p.stage_name);

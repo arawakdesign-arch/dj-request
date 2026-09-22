@@ -150,6 +150,9 @@ window.addEventListener('load', async () => {
             sessionStorage.removeItem('djr_pending_create_intent');
             showPage('dj-login');
             _djLoginShowCreate(); // le formulaire nom/mot de passe apparaît, currentUser.email est maintenant renseigné
+          } else if (sessionStorage.getItem('djr_pending_dj_register_intent')) {
+            sessionStorage.removeItem('djr_pending_dj_register_intent');
+            await openDjRegister(); // identité désormais connue → le formulaire de la page DJ s'affiche directement
           } else if (sessionStorage.getItem('djr_pending_orga_entry')) {
             sessionStorage.removeItem('djr_pending_orga_entry');
             // showPage('dj-login') n'est PAS appelé ici : _djEnterOrgaAfterAuth()
@@ -689,6 +692,16 @@ function _djLoginBack() {
                  || document.getElementById('dj-create-flow').style.display === 'block';
   if (onSubView) { _djLoginShowChoice(); return; }
   showPage('auth');
+}
+
+// Connexion Google depuis l'écran "Créer ma page DJ" (pg-dj-register) —
+// même principe que _djCreateSignInGoogle() : on note l'intention pour
+// revenir directement sur le formulaire DJ une fois connecté (cf.
+// onAuthStateChange plus haut).
+function _djRegisterSignInGoogle() {
+  clearToken();
+  sessionStorage.setItem('djr_pending_dj_register_intent', '1');
+  signInGoogle(true);
 }
 
 function _djCreateSignInGoogle() {
