@@ -410,7 +410,13 @@ function afterLogin(skipClientPage) {
   applyProfileToUI(); // initiale / photo dès la connexion (localStorage si présent, sinon fallback sur le nom du compte)
   loadRemoteProfile(); // le serveur fait autorité — écrase le cache local si le profil a été modifié ailleurs
   loadDjProfile();
-  loadFlyerFromStorage();
+  // Le flyer en cache local n'est qu'un affichage optimiste en attendant que
+  // loadEvent() récupère le vrai flyer de la soirée en cours — sans soirée
+  // valide à charger (ex: après une intention en attente comme la page DJ,
+  // où il n'y a pas forcément d'eid), il ne sera jamais corrigé et restait
+  // affiché indéfiniment : une image d'une ancienne soirée sans aucun texte
+  // à côté, ressemblant à "une soirée fantôme".
+  if (isValidUuid(eid)) loadFlyerFromStorage();
   setTimeout(loadProfileStats, 1000); // charge les vraies stats en arrière-plan
   setTimeout(() => {
     initChat();
