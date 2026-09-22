@@ -63,7 +63,7 @@ a{display:block;width:100%}
 .menu-panel::before{content:'';position:fixed;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#6F22FF,#8D2CFF,#FF1C8E);z-index:2}
 .menu-panel::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.55;mix-blend-mode:overlay;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:3px 3px;z-index:0}
 .menu-watermark{position:absolute;right:-8vw;bottom:2vh;width:70vw;max-width:420px;opacity:.06;transform:rotate(-8deg);pointer-events:none;z-index:0;filter:brightness(0) invert(1)}
-.menu-head{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.4rem 1rem;position:relative;z-index:1;flex-shrink:0}
+.menu-head{display:flex;align-items:center;justify-content:flex-end;padding:1.5rem 1.4rem 1rem;position:relative;z-index:1;flex-shrink:0}
 .menu-logo{height:34px;object-fit:contain}
 .menu-close{width:42px;height:42px;border-radius:50%;border:2px solid rgba(255,255,255,.85);background:rgba(255,255,255,.06);color:#fff;font-size:1.1rem;font-weight:700;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
 .menu-close:active{transform:scale(.9);background:rgba(255,255,255,.18)}
@@ -114,7 +114,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;back
   <div class="menu-panel">
     <img src="/images/LOGO120.png" alt="" class="menu-watermark">
     <div class="menu-head">
-      <img src="/images/LOGO120.png" alt="PULL UP!" class="menu-logo">
       <button class="menu-close" id="menuClose" aria-label="Fermer">✕</button>
     </div>
     <nav class="menu-links">
