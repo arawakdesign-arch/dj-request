@@ -1345,33 +1345,33 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <div class="page" id="pg-dj-register">
   <div class="tb">
     <button type="button" class="tb-back" onclick="showPage(currentUser?'profile':'auth')" aria-label="Revenir au profil">←</button>
-    <div class="tb-title">Espace DJ</div>
-    <span class="djr-top-label">PULL UP!</span>
+    <img class="djr-logo" src="/images/logo.png" alt="Pull Up!" width="64" height="64">
+    <span class="djr-top-label">ESPACE DJ</span>
   </div>
   <div class="scroll djr-scroll">
     <div class="djr-layout">
-      <header class="djr-hero">
-        <div class="djr-eyebrow"><span></span> TON PRESS KIT DIGITAL</div>
-        <h1>TON SON.<br>TON NOM.<br><em>TA PAGE.</em></h1>
-        <p>Donne une scène à ton univers. Un profil pour te découvrir, t’écouter et te booker.</p>
-        <div class="djr-record" aria-hidden="true"><span>PU!</span></div>
-        <div class="djr-hero-footer"><span>FAIT POUR LES DJ.</span><span>↗</span></div>
-      </header>
-      <div class="djr-editor">
-        <div class="djr-intro"><span>LE PROFIL ARTISTE</span><p>Commence par ton nom. Le reste, à ton rythme.</p></div>
+      <div id="djr-google-gate" style="display:none;text-align:center;padding:2.5rem 1.5rem;border:1.5px solid #0A0A0C;background:#FFFFFF">
+        <div style="font-size:.9rem;font-weight:700;margin-bottom:1rem">Connecte-toi avec Google pour créer ta page DJ</div>
+        <button type="button" class="auth-btn-primary" style="width:auto;padding:.9rem 1.6rem;margin:0 auto" onclick="_djRegisterSignInGoogle()">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continuer avec Google
+        </button>
+      </div>
+      <div class="djr-editor" id="djr-editor">
+        <header class="djr-intro"><h1>Mon profil DJ</h1><p>Ta photo, tes infos et tes liens, réunis sur ta page publique.</p></header>
         <div class="djr-photo-row">
           <button type="button" id="dj-edit-avatar" onclick="document.getElementById('dj-photo-input').click()" aria-label="Ajouter ou changer la photo de profil">
             <img id="dj-edit-img" alt="Ta photo de profil DJ" style="display:none">
-            <span id="dj-edit-initials" aria-hidden="true">↗</span>
+            <span id="dj-edit-initials" aria-hidden="true">+</span>
             <span class="djr-photo-plus" aria-hidden="true">+</span>
           </button>
-          <div><h2>Un visage sur ton son.</h2><button type="button" class="djr-photo-link" onclick="document.getElementById('dj-photo-input').click()">Ajouter une photo ↗</button><p>Choisis un portrait qui te ressemble.</p></div>
+          <div><h2>Photo de profil</h2><button type="button" class="djr-photo-link" onclick="document.getElementById('dj-photo-input').click()">Choisir une photo</button><p>Tu peux la modifier à tout moment.</p></div>
           <input type="file" id="dj-photo-input" accept="image/*" hidden onchange="uploadDjPhoto(this)">
         </div>
-<section class="djr-section" aria-labelledby="djr-section-01"><div class="djr-section-heading"><span class="djr-number">01</span><div><h2 id="djr-section-01">Ton identité</h2><p>Fais-toi un nom.</p></div></div><div class="djr-fields"><div class="fl djr-wide"><label for="dj-edit-stage-name">Nom de scène <span>*</span></label><input class="fi" id="dj-edit-stage-name" type="text" placeholder="Ex. DJ Nova" maxlength="30" required aria-required="true"></div><div class="fl djr-wide"><label for="dj-edit-tagline">Accroche</label><input class="fi" id="dj-edit-tagline" type="text" placeholder="Une phrase pour donner le ton" maxlength="90"></div><div class="fl"><label for="dj-edit-city">Ville</label><input class="fi" id="dj-edit-city" type="text" placeholder="Paris, France" maxlength="60"></div><div class="fl"><label for="dj-edit-genres">Genres musicaux</label><input class="fi" id="dj-edit-genres" type="text" placeholder="House, Techno, Électro" maxlength="80"></div></div></section>
-<section class="djr-section" aria-labelledby="djr-section-02"><div class="djr-section-heading"><span class="djr-number">02</span><div><h2 id="djr-section-02">Ton univers</h2><p>Raconte ce qui te fait vibrer.</p></div></div><div class="djr-fields"><div class="fl djr-wide"><label for="dj-edit-bio">Biographie</label><textarea class="fi" id="dj-edit-bio" placeholder="Ton parcours, tes influences, l’énergie de tes sets…" maxlength="500" rows="4"></textarea></div><div class="fl"><label for="dj-edit-soundcloud">SoundCloud</label><input class="fi" id="dj-edit-soundcloud" type="text" placeholder="soundcloud.com/tonprofil" maxlength="120"></div><div class="fl"><label for="dj-edit-ra">Resident Advisor</label><input class="fi" id="dj-edit-ra" type="text" placeholder="ra.co/dj/tonprofil" maxlength="120"></div></div></section>
-<section class="djr-section" aria-labelledby="djr-section-03"><div class="djr-section-heading"><span class="djr-number">03</span><div><h2 id="djr-section-03">Tes contacts</h2><p>Du premier contact au prochain set.</p></div></div><div class="djr-fields"><div class="fl"><label for="dj-edit-instagram">Instagram</label><input class="fi" id="dj-edit-instagram" type="text" placeholder="@tonprofil" maxlength="60"></div><div class="fl"><label for="dj-edit-booking-email">Email de booking</label><input class="fi" id="dj-edit-booking-email" type="email" placeholder="booking@exemple.fr"></div></div></section>
-        <div class="djr-save"><p><span>*</span> Seul le nom de scène est obligatoire.<br>Les informations enregistrées sont publiques.</p><button type="button" class="btn-g" id="btn-save-dj-profile">Enregistrer mon profil <span aria-hidden="true">↗</span></button></div>
+<section class="djr-section" aria-labelledby="djr-section-01"><div class="djr-section-heading"><div><h2 id="djr-section-01">Identité</h2></div></div><div class="djr-fields"><div class="fl djr-wide"><label for="dj-edit-stage-name">Nom de scène <span>*</span></label><input class="fi" id="dj-edit-stage-name" type="text" placeholder="Ex. DJ Nova" maxlength="30" required aria-required="true"></div><div class="fl djr-wide"><label for="dj-edit-tagline">Accroche</label><input class="fi" id="dj-edit-tagline" type="text" placeholder="Ex. DJ et producteur à Paris" maxlength="90"></div><div class="fl"><label for="dj-edit-city">Ville</label><input class="fi" id="dj-edit-city" type="text" placeholder="Paris, France" maxlength="60"></div><div class="fl"><label for="dj-edit-genres">Genres musicaux</label><input class="fi" id="dj-edit-genres" type="text" placeholder="House, Techno, Électro" maxlength="80"></div></div></section>
+<section class="djr-section" aria-labelledby="djr-section-02"><div class="djr-section-heading"><div><h2 id="djr-section-02">Bio & musique</h2></div></div><div class="djr-fields"><div class="fl djr-wide"><label for="dj-edit-bio">Biographie</label><textarea class="fi" id="dj-edit-bio" placeholder="Ton parcours, tes influences, l’énergie de tes sets…" maxlength="500" rows="4"></textarea></div><div class="fl"><label for="dj-edit-soundcloud">SoundCloud</label><input class="fi" id="dj-edit-soundcloud" type="text" placeholder="soundcloud.com/tonprofil" maxlength="120"></div><div class="fl"><label for="dj-edit-ra">Resident Advisor</label><input class="fi" id="dj-edit-ra" type="text" placeholder="ra.co/dj/tonprofil" maxlength="120"></div></div></section>
+<section class="djr-section" aria-labelledby="djr-section-03"><div class="djr-section-heading"><div><h2 id="djr-section-03">Contact & booking</h2></div></div><div class="djr-fields"><div class="fl"><label for="dj-edit-instagram">Instagram</label><input class="fi" id="dj-edit-instagram" type="text" placeholder="@tonprofil" maxlength="60"></div><div class="fl"><label for="dj-edit-booking-email">Email de booking</label><input class="fi" id="dj-edit-booking-email" type="email" placeholder="booking@exemple.fr"></div></div></section>
+        <div class="djr-save"><p><span>*</span> Seul le nom de scène est obligatoire.<br>Les informations enregistrées sont publiques.</p><button type="button" class="btn-g" id="btn-save-dj-profile">Enregistrer mon profil</button></div>
       </div>
     </div>
   </div>
