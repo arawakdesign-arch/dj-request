@@ -145,7 +145,18 @@ window.addEventListener('load', async () => {
           // Restaurer l'event ID préservé avant la redirection OAuth
           const savedEid = sessionStorage.getItem('djr_pre_oauth_eid');
           if (savedEid) { eid = savedEid; eidWasExplicit = true; sessionStorage.removeItem('djr_pre_oauth_eid'); }
-          afterLogin();
+          // Une intention en attente (créer une soirée, espace organisateur,
+          // page DJ) va décider elle-même quel écran afficher juste après —
+          // sans ce garde-fou, afterLogin() affichait d'abord la page vote
+          // (avec l'eid préservé, parfois une soirée sans rapport ou vide)
+          // avant que l'écran voulu ne prenne le relais une fraction de
+          // seconde plus tard, perçu comme "une page d'event fantôme".
+          const hasPendingIntent = !!(
+            sessionStorage.getItem('djr_pending_create_intent') ||
+            sessionStorage.getItem('djr_pending_dj_register_intent') ||
+            sessionStorage.getItem('djr_pending_orga_entry')
+          );
+          afterLogin(hasPendingIntent);
           if (sessionStorage.getItem('djr_pending_create_intent')) {
             sessionStorage.removeItem('djr_pending_create_intent');
             showPage('dj-login');
@@ -385,14 +396,16 @@ async function startScreenPairing() {
 }
 
 // ── Après connexion réussie ───────────────────────────────────────────
-function afterLogin() {
+function afterLogin(skipClientPage) {
   _loggedIn = true;
   const subEl = document.getElementById('prof-sub'); if (subEl) subEl.textContent = currentUser?.phoneNumber || currentUser?.email || '';
   renderProfile();
   // Ne pas voler l'écran si le mode DJ est déjà actif (session organisateur
-  // restaurée en parallèle, cf. window.load) — on charge quand même tout le
-  // reste (profil, chat...) pour que l'identité personnelle soit disponible.
-  if (!djLoggedIn) showPage('client');
+  // restaurée en parallèle, cf. window.load), ni si une intention en attente
+  // (créer une soirée, espace organisateur, page DJ) va afficher son propre
+  // écran juste après — on charge quand même tout le reste (profil, chat...)
+  // pour que l'identité personnelle soit disponible.
+  if (!djLoggedIn && !skipClientPage) showPage('client');
   renderAll();
   applyProfileToUI(); // initiale / photo dès la connexion (localStorage si présent, sinon fallback sur le nom du compte)
   loadRemoteProfile(); // le serveur fait autorité — écrase le cache local si le profil a été modifié ailleurs
