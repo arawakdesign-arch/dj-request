@@ -98,6 +98,7 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#pk-about').count(),1);
  assert.equal(await page.locator('#pk-music').count(),1);
  assert.equal(await page.locator('#pk-booking').isVisible(),true);
+ assert.equal(await page.evaluate(()=>Boolean(document.querySelector('.pk2-live').compareDocumentPosition(document.querySelector('#pk-profile-details'))&Node.DOCUMENT_POSITION_FOLLOWING)),true);
  assert.equal(await page.locator('#pk-socials').count(),0);
  assert.equal(await page.locator('#pk-music a[href="https://soundcloud.com/public"]').count(),1);
  assert.equal(await page.evaluate(()=>document.querySelector('#pk-booking').getBoundingClientRect().top>document.querySelector('#pk-profile-details').getBoundingClientRect().top),true);

@@ -873,7 +873,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="/css/dj-register.css?v=15">
+<link rel="stylesheet" href="/css/dj-register.css?v=16">
 </head>
 <body>
 
@@ -1900,17 +1900,17 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <button type="button" id="pk-edit-btn" class="pk2-edit" onclick="openDjRegister(true)" style="display:none">Modifier le profil</button>
       </section>
 
+      <section class="pk2-live" aria-labelledby="pk2-live-title">
+        <div class="pk2-section-head"><div><span>LIVE SUR PULL UP</span><h2 id="pk2-live-title">Le public choisit la suite.</h2></div><i></i></div>
+        <div class="pk2-track">
+          <div><span>PROCHAIN SON</span><strong id="pk-np-t">En attente…</strong></div>
+          <button type="button" onclick="navTo('vote')" aria-label="Voir les votes">Voir les votes →</button>
+        </div>
+      </section>
+
       <div class="pk2-columns">
         <div class="pk2-main">
           <div id="pk-profile-details"></div>
-
-          <section class="pk2-live" aria-labelledby="pk2-live-title">
-            <div class="pk2-section-head"><div><span>LIVE SUR PULL UP</span><h2 id="pk2-live-title">Le public choisit la suite.</h2></div><i></i></div>
-            <div class="pk2-track">
-              <div><span>PROCHAIN SON</span><strong id="pk-np-t">En attente…</strong></div>
-              <button type="button" onclick="navTo('vote')" aria-label="Voir les votes">Voir les votes →</button>
-            </div>
-          </section>
         </div>
 
         <aside id="pk-booking" class="pk2-booking" aria-labelledby="pk2-booking-title">

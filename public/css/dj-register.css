@@ -306,6 +306,7 @@
 #pg-presskit .pk-profile-gallery img{aspect-ratio:4/5;filter:saturate(.82);transition:transform .35s,filter .35s}
 #pg-presskit .pk-profile-gallery .pk-profile-photo:hover img{transform:scale(1.025);filter:saturate(1)}
 #pg-presskit .pk2-live{background:linear-gradient(135deg,#17111c,#0f0c12)}
+#pg-presskit .pk2-hero + .pk2-live{margin-top:18px}
 #pg-presskit .pk2-section-head span{color:#ff2a93}
 #pg-presskit .pk2-section-head h2{font-size:2rem}
 #pg-presskit .pk2-track{border-top-color:#ffffff20}
