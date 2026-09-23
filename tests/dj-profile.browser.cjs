@@ -93,7 +93,7 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#pk-about').count(),1);
  assert.equal(await page.locator('#pk-music').count(),1);
  assert.equal(await page.locator('#pk-booking').isVisible(),true);
- assert.equal(await page.locator('#pk-soc-sc').count(),0);
+ assert.equal(await page.locator('#pk-socials').count(),0);
  assert.equal(await page.locator('#pk-music a[href="https://soundcloud.com/public"]').count(),1);
  assert.equal(await page.evaluate(()=>document.querySelector('#pk-booking').getBoundingClientRect().top>document.querySelector('#pk-profile-details').getBoundingClientRect().top),true);
  assert.match(await page.locator('#pk-hero-art').evaluate(el=>el.style.backgroundImage),/auth-hero-bg\.jpg/);

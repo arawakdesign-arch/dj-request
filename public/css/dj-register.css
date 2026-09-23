@@ -103,9 +103,6 @@
 .pk2-chips span{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border:1px solid #514a5c;padding:7px 9px;color:#e5dff0;background:#17141c}
 .pk2-hero-art{position:absolute;z-index:0;top:0;right:0;width:62%;height:100%;background-size:contain;background-repeat:no-repeat;background-position:right bottom}
 .pk2-edit{position:absolute;z-index:4;right:18px;bottom:18px;border:1px solid #ffffff66;background:#111a;color:#fff;padding:10px 13px;font-size:.7rem;font-weight:700;cursor:pointer;backdrop-filter:blur(8px)}
-.pk2-socials{display:flex;gap:1px;background:#d7d4dc;border:1px solid #d7d4dc;margin-top:12px}
-.pk2-socials button{flex:1;border:0;background:#fff;color:#111;padding:14px 10px;font:700 .7rem Inter,sans-serif;cursor:pointer}
-.pk2-socials button:hover{background:#f8f5fc;color:#6f22ff}
 .pk2-columns{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;margin-top:18px;align-items:start}
 .pk2-main,#pk-profile-details{min-width:0}
 #pk-profile-details{padding:0}
@@ -156,14 +153,12 @@
   .pk2-hero-copy{width:80%;padding:18px 16px}
   .pk2-photo{width:48px;height:48px}
   .pk2-tagline{font-size:.78rem;max-width:240px}
-  .pk2-socials{overflow-x:auto}
-  .pk2-socials button{min-width:125px}
   .pk-profile-links{grid-template-columns:1fr}
   .pk-profile-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media print{
   #pg-presskit{position:static;display:block!important;background:#fff}
-  #pg-presskit .tb,.pk2-socials,.pk2-live,.pk2-book-btn,.pk2-print,.pk2-edit{display:none!important}
+  #pg-presskit .tb,.pk2-live,.pk2-book-btn,.pk2-print,.pk2-edit{display:none!important}
   #pg-presskit .scroll{overflow:visible;padding:0}
   .pk2-columns{grid-template-columns:1fr 280px}
   .pk2-booking{position:static}
@@ -293,9 +288,6 @@
 .pk3-scroll-cue{position:absolute;z-index:5;right:28px;bottom:26px;display:flex;align-items:center;gap:10px;font:700 .52rem Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#c9c2ce}
 .pk3-scroll-cue span{width:32px;height:1px;background:#ff2a93}
 #pg-presskit .pk2-edit{z-index:6;right:auto;left:48px;top:135px;bottom:auto;border-radius:30px;background:#0a080c99;border-color:#ffffff30}
-#pg-presskit .pk2-socials{position:relative;margin:0 0 42px;background:#ffffff1a;border:0;border-radius:0 0 16px 16px;overflow:hidden}
-#pg-presskit .pk2-socials button{min-height:58px;background:#100d13;color:#fff;border-right:1px solid #ffffff14;text-transform:uppercase;letter-spacing:.1em;font-size:.58rem}
-#pg-presskit .pk2-socials button:hover{background:#21152d;color:#d0aeff}
 #pg-presskit .pk2-columns{grid-template-columns:minmax(0,1fr) 340px;gap:24px;margin-top:0}
 #pg-presskit #pk-profile-details section,#pg-presskit .pk2-live{scroll-margin-top:90px;background:#110e14;border:1px solid #ffffff19;border-radius:12px;padding:38px;margin-bottom:18px}
 .pk3-section-heading{display:grid;grid-template-columns:126px minmax(0,1fr);gap:18px;align-items:start;margin-bottom:28px}
@@ -356,8 +348,6 @@
   #pg-presskit .pk2-hero-art{width:118%;height:75%;right:-24%;top:5%;opacity:.96}
   .pk3-scroll-cue{display:none}
   #pg-presskit .pk2-edit{left:18px;top:92px}
-  #pg-presskit .pk2-socials{margin-bottom:18px;border-radius:0 0 10px 10px;overflow-x:auto}
-  #pg-presskit .pk2-socials button{min-width:130px;min-height:52px}
   #pg-presskit #pk-profile-details section,#pg-presskit .pk2-live{padding:25px 19px;border-radius:9px}
   .pk3-section-heading{display:block;margin-bottom:22px}
   #pg-presskit .pk3-section-label{display:block;margin-bottom:12px;padding:0}
@@ -388,17 +378,17 @@
 #pg-dj-register .djr-cover-option:has(input:checked){border-color:#6f22ff;box-shadow:0 0 0 2px #6f22ff}
 #pg-dj-register .djr-cover-option:has(input:checked)::after{content:'✓';position:absolute;right:7px;top:7px;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#6f22ff;color:#fff;font-size:.7rem}
 #pg-presskit .pk3-avatar-stage{position:absolute;z-index:0;right:0;top:0;width:59%;height:100%;overflow:hidden}
-#pg-presskit .pk3-avatar-stage::after{content:'';position:absolute;z-index:1;inset:0;background:linear-gradient(90deg,#09070b 0%,#09070b70 20%,transparent 58%),linear-gradient(0deg,#09070bb8 0%,transparent 40%),radial-gradient(circle at 78% 18%,#bb7aff38,transparent 44%),linear-gradient(135deg,#6f22ff20,#ff2a931a);pointer-events:none}
+#pg-presskit .pk3-avatar-stage::after{content:'';position:absolute;z-index:1;inset:0;background:linear-gradient(90deg,#09070b 0%,#09070b66 20%,transparent 55%),linear-gradient(0deg,#09070b80,transparent 35%);pointer-events:none}
 #pg-presskit .pk3-avatar-halo{display:none}
-#pg-presskit .pk3-avatar-stage .pk2-hero-art{position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center top;filter:saturate(.88) contrast(1.04)}
+#pg-presskit .pk3-avatar-stage .pk2-hero-art{position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center 24%;filter:saturate(.88) contrast(1.04)}
 #pg-presskit .pk2-photo.pk2-avatar-medallion{object-position:68% center;background:radial-gradient(circle at 65% 35%,#b982ff,#5e22a8 52%,#160b22);filter:saturate(1.05)}
 #pg-presskit .pk2-hero h1{font-size:clamp(4.6rem,9vw,8rem);max-width:56%}
 #pg-presskit .pk2-tagline{max-width:46%}
 @media(max-width:560px){
   #pg-dj-register .djr-covers{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:0 10px 14px}
-  #pg-presskit .pk3-avatar-stage{width:100%;height:64%;top:0}
-  #pg-presskit .pk3-avatar-stage::after{background:linear-gradient(0deg,#09070bea 0%,transparent 58%),radial-gradient(circle at 76% 15%,#c18aff42,transparent 42%),linear-gradient(135deg,#6f22ff30,#ff2a9324)}
-  #pg-presskit .pk3-avatar-stage .pk2-hero-art{width:100%;height:100%;right:auto;top:auto;background-size:cover;background-position:center top;opacity:1}
+  #pg-presskit .pk3-avatar-stage{width:100%;height:68%;top:2%}
+  #pg-presskit .pk3-avatar-stage::after{background:linear-gradient(0deg,#09070bd9 0%,transparent 55%),linear-gradient(90deg,#09070b33,transparent 45%)}
+  #pg-presskit .pk3-avatar-stage .pk2-hero-art{width:100%;height:100%;right:auto;top:auto;background-size:cover;background-position:center 20%;opacity:1}
   #pg-presskit .pk2-hero h1{font-size:clamp(3.5rem,16vw,4.8rem);max-width:100%}
   #pg-presskit .pk2-tagline{max-width:94%}
 }

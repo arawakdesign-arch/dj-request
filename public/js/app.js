@@ -1246,17 +1246,6 @@ function applyDjProfileToPresskit() {
   renderDjProfileDetails(p);
   { const el = document.getElementById('pk-location'); if (el) el.textContent = p.city ? '📍 ' + p.city : ''; }
 
-  const socWrap = document.getElementById('pk-socials');
-  if (socWrap) {
-    const ig = document.getElementById('pk-soc-ig'), ra = document.getElementById('pk-soc-ra');
-    if (ig) ig.style.display = p.instagram        ? '' : 'none';
-    if (ra) ra.style.display = p.resident_advisor ? '' : 'none';
-    for (const [button, key] of [[ig,'instagram'],[ra,'resident_advisor']]) {
-      if (button) button.onclick = () => { const url = DjProfileSchema.url(p[key]); if (url) window.open(url, '_blank', 'noopener,noreferrer'); };
-    }
-    socWrap.hidden = ![p.instagram,p.resident_advisor].some(Boolean);
-  }
-
   const ownId = _sbSession?.user?.id || currentUser?.uid;
   if (editBtn) editBtn.style.display = ownId && (!djViewedProfileId || djViewedProfileId === ownId) ? 'block' : 'none';
 }
