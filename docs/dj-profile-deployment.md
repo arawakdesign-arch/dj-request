@@ -18,4 +18,4 @@ Les ajouts/suppressions de photos sont immédiats. Les autres champs sont enregi
 
 ## Couvertures
 
-20 fichiers dans `public/images/dj-avatars/`, générés avec l’outil imagegen intégré. Les prompts exacts sont dans `public/images/dj-avatars/PROMPTS.md`.
+20 couvertures actives `avatar-01-pullup.png` à `avatar-20-pullup.png` dans `public/images/dj-avatars/`. Les personnages sont détourés sur fond transparent et le logo Pull Up est intégré aux vêtements ; les versions originales sont conservées. Les prompts exacts sont dans `public/images/dj-avatars/PROMPTS.md`.

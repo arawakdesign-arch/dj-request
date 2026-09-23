@@ -82,3 +82,11 @@ Create ONE landscape 3:2 cover illustration for a DJ app: White woman, brown pon
 
 Create ONE landscape 3:2 cover illustration for a DJ app: South Asian nonbinary adult, short violet hair, grey jacket, deep blue backdrop. Adult DJ wearing over-ear headphones, sculptural stylized 3D animated character with subtly oversized head, smooth matte vinyl-like skin, simplified appealing face, unmistakably rendered 3D illustration, NOT a photograph. Editorial music streetwear, half-body positioned on right half leaving left half calm for profile text, soft studio lighting, uncluttered solid color background. No text, no logo, no watermark. Collection avatar 20.
 
+
+# Pull Up clothing variants
+
+Active files: `avatar-01-pullup.png` through `avatar-20-pullup.png`. The logo comes from `public/images/LOGO120.png` and is integrated into each character's clothing. The first six successful clothing edits use the built-in imagegen tool; the remaining garments use the exact transparent brand asset. All final characters were isolated with foreground segmentation and exported as transparent 768 × 512 PNG files. The original WebP covers remain unchanged.
+
+The same prompt is applied separately to each of the 20 avatars:
+
+> Edit the FIRST image to integrate the exact PULL UP! logo from the SECOND reference into the DJ's CLOTHING. Place a clearly readable medium-sized chest print or embroidered chest patch on the existing hoodie, jacket, shirt or sweatshirt, where the visible fabric allows. The logo must follow the fabric's perspective, folds and lighting as a real clothing print/embroidery, not a floating overlay. Preserve the distinctive original stacked PULL / UP! lettering and black/white dimensional logo shape. Keep the same 3D character identity, face, hair, headphones, pose, skin tone, outfit color, turntables, solid background and landscape 3:2 composition. Make only the clothing branding edit. Absolutely NO logo in an image corner, NO watermark, NO floating logo, NO background branding, NO extra text. The logo belongs solely ON THE GARMENT. Output one finished image.

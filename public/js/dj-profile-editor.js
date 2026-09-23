@@ -39,7 +39,7 @@ function initDjProfileEditor(profile) {
   for(let i=0;i<=20;i++) {
     const label=document.createElement('label');label.className='djr-cover-option';
     const radio=document.createElement('input');radio.type='radio';radio.name='cover';radio.value=i||'';radio.checked=i===(profile.cover_avatar||0);
-    if(i){const img=document.createElement('img');img.src=`/images/dj-avatars/avatar-${String(i).padStart(2,'0')}.webp`;img.alt='';img.loading='lazy';label.append(img);}
+    if(i){const img=document.createElement('img');img.src=`/images/dj-avatars/avatar-${String(i).padStart(2,'0')}-pullup.png`;img.alt='';img.loading='lazy';label.append(img);}
     label.append(radio,document.createTextNode(i?` Avatar ${i}`:' Aucune couverture'));covers.append(label);
   }
   djGallery=[...(profile.gallery||[])];renderDjGallery();
@@ -109,7 +109,7 @@ function renderDjProfileDetails(p) {
   if(portrait) Object.assign(portrait.style,{width:'72px',height:'72px',top:'16px',right:'16px',bottom:'auto',objectFit:'cover',borderRadius:'50%',border:'2px solid white'});
   const name=document.getElementById('pk-name');if(name)name.style.maxWidth='calc(100% - 72px)';
   const hero=portrait?.parentElement;
-  if(hero) {hero.style.backgroundImage=p.cover_avatar?`url('/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}.webp')`:'';hero.style.backgroundSize='cover';hero.style.backgroundPosition='center';}
+  if(hero) {hero.style.backgroundImage=p.cover_avatar?`url('/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}-pullup.png')`:'';hero.style.backgroundSize='contain';hero.style.backgroundRepeat='no-repeat';hero.style.backgroundPosition='right bottom';}
   section('Présentation',p.bio);section('Styles musicaux',p.genres);section('Prestations',(p.service_types||[]).join(' · '));
   const links=document.createElement('div');links.className='pk-profile-links';
   for(const key of ['soundcloud','mixcloud','youtube','spotify']) link(links,DjProfileSchema.links[key][0],p[key]);
