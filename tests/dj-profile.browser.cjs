@@ -12,7 +12,7 @@ const assert=require('node:assert/strict');
  browser=await chromium.launch({...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{channel:'chrome'}),headless:true});
  const page=await browser.newPage({viewport:{width:390,height:844}});
  let photoFailure=true, gallery=[], saved=null;
- const publicProfile={id:'public-test',stage_name:'DJ Public',city:'Lyon, France',tagline:'Afro house et amapiano',bio:'Présentation publique.',genres:'Afro house, Amapiano',service_types:['Club','Festival'],soundcloud:'https://soundcloud.com/public',instagram:'https://instagram.com/public',booking_email:'booking@example.com',travel_areas:'France et Europe',cover_avatar:3,photo_url:'/images/auth-hero-bg.jpg',gallery:['/images/logo.png']};
+ const publicProfile={id:'public-test',stage_name:'DJ Public',city:'Lyon, France',tagline:'Afro house et amapiano',bio:'Présentation publique.',genres:'Shatta, Afrobeats, Amapiano, Hip-hop, Zouk, House',service_types:['Club','Festival'],soundcloud:'https://soundcloud.com/public',instagram:'https://instagram.com/public',booking_email:'booking@example.com',travel_areas:'France et Europe',cover_avatar:3,photo_url:'/images/auth-hero-bg.jpg',gallery:['/images/logo.png']};
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',async route=>{
   const u=new URL(route.request().url());
@@ -96,6 +96,8 @@ const assert=require('node:assert/strict');
  assert.equal(await page.evaluate(()=>document.querySelector('#pk-booking').getBoundingClientRect().top>document.querySelector('#pk-profile-details').getBoundingClientRect().top),true);
  assert.match(await page.locator('#pk-hero-art').evaluate(el=>el.style.backgroundImage),/auth-hero-bg\.jpg/);
  assert.match(await page.locator('#pk-photo').getAttribute('src'),/avatar-03-pullup\.png/);
+ assert.equal(await page.locator('#pk-genre-chips span').count(),6);
+ assert.equal(await page.locator('#pk-genre-chips span').evaluateAll(chips=>new Set(chips.map(chip=>chip.offsetTop)).size),1);
  assert.equal(await page.evaluate(()=>djProfileUrl()),'http://127.0.0.1:3107/app?dj=public-test');
  assert.equal(await page.locator('#pg-presskit .scroll').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
  await page.waitForTimeout(500);
