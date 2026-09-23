@@ -1193,7 +1193,7 @@ async function saveDjProfile() {
     _djProfileCache = await api('POST', '/dj/profile', payload);
     refreshDjRegisterButton();
     applyDjProfileToPresskit();
-    showPage(currentUser ? 'profile' : 'auth');
+    navTo(currentUser ? 'presskit' : 'auth');
     toast('✅ Profil DJ enregistré !');
   } catch(e) {
     console.error('[pullup] Échec enregistrement profil DJ :', e.message);
