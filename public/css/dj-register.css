@@ -297,6 +297,7 @@
 #pg-presskit #pk-about{background:linear-gradient(135deg,#18111f,#100d13)}
 #pg-presskit #pk-about p{font-size:1.12rem;color:#ddd7e2}
 #pg-presskit .pk-profile-chips{margin-left:144px;gap:8px}
+#pg-presskit #pk-about .pk-profile-chips{margin-top:26px;padding-top:22px;border-top:1px solid #ffffff18}
 #pg-presskit .pk-profile-chips span{border:1px solid #ffffff25;background:#1b1620;color:#e7e1eb;border-radius:30px;padding:10px 14px;font-size:.63rem;text-transform:uppercase;letter-spacing:.08em}
 #pg-presskit .pk-profile-links{margin-left:144px;display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid #ffffff20}
 #pg-presskit .pk-profile-links a{background:transparent;border:0;border-bottom:1px solid #ffffff20;border-radius:0;color:#fff;padding:17px 2px;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em}
