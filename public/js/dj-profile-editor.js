@@ -119,8 +119,6 @@ function renderDjProfileDetails(p) {
   if(portrait){portrait.src=avatarUrl||p.photo_url||'/images/logo.png';portrait.alt=avatarUrl?`Avatar Pull Up de ${p.stage_name||'ce DJ'}`:`Photo de ${p.stage_name||'ce DJ'}`;portrait.style.display=(avatarUrl||p.photo_url)?'block':'none';portrait.classList.toggle('pk2-avatar-medallion',!!avatarUrl);}
   const art=document.getElementById('pk-hero-art');
   if(art){art.style.backgroundImage=p.photo_url?`url(${JSON.stringify(p.photo_url)})`:'';art.closest('.pk3-avatar-stage')?.classList.toggle('has-profile-photo',!!p.photo_url);}
-  const avatarBadge=document.getElementById('pk-avatar-badge');
-  if(avatarBadge){avatarBadge.hidden=!p.photo_url;avatarBadge.textContent=p.photo_url?'PHOTO DE PROFIL / PORTRAIT':'';}
   const genres=(p.genres||'').split(',').map(value=>value.trim()).filter(Boolean),genreBox=document.getElementById('pk-genre-chips');
   genreBox?.replaceChildren();genres.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;genreBox?.append(chip);});
   section('À propos',p.bio,'pk-about','01 / IDENTITÉ');
