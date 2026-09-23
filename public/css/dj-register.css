@@ -310,9 +310,9 @@
 #pg-presskit .pk-profile-links a{background:transparent;border:0;border-bottom:1px solid #ffffff20;border-radius:0;color:#fff;padding:17px 2px;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em}
 #pg-presskit .pk-profile-links a::after{color:#ff2a93;font-size:1rem}
 #pg-presskit .pk-profile-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:4px}
-#pg-presskit .pk-profile-gallery a{background:#211a26;border-radius:7px}
+#pg-presskit .pk-profile-gallery .pk-profile-photo{overflow:hidden;background:#211a26;border-radius:7px}
 #pg-presskit .pk-profile-gallery img{aspect-ratio:4/5;filter:saturate(.82);transition:transform .35s,filter .35s}
-#pg-presskit .pk-profile-gallery a:hover img{transform:scale(1.025);filter:saturate(1)}
+#pg-presskit .pk-profile-gallery .pk-profile-photo:hover img{transform:scale(1.025);filter:saturate(1)}
 #pg-presskit .pk2-live{background:linear-gradient(135deg,#17111c,#0f0c12)}
 #pg-presskit .pk2-section-head span{color:#ff2a93}
 #pg-presskit .pk2-section-head h2{font-size:2rem}
@@ -403,4 +403,20 @@
   #pg-presskit .pk3-avatar-badge{right:13px;bottom:10px;font-size:.42rem}
   #pg-presskit .pk2-hero h1{font-size:clamp(3.5rem,16vw,4.8rem);max-width:100%}
   #pg-presskit .pk2-tagline{max-width:94%}
+}
+
+/* Booking closes the press kit */
+#pg-presskit .pk2-columns{grid-template-columns:1fr}
+#pg-presskit .pk2-booking{position:relative;top:auto;order:initial;margin-top:26px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);grid-template-rows:auto auto auto auto;column-gap:52px;align-items:start;padding:44px}
+#pg-presskit .pk2-booking>.pk2-aside-label{grid-column:1;grid-row:1}
+#pg-presskit .pk2-booking>h2{grid-column:1;grid-row:2/4;max-width:560px;font-size:clamp(3rem,6vw,5.6rem)}
+#pg-presskit .pk2-booking>.pk2-travel{grid-column:1;grid-row:4;margin:0}
+#pg-presskit .pk2-booking>.pk2-email{grid-column:2;grid-row:1;margin-top:0}
+#pg-presskit .pk2-booking>.pk2-phone{grid-column:2;grid-row:2}
+#pg-presskit .pk2-booking>.pk2-book-btn{grid-column:2;grid-row:3}
+#pg-presskit .pk2-booking>.pk2-print{grid-column:2;grid-row:4}
+@media(max-width:700px){
+  #pg-presskit .pk2-booking{display:block;margin-top:18px;padding:30px 22px}
+  #pg-presskit .pk2-booking>h2{font-size:2.55rem}
+  #pg-presskit .pk2-booking>.pk2-travel{margin-bottom:24px}
 }
