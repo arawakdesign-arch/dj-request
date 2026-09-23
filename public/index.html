@@ -873,7 +873,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="/css/dj-register.css?v=4">
+<link rel="stylesheet" href="/css/dj-register.css?v=5">
 </head>
 <body>
 
@@ -1872,6 +1872,12 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   <div class="tb pk2-topbar">
     <button type="button" class="tb-back" onclick="djProfileBack()" aria-label="Retour">←</button>
     <img src="/images/logo.png" alt="PULL UP!" class="pk2-logo">
+    <nav class="pk3-nav" aria-label="Navigation du press kit">
+      <a href="#pk-about">À propos</a>
+      <a href="#pk-music">Musique</a>
+      <a href="#pk-gallery">Photos</a>
+      <a href="#pk-booking">Booking</a>
+    </nav>
     <button type="button" class="pk2-share" onclick="shareDjProfile()" aria-label="Partager ce profil">Partager ↗</button>
   </div>
   <div class="scroll pk2-scroll">
@@ -1887,7 +1893,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           <div id="pk-genre-chips" class="pk2-chips"></div>
         </div>
         <div id="pk-hero-art" class="pk2-hero-art" aria-hidden="true"></div>
-        <div class="pk2-hero-brand">PULL UP! ARTIST</div>
+        <div class="pk2-hero-brand">PULL UP! / ARTIST PRESS KIT</div>
+        <div class="pk3-scroll-cue"><span></span>Découvrir</div>
         <button type="button" id="pk-edit-btn" class="pk2-edit" onclick="openDjRegister()" style="display:none">Modifier le profil</button>
       </section>
 
@@ -1910,7 +1917,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           </section>
         </div>
 
-        <aside class="pk2-booking" aria-labelledby="pk2-booking-title">
+        <aside id="pk-booking" class="pk2-booking" aria-labelledby="pk2-booking-title">
           <span class="pk2-aside-label">BOOKING</span>
           <h2 id="pk2-booking-title">Disponible pour ton prochain événement.</h2>
           <p id="pk-travel-areas" class="pk2-travel"></p>
@@ -1922,6 +1929,11 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           <button type="button" class="pk2-print" onclick="window.print()">Imprimer le press kit</button>
         </aside>
       </div>
+      <footer class="pk3-footer">
+        <img src="/images/logo.png" alt="PULL UP!">
+        <p>La musique se choisit ensemble.</p>
+        <button type="button" onclick="shareDjProfile()">Partager ce profil ↗</button>
+      </footer>
     </main>
   </div>
 </div>
@@ -2044,7 +2056,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=1"></script>
 <script src="/js/app.js?v=106"></script>
-<script src="/js/dj-profile-editor.js?v=4"></script>
+<script src="/js/dj-profile-editor.js?v=5"></script>
 <script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
 <script src="/js/auth.js?v=72"></script>

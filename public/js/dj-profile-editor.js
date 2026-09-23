@@ -104,22 +104,23 @@ async function uploadDjGallery(event) {
 }
 function renderDjProfileDetails(p) {
   const box=document.getElementById('pk-profile-details');if(!box)return;box.replaceChildren();
-  function section(title,text){if(!text)return null;const s=document.createElement('section'),h=document.createElement('h2'),content=document.createElement('p');h.textContent=title;content.textContent=text;s.append(h,content);box.append(s);return s;}
+  function heading(s,title,kicker){const head=document.createElement('div'),label=document.createElement('span'),h=document.createElement('h2');head.className='pk3-section-heading';label.className='pk3-section-label';label.textContent=kicker;h.textContent=title;head.append(label,h);s.append(head);}
+  function section(title,text,id,kicker){if(!text)return null;const s=document.createElement('section'),content=document.createElement('p');s.id=id;s.className='pk3-section';heading(s,title,kicker);content.textContent=text;s.append(content);box.append(s);return s;}
   function link(parent,label,value){const href=DjProfileSchema.url(value);if(!href)return;const a=document.createElement('a');a.textContent=label;a.href=href;a.target='_blank';a.rel='noopener noreferrer';parent.append(a);}
-  function linksSection(title,entries){const links=document.createElement('div');links.className='pk-profile-links';entries.forEach(([label,value])=>link(links,label,value));if(!links.childNodes.length)return;const s=document.createElement('section'),h=document.createElement('h2');h.textContent=title;s.append(h,links);box.append(s);}
+  function linksSection(title,entries,id,kicker){const links=document.createElement('div');links.className='pk-profile-links';entries.forEach(([label,value])=>link(links,label,value));if(!links.childNodes.length)return;const s=document.createElement('section');s.id=id;s.className='pk3-section';heading(s,title,kicker);s.append(links);box.append(s);}
   const portrait=document.getElementById('pk-photo');
   if(portrait){portrait.alt=`Photo de ${p.stage_name||'ce DJ'}`;portrait.style.display=p.photo_url?'block':'none';}
   const art=document.getElementById('pk-hero-art');
   if(art)art.style.backgroundImage=p.cover_avatar?`url('/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}-pullup.png')`:'';
   const genres=(p.genres||'').split(',').map(value=>value.trim()).filter(Boolean),genreBox=document.getElementById('pk-genre-chips');
   genreBox?.replaceChildren();genres.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;genreBox?.append(chip);});
-  section('À propos',p.bio);
+  section('À propos',p.bio,'pk-about','01 / IDENTITÉ');
   const services=Array.isArray(p.service_types)?p.service_types:[];
-  if(services.length){const s=document.createElement('section'),h=document.createElement('h2'),chips=document.createElement('div');h.textContent='Prestations';chips.className='pk-profile-chips';services.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;chips.append(chip);});s.append(h,chips);box.append(s);}
-  linksSection('Écouter',[['SoundCloud',p.soundcloud],['Mixcloud',p.mixcloud],['YouTube',p.youtube],['Spotify',p.spotify]]);
-  section('Résidences & collaborations',p.experience);
-  if(p.gallery?.length){const gallery=document.createElement('section'),h=document.createElement('h2'),grid=document.createElement('div');h.textContent='Photos';grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const a=document.createElement('a'),img=document.createElement('img');a.href=url;a.target='_blank';a.rel='noopener noreferrer';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';a.append(img);grid.append(a);});gallery.append(h,grid);box.append(gallery);}
-  linksSection('Liens',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]]);
+  if(services.length){const s=document.createElement('section'),chips=document.createElement('div');s.id='pk-services';s.className='pk3-section';heading(s,'Prestations','02 / SCÈNES');chips.className='pk-profile-chips';services.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;chips.append(chip);});s.append(chips);box.append(s);}
+  linksSection('Écouter',[['SoundCloud',p.soundcloud],['Mixcloud',p.mixcloud],['YouTube',p.youtube],['Spotify',p.spotify]],'pk-music','03 / SÉLECTION');
+  section('Résidences & collaborations',p.experience,'pk-experience','04 / PARCOURS');
+  if(p.gallery?.length){const gallery=document.createElement('section'),grid=document.createElement('div');gallery.id='pk-gallery';gallery.className='pk3-section pk3-gallery-section';heading(gallery,'Photos','05 / GALERIE');grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const a=document.createElement('a'),img=document.createElement('img');a.href=url;a.target='_blank';a.rel='noopener noreferrer';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';a.append(img);grid.append(a);});gallery.append(grid);box.append(gallery);}
+  linksSection('En ligne',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]],'pk-links','06 / CONTACT');
   const area=document.getElementById('pk-travel-areas');if(area)area.textContent=p.travel_areas||'Zones de déplacement à confirmer';
   const email=document.getElementById('pk-booking-email');if(email)email.textContent=p.booking_email||'Non renseigné';
   const phone=document.getElementById('pk-booking-phone');if(phone){phone.hidden=!p.phone;phone.textContent=p.phone?`WhatsApp / téléphone · ${p.phone}`:'';phone.href=p.phone?'tel:'+p.phone.replace(/[^+\d]/g,''):'';}
