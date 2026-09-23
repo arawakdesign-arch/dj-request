@@ -88,7 +88,7 @@ const assert=require('node:assert/strict');
  await page.goto('http://127.0.0.1:3107/index.html?dj=public-test');
  await page.locator('#pg-presskit.active').waitFor();
  assert.equal(await page.locator('#pk-name').innerText(),'DJ PUBLIC');
- assert.equal(await page.locator('.pk2-header-label').innerText(),'ARTISTE PRESS KIT');
+ assert.equal(await page.locator('.pk2-header-label').innerText(),'ARTIST PRESS KIT');
  assert.equal(await page.locator('.pk2-header-label').evaluate(el=>el.tagName),'SPAN');
  assert.equal(await page.locator('#pk-location').count(),0);
  assert.doesNotMatch(await page.locator('.pk2-hero').innerText(),/Lyon|PROFIL DJ/i);
