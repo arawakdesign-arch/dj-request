@@ -29,6 +29,7 @@ function initDjProfileEditor(profile) {
   for(const key of [...Object.keys(DjProfileSchema.limits),...Object.keys(DjProfileSchema.links)]) {
     const field=djField(key);if(field) field.value=profile[key] || '';
   }
+  const slugField=document.getElementById('dj-edit-slug');if(slugField) slugField.value=profile.slug || '';
   const selected=(profile.genres||'').split(',').map(s=>s.trim()).filter(Boolean);
   const genres=document.getElementById('djr-genres');genres.replaceChildren();
   [...new Set([...DjProfileSchema.genres,...selected])].forEach(g=>djChoice(genres,g,selected.includes(g),'genres').addEventListener('change',djGenreState));
@@ -63,6 +64,7 @@ function collectDjProfile() {
     const key=Object.keys(result.errors)[0];const field=djField(key)||document.querySelector(`[data-error="${key}"]`);
     field?.scrollIntoView({block:'center',behavior:'smooth'});if(field?.focus)field.focus();return null;
   }
+  result.value.slug=document.getElementById('dj-edit-slug')?.value.trim()||'';
   djFeedback('');return result.value;
 }
 function setDjMediaBusy(busy) {
@@ -132,6 +134,16 @@ async function openPublicDjProfile(id) {
   try{const profile=await api('GET','/dj/profile/'+encodeURIComponent(id));djViewedProfileId=id;_djProfileCache=profile;showPage('presskit');return true;}
   catch(e){return false;}
 }
-function djProfileUrl(){const id=djViewedProfileId||_djProfileCache?.id||_sbSession?.user?.id||currentUser?.uid;return id?`${location.origin}/app?dj=${encodeURIComponent(id)}`:location.href;}
+async function openPublicDjProfileBySlug(slug) {
+  if(!slug)return false;
+  try{const profile=await api('GET','/dj/by-slug/'+encodeURIComponent(slug));djViewedProfileId=profile.id;_djProfileCache=profile;showPage('presskit');return true;}
+  catch(e){return false;}
+}
+function djProfileUrl(){
+  const slug=_djProfileCache?.slug;
+  if(slug) return `${location.origin}/${encodeURIComponent(slug)}`;
+  const id=djViewedProfileId||_djProfileCache?.id||_sbSession?.user?.id||currentUser?.uid;
+  return id?`${location.origin}/app?dj=${encodeURIComponent(id)}`:location.href;
+}
 async function shareDjProfile(){const data={title:_djProfileCache?.stage_name||'Profil DJ Pull Up',text:_djProfileCache?.tagline||'Découvre ce profil DJ sur Pull Up.',url:djProfileUrl()};try{if(navigator.share){await navigator.share(data);return;}await navigator.clipboard.writeText(data.url);toast('Lien du profil copié');}catch(e){if(e?.name!=='AbortError')toast('Impossible de partager le profil');}}
 function djProfileBack(){if(djViewedProfileId){if(document.referrer.startsWith(location.origin))history.back();else location.href='/';return;}showPage(eid?'client':(currentUser?'profile':'auth'));}

@@ -76,6 +76,9 @@ window.addEventListener('load', async () => {
       }
       return;
     }
+    // Même adresse, mais côté page DJ (pull-up.live/dj-nova) — même principe :
+    // aucune page à ce slug ne fait retomber sur le flux normal.
+    if (await openPublicDjProfileBySlug(pathSlug)) return;
   }
 
   // Distingue un lien explicite (?event=...) d'une simple restauration depuis

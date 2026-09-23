@@ -10,6 +10,15 @@ const { isClosed, isUpcoming } = require('./events');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
+function slugify(s) {
+  return (s || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '') // accents
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
 // ── Soirées où je suis dans le line-up (DJ inscrit sur Pull up) ───────
 // Permet d'entrer administrer la soirée avec son propre compte, sans
 // connaître le mot de passe partagé (cf. isLineupMember côté middleware).
@@ -45,6 +54,20 @@ router.post('/dj/profile', requireAuth, async (req, res) => {
   }
   const updates = { ...value, id: req.user.id, updated_at: new Date().toISOString() };
   if (typeof req.body.available === 'boolean') updates.available = req.body.available;
+
+  // Une chaîne vide veut dire "champ pas encore rempli", pas "je veux une URL
+  // vide" — sinon enregistrer le reste du profil avant d'avoir choisi une
+  // adresse de page bloquerait toute la sauvegarde avec "URL invalide".
+  if (req.body.slug !== undefined && req.body.slug !== '') {
+    const clean = slugify(req.body.slug);
+    if (!clean) return res.status(400).json({ error: 'URL invalide' });
+    const [{ data: djTaken }, { data: orgaTaken }] = await Promise.all([
+      supabase.from('dj_profiles').select('id').eq('slug', clean).maybeSingle(),
+      supabase.from('organizer_pages').select('owner_id').eq('slug', clean).maybeSingle(),
+    ]);
+    if ((djTaken && djTaken.id !== req.user.id) || orgaTaken) return res.status(409).json({ error: 'Cette adresse est déjà prise.' });
+    updates.slug = clean;
+  }
 
   const { data, error } = await supabase.from('dj_profiles').upsert(updates).select().single();
   if (error) return res.status(500).json({ error: error.message });
@@ -134,6 +157,13 @@ router.delete('/dj/profile/gallery', requireAuth, async (req, res) => {
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) return res.status(400).json({error:err.code==='LIMIT_FILE_SIZE'?'Chaque image doit faire moins de 5 Mo.':'Envoi de fichier invalide.'});
   next(err);
+});
+
+// ── Profil public (page press kit partageable, pull-up.live/mon-nom) ──
+router.get('/dj/by-slug/:slug', async (req, res) => {
+  const { data, error } = await supabase.from('dj_profiles').select('*').eq('slug', req.params.slug).maybeSingle();
+  if (error || !data) return res.status(404).json({ error: 'Profil DJ introuvable' });
+  res.json(data);
 });
 
 // ── Profil public (page press kit partageable) ──────────────────────
