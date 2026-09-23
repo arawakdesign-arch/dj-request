@@ -873,7 +873,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="/css/dj-register.css?v=14">
+<link rel="stylesheet" href="/css/dj-register.css?v=15">
 </head>
 <body>
 
@@ -1368,7 +1368,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div class="djr-editor" id="djr-editor">
         <header class="djr-intro"><h1>Mon profil DJ</h1><p>Ta photo, tes infos et tes liens, réunis sur ta page publique.</p></header>
 <p class="djr-help">Les champs marqués * sont obligatoires. Tes informations seront publiques.</p><div id="djr-feedback" role="status" aria-live="polite" tabindex="-1"></div>
-<section class="djr-section"><h2>Identité</h2><div class="djr-fields"><div class="djr-photo-row djr-wide"><button type="button" id="dj-edit-avatar" onclick="document.getElementById('dj-photo-input').click()" aria-label="Choisir la photo de profil"><img id="dj-edit-img" alt="Ta photo de profil" style="display:none"><span id="dj-edit-initials" aria-hidden="true">+</span></button><div><strong>Photo de profil <span>*</span></strong><button type="button" class="djr-photo-link" onclick="document.getElementById('dj-photo-input').click()">Choisir une photo</button><p>Portrait personnel · 5 Mo maximum</p><small class="djr-error" data-error="photo_url"></small></div><input type="file" id="dj-photo-input" accept="image/*" hidden onchange="uploadDjPhoto(this)"></div><div class="fl"><label for="dj-edit-stage-name">Nom de scène <span>*</span></label><input type="text" id="dj-edit-stage-name" class="fi" required aria-required="true" maxlength="30" placeholder="DJ Nova" ><small class="djr-error" data-error="stage_name"></small></div><div class="fl"><label for="dj-edit-city">Ville / pays <span>*</span></label><input type="text" id="dj-edit-city" class="fi" required aria-required="true" maxlength="120" placeholder="Commence à saisir une ville" list="djr-cities" autocomplete="address-level2"><small class="djr-error" data-error="city"></small></div><datalist id="djr-cities"></datalist><div class="djr-wide"><p class="djr-help">Sélectionne une suggestion ou indique ta ville et ton pays.</p><details class="djr-cover-picker"><summary>Choisir un avatar de couverture <span>Facultatif · 20 personnages</span></summary><div id="djr-cover-options" class="djr-covers"></div></details><small class="djr-error" data-error="cover_avatar"></small></div></div></section>
+<section class="djr-section"><h2>Identité</h2><div class="djr-fields"><div class="djr-photo-row djr-wide"><button type="button" id="dj-edit-avatar" onclick="document.getElementById('dj-photo-input').click()" aria-label="Choisir la photo de profil"><img id="dj-edit-img" alt="Ta photo de profil" style="display:none"><span id="dj-edit-initials" aria-hidden="true">+</span></button><div><strong>Photo de profil <span>*</span></strong><button type="button" class="djr-photo-link" onclick="document.getElementById('dj-photo-input').click()">Choisir une photo</button><p>Portrait personnel · 5 Mo maximum</p><small class="djr-error" data-error="photo_url"></small></div><input type="file" id="dj-photo-input" accept="image/*" hidden onchange="uploadDjPhoto(this)"></div><div class="fl"><label for="dj-edit-stage-name">Nom de scène <span>*</span></label><input type="text" id="dj-edit-stage-name" class="fi" required aria-required="true" maxlength="30" placeholder="DJ Nova" ><small class="djr-error" data-error="stage_name"></small></div><div class="djr-wide"><details class="djr-cover-picker"><summary>Choisir un avatar de couverture <span>Facultatif · 20 personnages</span></summary><div id="djr-cover-options" class="djr-covers"></div></details><small class="djr-error" data-error="cover_avatar"></small></div></div></section>
 <section class="djr-section"><h2>Présentation</h2><div class="djr-fields"><div class="fl"><label for="dj-edit-tagline">Phrase d’accroche <span>*</span></label><input type="text" id="dj-edit-tagline" class="fi" required aria-required="true" maxlength="150" placeholder="Ex. DJ open format à Paris" ><small class="djr-error" data-error="tagline"></small></div><div class="fl"><label for="dj-edit-bio">Biographie <span>*</span></label><textarea id="dj-edit-bio" class="fi" required aria-required="true" maxlength="5000" placeholder="Ton parcours, tes influences et ton style."  rows="5"></textarea><small class="djr-error" data-error="bio"></small></div></div></section>
 <section class="djr-section"><h2>Musique</h2><div class="djr-fields"><fieldset class="djr-wide djr-choice-field"><legend>Styles musicaux <span>*</span></legend><label class="djr-sr" for="djr-genre-search">Rechercher un style musical</label><input class="fi" id="djr-genre-search" placeholder="Rechercher un style…" type="search"><div id="djr-genres" class="djr-choices"></div><p class="djr-help" id="djr-genre-count" aria-live="polite">0 / 6 styles sélectionnés</p><small class="djr-error" data-error="genres"></small></fieldset><fieldset class="djr-wide djr-choice-field"><legend>Types de prestation <span>*</span></legend><div id="djr-services" class="djr-choices"></div><small class="djr-error" data-error="service_types"></small></fieldset><div class="djr-wide"><h3>Liens vers tes mixes *</h3><p class="djr-help">Ajoute au moins un lien sur les quatre plateformes ci-dessous.</p><small class="djr-error" data-error="mixes"></small></div><div class="fl"><label for="dj-edit-soundcloud">SoundCloud</label><input type="url" id="dj-edit-soundcloud" class="fi" maxlength="1000" placeholder="https://soundcloud.com/…" ><small class="djr-error" data-error="soundcloud"></small></div><div class="fl"><label for="dj-edit-mixcloud">Mixcloud</label><input type="url" id="dj-edit-mixcloud" class="fi" maxlength="1000" placeholder="https://mixcloud.com/…" ><small class="djr-error" data-error="mixcloud"></small></div><div class="fl"><label for="dj-edit-youtube">YouTube</label><input type="url" id="dj-edit-youtube" class="fi" maxlength="1000" placeholder="https://youtube.com/…" ><small class="djr-error" data-error="youtube"></small></div><div class="fl"><label for="dj-edit-spotify">Spotify</label><input type="url" id="dj-edit-spotify" class="fi" maxlength="1000" placeholder="https://open.spotify.com/…" ><small class="djr-error" data-error="spotify"></small></div></div></section>
 <section class="djr-section"><h2>Expérience</h2><div class="djr-fields"><div class="fl"><label for="dj-edit-experience">Résidences et collaborations</label><textarea id="dj-edit-experience" class="fi" maxlength="2000" placeholder="Clubs, collectifs, artistes, événements…"  rows="5"></textarea><small class="djr-error" data-error="experience"></small></div></div></section>
@@ -1879,15 +1879,14 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <a href="#pk-gallery">Photos</a>
       <a href="#pk-booking">Booking</a>
     </nav>
-    <button type="button" class="pk2-share" onclick="shareDjProfile()" aria-label="Partager ce profil">Partager ↗</button>
+    <span class="pk2-header-label">Artiste Press Kit</span>
   </div>
   <div class="scroll pk2-scroll">
     <main class="pk2-shell">
       <section class="pk2-hero" aria-labelledby="pk-name">
         <div class="pk2-hero-copy">
           <div class="pk2-portrait-row">
-            <img id="pk-photo" src="/images/dj-avatar.webp?v=2" alt="Photo du DJ" class="pk2-photo">
-            <div><span class="pk2-kicker">PROFIL DJ</span><div id="pk-location" class="pk2-location"></div></div>
+            <img id="pk-photo" src="/images/dj-avatar.webp?v=2" alt="Avatar de l’artiste" class="pk2-photo">
           </div>
           <h1 id="pk-name">DJ</h1>
           <p id="pk-tagline" class="pk2-tagline"></p>
@@ -2051,9 +2050,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=27"></script>
-<script src="/js/dj-profile-schema.js?v=1"></script>
-<script src="/js/app.js?v=110"></script>
-<script src="/js/dj-profile-editor.js?v=10"></script>
+<script src="/js/dj-profile-schema.js?v=2"></script>
+<script src="/js/app.js?v=111"></script>
+<script src="/js/dj-profile-editor.js?v=11"></script>
 <script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
 <script src="/js/auth.js?v=73"></script>

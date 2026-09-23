@@ -87,7 +87,7 @@
 #pg-presskit .pk2-topbar{min-height:72px;background:#fff;border-bottom:1px solid #ddd;position:relative}
 #pg-presskit .pk2-topbar .tb-back{border:0;background:transparent;color:#111}
 .pk2-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68px;height:68px;object-fit:contain}
-.pk2-share{margin-left:auto;border:0;background:transparent;font:700 .7rem Inter,sans-serif;letter-spacing:.04em;color:#111;padding:12px 0;cursor:pointer}
+.pk2-header-label{margin-left:auto;font:800 .65rem Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#111;white-space:nowrap}
 .pk2-scroll{padding:24px 18px max(36px,env(safe-area-inset-bottom))}
 .pk2-shell{max-width:940px;margin:0 auto}
 .pk2-hero{position:relative;min-height:330px;overflow:hidden;background:#0b0b0d;color:#fff;border-radius:4px}
@@ -267,7 +267,7 @@
 .pk3-nav{display:flex;align-items:center;gap:24px;margin-left:auto;margin-right:27px}
 .pk3-nav a{font:700 .58rem Inter,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#bdb7c3;transition:color .2s}
 .pk3-nav a:hover{color:#fff}
-#pg-presskit .pk2-share{margin-left:0;border:1px solid #ffffff32;border-radius:40px;color:#fff;padding:11px 16px;font-size:.62rem}
+#pg-presskit .pk2-header-label{margin-left:0;border:1px solid #ffffff32;border-radius:40px;color:#fff;padding:11px 16px;font-size:.62rem}
 #pg-presskit .pk2-scroll{padding:0 18px max(36px,env(safe-area-inset-bottom));background:radial-gradient(circle at 88% 5%,#52209255,transparent 28%),linear-gradient(180deg,#100c14 0%,#09070b 72%)}
 #pg-presskit .pk2-shell{max-width:1180px}
 #pg-presskit .pk2-hero{min-height:min(620px,calc(100vh - 110px));margin-top:18px;border:1px solid #ffffff20;border-radius:18px;background:radial-gradient(circle at 72% 36%,#8d45f0 0%,#38145f 25%,#17101e 49%,#0a080c 76%)}
@@ -327,14 +327,14 @@
 .pk3-footer button{justify-self:end;border:0;background:transparent;color:#fff;font:700 .62rem Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em}
 @media(max-width:800px){
   .pk3-nav{display:none}
-  #pg-presskit .pk2-share{margin-left:auto}
+  #pg-presskit .pk2-header-label{margin-left:auto}
   #pg-presskit .pk2-columns{grid-template-columns:1fr}
   #pg-presskit .pk2-booking{position:relative;order:-1}
 }
 @media(max-width:560px){
   #pg-presskit .pk2-topbar{min-height:64px;padding-left:14px;padding-right:14px}
   #pg-presskit .pk2-logo{width:58px;height:58px}
-  #pg-presskit .pk2-share{border:0;padding:8px 0}
+  #pg-presskit .pk2-header-label{border:0;padding:8px 0}
   #pg-presskit .pk2-scroll{padding:0 8px max(28px,env(safe-area-inset-bottom))}
   #pg-presskit .pk2-hero{min-height:540px;margin-top:8px;border-radius:10px}
   #pg-presskit .pk2-hero::before{background:linear-gradient(0deg,#09070bf2 0%,#09070b9e 49%,transparent 78%)}

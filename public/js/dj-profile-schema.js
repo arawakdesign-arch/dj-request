@@ -9,7 +9,7 @@
     instagram: ['Instagram',['instagram.com']], tiktok: ['TikTok',['tiktok.com']],
     resident_advisor: ['Resident Advisor',['ra.co']], website: ['Site web',null], video_url: ['Vidéo',null]
   };
-  const limits = {stage_name:30,city:120,tagline:150,bio:5000,experience:2000,booking_email:254,phone:40,travel_areas:300};
+  const limits = {stage_name:30,tagline:150,bio:5000,experience:2000,booking_email:254,phone:40,travel_areas:300};
   function url(value, hosts) {
     if (typeof value !== 'string') return null;
     value=value.trim();
@@ -29,7 +29,7 @@
       value[key]=(input[key]||'').trim();
       if(value[key].length>max) errors[key]=`Maximum ${max} caractères.`;
     }
-    for (const [key,label] of Object.entries({stage_name:'Le nom de scène',city:'La ville et le pays',tagline:'La phrase d’accroche',bio:'La biographie',booking_email:'L’e-mail professionnel'})) {
+    for (const [key,label] of Object.entries({stage_name:'Le nom de scène',tagline:'La phrase d’accroche',bio:'La biographie',booking_email:'L’e-mail professionnel'})) {
       if(!value[key]) errors[key]=label+' est obligatoire.';
     }
     if(!photo) errors.photo_url='Ajoute une photo de profil.';

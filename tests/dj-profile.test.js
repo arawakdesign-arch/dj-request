@@ -1,13 +1,13 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const schema=require('../public/js/dj-profile-schema');
-const valid={stage_name:'DJ Nova',city:'Paris, France',tagline:'House et afro house',bio:'DJ à Paris.',genres:['House','Afrobeats'],service_types:['Club'],soundcloud:'https://soundcloud.com/nova',booking_email:'booking@example.com'};
+const valid={stage_name:'DJ Nova',tagline:'House et afro house',bio:'DJ à Paris.',genres:['House','Afrobeats'],service_types:['Club'],soundcloud:'https://soundcloud.com/nova',booking_email:'booking@example.com'};
 test('complete profile normalizes and accepts optional empty fields',()=>{
  const {value,errors}=schema.validate(valid,'photo.jpg');assert.deepEqual(errors,{});assert.equal(value.genres,'House, Afrobeats');assert.equal(value.cover_avatar,null);
 });
 test('every mandatory field is enforced, including stored portrait and at least one mix',()=>{
  const {errors}=schema.validate({},null);
- for(const key of ['stage_name','city','tagline','bio','genres','service_types','booking_email','photo_url','mixes']) assert.ok(errors[key],key);
+ for(const key of ['stage_name','tagline','bio','genres','service_types','booking_email','photo_url','mixes']) assert.ok(errors[key],key);
 });
 test('six genres accepted, seven rejected, duplicates normalized',()=>{
  assert.equal(schema.validate({...valid,genres:schema.genres.slice(0,6)},'photo').errors.genres,undefined);
@@ -25,7 +25,10 @@ test('URLs reject scripts, credentials, and spoofed platform domains',()=>{
 });
 test('Spotify alone meets the music link requirement',()=>assert.equal(schema.validate({...valid,soundcloud:'',spotify:'https://open.spotify.com/artist/abc'},'photo').errors.mixes,undefined));
 test('invalid types cannot crash validation',()=>{
- const {errors}=schema.validate({...valid,stage_name:{},city:3,soundcloud:[],genres:[{}],service_types:[{}]},'photo');assert.ok(errors.stage_name);assert.ok(errors.city);assert.ok(errors.soundcloud);assert.ok(errors.genres);assert.ok(errors.service_types);
+ const {errors}=schema.validate({...valid,stage_name:{},soundcloud:[],genres:[{}],service_types:[{}]},'photo');assert.ok(errors.stage_name);assert.ok(errors.soundcloud);assert.ok(errors.genres);assert.ok(errors.service_types);
+});
+test('city is neither required nor included in saved profiles',()=>{
+ const {value,errors}=schema.validate({...valid,city:'Paris, France'},'photo');assert.equal(errors.city,undefined);assert.equal('city' in value,false);
 });
 test('cover selection is constrained to generated catalog',()=>{
  for(const cover_avatar of [-1,0,21,1.5,'oops'])assert.ok(schema.validate({...valid,cover_avatar},'photo').errors.cover_avatar);

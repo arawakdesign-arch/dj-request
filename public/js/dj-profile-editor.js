@@ -50,9 +50,6 @@ function initDjProfileEditor(profile) {
   }
   djGallery=[...(profile.gallery||[])];renderDjGallery();
   document.getElementById('djr-gallery-input').onchange=uploadDjGallery;
-  const cities=['Paris, France','Marseille, France','Lyon, France','Toulouse, France','Bordeaux, France','Lille, France','Nantes, France','Nice, France','Montpellier, France','Strasbourg, France','Rennes, France','Rouen, France','Grenoble, France','Dijon, France','Tours, France','Orléans, France','Clermont-Ferrand, France','Reims, France','Saint-Étienne, France','Perpignan, France','Fort-de-France, Martinique','Pointe-à-Pitre, Guadeloupe','Les Abymes, Guadeloupe','Cayenne, Guyane','Saint-Denis, La Réunion','Mamoudzou, Mayotte','Bruxelles, Belgique','Liège, Belgique','Genève, Suisse','Lausanne, Suisse','Montréal, Canada','Québec, Canada','Dakar, Sénégal','Abidjan, Côte d’Ivoire','Douala, Cameroun','Kinshasa, RD Congo','Londres, Royaume-Uni','Lisbonne, Portugal','Berlin, Allemagne','Barcelone, Espagne','Madrid, Espagne','Casablanca, Maroc','Tunis, Tunisie','Alger, Algérie','Port-au-Prince, Haïti','Port-Louis, Maurice','Lagos, Nigeria','Accra, Ghana','Johannesburg, Afrique du Sud','New York, États-Unis','Miami, États-Unis','Dubaï, Émirats arabes unis'];
-  const datalist=document.getElementById('djr-cities');datalist.replaceChildren();
-  cities.forEach(city=>{const option=document.createElement('option');option.value=city;datalist.append(option);});
 }
 function collectDjProfile() {
   const input={};

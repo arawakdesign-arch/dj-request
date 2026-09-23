@@ -705,7 +705,7 @@ function _lineupSearch(q, scope = 'create') {
         ? filtered.map(r => `
           <button onclick='_lineupAddApp(${JSON.stringify(r).replace(/'/g,"&#39;")},"${scope}")' style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
             <div style="width:30px;height:30px;border-radius:50%;background:var(--grd);background-image:${r.photo_url ? `url(${escapeHtml(r.photo_url)})` : 'none'};background-size:cover;background-position:center;flex-shrink:0"></div>
-            <div style="min-width:0"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.stage_name)}</div>${r.city ? `<div style="font-size:.64rem;color:var(--tx3)">${escapeHtml(r.city)}</div>` : ''}</div>
+            <div style="min-width:0"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.stage_name)}</div></div>
           </button>`).join('')
         : '<div style="font-size:.75rem;color:var(--tx4);padding:.3rem .1rem">Aucun DJ trouvé</div>';
     } catch(e) { box.innerHTML = ''; }
@@ -743,7 +743,7 @@ function _lineupScSearch(q, scope = 'create') {
         ? results.map(r => `
           <button onclick='_lineupAddScResult(${JSON.stringify(r).replace(/'/g,"&#39;")},"${scope}")' style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:#FFFFFF;border:1px solid var(--bdr);border-radius:.85rem;text-align:left">
             <div style="width:30px;height:30px;border-radius:50%;background:var(--grd);background-image:${r.avatar_url ? `url(${escapeHtml(r.avatar_url)})` : 'none'};background-size:cover;background-position:center;flex-shrink:0"></div>
-            <div style="min-width:0;flex:1"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.name)}</div>${r.city ? `<div style="font-size:.64rem;color:var(--tx3)">${escapeHtml(r.city)}</div>` : ''}</div>
+            <div style="min-width:0;flex:1"><div style="font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.name)}</div></div>
             <div style="font-size:.64rem;color:var(--tx4);flex-shrink:0">SoundCloud</div>
           </button>`).join('')
         : '<div style="font-size:.75rem;color:var(--tx4);padding:.3rem .1rem">Aucun résultat — indisponible ou introuvable, ajoute-le manuellement ci-dessous</div>';
@@ -1244,8 +1244,6 @@ function applyDjProfileToPresskit() {
   elt('pk-name', p.stage_name.toUpperCase());
   elt('pk-tagline', p.tagline || '');
   renderDjProfileDetails(p);
-  { const el = document.getElementById('pk-location'); if (el) el.textContent = p.city ? '📍 ' + p.city : ''; }
-
   const ownId = _sbSession?.user?.id || currentUser?.uid;
   if (editBtn) editBtn.style.display = ownId && (!djViewedProfileId || djViewedProfileId === ownId) ? 'block' : 'none';
 }
