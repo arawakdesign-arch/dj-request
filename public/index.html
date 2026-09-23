@@ -873,7 +873,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="/css/dj-register.css?v=3">
+<link rel="stylesheet" href="/css/dj-register.css?v=4">
 </head>
 <body>
 
@@ -1807,41 +1807,62 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <!-- PAGE ORGANISATEUR PUBLIQUE (pull-up.live/mon-club) -->
 <div class="page" id="pg-orga-public">
-  <div class="scroll">
-    <div class="op-hero">
-      <div class="op-hero-text">
-        <h1 id="op-name" class="op-name">—</h1>
-        <p id="op-bio" class="op-bio"></p>
-        <div class="op-stats" id="op-stats"></div>
-      </div>
-      <div id="op-banner" class="op-visual">
-        <div id="op-logo-frame" class="op-logo-frame"><span id="op-logo">🎪</span></div>
-      </div>
-    </div>
-    <div class="op-actions">
-      <button class="op-follow-btn" id="op-follow-btn" onclick="toggleFollowOrga()">+ Suivre</button>
-      <a id="op-email-btn" href="#" target="_blank" style="display:none" title="Contacter" aria-label="Contacter">✉️</a>
-      <div id="op-socials" class="op-socials"></div>
-      <button class="op-share-btn" onclick="shareOrgaPagePublic()" aria-label="Partager" title="Partager">⬆</button>
-    </div>
+  <header class="op2-topbar">
+    <a href="/app" class="op2-back" aria-label="Retour à Pull Up">←</a>
+    <img src="/images/logo.png" alt="PULL UP!" class="op2-brand">
+    <button type="button" class="op2-top-share" onclick="shareOrgaPagePublic()">Partager ↗</button>
+  </header>
+  <div class="scroll op2-scroll">
+    <main class="op2-shell">
+      <section id="op-banner" class="op-hero" aria-labelledby="op-name">
+        <div class="op2-hero-shade"></div>
+        <div class="op-hero-text">
+          <div class="op2-identity">
+            <div id="op-logo-frame" class="op-logo-frame"><span id="op-logo">🎪</span></div>
+            <span class="op2-kicker">Organisateur</span>
+          </div>
+          <h1 id="op-name" class="op-name">—</h1>
+          <p id="op-bio" class="op-bio"></p>
+          <div class="op-stats" id="op-stats"></div>
+        </div>
+      </section>
 
-    <div id="op-sec-live" class="op-section" style="display:none">
-      <div id="op-events-live"></div>
-    </div>
-    <div id="op-sec-upcoming" class="op-section" style="display:none">
-      <div class="op-section-head"><span>À venir</span></div>
-      <div id="op-events-upcoming"></div>
-    </div>
-    <div id="op-sec-closed" class="op-section" style="display:none">
-      <div class="op-section-head"><span>Passées</span></div>
-      <div id="op-events-closed"></div>
-    </div>
+      <div class="op-actions">
+        <button class="op-follow-btn" id="op-follow-btn" onclick="toggleFollowOrga()">+ Suivre</button>
+        <a id="op-email-btn" class="op2-contact" href="#" target="_blank" style="display:none" title="Contacter" aria-label="Contacter">Contacter</a>
+        <div id="op-socials" class="op-socials"></div>
+      </div>
 
-    <a href="/app?intent=create-event" class="op-bottom-cta">
-      <img src="/images/LOGO120.png" alt="" class="op-bottom-logo">
-      <span class="op-bottom-txt">Crée ta soirée avec Pull Up →</span>
-      <span class="op-bottom-side">Plus de musique<br>Plus de gens<br>Plus loin</span>
-    </a>
+      <div class="op2-content">
+        <div class="op2-events">
+          <div id="op-sec-live" class="op-section op2-live-section" style="display:none">
+            <div class="op-section-head"><span>En ce moment</span><small>LIVE</small></div>
+            <div id="op-events-live"></div>
+          </div>
+          <div id="op-sec-upcoming" class="op-section" style="display:none">
+            <div class="op-section-head"><span>Prochains rendez-vous</span><small>À VENIR</small></div>
+            <div id="op-events-upcoming" class="op2-event-grid"></div>
+          </div>
+          <div id="op-sec-closed" class="op-section op2-past-section" style="display:none">
+            <div class="op-section-head"><span>Les dernières soirées</span><small>ARCHIVES</small></div>
+            <div id="op-events-closed" class="op2-past-list"></div>
+          </div>
+        </div>
+
+        <aside class="op2-aside">
+          <div class="op2-manifesto">
+            <span class="op2-aside-label">LA MUSIQUE SE CHOISIT ENSEMBLE</span>
+            <h2>Fais voter ton public en direct.</h2>
+            <p>Crée ta soirée, partage ton QR code et laisse la salle choisir la suite.</p>
+            <a href="/app?intent=create-event">Créer ma soirée <span>→</span></a>
+          </div>
+          <div class="op2-signature">
+            <img src="/images/logo.png" alt="PULL UP!">
+            <span>Plus de musique<br>Plus de gens<br>Plus loin</span>
+          </div>
+        </aside>
+      </div>
+    </main>
   </div>
 </div>
 
@@ -2026,6 +2047,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/dj-profile-editor.js?v=4"></script>
 <script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
-<script src="/js/auth.js?v=71"></script>
+<script src="/js/auth.js?v=72"></script>
 </body>
 </html>

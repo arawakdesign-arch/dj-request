@@ -274,10 +274,8 @@ async function tryShowOrgaPublicPage(slug) {
   showPage('orga-public');
   updateFollowBtnUI(!!page.following);
   elt('op-name', page.name || slug);
-  // Le texte de présentation reste court à côté du titre en gros caractères —
-  // tronqué plutôt que de déséquilibrer la mise en page avec un pavé de texte.
   const bio = (page.bio || '').trim();
-  elt('op-bio', bio.length > 100 ? bio.slice(0, 100).trimEnd() + '…' : bio);
+  elt('op-bio', bio.length > 180 ? bio.slice(0, 180).trimEnd() + '…' : bio);
   const banner = document.getElementById('op-banner');
   // Pas de banner_url → le dégradé de marque reste visible tel quel.
   if (banner) {
@@ -317,16 +315,17 @@ async function tryShowOrgaPublicPage(slug) {
     <div class="op-stat"><span class="op-stat-n">${followersCount}</span><span class="op-stat-l">abonné${followersCount>1?'s':''}</span></div>`;
 
   const liveCard = ev => `
-    <div class="op-live-wrap">
-      <button onclick="window.location.href='/?event=${ev.id}'" class="op-live-card">
+    <button onclick="window.location.href='/?event=${ev.id}'" class="op-live-card">
+      <div class="op-live-copy">
         <div class="op-live-badge"><span class="op-live-dot"></span>En direct</div>
         <div class="op-live-name">${escapeHtml(ev.name)}</div>
         ${ev.club_name ? `<div class="op-live-sub">${escapeHtml(ev.club_name)}</div>` : ''}
-        <div class="op-live-meta">Maintenant</div>
-        <div class="op-live-cta">Rejoindre la soirée →</div>
-      </button>
-      <div class="op-live-visual" style="${ev.flyer_url ? `background-image:url(${escapeHtml(ev.flyer_url)})` : ''}"></div>
-    </div>`;
+        <div class="op-live-cta">Rejoindre la soirée <span>→</span></div>
+      </div>
+      <div class="op-live-visual" style="${ev.flyer_url ? `background-image:url(${escapeHtml(ev.flyer_url)})` : ''}">
+        ${ev.flyer_url ? '' : '<span>PULL<br>UP!</span>'}
+      </div>
+    </button>`;
 
   const DATE_COLORS = ['#E9DEFF', '#FFD9EC', '#DDEBFF', '#FFF0D6'];
   const upRow = (ev, i) => {
@@ -334,24 +333,26 @@ async function tryShowOrgaPublicPage(slug) {
     const day   = d ? String(d.getDate()).padStart(2,'0') : '—';
     const month = d ? d.toLocaleDateString('fr-FR', { month: 'short' }).toUpperCase().replace('.','') : '';
     const bg = DATE_COLORS[i % DATE_COLORS.length];
+    const time = d ? d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'H') : '';
     return `
-    <button onclick="window.location.href='/?event=${ev.id}'" class="op-up-row">
-      <div class="op-up-date" style="background:${bg};color:var(--tx)"><b>${day}</b><span>${month}</span></div>
-      <div style="flex:1;min-width:0">
+    <button onclick="window.location.href='/?event=${ev.id}'" class="op-up-row" style="--op-card-accent:${bg}">
+      <div class="op-up-date"><b>${day}</b><span>${month}</span></div>
+      <div class="op-up-copy">
         <div class="op-up-name">${escapeHtml(ev.name)}</div>
         ${ev.club_name ? `<div class="op-up-club">${escapeHtml(ev.club_name)}</div>` : ''}
+        ${time ? `<div class="op-up-time">${time}</div>` : ''}
       </div>
-      <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">→</div>
+      <div class="op-up-arrow">↗</div>
     </button>`;
   };
   const closedRow = ev => `
     <button onclick="window.location.href='/?event=${ev.id}'" class="op-up-row">
-      <div class="op-up-date" style="background:var(--ink5);color:var(--tx4)"><b>✓</b></div>
-      <div style="flex:1;min-width:0">
+      <div class="op-up-date"><b>✓</b><span>PASSÉ</span></div>
+      <div class="op-up-copy">
         <div class="op-up-name">${escapeHtml(ev.name)}</div>
         ${ev.club_name ? `<div class="op-up-club">${escapeHtml(ev.club_name)}</div>` : ''}
       </div>
-      <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">→</div>
+      <div class="op-up-arrow">→</div>
     </button>`;
 
   const secLive = document.getElementById('op-sec-live'), listLive = document.getElementById('op-events-live');
