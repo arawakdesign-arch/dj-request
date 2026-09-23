@@ -96,7 +96,11 @@ router.post('/dj/profile/photo', requireAuth, upload.single('photo'), async (req
   let buffer;
   try {
     const sharp = require('sharp');
-    buffer = await sharp(req.file.buffer).rotate().resize(500, 500, { fit: 'cover' }).jpeg({ quality: 75, mozjpeg: true }).toBuffer();
+    buffer = await sharp(req.file.buffer)
+      .rotate()
+      .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 86, chromaSubsampling: '4:4:4', mozjpeg: true })
+      .toBuffer();
   } catch(e) { return res.status(400).json({ error: 'Fichier image invalide' }); }
 
   const fileName = `dj/${req.user.id}/avatar.jpg`;
