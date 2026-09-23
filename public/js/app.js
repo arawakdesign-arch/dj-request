@@ -1245,7 +1245,6 @@ function applyDjProfileToPresskit() {
   elt('pk-tagline', p.tagline || '');
   renderDjProfileDetails(p);
   { const el = document.getElementById('pk-location'); if (el) el.textContent = p.city ? '📍 ' + p.city : ''; }
-  if (p.photo_url) { const img = document.getElementById('pk-photo'); if (img) img.src = p.photo_url; }
 
   const socWrap = document.getElementById('pk-socials');
   if (socWrap) {
