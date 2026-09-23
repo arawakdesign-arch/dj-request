@@ -275,7 +275,7 @@
 #pg-presskit .pk2-share{margin-left:0;border:1px solid #ffffff32;border-radius:40px;color:#fff;padding:11px 16px;font-size:.62rem}
 #pg-presskit .pk2-scroll{padding:0 18px max(36px,env(safe-area-inset-bottom));background:radial-gradient(circle at 88% 5%,#52209255,transparent 28%),linear-gradient(180deg,#100c14 0%,#09070b 72%)}
 #pg-presskit .pk2-shell{max-width:1180px}
-#pg-presskit .pk2-hero{min-height:min(720px,calc(100vh - 92px));margin-top:18px;border:1px solid #ffffff20;border-radius:18px;background:radial-gradient(circle at 72% 36%,#8d45f0 0%,#38145f 25%,#17101e 49%,#0a080c 76%)}
+#pg-presskit .pk2-hero{min-height:min(620px,calc(100vh - 110px));margin-top:18px;border:1px solid #ffffff20;border-radius:18px;background:radial-gradient(circle at 72% 36%,#8d45f0 0%,#38145f 25%,#17101e 49%,#0a080c 76%)}
 #pg-presskit .pk2-hero::before{z-index:1;background:linear-gradient(90deg,#09070be8 0%,#09070ba8 38%,transparent 70%),linear-gradient(0deg,#09070bd9 0%,transparent 43%)}
 #pg-presskit .pk2-hero::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.22;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E")}
 #pg-presskit .pk2-hero-copy{position:absolute;inset:0;z-index:4;width:100%;padding:46px 48px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start}
@@ -344,7 +344,7 @@
   #pg-presskit .pk2-logo{width:58px;height:58px}
   #pg-presskit .pk2-share{border:0;padding:8px 0}
   #pg-presskit .pk2-scroll{padding:0 8px max(28px,env(safe-area-inset-bottom))}
-  #pg-presskit .pk2-hero{min-height:610px;margin-top:8px;border-radius:10px}
+  #pg-presskit .pk2-hero{min-height:540px;margin-top:8px;border-radius:10px}
   #pg-presskit .pk2-hero::before{background:linear-gradient(0deg,#09070bf2 0%,#09070b9e 49%,transparent 78%)}
   #pg-presskit .pk2-hero-copy{padding:24px 18px 34px}
   #pg-presskit .pk2-portrait-row{left:18px;top:22px}
@@ -390,15 +390,15 @@
 #pg-presskit .pk3-avatar-stage{position:absolute;z-index:0;right:0;top:0;width:59%;height:100%;overflow:hidden}
 #pg-presskit .pk3-avatar-stage::after{content:'';position:absolute;z-index:1;inset:0;background:linear-gradient(90deg,#09070b 0%,#09070b66 20%,transparent 55%),linear-gradient(0deg,#09070b80,transparent 35%);pointer-events:none}
 #pg-presskit .pk3-avatar-halo{display:none}
-#pg-presskit .pk3-avatar-stage .pk2-hero-art{position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center 24%;filter:saturate(.88) contrast(1.04)}
+#pg-presskit .pk3-avatar-stage .pk2-hero-art{position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center top;filter:saturate(.88) contrast(1.04)}
 #pg-presskit .pk2-photo.pk2-avatar-medallion{object-position:68% center;background:radial-gradient(circle at 65% 35%,#b982ff,#5e22a8 52%,#160b22);filter:saturate(1.05)}
 #pg-presskit .pk2-hero h1{font-size:clamp(4.6rem,9vw,8rem);max-width:56%}
 #pg-presskit .pk2-tagline{max-width:46%}
 @media(max-width:560px){
   #pg-dj-register .djr-covers{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:0 10px 14px}
-  #pg-presskit .pk3-avatar-stage{width:100%;height:68%;top:2%}
+  #pg-presskit .pk3-avatar-stage{width:100%;height:64%;top:0}
   #pg-presskit .pk3-avatar-stage::after{background:linear-gradient(0deg,#09070bd9 0%,transparent 55%),linear-gradient(90deg,#09070b33,transparent 45%)}
-  #pg-presskit .pk3-avatar-stage .pk2-hero-art{width:100%;height:100%;right:auto;top:auto;background-size:cover;background-position:center 20%;opacity:1}
+  #pg-presskit .pk3-avatar-stage .pk2-hero-art{width:100%;height:100%;right:auto;top:auto;background-size:cover;background-position:center top;opacity:1}
   #pg-presskit .pk2-hero h1{font-size:clamp(3.5rem,16vw,4.8rem);max-width:100%}
   #pg-presskit .pk2-tagline{max-width:94%}
 }

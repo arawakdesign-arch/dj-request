@@ -1248,14 +1248,13 @@ function applyDjProfileToPresskit() {
 
   const socWrap = document.getElementById('pk-socials');
   if (socWrap) {
-    const ig = document.getElementById('pk-soc-ig'), sc = document.getElementById('pk-soc-sc'), ra = document.getElementById('pk-soc-ra');
+    const ig = document.getElementById('pk-soc-ig'), ra = document.getElementById('pk-soc-ra');
     if (ig) ig.style.display = p.instagram        ? '' : 'none';
-    if (sc) sc.style.display = p.soundcloud       ? '' : 'none';
     if (ra) ra.style.display = p.resident_advisor ? '' : 'none';
-    for (const [button, key] of [[ig,'instagram'],[sc,'soundcloud'],[ra,'resident_advisor']]) {
+    for (const [button, key] of [[ig,'instagram'],[ra,'resident_advisor']]) {
       if (button) button.onclick = () => { const url = DjProfileSchema.url(p[key]); if (url) window.open(url, '_blank', 'noopener,noreferrer'); };
     }
-    socWrap.hidden = ![p.instagram,p.soundcloud,p.resident_advisor].some(Boolean);
+    socWrap.hidden = ![p.instagram,p.resident_advisor].some(Boolean);
   }
 
   const ownId = _sbSession?.user?.id || currentUser?.uid;
