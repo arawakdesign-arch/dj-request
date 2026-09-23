@@ -1840,103 +1840,60 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 
 <!-- PRESS KIT (DJ Profile public) -->
 <div class="page" id="pg-presskit">
-  <div class="tb">
-    <div class="tb-back" onclick="showPage('client')">←</div>
-    <div class="tb-title"><img src="/images/logo.png" alt="PULL UP!" style="height:50px;object-fit:contain;display:block"></div>
-    <button onclick="toast('🔗 Lien copié !')" style="margin-left:auto;width:44px;height:44px;border-radius:10px;border:1px solid var(--bdr);background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--tx2);flex-shrink:0">⬆</button>
+  <div class="tb pk2-topbar">
+    <button type="button" class="tb-back" onclick="djProfileBack()" aria-label="Retour">←</button>
+    <img src="/images/logo.png" alt="PULL UP!" class="pk2-logo">
+    <button type="button" class="pk2-share" onclick="shareDjProfile()" aria-label="Partager ce profil">Partager ↗</button>
   </div>
-  <div class="scroll">
-
-    <!-- HERO -->
-    <div style="margin:0 1rem;border-radius:1.5rem;overflow:hidden;position:relative;height:320px;background:var(--dj-card)">
-      <img id="pk-photo" src="/images/dj-avatar.webp?v=2" alt="DJ Nova" style="position:absolute;right:-10px;bottom:0;height:104%;object-fit:contain;object-position:bottom right">
-      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,16,20,.94) 0%,rgba(16,16,20,.8) 42%,rgba(16,16,20,.2) 75%,transparent 100%)"></div>
-      <div style="position:absolute;left:1.25rem;right:2.5rem;top:1.5rem">
-        <div id="pk-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:2.1rem;letter-spacing:-.01em;line-height:1;color:#fff">DJ</div>
-        <div id="pk-tagline" style="font-size:.8rem;color:rgba(255,255,255,.75);line-height:1.55;margin-top:.65rem;max-width:210px"></div>
-      </div>
-      <div id="pk-location" style="position:absolute;left:1.25rem;bottom:1.25rem;display:flex;align-items:center;gap:.3rem;font-size:.78rem;color:rgba(255,255,255,.85)"></div>
-      <button id="pk-edit-btn" onclick="openDjRegister()" style="display:none;position:absolute;right:1.25rem;bottom:1.25rem;padding:.4rem .8rem;border-radius:20px;border:1px solid rgba(255,255,255,.35);background:rgba(16,16,20,.4);color:#fff;font-size:.72rem;font-weight:600">✎ Modifier</button>
-    </div>
-
-    <!-- RÉSEAUX -->
-    <div id="pk-socials" style="display:flex;gap:.5rem;padding:1rem 1rem 0">
-      <button id="pk-soc-ig" onclick="toast('📷 Instagram')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">📷 Instagram</button>
-      <button id="pk-soc-sc" onclick="toast('☁️ SoundCloud')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">☁️ SoundCloud</button>
-      <button id="pk-soc-ra" onclick="toast('⚫ Resident Advisor')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;padding:.75rem .3rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;font-size:.72rem;font-weight:600;color:var(--tx2)">⚫ RA</button>
-    </div>
-
-    <div id="pk-profile-details"></div>
-
-    <!-- LIVE SUR PULL UP -->
-    <div style="margin:1rem 1rem 0;background:rgba(111,34,255,.05);border:1px solid rgba(111,34,255,.18);border-radius:1.5rem;padding:1rem">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem">
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <div style="width:32px;height:32px;border-radius:50%;background:rgba(111,34,255,.12);display:flex;align-items:center;justify-content:center;font-size:.9rem">📶</div>
-          <div style="font-size:1rem;font-weight:800;color:var(--tx)">Live sur Pull Up</div>
+  <div class="scroll pk2-scroll">
+    <main class="pk2-shell">
+      <section class="pk2-hero" aria-labelledby="pk-name">
+        <div class="pk2-hero-copy">
+          <div class="pk2-portrait-row">
+            <img id="pk-photo" src="/images/dj-avatar.webp?v=2" alt="Photo du DJ" class="pk2-photo">
+            <div><span class="pk2-kicker">PROFIL DJ</span><div id="pk-location" class="pk2-location"></div></div>
+          </div>
+          <h1 id="pk-name">DJ</h1>
+          <p id="pk-tagline" class="pk2-tagline"></p>
+          <div id="pk-genre-chips" class="pk2-chips"></div>
         </div>
-        <span style="font-size:.6rem;font-weight:700;color:var(--vi);border:1px solid rgba(111,34,255,.3);border-radius:20px;padding:3px 10px;display:flex;align-items:center;gap:4px;flex-shrink:0">EN DIRECT <span style="width:5px;height:5px;border-radius:50%;background:var(--pk);display:inline-block"></span></span>
+        <div id="pk-hero-art" class="pk2-hero-art" aria-hidden="true"></div>
+        <div class="pk2-hero-brand">PULL UP! ARTIST</div>
+        <button type="button" id="pk-edit-btn" class="pk2-edit" onclick="openDjRegister()" style="display:none">Modifier le profil</button>
+      </section>
+
+      <div id="pk-socials" class="pk2-socials" aria-label="Liens principaux">
+        <button type="button" id="pk-soc-ig">Instagram ↗</button>
+        <button type="button" id="pk-soc-sc">SoundCloud ↗</button>
+        <button type="button" id="pk-soc-ra">Resident Advisor ↗</button>
       </div>
 
-      <div style="display:flex;align-items:center;gap:.7rem;background:#FFFFFF;border-radius:1rem;padding:.7rem .8rem;margin-bottom:.5rem">
-        <div style="width:38px;height:38px;border-radius:10px;background:rgba(111,34,255,.12);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">🎵</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.6rem;color:var(--tx4);text-transform:uppercase;letter-spacing:.05em">Prochain son</div>
-          <div id="pk-np-t" style="font-size:.85rem;font-weight:700;color:var(--tx);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">En attente…</div>
+      <div class="pk2-columns">
+        <div class="pk2-main">
+          <div id="pk-profile-details"></div>
+
+          <section class="pk2-live" aria-labelledby="pk2-live-title">
+            <div class="pk2-section-head"><div><span>LIVE SUR PULL UP</span><h2 id="pk2-live-title">Le public choisit la suite.</h2></div><i></i></div>
+            <div class="pk2-track">
+              <div><span>PROCHAIN SON</span><strong id="pk-np-t">En attente…</strong></div>
+              <button type="button" onclick="navTo('vote')" aria-label="Voir les votes">Voir les votes →</button>
+            </div>
+          </section>
         </div>
-        <button onclick="navTo('vote')" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(111,34,255,.3);background:rgba(111,34,255,.08);color:var(--vi);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">▶</button>
-      </div>
 
-      <div style="display:flex;align-items:center;gap:.7rem;background:#FFFFFF;border-radius:1rem;padding:.7rem .8rem">
-        <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,28,142,.1);color:var(--pk);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">💸</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.84rem;font-weight:700;color:var(--tx)">Money Pull Up</div>
-          <div style="font-size:.66rem;color:var(--tx3);margin-top:1px">Envoie de l'argent au DJ en direct</div>
-        </div>
-        <button onclick="toast('💸 Bientôt disponible')" style="padding:.5rem 1.05rem;border-radius:20px;border:none;background:linear-gradient(135deg,#8D2CFF,#FF1C8E);color:#fff;font-size:.85rem;font-weight:800;flex-shrink:0">2€</button>
+        <aside class="pk2-booking" aria-labelledby="pk2-booking-title">
+          <span class="pk2-aside-label">BOOKING</span>
+          <h2 id="pk2-booking-title">Disponible pour ton prochain événement.</h2>
+          <p id="pk-travel-areas" class="pk2-travel"></p>
+          <button type="button" class="pk2-email" onclick="copyBookingEmail()">
+            <span>E-MAIL PROFESSIONNEL</span><strong id="pk-booking-email">—</strong>
+          </button>
+          <a id="pk-booking-phone" class="pk2-phone" href="" hidden></a>
+          <button type="button" id="pk-booking-contact" class="pk2-book-btn">Contacter ce DJ ↗</button>
+          <button type="button" class="pk2-print" onclick="window.print()">Imprimer le press kit</button>
+        </aside>
       </div>
-    </div>
-
-    <!-- PROCHAINS SETS -->
-    <div class="pk-sec">
-      <div class="pk-sec-t" style="justify-content:space-between">
-        <span>Prochains sets</span>
-        <span onclick="toast('📅 Bientôt disponible')" style="font-size:.75rem;font-weight:700;color:var(--vi);cursor:pointer">Voir tout ›</span>
-      </div>
-      <div class="up-list">
-        <div style="text-align:center;padding:1.25rem;font-size:.8rem;color:var(--tx4)">Bientôt disponible</div>
-      </div>
-    </div>
-
-    <!-- BOOKING -->
-    <div class="pk-sec" style="border-bottom:none;padding-bottom:2rem">
-      <div class="pk-sec-t">Booking</div>
-
-      <div style="background:rgba(22,201,107,.06);border:1px solid rgba(22,201,107,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.75rem">
-        <div style="width:40px;height:40px;border-radius:50%;background:rgba(22,201,107,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;color:var(--green)">✓</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.85rem;font-weight:700;color:var(--green)">Disponible pour booking</div>
-          <div style="font-size:.7rem;color:var(--tx3);margin-top:2px"><span id="pk-travel-areas"></span></div>
-        </div>
-        <div style="color:var(--green);font-size:1.15rem;flex-shrink:0">🌐</div>
-      </div>
-
-      <div style="background:rgba(111,34,255,.06);border:1px solid rgba(111,34,255,.2);border-radius:1.25rem;padding:.85rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem;cursor:pointer" onclick="copyBookingEmail()">
-        <div style="width:40px;height:40px;border-radius:12px;background:rgba(111,34,255,.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;color:var(--vi)">✉️</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.85rem;font-weight:700;color:var(--tx)">Contact booking</div>
-          <div id="pk-booking-email" style="font-size:.82rem;color:var(--vi);font-weight:600;margin-top:1px">booking@djnova.fr</div>
-          <div style="font-size:.66rem;color:var(--tx4);margin-top:1px"></div>
-        </div>
-        <div style="color:var(--tx4);font-size:1.1rem;flex-shrink:0">›</div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
-        <button id="pk-booking-contact" style="padding:.88rem;border-radius:1rem;border:none;background:var(--grd);color:white;font-size:.88rem;font-weight:700;font-family:Inter,sans-serif;min-height:52px">✉️ Demande</button>
-        <button onclick="window.print()" style="padding:.88rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.88rem;font-weight:600;font-family:Inter,sans-serif;min-height:52px">⬇ Press Kit</button>
-      </div>
-    </div>
-
+    </main>
   </div>
 </div>
 
@@ -2057,10 +2014,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=1"></script>
-<script src="/js/app.js?v=105"></script>
-<script src="/js/dj-profile-editor.js?v=3"></script>
+<script src="/js/app.js?v=106"></script>
+<script src="/js/dj-profile-editor.js?v=4"></script>
 <script src="/js/render.js?v=39"></script>
 <script src="/js/chat.js?v=25"></script>
-<script src="/js/auth.js?v=69"></script>
+<script src="/js/auth.js?v=70"></script>
 </body>
 </html>

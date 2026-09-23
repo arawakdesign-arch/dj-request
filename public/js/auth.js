@@ -31,6 +31,10 @@ window.addEventListener('load', async () => {
     return;
   }
 
+  // Profil DJ public et partageable : aucune connexion n'est nécessaire.
+  const publicDjId = new URLSearchParams(window.location.search).get('dj');
+  if (publicDjId && await openPublicDjProfile(publicDjId)) return;
+
   // Suivi d'organisateur en attente : Google/email quittent forcément la page
   // publique le temps de la connexion (redirection OAuth vers /app) — dès
   // qu'une session existe au rechargement, on termine l'abonnement puis on

@@ -1,6 +1,7 @@
 /* Extended DJ editor: all text is inserted with textContent, never HTML. */
 let djMediaBusy = false;
 let djGallery = [];
+let djViewedProfileId = null;
 const djFieldIds = {stage_name:'stage-name',booking_email:'booking-email',resident_advisor:'ra'};
 function djField(key) { return document.getElementById('dj-edit-'+(djFieldIds[key] || key.replaceAll('_','-'))); }
 function djFeedback(message) { document.getElementById('djr-feedback').textContent=message; }
@@ -103,22 +104,33 @@ async function uploadDjGallery(event) {
 }
 function renderDjProfileDetails(p) {
   const box=document.getElementById('pk-profile-details');if(!box)return;box.replaceChildren();
-  function section(title,text){if(!text)return;const s=document.createElement('section'),h=document.createElement('h2'),t=document.createElement('p');h.textContent=title;t.textContent=text;s.append(h,t);box.append(s);}
+  function section(title,text){if(!text)return null;const s=document.createElement('section'),h=document.createElement('h2'),content=document.createElement('p');h.textContent=title;content.textContent=text;s.append(h,content);box.append(s);return s;}
   function link(parent,label,value){const href=DjProfileSchema.url(value);if(!href)return;const a=document.createElement('a');a.textContent=label;a.href=href;a.target='_blank';a.rel='noopener noreferrer';parent.append(a);}
+  function linksSection(title,entries){const links=document.createElement('div');links.className='pk-profile-links';entries.forEach(([label,value])=>link(links,label,value));if(!links.childNodes.length)return;const s=document.createElement('section'),h=document.createElement('h2');h.textContent=title;s.append(h,links);box.append(s);}
   const portrait=document.getElementById('pk-photo');
-  if(portrait) Object.assign(portrait.style,{width:'72px',height:'72px',top:'16px',right:'16px',bottom:'auto',objectFit:'cover',borderRadius:'50%',border:'2px solid white'});
-  const name=document.getElementById('pk-name');if(name)name.style.maxWidth='calc(100% - 72px)';
-  const hero=portrait?.parentElement;
-  if(hero) {hero.style.backgroundImage=p.cover_avatar?`url('/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}-pullup.png')`:'';hero.style.backgroundSize='contain';hero.style.backgroundRepeat='no-repeat';hero.style.backgroundPosition='right bottom';}
-  section('Présentation',p.bio);section('Styles musicaux',p.genres);section('Prestations',(p.service_types||[]).join(' · '));
-  const links=document.createElement('div');links.className='pk-profile-links';
-  for(const key of ['soundcloud','mixcloud','youtube','spotify']) link(links,DjProfileSchema.links[key][0],p[key]);
-  if(links.childNodes.length){const s=document.createElement('section'),h=document.createElement('h2');h.textContent='Écouter';s.append(h,links);box.append(s);}
-  section('Résidences et collaborations',p.experience);
-  if(p.gallery?.length){const gallery=document.createElement('section'),h=document.createElement('h2'),grid=document.createElement('div');h.textContent='Photos';grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const img=document.createElement('img');img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';grid.append(img);});gallery.append(h,grid);box.append(gallery);}
-  const networks=document.createElement('div');networks.className='pk-profile-links';
-  for(const key of ['instagram','tiktok','website','resident_advisor','video_url'])link(networks,DjProfileSchema.links[key][0],p[key]);
-  box.append(networks);section('Téléphone / WhatsApp',p.phone);section('Zones de déplacement',p.travel_areas);
-  const area=document.getElementById('pk-travel-areas');if(area)area.textContent=p.travel_areas||'';
-  const contact=document.getElementById('pk-booking-contact');if(contact){contact.disabled=!p.booking_email;contact.onclick=()=>{if(p.booking_email)location.href='mailto:'+encodeURIComponent(p.booking_email);};}
+  if(portrait){portrait.alt=`Photo de ${p.stage_name||'ce DJ'}`;portrait.style.display=p.photo_url?'block':'none';}
+  const art=document.getElementById('pk-hero-art');
+  if(art)art.style.backgroundImage=p.cover_avatar?`url('/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}-pullup.png')`:'';
+  const genres=(p.genres||'').split(',').map(value=>value.trim()).filter(Boolean),genreBox=document.getElementById('pk-genre-chips');
+  genreBox?.replaceChildren();genres.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;genreBox?.append(chip);});
+  section('À propos',p.bio);
+  const services=Array.isArray(p.service_types)?p.service_types:[];
+  if(services.length){const s=document.createElement('section'),h=document.createElement('h2'),chips=document.createElement('div');h.textContent='Prestations';chips.className='pk-profile-chips';services.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;chips.append(chip);});s.append(h,chips);box.append(s);}
+  linksSection('Écouter',[['SoundCloud',p.soundcloud],['Mixcloud',p.mixcloud],['YouTube',p.youtube],['Spotify',p.spotify]]);
+  section('Résidences & collaborations',p.experience);
+  if(p.gallery?.length){const gallery=document.createElement('section'),h=document.createElement('h2'),grid=document.createElement('div');h.textContent='Photos';grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const a=document.createElement('a'),img=document.createElement('img');a.href=url;a.target='_blank';a.rel='noopener noreferrer';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';a.append(img);grid.append(a);});gallery.append(h,grid);box.append(gallery);}
+  linksSection('Liens',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]]);
+  const area=document.getElementById('pk-travel-areas');if(area)area.textContent=p.travel_areas||'Zones de déplacement à confirmer';
+  const email=document.getElementById('pk-booking-email');if(email)email.textContent=p.booking_email||'Non renseigné';
+  const phone=document.getElementById('pk-booking-phone');if(phone){phone.hidden=!p.phone;phone.textContent=p.phone?`WhatsApp / téléphone · ${p.phone}`:'';phone.href=p.phone?'tel:'+p.phone.replace(/[^+\d]/g,''):'';}
+  const contact=document.getElementById('pk-booking-contact');if(contact){contact.disabled=!p.booking_email;contact.onclick=()=>{if(p.booking_email)location.href='mailto:'+p.booking_email;};}
 }
+
+async function openPublicDjProfile(id) {
+  if(!id)return false;
+  try{const profile=await api('GET','/dj/profile/'+encodeURIComponent(id));djViewedProfileId=id;_djProfileCache=profile;showPage('presskit');return true;}
+  catch(e){return false;}
+}
+function djProfileUrl(){const id=djViewedProfileId||_djProfileCache?.id||_sbSession?.user?.id||currentUser?.uid;return id?`${location.origin}/app?dj=${encodeURIComponent(id)}`:location.href;}
+async function shareDjProfile(){const data={title:_djProfileCache?.stage_name||'Profil DJ Pull Up',text:_djProfileCache?.tagline||'Découvre ce profil DJ sur Pull Up.',url:djProfileUrl()};try{if(navigator.share){await navigator.share(data);return;}await navigator.clipboard.writeText(data.url);toast('Lien du profil copié');}catch(e){if(e?.name!=='AbortError')toast('Impossible de partager le profil');}}
+function djProfileBack(){if(djViewedProfileId){if(document.referrer.startsWith(location.origin))history.back();else location.href='/';return;}showPage(eid?'client':(currentUser?'profile':'auth'));}

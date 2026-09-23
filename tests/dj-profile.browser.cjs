@@ -12,6 +12,7 @@ const assert=require('node:assert/strict');
  browser=await chromium.launch({...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{channel:'chrome'}),headless:true});
  const page=await browser.newPage({viewport:{width:390,height:844}});
  let photoFailure=true, gallery=[], saved=null;
+ const publicProfile={id:'public-test',stage_name:'DJ Public',city:'Lyon, France',tagline:'Afro house et amapiano',bio:'Présentation publique.',genres:'Afro house, Amapiano',service_types:['Club','Festival'],soundcloud:'https://soundcloud.com/public',instagram:'https://instagram.com/public',booking_email:'booking@example.com',travel_areas:'France et Europe',cover_avatar:3,photo_url:'/images/logo.png',gallery:['/images/logo.png']};
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',async route=>{
   const u=new URL(route.request().url());
@@ -23,6 +24,7 @@ const assert=require('node:assert/strict');
    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({gallery,url:gallery.at(-1)})});
   }
   if(u.pathname==='/api/dj/profile' && route.request().method()==='POST') {saved=route.request().postDataJSON();return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...saved,id:'test',photo_url:'/images/logo.png',gallery})});}
+  if(u.pathname==='/api/dj/profile/public-test')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(publicProfile)});
   if(u.pathname.startsWith('/api/'))return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(u.pathname==='/api/config/public'?{}:[])});
   return route.continue();
  });
@@ -76,7 +78,18 @@ const assert=require('node:assert/strict');
  assert.match(await page.locator('#pk-profile-details').innerText(),/Club test/);
  assert.equal(await page.locator('#pk-profile-details a[href="https://tiktok.com/@test"]').count(),1);
  assert.equal(await page.locator('#pk-profile-details .pk-profile-gallery img').count(),1);
- assert.match(await page.locator('#pk-photo').evaluate(el=>el.parentElement.style.backgroundImage),/avatar-03/);
+ assert.match(await page.locator('#pk-hero-art').evaluate(el=>el.style.backgroundImage),/avatar-03-pullup\.png/);
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('http://127.0.0.1:3107/index.html?dj=public-test');
+ await page.locator('#pg-presskit.active').waitFor();
+ assert.equal(await page.locator('#pk-name').innerText(),'DJ PUBLIC');
+ assert.equal(await page.locator('#pk-edit-btn').isVisible(),false);
+ assert.equal(await page.locator('#pk-profile-details .pk-profile-gallery img').count(),1);
+ assert.equal(await page.evaluate(()=>djProfileUrl()),'http://127.0.0.1:3107/app?dj=public-test');
+ assert.equal(await page.locator('#pg-presskit .scroll').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
+ await page.screenshot({path:path.join(require('node:os').tmpdir(),'dj-public-profile-mobile.png'),fullPage:true});
+ await page.setViewportSize({width:1280,height:900});
+ await page.screenshot({path:path.join(require('node:os').tmpdir(),'dj-public-profile-desktop.png'),fullPage:true});
  const relevant=errors.filter(e=>!e.includes('supabase')&&!e.includes('QRCode'));
  console.log('Browser errors:',errors);
  assert.deepEqual(relevant,[]);

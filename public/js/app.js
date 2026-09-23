@@ -978,6 +978,7 @@ let _djProfileCache = null; // {} tant que non chargé, {stage_name:...} une foi
 async function loadDjProfile() {
   if (!(_authToken || _sbSession)) return null;
   try {
+    djViewedProfileId = null;
     _djProfileCache = await api('GET', '/dj/profile');
   } catch(e) { _djProfileCache = null; }
   refreshDjRegisterButton();
@@ -1245,9 +1246,8 @@ function applyDjProfileToPresskit() {
   elt('pk-name', p.stage_name.toUpperCase());
   elt('pk-tagline', p.tagline || '');
   renderDjProfileDetails(p);
-  if (p.city)    { const el = document.getElementById('pk-location'); if (el) el.textContent = '📍 ' + p.city; }
+  { const el = document.getElementById('pk-location'); if (el) el.textContent = p.city ? '📍 ' + p.city : ''; }
   if (p.photo_url) { const img = document.getElementById('pk-photo'); if (img) img.src = p.photo_url; }
-  if (p.booking_email) elt('pk-booking-email', p.booking_email);
 
   const socWrap = document.getElementById('pk-socials');
   if (socWrap) {
@@ -1258,9 +1258,11 @@ function applyDjProfileToPresskit() {
     for (const [button, key] of [[ig,'instagram'],[sc,'soundcloud'],[ra,'resident_advisor']]) {
       if (button) button.onclick = () => { const url = DjProfileSchema.url(p[key]); if (url) window.open(url, '_blank', 'noopener,noreferrer'); };
     }
+    socWrap.hidden = ![p.instagram,p.soundcloud,p.resident_advisor].some(Boolean);
   }
 
-  if (editBtn) editBtn.style.display = 'block';
+  const ownId = _sbSession?.user?.id || currentUser?.uid;
+  if (editBtn) editBtn.style.display = ownId && (!djViewedProfileId || djViewedProfileId === ownId) ? 'block' : 'none';
 }
 
 function applyProfileToUI(profile) {
