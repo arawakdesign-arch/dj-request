@@ -1033,7 +1033,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
     <img src="/images/logo.png" alt="PULL UP!" class="app-logo-tb">
   </div>
   <!-- VENUE CARD (fixe, ne défile pas) -->
-  <div class="venue-card" onclick="goToOrgaPublicPage()" style="cursor:pointer">
+  <div class="venue-card" id="venue-card-main" onclick="goToOrgaPublicPage()" style="cursor:pointer">
     <div class="venue-photo"><img id="venue-photo-img" src="/images/venue-photo.jpg" alt=""></div>
     <div class="venue-info">
       <div class="venue-event-name" id="venue-event-name"></div>
@@ -1053,6 +1053,14 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
         <div class="venue-qr-box"><img src="/images/invitesmesamis-2.png" alt="Partager"></div>
       </button>
     </div>
+  </div>
+
+  <!-- AUCUNE SOIRÉE EN COURS (pas d'eid) — remplace la venue-card plutôt que
+       de la laisser affichée à moitié vide (photo/texte par défaut confus) -->
+  <div class="venue-card" id="venue-empty-state" style="display:none;justify-content:center;text-align:center;flex-direction:column;gap:.4rem;padding:1.5rem 1rem;cursor:default">
+    <div style="font-size:1.8rem">📷</div>
+    <div style="font-weight:800;font-size:.95rem;color:var(--tx)">Aucune soirée en cours</div>
+    <div style="font-size:.78rem;color:var(--tx3);line-height:1.4">Scanne le QR code affiché par l'organisateur pour rejoindre la soirée.</div>
   </div>
 
   <!-- DJ BANNER (se réduit au scroll pour laisser plus de place à la liste) -->
@@ -2016,7 +2024,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/dj-profile-schema.js?v=1"></script>
 <script src="/js/app.js?v=106"></script>
 <script src="/js/dj-profile-editor.js?v=4"></script>
-<script src="/js/render.js?v=39"></script>
+<script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
 <script src="/js/auth.js?v=71"></script>
 </body>

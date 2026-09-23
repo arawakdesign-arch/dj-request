@@ -33,8 +33,18 @@ async function fetchAlbumArt(songName, artist) {
 let _prevSongState = {};
 
 function renderClient() {
-  // Garde : aucune soirée active → état vide, jamais de données fictives
+  const card       = document.getElementById('venue-card-main');
+  const emptyState = document.getElementById('venue-empty-state');
+  const djBanner   = document.getElementById('dj-banner');
+  const proposeBtn = document.getElementById('btn-fab-propose');
+  // Garde : aucune soirée active → état vide, jamais de données fictives —
+  // remplace la venue-card (photo/texte par défaut confus) par un message
+  // clair invitant à scanner le QR code de la soirée.
   if (!eid) {
+    if (card)       card.style.display       = 'none';
+    if (emptyState) emptyState.style.display = 'flex';
+    if (djBanner)   djBanner.style.display   = 'none';
+    if (proposeBtn) proposeBtn.style.display = 'none';
     elt('cli-total', '-');
     elt('venue-connected', 0);
     elt('venue-recent-votes', 0);
@@ -42,6 +52,10 @@ function renderClient() {
     if (list) list.innerHTML = '<div class="empty-state"></div>';
     return;
   }
+  if (card)       card.style.display       = '';
+  if (emptyState) emptyState.style.display = 'none';
+  if (djBanner)   djBanner.style.display   = '';
+  if (proposeBtn) proposeBtn.style.display = '';
   const s  = sorted();
   const t  = totalVotes();
   elt('cli-total', t ? `${t} vote${t > 1 ? 's' : ''}` : '-');
