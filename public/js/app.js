@@ -1114,7 +1114,15 @@ async function adminEnterEvent(id, name) {
   } catch(e) { toast(e.message || 'Erreur d\'accès'); }
 }
 
-async function openDjRegister() {
+async function openDjRegister(forceEdit) {
+  // Un profil existe déjà et on n'a pas explicitement demandé l'édition
+  // (cf. pk-edit-btn) → montrer le résumé (Press Kit) avec son bouton
+  // "Modifier le profil", pas repartir sur le formulaire d'édition à
+  // chaque fois qu'on revient sur "Espace DJ".
+  if (!forceEdit) {
+    if (!_djProfileCache && (_authToken || _sbSession)) await loadDjProfile();
+    if (_djProfileCache?.stage_name) { navTo('presskit'); return; }
+  }
   showPage('dj-register');
   // Revérifier la session directement ici plutôt que de se fier uniquement à
   // _sbSession (rempli en arrière-plan par le listener de window.load) : ce
@@ -1147,22 +1155,12 @@ async function openDjRegister() {
   if (editor) editor.style.display = '';
   if (!_djProfileCache) await loadDjProfile();
   const p = _djProfileCache || {};
-  initDjProfileEditor(p);
-  elt2val('dj-edit-stage-name',     p.stage_name);
-  elt2val('dj-edit-tagline',        p.tagline);
-  elt2val('dj-edit-bio',            p.bio);
-  elt2val('dj-edit-city',           p.city);
-  elt2val('dj-edit-genres',         p.genres);
-  elt2val('dj-edit-instagram',      p.instagram);
-  elt2val('dj-edit-soundcloud',     p.soundcloud);
-  elt2val('dj-edit-ra',             p.resident_advisor);
-  elt2val('dj-edit-booking-email',  p.booking_email);
+  initDjProfileEditor(p); // pré-remplit tous les champs texte/liens/genres/prestations/couverture
   const img = document.getElementById('dj-edit-img');
   const ini = document.getElementById('dj-edit-initials');
   if (p.photo_url) { img.src = p.photo_url; img.style.display = 'block'; ini.style.display = 'none'; }
   else              { img.style.display = 'none'; ini.style.display = 'flex'; }
 }
-function elt2val(id, v) { const e = document.getElementById(id); if (e) e.value = v || ''; }
 
 async function saveDjProfile() {
   // Revérifier la session directement ici plutôt que de se fier uniquement à
