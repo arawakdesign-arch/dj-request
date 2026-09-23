@@ -155,17 +155,25 @@ window.addEventListener('load', async () => {
           // (avec l'eid préservé, parfois une soirée sans rapport ou vide)
           // avant que l'écran voulu ne prenne le relais une fraction de
           // seconde plus tard, perçu comme "une page d'event fantôme".
+          // Lien profond avec intention (?intent=create-event / dj-register,
+          // ex: boutons de la page d'accueil) — jusqu'ici vérifié seulement
+          // pour quelqu'un de complètement déconnecté (étape 3 plus bas) :
+          // quelqu'un déjà connecté (session déjà active, pas de redirection
+          // OAuth ici) passait complètement à côté de cette intention et
+          // atterrissait sur sa dernière soirée en cache, parfois vide.
+          const urlIntent = new URLSearchParams(window.location.search).get('intent');
           const hasPendingIntent = !!(
             sessionStorage.getItem('djr_pending_create_intent') ||
             sessionStorage.getItem('djr_pending_dj_register_intent') ||
-            sessionStorage.getItem('djr_pending_orga_entry')
+            sessionStorage.getItem('djr_pending_orga_entry') ||
+            urlIntent
           );
           afterLogin(hasPendingIntent);
-          if (sessionStorage.getItem('djr_pending_create_intent')) {
+          if (sessionStorage.getItem('djr_pending_create_intent') || urlIntent === 'create-event') {
             sessionStorage.removeItem('djr_pending_create_intent');
             showPage('dj-login');
             _djLoginShowCreate(); // le formulaire nom/mot de passe apparaît, currentUser.email est maintenant renseigné
-          } else if (sessionStorage.getItem('djr_pending_dj_register_intent')) {
+          } else if (sessionStorage.getItem('djr_pending_dj_register_intent') || urlIntent === 'dj-register') {
             sessionStorage.removeItem('djr_pending_dj_register_intent');
             await openDjRegister(); // identité désormais connue → le formulaire de la page DJ s'affiche directement
           } else if (sessionStorage.getItem('djr_pending_orga_entry')) {
