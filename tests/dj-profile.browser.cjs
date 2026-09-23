@@ -100,6 +100,7 @@ const assert=require('node:assert/strict');
  assert.match(await page.locator('#pk-photo').getAttribute('src'),/avatar-03-pullup\.png/);
  assert.equal(await page.locator('#pk-genre-chips span').count(),6);
  assert.equal(await page.locator('#pk-genre-chips span').evaluateAll(chips=>new Set(chips.map(chip=>chip.offsetTop)).size),1);
+ assert.equal(await page.evaluate(()=>{const hero=document.querySelector('.pk2-hero').getBoundingClientRect(),photo=document.querySelector('.pk3-avatar-stage').getBoundingClientRect();return Math.abs(hero.width-photo.width)<=2&&Math.abs(hero.height-photo.height)<=2;}),true);
  assert.equal(await page.evaluate(()=>djProfileUrl()),'http://127.0.0.1:3107/app?dj=public-test');
  assert.equal(await page.locator('#pg-presskit .scroll').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
  await page.waitForTimeout(500);
