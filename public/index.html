@@ -873,7 +873,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="/css/dj-register.css?v=5">
+<link rel="stylesheet" href="/css/dj-register.css?v=6">
 </head>
 <body>
 
@@ -1893,7 +1893,11 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
           <p id="pk-tagline" class="pk2-tagline"></p>
           <div id="pk-genre-chips" class="pk2-chips"></div>
         </div>
-        <div id="pk-hero-art" class="pk2-hero-art" aria-hidden="true"></div>
+        <div class="pk3-avatar-stage" aria-hidden="true">
+          <div class="pk3-avatar-halo"></div>
+          <div id="pk-hero-art" class="pk2-hero-art"></div>
+          <div id="pk-avatar-badge" class="pk3-avatar-badge" hidden>AVATAR PULL UP</div>
+        </div>
         <div class="pk2-hero-brand">PULL UP! / ARTIST PRESS KIT</div>
         <div class="pk3-scroll-cue"><span></span>Découvrir</div>
         <button type="button" id="pk-edit-btn" class="pk2-edit" onclick="openDjRegister(true)" style="display:none">Modifier le profil</button>

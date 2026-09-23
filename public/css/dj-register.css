@@ -370,3 +370,38 @@
   .pk3-footer{grid-template-columns:1fr auto;padding-inline:6px}
   .pk3-footer p{display:none}
 }
+
+/* Avatar-first DJ profile */
+#pg-dj-register .djr-cover-picker{margin-top:22px;border:1px solid #d9d3df;background:#f6f2f9}
+#pg-dj-register .djr-cover-picker summary{position:relative;padding:18px 48px 18px 18px;font-size:1rem;list-style:none}
+#pg-dj-register .djr-cover-picker summary::-webkit-details-marker{display:none}
+#pg-dj-register .djr-cover-picker summary::after{content:'+';position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:1.25rem;font-weight:400}
+#pg-dj-register .djr-cover-picker[open] summary::after{content:'−'}
+#pg-dj-register .djr-cover-picker summary span{color:#716a7c;line-height:1.5}
+#pg-dj-register .djr-covers{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0;padding:0 14px 18px}
+#pg-dj-register .djr-cover-option{display:flex;flex-direction:column;position:relative;overflow:hidden;border:1px solid #ddd5e3;border-radius:7px;background:#fff;color:#39323f;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;transition:border-color .2s,transform .2s,box-shadow .2s}
+#pg-dj-register .djr-cover-option:hover{transform:translateY(-2px);border-color:#8d52eb;box-shadow:0 8px 24px #4b1b8b1a}
+#pg-dj-register .djr-cover-option img,#pg-dj-register .djr-cover-none{width:100%;aspect-ratio:4/3;object-fit:cover;object-position:center;background:radial-gradient(circle at 62% 36%,#b480ff,#5e22aa 48%,#160b22 100%);margin:0;border:0;border-bottom:1px solid #e1dae7;border-radius:0}
+#pg-dj-register .djr-cover-none{display:flex;align-items:center;justify-content:center;color:#8a828e;background:#eeeaf0;text-transform:none}
+#pg-dj-register .djr-cover-option input{position:absolute;right:8px;bottom:8px;width:15px;height:15px;accent-color:#6f22ff}
+#pg-dj-register .djr-cover-option>span{padding:10px 8px;text-align:left}
+#pg-dj-register .djr-cover-option:has(input:checked){border-color:#6f22ff;box-shadow:0 0 0 2px #6f22ff}
+#pg-dj-register .djr-cover-option:has(input:checked)::after{content:'✓';position:absolute;right:7px;top:7px;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#6f22ff;color:#fff;font-size:.7rem}
+#pg-presskit .pk3-avatar-stage{position:absolute;z-index:0;right:0;top:0;width:59%;height:100%;overflow:hidden}
+#pg-presskit .pk3-avatar-halo{position:absolute;left:50%;top:49%;width:min(38vw,490px);aspect-ratio:1;border:1px solid #ffffff26;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 55px #ffffff08,0 0 120px #9a58ff66;background:radial-gradient(circle,#d5b3ff38 0%,#772cd12e 42%,transparent 70%)}
+#pg-presskit .pk3-avatar-halo::before,#pg-presskit .pk3-avatar-halo::after{content:'';position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%)}
+#pg-presskit .pk3-avatar-halo::before{width:72%;height:72%;border:1px solid #ffffff20}
+#pg-presskit .pk3-avatar-halo::after{width:8px;height:8px;background:#ff2a93;box-shadow:0 0 20px #ff2a93}
+#pg-presskit .pk3-avatar-stage .pk2-hero-art{position:absolute;inset:0;width:100%;height:100%;background-size:auto 94%;background-position:68% bottom;filter:drop-shadow(-24px 24px 48px #000b)}
+#pg-presskit .pk3-avatar-badge{position:absolute;z-index:2;right:28px;bottom:27px;padding:8px 11px;border:1px solid #ffffff3d;background:#0a080c99;backdrop-filter:blur(10px);font:800 .48rem Inter,sans-serif;letter-spacing:.13em;color:#e9e2ed}
+#pg-presskit .pk2-hero h1{font-size:clamp(4.6rem,9vw,8rem);max-width:56%}
+#pg-presskit .pk2-tagline{max-width:46%}
+@media(max-width:560px){
+  #pg-dj-register .djr-covers{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:0 10px 14px}
+  #pg-presskit .pk3-avatar-stage{width:100%;height:68%;top:2%}
+  #pg-presskit .pk3-avatar-halo{width:78vw;top:45%;box-shadow:0 0 0 34px #ffffff08,0 0 90px #9a58ff66}
+  #pg-presskit .pk3-avatar-stage .pk2-hero-art{width:100%;height:100%;right:auto;top:auto;background-size:auto 92%;background-position:68% bottom;opacity:1}
+  #pg-presskit .pk3-avatar-badge{right:13px;bottom:10px;font-size:.42rem}
+  #pg-presskit .pk2-hero h1{font-size:clamp(3.5rem,16vw,4.8rem);max-width:100%}
+  #pg-presskit .pk2-tagline{max-width:94%}
+}
