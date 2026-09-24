@@ -140,14 +140,22 @@ router.get('/orga/events-stats', requireAuth, async (req, res) => {
 // suivent via ON DELETE CASCADE, pas besoin de les effacer une à une.
 router.delete('/orga/events/past', requireAuth, async (req, res) => {
   const { data: events, error } = await supabase
-    .from('events').select('id, created_at, scheduled_at, ended_at')
+    .from('events').select('id, created_at, scheduled_at, ended_at, flyer_url')
     .eq('owner_id', req.user.id);
   if (error) return res.status(500).json({ error: error.message });
 
-  const pastIds = (events || [])
-    .filter(ev => isClosed(ev.created_at, ev.scheduled_at, ev.ended_at))
-    .map(ev => ev.id);
-  if (!pastIds.length) return res.json({ deleted: 0 });
+  const pastEvents = (events || []).filter(ev => isClosed(ev.created_at, ev.scheduled_at, ev.ended_at));
+  if (!pastEvents.length) return res.json({ deleted: 0 });
+  const pastIds = pastEvents.map(ev => ev.id);
+
+  // Le flyer vit dans le storage (bucket "flyers"), pas dans la ligne events —
+  // sans ce nettoyage, supprimer la soirée laissait le fichier orphelin
+  // indéfiniment (surcharge progressive du stockage Supabase).
+  const flyerPaths = pastEvents.filter(ev => ev.flyer_url).map(ev => `${ev.id}/flyer.jpg`);
+  if (flyerPaths.length) {
+    const { error: storageError } = await supabase.storage.from('flyers').remove(flyerPaths);
+    if (storageError) console.error('[orga/events/past] échec suppression flyers —', storageError.message);
+  }
 
   const { error: delError } = await supabase.from('events').delete().in('id', pastIds);
   if (delError) return res.status(500).json({ error: delError.message });
