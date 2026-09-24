@@ -147,7 +147,7 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#pk-public-qr-logo').getAttribute('src'),'/images/logo.png');
  assert.deepEqual(await page.locator('#pk-public-share button').allTextContents(),['Copier le lien','Partager','Télécharger le QR']);
  assert.equal(await page.locator('#pk-public-share h2').innerText(),'PARTAGER CE PROFIL');
- assert.match(await page.locator('.pk3-create-cta').innerText(),/CRÉE TON ARTIST PRESS KIT/);
+ assert.match(await page.locator('.pk3-create-cta').innerText(),/Crée ta page Press Kit/);
  assert.doesNotMatch(await page.locator('.pk3-footer').innerText(),/Partager ce profil/);
  assert.ok((await page.locator('#pk-public-share button').first().boundingBox()).height>=44);
  assert.ok((await page.locator('.pk3-create-cta').boundingBox()).height>=44);

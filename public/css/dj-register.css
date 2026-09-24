@@ -404,11 +404,10 @@
 .pk3-footer{margin-top:58px;padding:36px 0 12px;border-top:1px solid #ffffff20;display:grid;grid-template-columns:auto 1fr minmax(280px,430px);gap:30px;align-items:center;color:#8d8791}
 .pk3-footer img{width:72px;height:72px;object-fit:contain}
 .pk3-footer p{font-size:.62rem;text-transform:uppercase;letter-spacing:.15em}
-.pk3-footer .pk3-create-cta{justify-self:stretch;display:grid;grid-template-columns:1fr auto;gap:3px 18px;text-align:left;border:1px solid #fff;border-left:6px solid #8f52ee;background:#fff;color:#0a080c;padding:15px 17px;cursor:pointer}
-.pk3-create-cta span{grid-column:1;color:#6f22ff;font:900 .5rem Inter,sans-serif;letter-spacing:.14em}
-.pk3-create-cta strong{grid-column:1;font:400 1.35rem/1 Anton,sans-serif;text-transform:uppercase}
-.pk3-create-cta i{grid-column:2;grid-row:1/3;align-self:center;font:400 1.7rem/1 Inter,sans-serif}
-.pk3-create-cta:hover{background:#e8d9ff;border-color:#e8d9ff}
+.pk3-footer .pk3-create-cta{justify-self:stretch;display:flex;align-items:center;justify-content:space-between;gap:18px;text-align:left;border:0;background:#6f22ff;color:#fff;padding:16px 18px;cursor:pointer}
+.pk3-create-cta strong{font:800 .78rem/1.2 Inter,sans-serif}
+.pk3-create-cta i{font:400 1.4rem/1 Inter,sans-serif}
+.pk3-create-cta:hover{background:#8140ff}
 @media(max-width:800px){
   .pk3-nav{display:none}
   #pg-presskit .pk2-header-label{margin-left:auto}
