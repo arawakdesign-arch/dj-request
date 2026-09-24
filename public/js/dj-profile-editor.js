@@ -134,6 +134,73 @@ function renderDjEventEditor(events) {
     list.append(add);
   }
 }
+const djCareerSearchTimers=new Map();
+function djCareerField(index,key){return document.getElementById(`dj-career-${index}-${key}`);}
+function collectDjCareerLocations(){
+  return [...document.querySelectorAll('#djr-career-locations .djr-career-card')].map((card,index)=>({
+    ...Object.fromEntries(Object.keys(DjProfileSchema.careerLimits).map(key=>[key,djCareerField(index,key)?.value||''])),
+    lat:djCareerField(index,'lat')?.value||'',lng:djCareerField(index,'lng')?.value||'',
+  }));
+}
+function clearDjCareerCoordinates(index){
+  ['lat','lng'].forEach(key=>{const field=djCareerField(index,key);if(field)field.value='';});
+  const state=document.getElementById(`dj-career-${index}-geo`);if(state){state.textContent='Choisis une proposition pour l’ajouter à la carte.';state.dataset.ready='false';}
+}
+function setDjCareerLocation(index,result){
+  const values={
+    name:result.name||djCareerField(index,'name')?.value||'',
+    address:result.address||result.label||'',city:result.city||'',country:result.country||'',
+    lat:Number.isFinite(result.lat)?String(result.lat):'',lng:Number.isFinite(result.lng)?String(result.lng):'',
+  };
+  Object.entries(values).forEach(([key,value])=>{const field=djCareerField(index,key);if(field&&value)field.value=value;});
+  const results=document.getElementById(`dj-career-${index}-results`);if(results)results.replaceChildren();
+  const state=document.getElementById(`dj-career-${index}-geo`),ready=values.lat!==''&&values.lng!=='';
+  if(state){state.textContent=ready?'Localisation ajoutée à la carte ✓':'Lieu enregistré sans point sur la carte.';state.dataset.ready=String(ready);}
+}
+function renderDjCareerSearchResults(index,items,kind){
+  const box=document.getElementById(`dj-career-${index}-results`);if(!box)return;box.replaceChildren();
+  items.forEach(result=>{
+    const button=document.createElement('button'),title=document.createElement('strong'),detail=document.createElement('span');
+    button.type='button';title.textContent=kind==='venue'?result.name:result.label;detail.textContent=kind==='venue'?result.address:[result.city,result.country].filter(Boolean).join(', ');
+    button.append(title);if(detail.textContent)button.append(detail);button.onclick=()=>setDjCareerLocation(index,result);box.append(button);
+  });
+}
+function searchDjCareerLocation(index,kind,query){
+  clearDjCareerCoordinates(index);
+  const timerKey=`${index}-${kind}`;clearTimeout(djCareerSearchTimers.get(timerKey));
+  const box=document.getElementById(`dj-career-${index}-results`),q=query.trim();if(box)box.replaceChildren();if(q.length<3)return;
+  djCareerSearchTimers.set(timerKey,setTimeout(async()=>{
+    try{
+      const items=await api('GET',`/search/${kind}?q=${encodeURIComponent(q)}`);
+      if((kind==='venue'?djCareerField(index,'name'):djCareerField(index,'address'))?.value.trim()===q)renderDjCareerSearchResults(index,items,kind);
+    }catch(e){if(box)box.replaceChildren();}
+  },300));
+}
+function renderDjCareerEditor(entries){
+  const list=document.getElementById('djr-career-locations');if(!list)return;list.replaceChildren();
+  const safe=Array.isArray(entries)?entries.slice(0,8):[];
+  for(let index=0;index<Math.max(1,safe.length);index++){
+    const entry=safe[index]||{},card=document.createElement('article'),head=document.createElement('div'),number=document.createElement('span'),title=document.createElement('strong'),remove=document.createElement('button'),fields=document.createElement('div');
+    card.className='djr-career-card';head.className='djr-career-head';number.textContent=String(index+1).padStart(2,'0');title.textContent=index===0?'Première expérience':'Autre expérience';remove.type='button';remove.textContent='Supprimer';remove.onclick=()=>{const current=collectDjCareerLocations();current.splice(index,1);renderDjCareerEditor(current);};head.append(number,title,remove);fields.className='djr-career-fields';
+    const addField=(key,label,placeholder,type='text',wide=false)=>{
+      const wrap=document.createElement('div'),lab=document.createElement('label'),input=document.createElement('input');wrap.className='fl'+(wide?' djr-wide':'');lab.htmlFor=`dj-career-${index}-${key}`;lab.textContent=label;input.id=lab.htmlFor;input.className='fi';input.type=type;input.placeholder=placeholder;input.maxLength=String(DjProfileSchema.careerLimits[key]||180);input.value=entry[key]||'';wrap.append(lab,input);fields.append(wrap);return input;
+    };
+    const typeWrap=document.createElement('div'),typeLabel=document.createElement('label'),typeSelect=document.createElement('select');typeWrap.className='fl';typeLabel.htmlFor=`dj-career-${index}-type`;typeLabel.textContent='Type';typeSelect.id=typeLabel.htmlFor;typeSelect.className='fi';
+    const blank=document.createElement('option');blank.value='';blank.textContent='Choisir';typeSelect.append(blank);DjProfileSchema.careerTypes.forEach(value=>{const option=document.createElement('option');option.value=value;option.textContent=value;option.selected=value===entry.type;typeSelect.append(option);});typeWrap.append(typeLabel,typeSelect);fields.append(typeWrap);
+    const period=addField('period','Période','Ex. Depuis 2024');
+    const name=addField('name','Nom du lieu ou de l’organisation','Ex. Wanderlust, La Bellevilloise…','text',true);name.autocomplete='off';
+    const address=addField('address','Adresse ou ville','Commence à écrire une adresse','text',true);address.autocomplete='off';
+    const city=addField('city','Ville','Ex. Paris');
+    const country=addField('country','Pays','Ex. France');
+    const lat=document.createElement('input'),lng=document.createElement('input');lat.type=lng.type='hidden';lat.id=`dj-career-${index}-lat`;lng.id=`dj-career-${index}-lng`;lat.value=entry.lat??'';lng.value=entry.lng??'';
+    const results=document.createElement('div'),geo=document.createElement('p');results.id=`dj-career-${index}-results`;results.className='djr-career-results';geo.id=`dj-career-${index}-geo`;geo.className='djr-career-geo';geo.dataset.ready=String(entry.lat!=null&&entry.lng!=null&&entry.lat!==''&&entry.lng!=='');geo.textContent=geo.dataset.ready==='true'?'Localisation ajoutée à la carte ✓':'Choisis une proposition pour l’ajouter à la carte.';
+    name.oninput=()=>searchDjCareerLocation(index,'venue',name.value);address.oninput=()=>searchDjCareerLocation(index,'address',address.value);
+    card.append(head,fields,lat,lng,results,geo);list.append(card);
+  }
+  if(list.querySelectorAll('.djr-career-card').length<8){
+    const add=document.createElement('button');add.type='button';add.className='djr-career-add';add.textContent='Ajouter une expérience';add.onclick=()=>{const current=collectDjCareerLocations();current.push({});renderDjCareerEditor(current);djCareerField(current.length-1,'name')?.focus();};list.append(add);
+  }
+}
 function initDjProfileEditor(profile) {
   djFeedback('');
   const photoHint=document.querySelector('#pg-dj-register .djr-photo-row p');if(photoHint)photoHint.textContent='JPG, PNG ou WebP · 5 Mo maximum · recadrage et zoom après sélection';
@@ -163,6 +230,7 @@ function initDjProfileEditor(profile) {
   document.getElementById('djr-genre-search').oninput=djGenreState;djGenreState();
   const services=document.getElementById('djr-services');services.replaceChildren();
   DjProfileSchema.services.forEach(s=>djChoice(services,s,(profile.service_types||[]).includes(s),'services'));
+  renderDjCareerEditor(profile.career_locations);
   renderDjEventEditor(profile.upcoming_events);
   const coverPicker=document.querySelector('.djr-cover-picker'),coverSummary=coverPicker?.querySelector('summary'),coverHint=coverSummary?.querySelector('span');
   if(coverPicker)coverPicker.open=true;
@@ -185,6 +253,7 @@ function collectDjProfile() {
   input.genres=djSelected('genres');input.service_types=djSelected('services');
   input.cover_avatar=document.querySelector('#djr-editor input[name="cover"]:checked')?.value||null;
   input.upcoming_events=collectDjEvents();
+  input.career_locations=collectDjCareerLocations();
   const result=DjProfileSchema.validate(input,_djProfileCache?.photo_url);
   document.querySelectorAll('#djr-editor [data-error]').forEach(el=>{const key=el.dataset.error;el.textContent=result.errors[key]||'';el.id='djr-error-'+key;});
   document.querySelectorAll('#djr-editor [aria-invalid]').forEach(el=>el.removeAttribute('aria-invalid'));
@@ -380,6 +449,28 @@ function renderDjProfileDetails(p) {
     });
     s.append(grid);box.append(s);
   }
+  function careerSection(entries,legacyText){
+    const safe=(Array.isArray(entries)?entries:[]).filter(entry=>entry&&Object.keys(DjProfileSchema.careerLimits).some(key=>typeof entry[key]==='string'&&entry[key].trim())).slice(0,8);
+    if(!safe.length&&!legacyText)return;
+    const s=document.createElement('section'),layout=document.createElement('div'),cards=document.createElement('div');s.id='pk-experience';s.className='pk3-section pk-career-section';layout.className='pk-career-layout';cards.className='pk-career-cards';heading(s,'Résidences & collaborations','04 / PARCOURS');
+    safe.forEach((entry,index)=>{
+      const card=document.createElement('article'),top=document.createElement('div'),type=document.createElement('span'),period=document.createElement('span'),name=document.createElement('strong'),location=document.createElement('p');
+      card.className='pk-career-card';card.id=`pk-career-card-${index}`;type.className='pk-career-type';period.className='pk-career-period';type.textContent=entry.type||'Expérience';period.textContent=entry.period||'';name.textContent=entry.name||entry.city||'Collaboration';location.textContent=[entry.address,entry.city&&!String(entry.address||'').includes(entry.city)?entry.city:'',entry.country].filter(Boolean).join(' · ');
+      top.append(type);if(entry.period)top.append(period);card.append(top,name);if(location.textContent)card.append(location);cards.append(card);
+    });
+    const mapped=safe.map((entry,index)=>({entry,index,lat:Number(entry.lat),lng:Number(entry.lng),hasCoords:entry.lat!==null&&entry.lat!==''&&entry.lat!==undefined&&entry.lng!==null&&entry.lng!==''&&entry.lng!==undefined})).filter(point=>point.hasCoords&&Number.isFinite(point.lat)&&Number.isFinite(point.lng));
+    if(mapped.length){
+      const map=document.createElement('div'),label=document.createElement('div'),mapTitle=document.createElement('strong'),mapCount=document.createElement('span');map.className='pk-career-map';map.setAttribute('role','group');map.setAttribute('aria-label','Carte des résidences et collaborations');label.className='pk-career-map-label';mapTitle.textContent='CARTE DU PARCOURS';mapCount.textContent=`${mapped.length} ${mapped.length>1?'LIEUX':'LIEU'}`;label.append(mapTitle,mapCount);map.append(label);
+      const lats=mapped.map(point=>point.lat),lngs=mapped.map(point=>point.lng),latMin=Math.min(...lats),latMax=Math.max(...lats),lngMin=Math.min(...lngs),lngMax=Math.max(...lngs),latSpan=Math.max(2,latMax-latMin),lngSpan=Math.max(2,lngMax-lngMin),latCenter=(latMin+latMax)/2,lngCenter=(lngMin+lngMax)/2;
+      const positions=mapped.map(point=>({...point,x:12+76*((point.lng-(lngCenter-lngSpan/2))/lngSpan),y:12+76*(1-(point.lat-(latCenter-latSpan/2))/latSpan)}));
+      if(positions.length>1){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),line=document.createElementNS('http://www.w3.org/2000/svg','polyline');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('aria-hidden','true');line.setAttribute('points',positions.map(point=>`${point.x},${point.y}`).join(' '));svg.append(line);map.append(svg);}
+      positions.forEach((point,markerIndex)=>{const marker=document.createElement('button');marker.type='button';marker.className='pk-career-marker';marker.style.left=`${point.x}%`;marker.style.top=`${point.y}%`;marker.textContent=String(markerIndex+1);marker.setAttribute('aria-label',point.entry.name||point.entry.city||`Lieu ${markerIndex+1}`);marker.onclick=()=>{const card=document.getElementById(`pk-career-card-${point.index}`);card?.scrollIntoView({behavior:'smooth',block:'center'});card?.classList.add('is-selected');setTimeout(()=>card?.classList.remove('is-selected'),900);};map.append(marker);});
+      layout.append(map);
+    }
+    if(safe.length)layout.append(cards);s.append(layout);
+    if(legacyText){const note=document.createElement('p');note.className='pk-career-note';note.textContent=legacyText;s.append(note);}
+    box.append(s);
+  }
   const portrait=document.getElementById('pk-photo');
   const avatarUrl=p.cover_avatar?`/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}-pullup.png`:'';
   if(portrait){portrait.src=avatarUrl||p.photo_url||'/images/logo.png';portrait.alt=avatarUrl?`Avatar Pull Up de ${p.stage_name||'ce DJ'}`:`Photo de ${p.stage_name||'ce DJ'}`;portrait.style.display=(avatarUrl||p.photo_url)?'block':'none';portrait.classList.toggle('pk2-avatar-medallion',!!avatarUrl);}
@@ -392,7 +483,7 @@ function renderDjProfileDetails(p) {
   if(services.length&&about){const chips=document.createElement('div');chips.className='pk-profile-chips';services.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;chips.append(chip);});about.append(chips);}
   eventsSection(p.upcoming_events);
   playersSection([['SoundCloud','soundcloud',p.soundcloud],['Mixcloud','mixcloud',p.mixcloud],['YouTube','youtube',p.youtube],['Spotify','spotify',p.spotify]]);
-  section('Résidences & collaborations',p.experience,'pk-experience','04 / PARCOURS');
+  careerSection(p.career_locations,p.experience);
   if(p.gallery?.length){const gallery=document.createElement('section'),grid=document.createElement('div');gallery.id='pk-gallery';gallery.className='pk3-section pk3-gallery-section';heading(gallery,'Photos','05 / GALERIE');grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const photo=document.createElement('div'),img=document.createElement('img');photo.className='pk-profile-photo';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';photo.append(img);grid.append(photo);});gallery.append(grid);box.append(gallery);}
   linksSection('Réseaux',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]],'pk-links','06 / CONTACT');
   renderDjPublicShareTools(p,box);

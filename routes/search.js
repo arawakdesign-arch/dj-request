@@ -90,6 +90,9 @@ router.get('/address', async (req, res) => {
     const results = (data.features || []).map(f => ({
       label: f.properties.label,
       city:  f.properties.city || '',
+      country: 'France',
+      lng: Number(f.geometry?.coordinates?.[0]),
+      lat: Number(f.geometry?.coordinates?.[1]),
     }));
     res.json(results);
   } catch(e) {
@@ -116,7 +119,14 @@ router.get('/venue', async (req, res) => {
         const p = f.properties;
         const street = [p.housenumber, p.street].filter(Boolean).join(' ');
         const address = [street, [p.postcode, p.city].filter(Boolean).join(' ')].filter(Boolean).join(', ');
-        return { name: p.name, address };
+        return {
+          name: p.name,
+          address,
+          city: p.city || '',
+          country: p.country || '',
+          lng: Number(f.geometry?.coordinates?.[0]),
+          lat: Number(f.geometry?.coordinates?.[1]),
+        };
       });
     res.json(results);
   } catch(e) {

@@ -20,8 +20,8 @@ function slugify(s) {
     .slice(0, 60);
 }
 
-function isMissingUpcomingEventsColumn(error) {
-  return error && (error.code === '42703' || /upcoming_events/i.test(error.message || ''));
+function isMissingColumn(error, column) {
+  return Boolean(error && error.code === '42703' && new RegExp(`\\b${column}\\b`,'i').test(error.message || ''));
 }
 
 // ── Soirées où je suis dans le line-up (DJ inscrit sur Pull up) ───────
@@ -90,13 +90,16 @@ router.post('/dj/profile', requireAuth, async (req, res) => {
     updates.slug = clean;
   }
 
-  let { data, error } = await supabase.from('dj_profiles').upsert(updates).select().single();
-  if (isMissingUpcomingEventsColumn(error)) {
-    if (value.upcoming_events?.length) {
-      return res.status(500).json({ error: 'Migration Supabase manquante : exécute supabase/migration-add-dj-upcoming-events.sql pour enregistrer les soirées à venir.' });
-    }
-    const fallbackUpdates = { ...updates };
-    delete fallbackUpdates.upcoming_events;
+  const fallbackUpdates = { ...updates };
+  let { data, error } = await supabase.from('dj_profiles').upsert(fallbackUpdates).select().single();
+  for(let attempt=0;error&&attempt<2;attempt++){
+    if(isMissingColumn(error,'upcoming_events')){
+      if(value.upcoming_events?.length)return res.status(500).json({ error: 'Migration Supabase manquante : exécute supabase/migration-add-dj-upcoming-events.sql pour enregistrer les soirées à venir.' });
+      delete fallbackUpdates.upcoming_events;
+    }else if(isMissingColumn(error,'career_locations')){
+      if(value.career_locations?.length)return res.status(500).json({ error: 'Migration Supabase manquante : exécute supabase/migration-add-dj-career-locations.sql pour enregistrer les résidences et collaborations.' });
+      delete fallbackUpdates.career_locations;
+    }else break;
     ({ data, error } = await supabase.from('dj_profiles').upsert(fallbackUpdates).select().single());
   }
   if (error) return res.status(500).json({ error: error.message });

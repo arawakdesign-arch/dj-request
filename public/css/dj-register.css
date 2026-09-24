@@ -107,6 +107,19 @@
 .djr-event-flyer-actions button{flex:1;min-height:40px;border:1px solid #0a0a0c;border-radius:4px;background:#0a0a0c;color:#fff;font-size:.72rem;font-weight:800;cursor:pointer}
 .djr-event-flyer-actions button+button{background:#fff;color:#0a0a0c}
 .djr-event-search-results{display:flex;flex-direction:column;gap:.3rem;margin-top:.45rem}
+.djr-career-list{display:grid;gap:14px}
+.djr-career-card{padding:17px;border:1px solid #d8cbe8;border-radius:9px;background:linear-gradient(145deg,#fbf8ff,#f3ecfa)}
+.djr-career-head{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:10px;margin-bottom:17px}
+.djr-career-head>span{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#6f22ff;color:#fff;font-size:.67rem;font-weight:900}
+.djr-career-head>strong{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:#3c3247}
+.djr-career-head>button{min-height:44px;padding:0 9px;border:0;background:transparent;color:#71667b;font-size:.69rem;font-weight:700;cursor:pointer}
+.djr-career-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}
+.djr-career-results{display:grid;gap:6px;margin-top:10px}
+.djr-career-results button{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:52px;padding:9px 12px;border:1px solid #d7c9e5;border-radius:6px;background:#fff;color:#19141f;text-align:left;cursor:pointer}
+.djr-career-results button strong{font-size:.76rem}.djr-career-results button span{margin-top:3px;color:#746b7d;font-size:.66rem;line-height:1.35}
+.djr-career-geo{margin:11px 1px 0;color:#7d7187;font-size:.68rem;line-height:1.45}.djr-career-geo[data-ready="true"]{color:#4b168f;font-weight:700}
+.djr-career-add{width:100%;min-height:50px;border:1px dashed #8c51ef;border-radius:7px;background:#faf7ff;color:#5d1cc6;font-size:.75rem;font-weight:900;cursor:pointer}
+.djr-career-note{margin-top:20px}
 #pg-dj-register button:disabled{opacity:.5;cursor:wait}
 #pg-dj-register .djr-photo-row{margin:0;padding:0 0 16px;border:0}
 .djr-photo-link{display:block;margin-top:5px}
@@ -179,6 +192,15 @@
 .pk-profile-event-place,.pk-profile-event-address{font-size:.78rem;color:#5c5562;line-height:1.45}
 .pk-profile-event-address{color:#847b8d}
 .pk-profile-event-cta{margin-top:6px;font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#111}
+.pk-career-layout{display:grid;grid-template-columns:minmax(250px,.9fr) minmax(0,1.1fr);gap:14px;margin-left:144px}
+.pk-career-map{position:relative;min-height:330px;overflow:hidden;border-radius:10px;background:radial-gradient(circle at 72% 24%,#7b39d6 0 7%,transparent 28%),radial-gradient(circle at 19% 82%,#3e176b 0 4%,transparent 29%),linear-gradient(145deg,#21102e,#0c0910 68%);isolation:isolate}
+.pk-career-map::before{content:'';position:absolute;inset:0;background-image:linear-gradient(#ffffff0d 1px,transparent 1px),linear-gradient(90deg,#ffffff0d 1px,transparent 1px);background-size:38px 38px;mask-image:linear-gradient(to bottom,#0009,transparent 90%)}
+.pk-career-map::after{content:'PULL UP';position:absolute;right:-9px;bottom:-15px;color:#ffffff08;font-family:'Anton',sans-serif;font-size:5rem;letter-spacing:.02em;white-space:nowrap}
+.pk-career-map-label{position:absolute;z-index:3;left:16px;top:15px;display:flex;flex-direction:column;gap:4px;color:#fff}.pk-career-map-label strong{font-size:.62rem;letter-spacing:.12em}.pk-career-map-label span{color:#b99ce2;font-size:.5rem;letter-spacing:.1em}
+.pk-career-map svg{position:absolute;z-index:1;inset:0;width:100%;height:100%;overflow:visible}.pk-career-map polyline{fill:none;stroke:#bc82ff;stroke-width:.7;stroke-dasharray:2 2;vector-effect:non-scaling-stroke;opacity:.7}
+.pk-career-marker{position:absolute;z-index:4;display:grid;place-items:center;width:34px;height:34px;min-width:34px;min-height:34px;transform:translate(-50%,-50%);border:2px solid #fff;border-radius:50%;background:#7c2cff;color:#fff;font-size:.65rem;font-weight:900;box-shadow:0 0 0 7px #8d45ef2e,0 8px 20px #0008;cursor:pointer}
+.pk-career-cards{display:grid;gap:9px}.pk-career-card{padding:15px;border:1px solid #ded7e5;border-radius:8px;background:#faf8fc;transition:border-color .2s,box-shadow .2s}.pk-career-card.is-selected{border-color:#7c2cff;box-shadow:0 0 0 3px #7c2cff22}
+.pk-career-card>div{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}.pk-career-type{color:#6f22ff;font-size:.56rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase}.pk-career-period{color:#817787;font-size:.59rem;font-weight:700}.pk-career-card>strong{display:block;color:#17111c;font-family:'Anton',sans-serif;font-size:1.35rem;font-weight:400;line-height:1;text-transform:uppercase}.pk-career-card>p{margin:8px 0 0!important;color:#746b7b!important;font-size:.69rem!important;line-height:1.45!important}.pk-career-note{margin:18px 0 0 144px!important;padding-top:18px;border-top:1px solid #e2dce7}
 .pk-profile-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pk-profile-gallery a{display:block;overflow:hidden;background:#eee}
 .pk-profile-gallery img{display:block;width:100%;aspect-ratio:1;object-fit:cover;transition:transform .25s}
@@ -436,6 +458,9 @@
   #pg-presskit .pk3-section-label{display:block;margin-bottom:12px;padding:0}
   #pg-presskit #pk-profile-details h2{font-size:2rem}
   #pg-presskit #pk-profile-details p,#pg-presskit .pk-profile-chips,#pg-presskit .pk-profile-links,#pg-presskit .pk-profile-players,#pg-presskit .pk-profile-events{margin-left:0}
+  #pg-presskit .pk-career-layout{grid-template-columns:1fr;margin-left:0}
+  #pg-presskit .pk-career-map{min-height:280px}
+  #pg-presskit .pk-career-note{margin:16px 0 0!important}
   #pg-presskit #pk-profile-details p{font-size:.88rem;line-height:1.75}
   #pg-presskit .pk-profile-event{grid-template-columns:1fr}
   #pg-presskit .pk-profile-event-flyer{aspect-ratio:16/9}
@@ -449,6 +474,10 @@
   .pk3-footer .pk3-create-cta{min-height:64px;padding:0}
   .pk3-create-cta strong{font-size:clamp(2rem,10vw,2.8rem)}
   .pk3-create-cta i{font-size:1.55rem}
+}
+@media(max-width:600px){
+  .djr-career-card{padding:14px}.djr-career-fields{grid-template-columns:1fr}.djr-career-head>button{padding:0 4px}
+  #pg-presskit .pk-career-map{min-height:250px}.pk-career-marker{width:40px;height:40px;min-width:40px;min-height:40px}
 }
 
 /* Avatar-first DJ profile */

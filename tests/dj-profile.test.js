@@ -53,6 +53,16 @@ test('upcoming DJ events are normalized and limited to four cards',()=>{
  assert.equal(schema.validate({...valid,upcoming_events:[{...event,flyer_url:''}]},'photo').errors.upcoming_events,undefined);
 });
 
+test('career locations are normalized, geolocated and limited to eight cards',()=>{
+ const location={type:'Résidence',name:'La Bellevilloise',address:'19-21 Rue Boyer',city:'Paris',country:'France',period:'Depuis 2024',lat:'48.8682',lng:'2.3925'};
+ const {value,errors}=schema.validate({...valid,career_locations:[location,{}]},'photo');
+ assert.equal(errors.career_locations,undefined);assert.equal(value.career_locations.length,1);assert.equal(value.career_locations[0].lat,48.8682);assert.equal(value.career_locations[0].lng,2.3925);
+ assert.ok(schema.validate({...valid,career_locations:Array(9).fill(location)},'photo').errors.career_locations);
+ assert.ok(schema.validate({...valid,career_locations:[{...location,type:'Plan secret'}]},'photo').errors.career_locations);
+ assert.ok(schema.validate({...valid,career_locations:[{...location,lat:120}]},'photo').errors.career_locations);
+ assert.deepEqual(schema.validate({...valid,career_locations:[{name:'Collectif Nova'}]},'photo').errors,{});
+});
+
 test('API enforces stored photo and uploaded gallery ownership',async()=>{
  const express=require('express');
  const uploadedFlyer='https://storage.example/profile-photos/dj/test-user/event-flyer-abc.jpg';
@@ -109,4 +119,24 @@ test('API keeps saving basic DJ profiles when upcoming events migration is missi
  upsertCalls=0;
  result=await request({...valid,upcoming_events:[{flyer_url:'https://storage.example/profile-photos/dj/test-user/event-flyer-abc.jpg',date:'2026-10-18',name:'Hustle & Flow',place:'Le Balajo',address:'9 Rue de Lappe, 75011 Paris',link_url:'https://example.com/event'}]});
  assert.equal(result.status,500);assert.match(result.payload.error,/Migration Supabase manquante/);
+});
+
+test('API explains the career locations migration and preserves basic profile saves',async()=>{
+ let upsertCalls=0,saved=null;
+ const missing={code:'42703',message:'column "career_locations" does not exist'};
+ const db={from:()=>({
+  select:()=>({eq:()=>({maybeSingle:async()=>({data:{photo_url:'photo.jpg',gallery:[]},error:null})})}),
+  upsert:value=>{upsertCalls++;saved=value;return {select:()=>({single:async()=>upsertCalls===1?{data:null,error:missing}:{data:value,error:null}})};},
+ }),storage:{from:()=>({getPublicUrl:path=>({data:{publicUrl:'https://storage.example/profile-photos/'+path}})})}};
+ for(const [path,exports] of [['../lib/supabase',db],['../middleware/auth',{requireAuth:(req,res,next)=>{req.user={id:'test-user'};next();}}],['../routes/events',{isClosed:()=>false,isUpcoming:()=>false}]]){
+  require.cache[require.resolve(path)]={id:require.resolve(path),filename:require.resolve(path),loaded:true,exports};
+ }
+ delete require.cache[require.resolve('../routes/dj')];
+ const router=require('../routes/dj');
+ const handler=router.stack.find(l=>l.route?.path==='/dj/profile'&&l.route.methods.post).route.stack.at(-1).handle;
+ const request=async body=>{let status=200,payload;const res={status(code){status=code;return this;},json(value){payload=value;return this;}};await handler({body,user:{id:'test-user'}},res);return {status,payload};};
+ let result=await request(valid);assert.equal(result.status,200);assert.equal(upsertCalls,2);assert.equal('career_locations' in saved,false);
+ upsertCalls=0;
+ result=await request({...valid,career_locations:[{type:'Club',name:'Le Balajo',address:'9 Rue de Lappe',city:'Paris',country:'France',lat:48.853,lng:2.374}]});
+ assert.equal(result.status,500);assert.match(result.payload.error,/migration-add-dj-career-locations/);
 });

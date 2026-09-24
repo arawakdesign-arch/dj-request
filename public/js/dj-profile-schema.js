@@ -11,6 +11,8 @@
   };
   const limits = {stage_name:30,tagline:150,bio:5000,experience:2000,booking_email:254,phone:40,travel_areas:300};
   const eventLimits = {name:80,place:120,address:180,date:10,flyer_url:1000,link_url:1000};
+  const careerTypes = ['Résidence','Club','Festival','Collaboration','Organisateur'];
+  const careerLimits = {type:30,name:120,address:180,city:100,country:80,period:80};
   function url(value, hosts) {
     if (typeof value !== 'string') return null;
     value=value.trim();
@@ -75,9 +77,30 @@
       value.upcoming_events.push({...normalized,flyer_url:flyer,link_url:link||''});
     });
     if(value.upcoming_events.length>4) errors.upcoming_events='Ajoute au maximum 4 soirées.';
+    value.career_locations=[];
+    const rawCareer=Array.isArray(input.career_locations)?input.career_locations:[];
+    rawCareer.forEach((entry,index)=>{
+      if(!entry || typeof entry!=='object')return;
+      const normalized={};
+      for(const [key,max] of Object.entries(careerLimits)){
+        const raw=typeof entry[key]==='string'?entry[key].trim():'';
+        if(raw.length>max) errors.career_locations=`L’expérience ${index+1} contient un champ trop long.`;
+        normalized[key]=raw;
+      }
+      const rawLat=entry.lat===''||entry.lat==null?null:Number(entry.lat);
+      const rawLng=entry.lng===''||entry.lng==null?null:Number(entry.lng);
+      const hasAny=Object.values(normalized).some(Boolean)||rawLat!==null||rawLng!==null;
+      if(!hasAny)return;
+      if(normalized.type && !careerTypes.includes(normalized.type)) errors.career_locations=`Type d’expérience invalide pour l’entrée ${index+1}.`;
+      if((rawLat===null)!==(rawLng===null) || (rawLat!==null && (!Number.isFinite(rawLat)||!Number.isFinite(rawLng)||rawLat < -90||rawLat > 90||rawLng < -180||rawLng > 180))){
+        errors.career_locations=`Localisation invalide pour l’expérience ${index+1}.`;
+      }
+      value.career_locations.push({...normalized,lat:rawLat,lng:rawLng});
+    });
+    if(value.career_locations.length>8) errors.career_locations='Ajoute au maximum 8 expériences.';
     return {value,errors};
   }
-  const schema={genres,services,links,limits,eventLimits,url,validate};
+  const schema={genres,services,links,limits,eventLimits,careerTypes,careerLimits,url,validate};
   if(typeof module==='object' && module.exports) module.exports=schema;
   else root.DjProfileSchema=schema;
 })(typeof globalThis!=='undefined'?globalThis:this);
