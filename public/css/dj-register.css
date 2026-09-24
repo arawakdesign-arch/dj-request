@@ -486,10 +486,23 @@
 #pg-presskit .pk2-booking>.pk2-email{grid-column:2;grid-row:1;margin-top:0}
 #pg-presskit .pk2-booking>.pk2-phone{grid-column:2;grid-row:2}
 #pg-presskit .pk2-booking>.pk2-pdf-link{grid-column:2;grid-row:3}
+#pg-presskit #pk-profile-details .pk3-public-share{margin:0 0 18px;display:grid;grid-template-columns:minmax(0,1fr) 82px auto;align-items:center;gap:20px;padding:22px 24px;border:1px solid #ffffff20;border-left:4px solid #8f52ee;border-radius:10px;background:#110e14;color:#fff}
+.pk3-public-share-copy{min-width:0}
+.pk3-public-share-copy>span{display:block;margin-bottom:7px;color:#9f78d4;font-size:.52rem;font-weight:900;letter-spacing:.15em}
+.pk3-public-share-copy>a{display:block;overflow:hidden;color:#fff;font-size:clamp(.9rem,2vw,1.15rem);font-weight:800;text-decoration:none;text-overflow:ellipsis;white-space:nowrap}
+.pk3-public-qr{display:grid;place-items:center;width:82px;height:82px;padding:6px;background:#fff}
+.pk3-public-qr canvas{display:block!important;width:70px!important;height:70px!important}
+.pk3-public-qr img{display:none!important}
+.pk3-public-share>button{min-height:44px;padding:0 17px;border:1px solid #ffffff35;border-radius:30px;background:#fff;color:#0a080c;font:800 .65rem Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;cursor:pointer}
+.pk3-public-share>button:hover{background:#e2d0ff}
 @media(max-width:700px){
   #pg-presskit .pk2-booking{display:block;margin-top:18px;padding:30px 22px}
   #pg-presskit .pk2-booking>h2{font-size:2.55rem}
   #pg-presskit .pk2-booking>.pk2-travel{margin-bottom:24px}
+  #pg-presskit #pk-profile-details .pk3-public-share{grid-template-columns:minmax(0,1fr) 70px;gap:14px;padding:15px 14px;border-radius:8px}
+  .pk3-public-qr{grid-column:2;grid-row:1/3;width:70px;height:70px;padding:5px}
+  .pk3-public-qr canvas{width:60px!important;height:60px!important}
+  .pk3-public-share>button{grid-column:1;justify-self:start;min-height:38px;padding-inline:13px;font-size:.58rem}
 }
 
 .djr-event-add,.djr-event-remove{padding:10px 14px;border:1px solid #e0dbe6;border-radius:8px;background:#fff;color:#423a4d;font:inherit;cursor:pointer}
@@ -510,19 +523,19 @@
 #pg-dj-register .djr-intro-kicker{display:block;margin-bottom:8px;color:#6f22ff;font-size:.58rem;font-weight:900;letter-spacing:.17em}
 #pg-dj-register .djr-intro h1{font-size:clamp(2.25rem,8vw,3.35rem);line-height:.95}
 #pg-dj-register .djr-intro p{max-width:480px}
-.djr-url-card{position:relative;margin:0 0 28px;padding:24px;border:1px solid #171717;border-radius:0;background:#6f22ff;color:#fff;box-shadow:7px 7px 0 #171717}
-.djr-url-card::after{display:none}
+.djr-url-card{position:relative;overflow:hidden;margin:0 0 24px;padding:24px;border:1px solid #8f52ee;border-radius:18px;background:radial-gradient(circle at 92% 0,#a55cff66 0,transparent 34%),linear-gradient(145deg,#17101e,#08070a);color:#fff;box-shadow:0 22px 55px #32105f35}
+.djr-url-card::after{content:'PULL UP';display:block;position:absolute;right:-8px;bottom:-23px;color:#ffffff08;font:400 5.5rem/1 Anton,sans-serif;letter-spacing:-.03em;pointer-events:none}
 .djr-url-card-head{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
-.djr-url-card-head>div>span{display:block;margin-bottom:7px;color:#e4d4ff;font-size:.56rem;font-weight:900;letter-spacing:.16em}
+.djr-url-card-head>div>span{display:block;margin-bottom:7px;color:#c49cff;font-size:.56rem;font-weight:900;letter-spacing:.16em}
 .djr-url-card h2{margin:0;font-family:Anton,sans-serif;font-size:1.65rem;font-weight:400;line-height:1;text-transform:uppercase;letter-spacing:.01em}
 .djr-url-live{display:block;padding:7px 9px;border:1px solid #ffffff80;border-radius:0;background:#fff;color:#171717;font-size:.52rem;font-weight:900;letter-spacing:.12em;white-space:nowrap}
-.djr-url-field{position:relative;z-index:1;display:flex;align-items:center;min-height:58px;overflow:hidden;border:1px solid #171717;border-radius:0;background:#fff;box-shadow:none}
-.djr-url-field:focus-within{border-color:#171717;box-shadow:inset 4px 0 0 #171717}
-.djr-url-field>span{padding-left:16px;color:#3e3935;font-size:.9rem;font-weight:700;white-space:nowrap}
-.djr-url-field input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#111;font:800 .9rem Inter,sans-serif;padding:18px 16px 18px 2px}
-.djr-url-field input::placeholder{color:#8c8680}
-.djr-url-field[data-availability="available"]{border-color:#1b7f4d;box-shadow:inset 4px 0 0 #1b7f4d}
-.djr-url-field[data-availability="taken"]{border-color:#b51b30;box-shadow:inset 4px 0 0 #b51b30}
+.djr-url-field{position:relative;z-index:1;display:flex;align-items:center;min-height:58px;overflow:hidden;border:1px solid #ffffff2e;border-radius:10px;background:#ffffff0e;box-shadow:inset 0 1px #ffffff0d}
+.djr-url-field:focus-within{border-color:#c096ff;box-shadow:0 0 0 3px #a15eff2b}
+.djr-url-field>span{padding-left:16px;color:#cfc4d6;font-size:.9rem;font-weight:700;white-space:nowrap}
+.djr-url-field input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#fff;font:800 .9rem Inter,sans-serif;padding:18px 16px 18px 2px}
+.djr-url-field input::placeholder{color:#776b7e}
+.djr-url-field[data-availability="available"]{border-color:#3ee88c99;box-shadow:0 0 0 3px #3ee88c18}
+.djr-url-field[data-availability="taken"]{border-color:#ff5d7d99;box-shadow:0 0 0 3px #ff315b18}
 .djr-slug-status{position:relative;z-index:1;display:flex;align-items:center;gap:8px;margin:10px 0 0!important;color:#eee5ff!important;font-size:.7rem!important;font-weight:700}
 .djr-slug-status::before{content:'';flex:0 0 auto;width:7px;height:7px;border-radius:0;background:#8c8680}
 .djr-slug-status[data-state="checking"]::before{border:2px solid #d8c9f2;border-top-color:#171717;border-radius:50%;background:transparent;animation:djr-slug-spin .7s linear infinite}
@@ -545,7 +558,7 @@
   #pg-dj-register .djr-top-label{padding:8px 9px;font-size:.51rem}
   #pg-dj-register .djr-scroll{padding-top:28px}
   #pg-dj-register .tb::after{display:none}
-  .djr-url-card{padding:20px 17px;border-radius:0;box-shadow:5px 5px 0 #171717}
+  .djr-url-card{padding:20px 17px;border-radius:14px;box-shadow:0 18px 42px #32105f2e}
   .djr-url-card h2{font-size:1.42rem}
   .djr-url-field>span{padding-left:12px;font-size:.8rem}
   .djr-url-field input{font-size:.8rem;padding-inline:2px 10px}

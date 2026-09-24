@@ -11,8 +11,9 @@ const assert=require('node:assert/strict');
  try{
  browser=await chromium.launch({...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{channel:'chrome'}),headless:true});
  const page=await browser.newPage({viewport:{width:390,height:844}});
+ await page.addInitScript(()=>{function TestQRCode(element,options){const canvas=document.createElement('canvas');canvas.width=options.width;canvas.height=options.height;element.append(canvas);}TestQRCode.CorrectLevel={H:2};window.QRCode=TestQRCode;});
  let photoFailure=true, gallery=[], saved=null;
- const publicProfile={id:'public-test',stage_name:'DJ Public',city:'Lyon, France',tagline:'Afro house et amapiano',bio:'Présentation publique.',genres:'Shatta, Afrobeats, Amapiano, Hip-hop, Zouk, House',service_types:['Club','Festival'],soundcloud:'https://soundcloud.com/public',mixcloud:'[mixcloud https://www.mixcloud.com/emilio-lameynardie/afro-vs-shatta-dj-paul-keranne-hustle-and-flow/ width=100% height=120 hide_cover=1 autoplay=1]',youtube:'https://www.youtube.com/watch?v=dQw4w9WgXcQ',spotify:'https://open.spotify.com/artist/0TnOYISbd1XYRBk9myaseg',instagram:'https://instagram.com/public',booking_email:'booking@example.com',travel_areas:'France et Europe',cover_avatar:3,photo_url:'/images/auth-hero-bg.jpg',gallery:['/images/logo.png'],presskit_pdf_url:'https://example.com/dj-public-presskit.pdf',upcoming_events:[{flyer_url:'/images/logo.png',date:'2026-10-18',name:'Hustle & Flow',place:'Le Balajo',address:'9 Rue de Lappe, 75011 Paris',link_url:'https://example.com/event'},{flyer_url:'/images/auth-hero-bg.jpg',date:'2026-10-26',name:'Afro Night',place:'Le Sucre',address:'50 Quai Rambaud, 69002 Lyon',link_url:'https://example.com/afro'}]};
+ const publicProfile={id:'public-test',slug:'dj-public',stage_name:'DJ Public',city:'Lyon, France',tagline:'Afro house et amapiano',bio:'Présentation publique.',genres:'Shatta, Afrobeats, Amapiano, Hip-hop, Zouk, House',service_types:['Club','Festival'],soundcloud:'https://soundcloud.com/public',mixcloud:'[mixcloud https://www.mixcloud.com/emilio-lameynardie/afro-vs-shatta-dj-paul-keranne-hustle-and-flow/ width=100% height=120 hide_cover=1 autoplay=1]',youtube:'https://www.youtube.com/watch?v=dQw4w9WgXcQ',spotify:'https://open.spotify.com/artist/0TnOYISbd1XYRBk9myaseg',instagram:'https://instagram.com/public',booking_email:'booking@example.com',travel_areas:'France et Europe',cover_avatar:3,photo_url:'/images/auth-hero-bg.jpg',gallery:['/images/logo.png'],presskit_pdf_url:'https://example.com/dj-public-presskit.pdf',upcoming_events:[{flyer_url:'/images/logo.png',date:'2026-10-18',name:'Hustle & Flow',place:'Le Balajo',address:'9 Rue de Lappe, 75011 Paris',link_url:'https://example.com/event'},{flyer_url:'/images/auth-hero-bg.jpg',date:'2026-10-26',name:'Afro Night',place:'Le Sucre',address:'50 Quai Rambaud, 69002 Lyon',link_url:'https://example.com/afro'}]};
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',async route=>{
   const u=new URL(route.request().url());
@@ -139,6 +140,10 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#pk-location').count(),0);
  assert.doesNotMatch(await page.locator('.pk2-hero').innerText(),/Lyon|PROFIL DJ/i);
  assert.equal(await page.locator('#pk-edit-btn').isVisible(),false);
+ assert.equal(await page.locator('#pk-public-url').innerText(),'pull-up.live/dj-public');
+ assert.equal(await page.locator('#pk-public-url').getAttribute('href'),'http://127.0.0.1:3107/dj-public');
+ assert.equal(await page.locator('#pk-public-qr canvas').count(),1);
+ assert.match(await page.locator('#pk-public-share button').innerText(),/TÉLÉCHARGER LE QR CODE/);
  assert.equal(await page.locator('#pk-profile-details .pk-profile-gallery img').count(),1);
  assert.equal(await page.locator('#pk-profile-details .pk-profile-gallery a').count(),0);
  assert.equal(await page.locator('#pk-about').count(),1);

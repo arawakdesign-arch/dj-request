@@ -395,10 +395,32 @@ function renderDjProfileDetails(p) {
   section('Résidences & collaborations',p.experience,'pk-experience','04 / PARCOURS');
   if(p.gallery?.length){const gallery=document.createElement('section'),grid=document.createElement('div');gallery.id='pk-gallery';gallery.className='pk3-section pk3-gallery-section';heading(gallery,'Photos','05 / GALERIE');grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const photo=document.createElement('div'),img=document.createElement('img');photo.className='pk-profile-photo';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';photo.append(img);grid.append(photo);});gallery.append(grid);box.append(gallery);}
   linksSection('Réseaux',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]],'pk-links','06 / CONTACT');
+  renderDjPublicShareTools(p,box);
   const area=document.getElementById('pk-travel-areas');if(area)area.textContent=p.travel_areas||'Zones de déplacement à confirmer';
   const email=document.getElementById('pk-booking-email');if(email)email.textContent=p.booking_email||'Non renseigné';
   const phone=document.getElementById('pk-booking-phone');if(phone){phone.hidden=!p.phone;phone.textContent=p.phone?`WhatsApp / téléphone · ${p.phone}`:'';phone.href=p.phone?'tel:'+p.phone.replace(/[^+\d]/g,''):'';}
   const pdf=document.getElementById('pk-presskit-pdf');if(pdf){const href=DjProfileSchema.url(p.presskit_pdf_url);pdf.hidden=!href;pdf.href=href||'';}
+}
+
+function renderDjPublicShareTools(profile,parent){
+  const slug=normalizeDjSlug(profile?.slug),url=slug?`${location.origin}/${encodeURIComponent(slug)}`:'';
+  if(!parent||!url)return;
+  const section=document.createElement('section'),copy=document.createElement('div'),label=document.createElement('span'),link=document.createElement('a'),qr=document.createElement('div'),button=document.createElement('button');
+  section.id='pk-public-share';section.className='pk3-public-share';section.setAttribute('aria-label','Partager cette page DJ');
+  copy.className='pk3-public-share-copy';label.textContent='07 / PARTAGE';link.id='pk-public-url';link.target='_blank';link.rel='noopener noreferrer';
+  qr.id='pk-public-qr';qr.className='pk3-public-qr';qr.setAttribute('aria-hidden','true');
+  button.type='button';button.textContent='Télécharger le QR code';button.onclick=downloadDjProfileQr;
+  copy.append(label,link);section.append(copy,qr,button);parent.append(section);
+  link.href=url;link.textContent=`pull-up.live/${slug}`;section.dataset.url=url;section.dataset.slug=slug;
+  if(typeof QRCode==='function')new QRCode(qr,{text:url,width:512,height:512,colorDark:'#09070b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+}
+
+function downloadDjProfileQr(){
+  const section=document.getElementById('pk-public-share'),qr=document.getElementById('pk-public-qr'),source=qr?.querySelector('canvas,img');
+  if(!section?.dataset.url||!source){if(typeof toast==='function')toast('QR code indisponible.');return;}
+  const href=source.tagName==='CANVAS'?source.toDataURL('image/png'):source.src;
+  const download=document.createElement('a');download.href=href;download.download=`qr-${section.dataset.slug||'profil-dj'}-pull-up.png`;document.body.append(download);download.click();download.remove();
+  if(typeof toast==='function')toast('QR code téléchargé');
 }
 
 let _djProfileBackTo=null;
