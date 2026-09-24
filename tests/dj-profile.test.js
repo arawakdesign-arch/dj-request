@@ -74,6 +74,23 @@ test('API enforces stored photo and uploaded gallery ownership',async()=>{
  result=await request({...valid,photo_url:'https://evil.example/pretend.jpg'});assert.equal(result.status,400);assert.ok(result.payload.fields.photo_url);
 });
 
+test('DJ public-link availability accepts the current owner and rejects existing DJ or organizer links',async()=>{
+ const profiles={mine:{id:'test-user'},taken:{id:'another-user'}},organizers={club:{owner_id:'organizer-user'}};
+ const db={from:table=>({select:()=>({eq:(column,slug)=>({maybeSingle:async()=>({data:table==='dj_profiles'?(profiles[slug]||null):(organizers[slug]||null),error:null})})})}),storage:{from:()=>({})}};
+ for(const [path,exports] of [['../lib/supabase',db],['../middleware/auth',{requireAuth:(req,res,next)=>{req.user={id:'test-user'};next();}}],['../routes/events',{isClosed:()=>false,isUpcoming:()=>false}]]){
+  require.cache[require.resolve(path)]={id:require.resolve(path),filename:require.resolve(path),loaded:true,exports};
+ }
+ delete require.cache[require.resolve('../routes/dj')];
+ const router=require('../routes/dj');
+ const handler=router.stack.find(l=>l.route?.path==='/dj/slug-availability/:slug').route.stack.at(-1).handle;
+ const request=async slug=>{let status=200,payload;const res={status(code){status=code;return this;},json(value){payload=value;return this;}};await handler({params:{slug},user:{id:'test-user'}},res);return {status,payload};};
+ assert.equal((await request('libre')).payload.available,true);
+ assert.equal((await request('mine')).payload.available,true);
+ assert.equal((await request('taken')).payload.available,false);
+ assert.equal((await request('club')).payload.available,false);
+ assert.equal((await request('DJ invalide')).status,400);
+});
+
 test('API keeps saving basic DJ profiles when upcoming events migration is missing',async()=>{
  let upsertCalls=0,saved=null;
  const missing={code:'42703',message:'column "upcoming_events" does not exist'};

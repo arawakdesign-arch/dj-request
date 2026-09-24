@@ -25,6 +25,7 @@ const assert=require('node:assert/strict');
   }
   if(u.pathname==='/api/dj/profile/event-flyer')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({url:'https://storage.example/profile-photos/dj/test/event-flyer-1.jpg'})});
   if(u.pathname==='/api/dj/profile/presskit-pdf')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({url:route.request().method()==='DELETE'?'':'https://storage.example/profile-photos/dj/test/presskit.pdf?v=1'})});
+  if(u.pathname.startsWith('/api/dj/slug-availability/')){const slug=decodeURIComponent(u.pathname.split('/').at(-1));return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({slug,available:slug!=='dj-deja-pris'})});}
   if(u.pathname==='/api/dj/profile' && route.request().method()==='POST') {saved=route.request().postDataJSON();return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...saved,id:'test',photo_url:'/images/logo.png',gallery})});}
   if(u.pathname==='/api/dj/profile/public-test')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(publicProfile)});
   if(u.pathname.startsWith('/api/'))return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(u.pathname==='/api/config/public'?{}:[])});
@@ -67,7 +68,10 @@ const assert=require('node:assert/strict');
  await page.evaluate(()=>{_djProfileCache={photo_url:'/images/logo.png'};initDjProfileEditor({stage_name:'DJ Nova',tagline:'House music',bio:'Biographie',genres:'House',service_types:['Club'],soundcloud:'https://soundcloud.com/nova',booking_email:'booking@example.com'});});
  assert.equal(await page.inputValue('#dj-edit-slug'),'dj-nova');
  assert.equal(await page.locator('#djr-public-url-preview').innerText(),'pull-up.live/dj-nova');
+ await page.waitForFunction(()=>document.getElementById('djr-slug-status').dataset.state==='available');
  await page.fill('#dj-edit-slug','DJ Étoile Paris');assert.equal(await page.inputValue('#dj-edit-slug'),'dj-etoile-paris');
+ await page.fill('#dj-edit-slug','DJ déjà pris');await page.waitForFunction(()=>document.getElementById('djr-slug-status').dataset.state==='taken');assert.match(await page.locator('#djr-slug-status').innerText(),/déjà prise/);
+ await page.fill('#dj-edit-slug','DJ Étoile Paris');await page.waitForFunction(()=>document.getElementById('djr-slug-status').dataset.state==='available');
  const result=await page.evaluate(()=>collectDjProfile());assert.equal(result.stage_name,'DJ Nova');assert.equal(result.genres,'House');assert.equal(result.slug,'dj-etoile-paris');
  await page.locator('#djr-pdf-input').setInputFiles({name:'presskit.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.4\\n')});
  await page.waitForFunction(()=>!djMediaBusy&&_djProfileCache.presskit_pdf_url?.includes('presskit.pdf'));

@@ -45,6 +45,20 @@ router.get('/dj/profile', requireAuth, async (req, res) => {
   res.json(data || {});
 });
 
+// Vérifie l'adresse pendant la saisie. L'enregistrement refait toujours le
+// contrôle ensuite pour éviter qu'une adresse soit prise entre les deux appels.
+router.get('/dj/slug-availability/:slug', requireAuth, async (req, res) => {
+  const clean = slugify(req.params.slug);
+  if (!clean || clean !== req.params.slug) return res.status(400).json({ error: 'URL invalide' });
+  const [{ data: djTaken, error: djError }, { data: orgaTaken, error: orgaError }] = await Promise.all([
+    supabase.from('dj_profiles').select('id').eq('slug', clean).maybeSingle(),
+    supabase.from('organizer_pages').select('owner_id').eq('slug', clean).maybeSingle(),
+  ]);
+  if (djError || orgaError) return res.status(500).json({ error: 'Impossible de vérifier cette adresse.' });
+  const available = (!djTaken || djTaken.id === req.user.id) && !orgaTaken;
+  res.json({ slug: clean, available });
+});
+
 router.post('/dj/profile', requireAuth, async (req, res) => {
   const { data: existing, error: readError } = await supabase.from('dj_profiles').select('photo_url, gallery').eq('id', req.user.id).maybeSingle();
   if (readError) return res.status(500).json({ error: 'Impossible de charger le profil. Vérifie la migration des profils DJ.' });

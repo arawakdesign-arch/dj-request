@@ -22,6 +22,7 @@ function djChoice(container, value, checked, name) {
 }
 function djSelected(name) { return [...document.querySelectorAll(`#djr-editor input[name="${name}"]:checked`)].map(e=>e.value); }
 function djEventField(index,key){return document.getElementById(`dj-event-${index}-${key.replaceAll('_','-')}`);}
+let djSlugCheckTimer=null,djSlugCheckSequence=0;
 function normalizeDjSlug(value){
   return (value||'').toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
 }
@@ -32,9 +33,30 @@ function updateDjPublicUrlPreview(){
   preview.textContent=label;preview.href=slug?`${location.origin}/${encodeURIComponent(slug)}`:'#';
   preview.classList.toggle('is-placeholder',!slug);
 }
+function showDjSlugAvailability(state,message){
+  const status=document.getElementById('djr-slug-status'),field=document.querySelector('.djr-url-field');
+  if(status){status.dataset.state=state;status.textContent=message;}
+  if(field)field.dataset.availability=state;
+}
+function checkDjSlugAvailability(delay=450){
+  clearTimeout(djSlugCheckTimer);
+  const field=document.getElementById('dj-edit-slug'),slug=normalizeDjSlug(field?.value),sequence=++djSlugCheckSequence;
+  if(!slug){showDjSlugAvailability('idle','Entre ton nom de DJ pour vérifier l’adresse.');return;}
+  showDjSlugAvailability('checking','Vérification de l’adresse…');
+  djSlugCheckTimer=setTimeout(async()=>{
+    try{
+      const result=await api('GET','/dj/slug-availability/'+encodeURIComponent(slug));
+      if(sequence!==djSlugCheckSequence||normalizeDjSlug(field?.value)!==slug)return;
+      showDjSlugAvailability(result.available?'available':'taken',result.available?'Cette adresse est disponible !':'Cette adresse est déjà prise. Essaie une autre variante.');
+    }catch(e){
+      if(sequence===djSlugCheckSequence)showDjSlugAvailability('error','Vérification impossible pour le moment. Tu peux continuer à remplir ton profil.');
+    }
+  },delay);
+}
 async function copyDjPublicUrl(){
   const slug=normalizeDjSlug(document.getElementById('dj-edit-slug')?.value);
   if(!slug){djFeedback('Choisis ton nom de scène pour créer ton lien.');document.getElementById('dj-edit-stage-name')?.focus();return;}
+  if(document.getElementById('djr-slug-status')?.dataset.state==='taken'){djFeedback('Cette adresse est déjà prise. Choisis-en une autre avant de copier le lien.');document.getElementById('dj-edit-slug')?.focus();return;}
   const url=`${location.origin}/${encodeURIComponent(slug)}`;
   try{await navigator.clipboard.writeText(url);if(typeof toast==='function')toast('Lien copié !');}
   catch(e){if(typeof toast==='function')toast(url);}
@@ -129,11 +151,11 @@ function initDjProfileEditor(profile) {
   const slugField=document.getElementById('dj-edit-slug'),stageField=djField('stage_name');
   if(slugField){
     slugField.value=profile.slug||normalizeDjSlug(profile.stage_name||'');slugField.dataset.auto=profile.slug?'false':'true';
-    slugField.oninput=()=>{slugField.value=normalizeDjSlug(slugField.value);slugField.dataset.auto='false';updateDjPublicUrlPreview();};
+    slugField.oninput=()=>{slugField.value=normalizeDjSlug(slugField.value);slugField.dataset.auto='false';updateDjPublicUrlPreview();checkDjSlugAvailability();};
   }
-  if(stageField)stageField.oninput=()=>{if(slugField&&(slugField.dataset.auto==='true'||!slugField.value)){slugField.value=normalizeDjSlug(stageField.value);slugField.dataset.auto='true';updateDjPublicUrlPreview();}};
+  if(stageField)stageField.oninput=()=>{if(slugField&&(slugField.dataset.auto==='true'||!slugField.value)){slugField.value=normalizeDjSlug(stageField.value);slugField.dataset.auto='true';updateDjPublicUrlPreview();checkDjSlugAvailability();}};
   const copyButton=document.getElementById('djr-copy-public-url');if(copyButton)copyButton.onclick=copyDjPublicUrl;
-  updateDjPublicUrlPreview();
+  updateDjPublicUrlPreview();checkDjSlugAvailability(0);
   const selected=(profile.genres||'').split(',').map(s=>s.trim()).filter(Boolean);
   const genres=document.getElementById('djr-genres');genres.replaceChildren();
   [...new Set([...DjProfileSchema.genres,...selected])].forEach(g=>djChoice(genres,g,selected.includes(g),'genres').addEventListener('change',djGenreState));
