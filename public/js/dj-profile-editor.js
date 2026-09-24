@@ -59,15 +59,27 @@ function renderDjEventEditor(events) {
     if(event.flyer_url){preview.style.backgroundImage=`url(${JSON.stringify(event.flyer_url)})`;preview.classList.add('has-flyer');}
     else preview.textContent='Aucun flyer';
     [
-      ['date','Date','Vendredi 18 octobre','text'],
+      ['date','Date','','date'],
       ['name','Nom de l’event','Hustle & Flow','text'],
-      ['place','Lieu','Club, ville','text'],
+      ['place','Lieu','Nom du club ou de la salle','text'],
+      ['address','Adresse','Adresse préremplie après choix du lieu','text'],
       ['link_url','Lien de redirection','https://…','url'],
     ].forEach(([key,label,placeholder,type])=>{
       const wrap=document.createElement('div'),lab=document.createElement('label'),input=document.createElement('input');
-      wrap.className=key==='link_url'?'fl djr-wide':'fl';lab.htmlFor=`dj-event-${i}-${key.replaceAll('_','-')}`;lab.textContent=label;
+      wrap.className=(key==='link_url'||key==='address')?'fl djr-wide':'fl';lab.htmlFor=`dj-event-${i}-${key.replaceAll('_','-')}`;lab.textContent=label;
       input.id=lab.htmlFor;input.className='fi';input.type=type;input.maxLength=String(DjProfileSchema.eventLimits[key]||1000);input.placeholder=placeholder;input.value=event[key]||'';
-      wrap.append(lab,input);fields.append(wrap);
+      if(key==='place'){
+        input.autocomplete='off';
+        input.oninput=()=>{ if(typeof _venueSearch==='function') _venueSearch(input.value,input.id,`dj-event-${i}-address`); };
+        const results=document.createElement('div');results.id=input.id+'-results';results.className='djr-event-search-results';
+        wrap.append(lab,input,results);
+      } else if(key==='address'){
+        input.autocomplete='off';
+        input.oninput=()=>{ if(typeof _addressSearch==='function') _addressSearch(input.value,input.id); };
+        const results=document.createElement('div');results.id=input.id+'-results';results.className='djr-event-search-results';
+        wrap.append(lab,input,results);
+      } else wrap.append(lab,input);
+      fields.append(wrap);
     });
     card.append(head,fields);list.append(card);
   }
@@ -120,6 +132,7 @@ function collectDjProfile() {
     date:djEventField(i,'date')?.value||'',
     name:djEventField(i,'name')?.value||'',
     place:djEventField(i,'place')?.value||'',
+    address:djEventField(i,'address')?.value||'',
     link_url:djEventField(i,'link_url')?.value||'',
   });
   const result=DjProfileSchema.validate(input,_djProfileCache?.photo_url);
@@ -249,21 +262,26 @@ function renderDjProfileDetails(p) {
     });
     if(!players.childNodes.length)return;const s=document.createElement('section');s.id='pk-music';s.className='pk3-section';heading(s,'Écouter','02 / SÉLECTION');s.append(players);box.append(s);
   }
+  function formatEventDate(value){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return value||'';
+    const [year,month,day]=value.split('-').map(Number);
+    return new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(year,month-1,day));
+  }
   function eventsSection(events){
-    const safe=(Array.isArray(events)?events:[]).filter(event=>event?.name&&event?.date&&event?.place&&DjProfileSchema.url(event.link_url)).slice(0,3);
+    const safe=(Array.isArray(events)?events:[]).filter(event=>event?.flyer_url&&event?.name&&event?.date&&event?.place&&event?.address&&DjProfileSchema.url(event.link_url)).slice(0,3);
     if(!safe.length)return;
     const s=document.createElement('section'),grid=document.createElement('div');s.id='pk-upcoming-events';s.className='pk3-section';grid.className='pk-profile-events';
     heading(s,'Soirées à venir','03 / DATES');
     safe.forEach(event=>{
       const href=DjProfileSchema.url(event.link_url),flyer=DjProfileSchema.url(event.flyer_url);
-      const card=document.createElement('a'),visual=document.createElement('span'),info=document.createElement('span'),date=document.createElement('span'),name=document.createElement('strong'),place=document.createElement('span'),cta=document.createElement('span');
+      const card=document.createElement('a'),visual=document.createElement('span'),info=document.createElement('span'),date=document.createElement('span'),name=document.createElement('strong'),place=document.createElement('span'),address=document.createElement('span'),cta=document.createElement('span');
       card.className='pk-profile-event';card.href=href;card.target='_blank';card.rel='noopener noreferrer';
       visual.className='pk-profile-event-flyer';
       if(flyer)visual.style.backgroundImage=`url(${JSON.stringify(flyer)})`;
       else visual.textContent='Flyer';
-      info.className='pk-profile-event-info';date.className='pk-profile-event-date';place.className='pk-profile-event-place';cta.className='pk-profile-event-cta';
-      date.textContent=event.date;name.textContent=event.name;place.textContent=event.place;cta.textContent='Voir la soirée';
-      info.append(date,name,place,cta);card.append(visual,info);grid.append(card);
+      info.className='pk-profile-event-info';date.className='pk-profile-event-date';place.className='pk-profile-event-place';address.className='pk-profile-event-address';cta.className='pk-profile-event-cta';
+      date.textContent=formatEventDate(event.date);name.textContent=event.name;place.textContent=event.place;address.textContent=event.address;cta.textContent='Voir la soirée';
+      info.append(date,name,place,address,cta);card.append(visual,info);grid.append(card);
     });
     s.append(grid);box.append(s);
   }

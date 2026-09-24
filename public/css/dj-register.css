@@ -101,6 +101,7 @@
 .djr-event-flyer-actions{display:flex;gap:8px;margin-top:10px}
 .djr-event-flyer-actions button{flex:1;min-height:40px;border:1px solid #0a0a0c;border-radius:4px;background:#0a0a0c;color:#fff;font-size:.72rem;font-weight:800;cursor:pointer}
 .djr-event-flyer-actions button+button{background:#fff;color:#0a0a0c}
+.djr-event-search-results{display:flex;flex-direction:column;gap:.3rem;margin-top:.45rem}
 #pg-dj-register button:disabled{opacity:.5;cursor:wait}
 #pg-dj-register .djr-photo-row{margin:0;padding:0 0 16px;border:0}
 .djr-photo-link{display:block;margin-top:5px}
@@ -168,7 +169,8 @@
 .pk-profile-event-info{min-width:0;padding:18px 18px 18px 0;display:flex;flex-direction:column;justify-content:center;gap:8px}
 .pk-profile-event-date{font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6f22ff}
 .pk-profile-event strong{font-family:'Anton',sans-serif;font-weight:400;font-size:2rem;line-height:.95;text-transform:uppercase;color:#111;overflow-wrap:anywhere}
-.pk-profile-event-place{font-size:.78rem;color:#5c5562;line-height:1.45}
+.pk-profile-event-place,.pk-profile-event-address{font-size:.78rem;color:#5c5562;line-height:1.45}
+.pk-profile-event-address{color:#847b8d}
 .pk-profile-event-cta{margin-top:6px;font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#111}
 .pk-profile-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pk-profile-gallery a{display:block;overflow:hidden;background:#eee}
@@ -373,6 +375,7 @@
 #pg-presskit .pk-profile-event-date{color:#ff2a93}
 #pg-presskit .pk-profile-event strong{color:#fff}
 #pg-presskit .pk-profile-event-place{color:#bdb6c2}
+#pg-presskit .pk-profile-event-address{color:#8f8798}
 #pg-presskit .pk-profile-event-cta{color:#fff}
 #pg-presskit .pk-profile-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:4px}
 #pg-presskit .pk-profile-gallery .pk-profile-photo{overflow:hidden;background:#211a26;border-radius:7px}

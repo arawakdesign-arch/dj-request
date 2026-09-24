@@ -10,7 +10,7 @@
     resident_advisor: ['Resident Advisor',['ra.co']], website: ['Site web',null], video_url: ['Vidéo',null]
   };
   const limits = {stage_name:30,tagline:150,bio:5000,experience:2000,booking_email:254,phone:40,travel_areas:300};
-  const eventLimits = {name:80,place:120,date:40,flyer_url:1000,link_url:1000};
+  const eventLimits = {name:80,place:120,address:180,date:10,flyer_url:1000,link_url:1000};
   function url(value, hosts) {
     if (typeof value !== 'string') return null;
     value=value.trim();
@@ -66,7 +66,8 @@
       }
       const hasAny=Object.values(normalized).some(Boolean);
       if(!hasAny)return;
-      for(const key of ['flyer_url','date','name','place','link_url']) if(!normalized[key]) errors.upcoming_events='Charge un flyer, puis complète date, nom, lieu et lien pour chaque soirée ajoutée.';
+      for(const key of ['flyer_url','date','name','place','address','link_url']) if(!normalized[key]) errors.upcoming_events='Charge un flyer, puis complète date, nom, lieu, adresse et lien pour chaque soirée ajoutée.';
+      if(normalized.date && !/^\d{4}-\d{2}-\d{2}$/.test(normalized.date)) errors.upcoming_events='Choisis la date dans le calendrier.';
       const flyer=normalized.flyer_url?url(normalized.flyer_url):'';
       const link=url(normalized.link_url);
       if(flyer===null) errors.upcoming_events='Lien du flyer invalide.';
