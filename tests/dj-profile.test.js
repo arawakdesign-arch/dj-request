@@ -38,17 +38,19 @@ test('cover selection is constrained to generated catalog',()=>{
  for(const cover_avatar of [-1,0,21,1.5,'oops'])assert.ok(schema.validate({...valid,cover_avatar},'photo').errors.cover_avatar);
  for(let cover_avatar=1;cover_avatar<=20;cover_avatar++)assert.equal(schema.validate({...valid,cover_avatar},'photo').errors.cover_avatar,undefined);
 });
-test('upcoming DJ events are normalized and limited to three cards',()=>{
+test('upcoming DJ events are normalized and limited to four cards',()=>{
  const event={flyer_url:'example.com/flyer.jpg',date:'2026-10-18',name:'Hustle & Flow',place:'Le Balajo',address:'9 Rue de Lappe, 75011 Paris',link_url:'example.com/event'};
  const {value,errors}=schema.validate({...valid,upcoming_events:[event,event,event,event]},'photo');
  assert.equal(errors.upcoming_events,undefined);
- assert.equal(value.upcoming_events.length,3);
+ assert.equal(value.upcoming_events.length,4);
  assert.equal(value.upcoming_events[0].flyer_url,'https://example.com/flyer.jpg');
  assert.equal(value.upcoming_events[0].link_url,'https://example.com/event');
  assert.ok(schema.validate({...valid,upcoming_events:[{...event,link_url:'javascript:alert(1)'}]},'photo').errors.upcoming_events);
  assert.ok(schema.validate({...valid,upcoming_events:[{...event,date:'Vendredi 18 octobre'}]},'photo').errors.upcoming_events);
- assert.ok(schema.validate({...valid,upcoming_events:[{...event,place:''}]},'photo').errors.upcoming_events);
- assert.ok(schema.validate({...valid,upcoming_events:[{...event,flyer_url:''}]},'photo').errors.upcoming_events);
+ assert.ok(schema.validate({...valid,upcoming_events:[event,event,event,event,event]},'photo').errors.upcoming_events);
+ assert.deepEqual(schema.validate({...valid,upcoming_events:[{name:'Une soirée'},{}]},'photo').errors,{});
+ assert.equal(schema.validate({...valid,upcoming_events:[{name:'Une soirée'},{}]},'photo').value.upcoming_events.length,1);
+ assert.equal(schema.validate({...valid,upcoming_events:[{...event,flyer_url:''}]},'photo').errors.upcoming_events,undefined);
 });
 
 test('API enforces stored photo and uploaded gallery ownership',async()=>{
@@ -66,6 +68,7 @@ test('API enforces stored photo and uploaded gallery ownership',async()=>{
  const request=async body=>{let status=200,payload;const res={status(code){status=code;return this;},json(value){payload=value;return this;}};await handler({body,user:{id:'test-user'}},res);return {status,payload};};
  let result=await request({...valid,gallery:['https://storage.example/other-account.jpg']});assert.equal(result.status,400);
  result=await request({...valid,gallery:['https://storage.example/owned.jpg'],upcoming_events:[{flyer_url:'https://example.com/flyer.jpg',date:'2026-10-18',name:'Hustle & Flow',place:'Le Balajo',address:'9 Rue de Lappe, 75011 Paris',link_url:'https://example.com/event'}]});assert.equal(result.status,400);assert.ok(result.payload.fields.upcoming_events);
+ result=await request({...valid,upcoming_events:[{name:'Une soirée'}]});assert.equal(result.status,200);assert.equal(saved.upcoming_events[0].name,'Une soirée');
  result=await request({...valid,gallery:['https://storage.example/owned.jpg'],upcoming_events:[{flyer_url:uploadedFlyer,date:'2026-10-18',name:'Hustle & Flow',place:'Le Balajo',address:'9 Rue de Lappe, 75011 Paris',link_url:'https://example.com/event'}]});assert.equal(result.status,200);assert.equal(saved.id,'test-user');assert.equal(saved.tagline,valid.tagline);assert.equal(saved.upcoming_events[0].name,'Hustle & Flow');
  stored={gallery:[]};result=await request(valid);assert.equal(result.status,400);assert.ok(result.payload.fields.photo_url);
  result=await request({...valid,photo_url:'https://evil.example/pretend.jpg'});assert.equal(result.status,400);assert.ok(result.payload.fields.photo_url);

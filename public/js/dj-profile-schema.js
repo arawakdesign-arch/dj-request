@@ -55,7 +55,7 @@
     value.cover_avatar=input.cover_avatar==null||input.cover_avatar===''?null:Number(input.cover_avatar);
     if(value.cover_avatar!==null && (!Number.isInteger(value.cover_avatar)||value.cover_avatar<1||value.cover_avatar>20)) errors.cover_avatar='Choisis un avatar parmi les 20 proposés.';
     value.upcoming_events=[];
-    const rawEvents=Array.isArray(input.upcoming_events)?input.upcoming_events.slice(0,3):[];
+    const rawEvents=Array.isArray(input.upcoming_events)?input.upcoming_events:[];
     rawEvents.forEach((event,index)=>{
       if(!event || typeof event!=='object')return;
       const normalized={};
@@ -66,7 +66,7 @@
       }
       const hasAny=Object.values(normalized).some(Boolean);
       if(!hasAny)return;
-      for(const key of ['flyer_url','date','name','place','address','link_url']) if(!normalized[key]) errors.upcoming_events='Charge un flyer, puis complète date, nom, lieu, adresse et lien pour chaque soirée ajoutée.';
+
       if(normalized.date && !/^\d{4}-\d{2}-\d{2}$/.test(normalized.date)) errors.upcoming_events='Choisis la date dans le calendrier.';
       const flyer=normalized.flyer_url?url(normalized.flyer_url):'';
       const link=url(normalized.link_url);
@@ -74,6 +74,7 @@
       if(link===null) errors.upcoming_events='Lien de redirection invalide.';
       value.upcoming_events.push({...normalized,flyer_url:flyer,link_url:link||''});
     });
+    if(value.upcoming_events.length>4) errors.upcoming_events='Ajoute au maximum 4 soirées.';
     return {value,errors};
   }
   const schema={genres,services,links,limits,eventLimits,url,validate};

@@ -52,7 +52,7 @@ router.post('/dj/profile', requireAuth, async (req, res) => {
   const nameCheck = validateDisplayName(value.stage_name || '');
   if (!nameCheck.ok) errors.stage_name = nameCheck.reason;
   const eventFlyerPrefix = supabase.storage.from('profile-photos').getPublicUrl(`dj/${req.user.id}/event-flyer-`).data.publicUrl;
-  if (value.upcoming_events?.some(event => !event.flyer_url?.startsWith(eventFlyerPrefix))) errors.upcoming_events = 'Charge le flyer depuis ton profil DJ.';
+  if (value.upcoming_events?.some(event => event.flyer_url && !event.flyer_url.startsWith(eventFlyerPrefix))) errors.upcoming_events = 'Charge le flyer depuis ton profil DJ.';
   if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], fields: errors });
   // Only retain gallery images previously uploaded by this user.
   const gallery = req.body.gallery === undefined ? (existing?.gallery || []) : req.body.gallery;

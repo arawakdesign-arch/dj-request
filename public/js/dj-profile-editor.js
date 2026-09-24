@@ -39,10 +39,14 @@ function djGenreState() {
   });
   document.getElementById('djr-genre-count').textContent=`${count} / 6 styles sélectionnés`;
 }
+function collectDjEvents() {
+  return [...document.querySelectorAll('#djr-upcoming-events .djr-event-card')].map((card,i)=>
+    Object.fromEntries(Object.keys(DjProfileSchema.eventLimits).map(key=>[key,djEventField(i,key)?.value||''])));
+}
 function renderDjEventEditor(events) {
   const list=document.getElementById('djr-upcoming-events');if(!list)return;list.replaceChildren();
-  const safeEvents=Array.isArray(events)?events:[];
-  for(let i=0;i<3;i++){
+  const safeEvents=Array.isArray(events)?events.slice(0,4):[];
+  for(let i=0;i<Math.max(1,safeEvents.length);i++){
     const event=safeEvents[i]||{},card=document.createElement('div');card.className='djr-event-card';
     const head=document.createElement('div'),index=document.createElement('span'),title=document.createElement('strong');
     head.className='djr-event-card-head';index.textContent=String(i+1).padStart(2,'0');title.textContent=i===0?'Prochaine soirée':'Soirée à venir';head.append(index,title);
@@ -81,7 +85,14 @@ function renderDjEventEditor(events) {
       } else wrap.append(lab,input);
       fields.append(wrap);
     });
-    card.append(head,fields);list.append(card);
+    const remove=document.createElement('button');remove.type='button';remove.className='djr-event-remove';remove.textContent='Supprimer la soirée';
+    remove.onclick=()=>{const current=collectDjEvents();current.splice(i,1);renderDjEventEditor(current);};
+    head.append(remove);card.append(head,fields);list.append(card);
+  }
+  if(list.children.length<4){
+    const add=document.createElement('button');add.type='button';add.className='djr-event-add';add.textContent='Ajouter une soirée';
+    add.onclick=()=>{const current=collectDjEvents();if(current.length<4){current.push({});renderDjEventEditor(current);djEventField(current.length-1,'name')?.focus();}};
+    list.append(add);
   }
 }
 function initDjProfileEditor(profile) {
@@ -127,15 +138,7 @@ function collectDjProfile() {
   for(const key of [...Object.keys(DjProfileSchema.limits),...Object.keys(DjProfileSchema.links)]) input[key]=djField(key)?.value || '';
   input.genres=djSelected('genres');input.service_types=djSelected('services');
   input.cover_avatar=document.querySelector('#djr-editor input[name="cover"]:checked')?.value||null;
-  input.upcoming_events=[];
-  for(let i=0;i<3;i++) input.upcoming_events.push({
-    flyer_url:djEventField(i,'flyer_url')?.value||'',
-    date:djEventField(i,'date')?.value||'',
-    name:djEventField(i,'name')?.value||'',
-    place:djEventField(i,'place')?.value||'',
-    address:djEventField(i,'address')?.value||'',
-    link_url:djEventField(i,'link_url')?.value||'',
-  });
+  input.upcoming_events=collectDjEvents();
   const result=DjProfileSchema.validate(input,_djProfileCache?.photo_url);
   document.querySelectorAll('#djr-editor [data-error]').forEach(el=>{const key=el.dataset.error;el.textContent=result.errors[key]||'';el.id='djr-error-'+key;});
   document.querySelectorAll('#djr-editor [aria-invalid]').forEach(el=>el.removeAttribute('aria-invalid'));
@@ -314,20 +317,20 @@ function renderDjProfileDetails(p) {
     return new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(year,month-1,day));
   }
   function eventsSection(events){
-    const safe=(Array.isArray(events)?events:[]).filter(event=>event?.flyer_url&&event?.name&&event?.date&&event?.place&&event?.address&&DjProfileSchema.url(event.link_url)).slice(0,3);
+    const safe=(Array.isArray(events)?events:[]).filter(event=>event && Object.keys(DjProfileSchema.eventLimits).some(key=>typeof event[key]==='string'&&event[key].trim())).slice(0,4);
     if(!safe.length)return;
     const s=document.createElement('section'),grid=document.createElement('div');s.id='pk-upcoming-events';s.className='pk3-section';grid.className='pk-profile-events';
     heading(s,'Soirées à venir','03 / DATES');
     safe.forEach(event=>{
       const href=DjProfileSchema.url(event.link_url),flyer=DjProfileSchema.url(event.flyer_url);
-      const card=document.createElement('a'),visual=document.createElement('span'),info=document.createElement('span'),date=document.createElement('span'),name=document.createElement('strong'),place=document.createElement('span'),address=document.createElement('span'),cta=document.createElement('span');
-      card.className='pk-profile-event';card.href=href;card.target='_blank';card.rel='noopener noreferrer';
+      const card=document.createElement(href?'a':'article'),visual=document.createElement('span'),info=document.createElement('span'),date=document.createElement('span'),name=document.createElement('strong'),place=document.createElement('span'),address=document.createElement('span'),cta=document.createElement('span');
+      card.className='pk-profile-event';if(href){card.href=href;card.target='_blank';card.rel='noopener noreferrer';}
       visual.className='pk-profile-event-flyer';
       if(flyer)visual.style.backgroundImage=`url(${JSON.stringify(flyer)})`;
-      else visual.textContent='Flyer';
+      else visual.textContent='Soirée à venir';
       info.className='pk-profile-event-info';date.className='pk-profile-event-date';place.className='pk-profile-event-place';address.className='pk-profile-event-address';cta.className='pk-profile-event-cta';
-      date.textContent=formatEventDate(event.date);name.textContent=event.name;place.textContent=event.place;address.textContent=event.address;cta.textContent='Voir la soirée';
-      info.append(date,name,place,address,cta);card.append(visual,info);grid.append(card);
+      date.textContent=formatEventDate(event.date);name.textContent=event.name||'Soirée à venir';place.textContent=event.place||'';address.textContent=event.address||'';cta.textContent='Voir la soirée';
+      if(event.date)info.append(date);info.append(name);if(event.place)info.append(place);if(event.address)info.append(address);if(href)info.append(cta);card.append(visual,info);grid.append(card);
     });
     s.append(grid);box.append(s);
   }
