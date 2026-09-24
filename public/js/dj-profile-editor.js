@@ -172,10 +172,35 @@ async function openPublicDjProfile(id) {
 // de CETTE soirée, jamais celui déjà en cache (ex. son propre profil si
 // l'utilisateur est aussi un DJ inscrit) — sans ce fetch dédié, navTo('presskit')
 // réaffichait le profil déjà en mémoire plutôt que celui de la soirée.
+// Avec plusieurs DJs au line-up, la bannière n'en montre qu'un (le premier) —
+// le clic propose donc de choisir lequel consulter plutôt que d'ouvrir
+// silencieusement toujours le même.
 async function openDjBannerProfile() {
-  const dj = _currentDjBannerDj;
-  if (dj?.type === 'app' && dj.id) { _djProfileBackTo = eid ? 'client' : (currentUser ? 'profile' : 'auth'); await openPublicDjProfile(dj.id); return; }
-  if (dj?.type === 'external' && dj.soundcloud_url) window.open(dj.soundcloud_url, '_blank', 'noopener,noreferrer');
+  const clickable = _currentLineup.filter(dj => (dj.type === 'app' && dj.id) || (dj.type === 'external' && dj.soundcloud_url));
+  if (!clickable.length) return;
+  const backTo = eid ? 'client' : (currentUser ? 'profile' : 'auth');
+  if (clickable.length === 1) { await _openLineupDj(clickable[0], backTo); return; }
+  _renderDjLineupGrid(clickable);
+  showPage('dj-lineup');
+}
+async function _openLineupDj(dj, backTo) {
+  if (dj.type === 'app' && dj.id) { _djProfileBackTo = backTo; await openPublicDjProfile(dj.id); return; }
+  if (dj.type === 'external' && dj.soundcloud_url) window.open(dj.soundcloud_url, '_blank', 'noopener,noreferrer');
+}
+function _renderDjLineupGrid(list) {
+  const grid = document.getElementById('dj-lineup-grid'); if (!grid) return;
+  grid.replaceChildren();
+  list.forEach(dj => {
+    const img = dj.cover_avatar ? `/images/dj-avatars/avatar-${String(dj.cover_avatar).padStart(2,'0')}-pullup.png` : (dj.photo_url || '/images/dj-avatar.webp?v=2');
+    const card = document.createElement('button');
+    card.type = 'button'; card.className = 'dj-lineup-card';
+    card.style.backgroundImage = `url('${img}')`;
+    card.onclick = () => _openLineupDj(dj, 'dj-lineup');
+    const name = document.createElement('span');
+    name.className = 'dj-lineup-card-name'; name.textContent = dj.name;
+    card.append(name);
+    grid.append(card);
+  });
 }
 async function openPublicDjProfileBySlug(slug) {
   if(!slug)return false;

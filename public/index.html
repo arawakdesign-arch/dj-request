@@ -450,6 +450,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .dj-wv{width:3px;border-radius:2px 2px 0 0;background:var(--pk);animation:wva 1s ease-in-out infinite;transform-origin:bottom}
 .dj-wv:nth-child(1){animation-delay:0s;height:35%}.dj-wv:nth-child(2){animation-delay:.14s;height:100%}.dj-wv:nth-child(3){animation-delay:.28s;height:60%}.dj-wv:nth-child(4){animation-delay:.14s;height:80%}.dj-wv:nth-child(5){animation-delay:0s;height:30%}
 @keyframes wva{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.dj-lineup-card{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;border:1px solid var(--bdr);background-size:cover;background-position:center;cursor:pointer;padding:0}
+.dj-lineup-card::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,transparent 55%)}
+.dj-lineup-card-name{position:absolute;left:.7rem;right:.7rem;bottom:.6rem;z-index:2;font-family:'Anton',sans-serif;font-weight:400;font-size:1.05rem;line-height:1;color:#fff;text-transform:uppercase;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
 .dj-cover-wrap{position:relative;z-index:2;flex-shrink:0;width:100px;display:flex;flex-direction:column;align-items:center}
 .dj-cover{width:100px;height:100px;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.4);position:relative;z-index:2;background:rgba(111,34,255,.3);display:flex;align-items:center;justify-content:center;font-size:2rem}
 .dj-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
@@ -1953,6 +1956,14 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   </div>
 </div>
 
+<!-- CHOIX DU DJ (line-up à plusieurs DJs) -->
+<div class="page" id="pg-dj-lineup">
+  <div class="tb"><button class="tb-back" onclick="showPage(eid?'client':(currentUser?'profile':'auth'))" aria-label="Retour">←</button><div class="tb-title">Line-up</div></div>
+  <div class="scroll" style="padding:1rem">
+    <div id="dj-lineup-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem"></div>
+  </div>
+</div>
+
 <!-- ÉCRAN — APPAIRAGE PAR QR (TV non connectée) -->
 <div class="page" id="pg-screen-pairing">
   <div class="fs-toggle" onclick="toggleFullscreen()" title="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
@@ -2070,8 +2081,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=3"></script>
-<script src="/js/app.js?v=116"></script>
-<script src="/js/dj-profile-editor.js?v=18"></script>
+<script src="/js/app.js?v=117"></script>
+<script src="/js/dj-profile-editor.js?v=19"></script>
 <script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
 <script src="/js/auth.js?v=74"></script>
