@@ -487,12 +487,13 @@ function renderDjProfileDetails(p) {
   }
   const portrait=document.getElementById('pk-photo');
   const avatarUrl=p.cover_avatar?`/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}-pullup.png`:'';
-  if(portrait){portrait.src=avatarUrl||p.photo_url||'/images/logo.png';portrait.alt=avatarUrl?`Avatar Pull Up de ${p.stage_name||'ce DJ'}`:`Photo de ${p.stage_name||'ce DJ'}`;portrait.style.display=(avatarUrl||p.photo_url)?'block':'none';portrait.classList.toggle('pk2-avatar-medallion',!!avatarUrl);}
+  if(portrait){portrait.src=p.photo_url||'/images/logo.png';portrait.alt=`Photo de ${p.stage_name||'ce DJ'}`;portrait.style.display=!avatarUrl&&p.photo_url?'block':'none';portrait.classList.remove('pk2-avatar-medallion');}
   const art=document.getElementById('pk-hero-art');
   if(art){art.style.backgroundImage=p.photo_url?`url(${JSON.stringify(p.photo_url)})`:'';art.closest('.pk3-avatar-stage')?.classList.toggle('has-profile-photo',!!p.photo_url);}
   const genres=(p.genres||'').split(',').map(value=>value.trim()).filter(Boolean),genreBox=document.getElementById('pk-genre-chips');
   genreBox?.replaceChildren();genres.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;genreBox?.append(chip);});
   const about=section('À propos',p.bio,'pk-about','01 / IDENTITÉ');
+  if(about&&avatarUrl){const avatar=document.createElement('img');avatar.className='pk-about-avatar';avatar.src=avatarUrl;avatar.alt=`Avatar Pull Up de ${p.stage_name||'ce DJ'}`;about.classList.add('has-avatar');about.append(avatar);}
   const services=Array.isArray(p.service_types)?p.service_types:[];
   if(services.length&&about){const chips=document.createElement('div');chips.className='pk-profile-chips';services.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;chips.append(chip);});about.append(chips);}
   eventsSection(p.upcoming_events);
