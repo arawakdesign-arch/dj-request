@@ -52,7 +52,7 @@ app.use(helmet({
       imgSrc:        ["'self'", "data:", "blob:", "*.supabase.co", "i.pravatar.cc", "*.itunes.apple.com", "*.mzstatic.com", "*.dzcdn.net", "*.deezer.com", "*.sndcdn.com"],
       connectSrc:    ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "itunes.apple.com", "api.deezer.com"],
       mediaSrc:      ["'self'", "*.itunes.apple.com", "*.supabase.co"],
-      frameSrc:      ["'self'", "https://w.soundcloud.com", "https://www.mixcloud.com", "https://www.youtube-nocookie.com", "https://open.spotify.com"],
+      frameSrc:      ["'self'", "https://w.soundcloud.com", "https://player-widget.mixcloud.com", "https://www.youtube-nocookie.com", "https://open.spotify.com"],
     },
   },
 }));

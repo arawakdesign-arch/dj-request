@@ -117,7 +117,7 @@ function renderDjProfileDetails(p) {
     const safe=DjProfileSchema.url(value,hosts);if(!safe)return '';
     const url=new URL(safe);
     if(platform==='soundcloud')return `https://w.soundcloud.com/player/?url=${encodeURIComponent(safe)}&color=%23ff2a93&auto_play=false&hide_related=true&show_comments=false&show_reposts=false`;
-    if(platform==='mixcloud')return `https://www.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=${encodeURIComponent(url.pathname)}`;
+    if(platform==='mixcloud')return `https://player-widget.mixcloud.com/?hide_cover=1&mini=1&feed=${encodeURIComponent(url.pathname)}`;
     if(platform==='spotify'){
       const parts=url.pathname.split('/').filter(Boolean),offset=parts[0]?.startsWith('intl-')?1:0,type=parts[offset],id=parts[offset+1];
       if(!['artist','track','album','playlist','episode','show'].includes(type)||!id)return '';

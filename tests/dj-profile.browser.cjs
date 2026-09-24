@@ -106,7 +106,7 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#pk-music a').count(),0);
  assert.equal(await page.locator('#pk-music .pk-profile-player').count(),4);
  assert.match(await page.locator('#pk-music [data-platform="soundcloud"] iframe').getAttribute('src'),/^https:\/\/w\.soundcloud\.com\/player\//);
- assert.match(await page.locator('#pk-music [data-platform="mixcloud"] iframe').getAttribute('src'),/^https:\/\/www\.mixcloud\.com\/widget\/iframe\//);
+ assert.match(await page.locator('#pk-music [data-platform="mixcloud"] iframe').getAttribute('src'),/^https:\/\/player-widget\.mixcloud\.com\//);
  assert.match(await page.locator('#pk-music [data-platform="mixcloud"] iframe').getAttribute('src'),/feed=%2Femilio-lameynardie%2Fafro-vs-shatta/);
  assert.match(await page.locator('#pk-music [data-platform="youtube"] iframe').getAttribute('src'),/^https:\/\/www\.youtube-nocookie\.com\/embed\//);
  assert.match(await page.locator('#pk-music [data-platform="spotify"] iframe').getAttribute('src'),/^https:\/\/open\.spotify\.com\/embed\//);
