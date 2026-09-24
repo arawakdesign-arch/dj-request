@@ -880,7 +880,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="/css/dj-register.css?v=25">
+<link rel="stylesheet" href="/css/dj-register.css?v=26">
 </head>
 <body>
 
@@ -1387,7 +1387,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <section class="djr-section"><h2>Réseaux</h2><div class="djr-fields"><div class="fl"><label for="dj-edit-instagram">Instagram</label><input type="url" id="dj-edit-instagram" class="fi" maxlength="1000" placeholder="https://instagram.com/…" ><small class="djr-error" data-error="instagram"></small></div><div class="fl"><label for="dj-edit-tiktok">TikTok</label><input type="url" id="dj-edit-tiktok" class="fi" maxlength="1000" placeholder="https://tiktok.com/@…" ><small class="djr-error" data-error="tiktok"></small></div><div class="fl"><label for="dj-edit-website">Site web</label><input type="url" id="dj-edit-website" class="fi" maxlength="1000" placeholder="https://…" ><small class="djr-error" data-error="website"></small></div><div class="fl"><label for="dj-edit-ra">Resident Advisor</label><input type="url" id="dj-edit-ra" class="fi" maxlength="1000" placeholder="https://ra.co/dj/…" ><small class="djr-error" data-error="resident_advisor"></small></div><p class="djr-help djr-wide">Le lien Spotify renseigné dans Musique apparaît aussi sur ta page.</p></div></section>
 <section class="djr-section"><h2>Adresse de ma page</h2><div class="djr-fields"><div class="fl djr-wide"><label for="dj-edit-slug">pull-up.live/</label><input type="text" id="dj-edit-slug" class="fi" maxlength="60" placeholder="dj-nova" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-')"></div></div></section>
 <section class="djr-section"><h2>Booking</h2><div class="djr-fields"><div class="fl"><label for="dj-edit-booking-email">E-mail professionnel <span>*</span></label><input type="email" id="dj-edit-booking-email" class="fi" required aria-required="true" maxlength="254" placeholder="booking@exemple.fr" ><small class="djr-error" data-error="booking_email"></small></div><div class="fl"><label for="dj-edit-phone">Téléphone / WhatsApp</label><input type="tel" id="dj-edit-phone" class="fi" maxlength="40" placeholder="+33 6 12 34 56 78" ><small class="djr-error" data-error="phone"></small></div><div class="fl"><label for="dj-edit-travel-areas">Zones de déplacement</label><input type="text" id="dj-edit-travel-areas" class="fi" maxlength="300" placeholder="Paris, France, international" list="djr-travel"><small class="djr-error" data-error="travel_areas"></small></div><datalist id="djr-travel"><option value="Ma ville"><option value="France"><option value="Europe"><option value="International"></datalist></div></section>
-<div class="djr-save"><button type="button" class="btn-g" id="btn-save-dj-profile">Enregistrer mon profil</button></div>
+<div class="djr-save"><button type="button" class="btn-g" id="btn-save-dj-profile">Enregistrer mon profil</button><button type="button" class="djr-pdf-btn" onclick="downloadDjPresskitPdf()">Télécharger mon press kit PDF</button></div>
       </div>
     </div>
   </div>
@@ -1951,8 +1951,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
             <span>E-MAIL PROFESSIONNEL</span><strong id="pk-booking-email">—</strong>
           </button>
           <a id="pk-booking-phone" class="pk2-phone" href="" hidden></a>
-          <button type="button" id="pk-booking-contact" class="pk2-book-btn">Contacter ce DJ ↗</button>
-          <button type="button" class="pk2-print" onclick="window.print()">Imprimer le press kit</button>
         </aside>
       </div>
       <footer class="pk3-footer">
@@ -2089,8 +2087,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=6"></script>
-<script src="/js/app.js?v=124"></script>
-<script src="/js/dj-profile-editor.js?v=27"></script>
+<script src="/js/app.js?v=125"></script>
+<script src="/js/dj-profile-editor.js?v=28"></script>
 <script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
 <script src="/js/auth.js?v=75"></script>

@@ -1217,6 +1217,24 @@ async function saveDjProfile() {
   }
 }
 
+async function downloadDjPresskitPdf() {
+  if (djMediaBusy) { djFeedback('Attends la fin de l’envoi des photos.'); return; }
+  const payload = collectDjProfile();
+  if (!payload) return;
+  const previous = _djProfileCache || {};
+  _djProfileCache = {
+    ...previous,
+    ...payload,
+    photo_url: previous.photo_url || '',
+    gallery: [...(djGallery || previous.gallery || [])],
+  };
+  djViewedProfileId = null;
+  applyDjProfileToPresskit();
+  showPage('presskit');
+  toast('La fenêtre d’impression va s’ouvrir : choisis “Enregistrer en PDF”.');
+  setTimeout(() => window.print?.(), 250);
+}
+
 let djPhotoCropState = null;
 
 function positionDjPhotoCrop() {
