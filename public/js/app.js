@@ -1120,8 +1120,12 @@ async function openDjRegister(forceEdit) {
   // "Modifier le profil", pas repartir sur le formulaire d'édition à
   // chaque fois qu'on revient sur "Espace DJ".
   if (!forceEdit) {
-    if (!_djProfileCache && (_authToken || _sbSession)) await loadDjProfile();
-    if (_djProfileCache?.stage_name) { navTo('presskit'); return; }
+    // _djProfileCache peut encore contenir le profil d'un AUTRE DJ (ex. celui
+    // consulté via la bannière ou un lien partagé, cf. djViewedProfileId) —
+    // sans ce contrôle, "Espace DJ" pouvait rouvrir ce profil-là au lieu du
+    // sien. loadDjProfile() réinitialise djViewedProfileId à null.
+    if ((djViewedProfileId || !_djProfileCache) && (_authToken || _sbSession)) await loadDjProfile();
+    if (!djViewedProfileId && _djProfileCache?.stage_name) { navTo('presskit'); return; }
   }
   showPage('dj-register');
   // Revérifier la session directement ici plutôt que de se fier uniquement à
@@ -1153,7 +1157,7 @@ async function openDjRegister(forceEdit) {
   }
   if (gate)   gate.style.display   = 'none';
   if (editor) editor.style.display = '';
-  if (!_djProfileCache) await loadDjProfile();
+  if (djViewedProfileId || !_djProfileCache) await loadDjProfile();
   const p = _djProfileCache || {};
   initDjProfileEditor(p); // pré-remplit tous les champs texte/liens/genres/prestations/couverture
   const img = document.getElementById('dj-edit-img');
