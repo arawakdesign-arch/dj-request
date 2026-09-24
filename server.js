@@ -155,11 +155,68 @@ app.use('/api', djRouter);
 app.use('/api', screenRouter);
 app.use('/api', orgaRouter);
 
+// ══ APERÇU DE LIEN — profil DJ / page organisateur (pull-up.live/nom) ══
+// Même principe que serveAppWithEventPreview() ci-dessus : un lien
+// pull-up.live/nom-du-dj partagé sur WhatsApp/Instagram/etc. doit montrer
+// la photo et le nom du DJ, pas l'aperçu générique de l'app — les crawlers
+// ne lisent que le HTML brut, jamais le rendu React/JS.
+const RESERVED_SLUGS = ['', 'app', 'tv'];
+function slugFromPath(pathname) {
+  const slug = pathname.replace(/^\/+|\/+$/g, '');
+  if (!slug || RESERVED_SLUGS.includes(slug)) return null;
+  if (/^(images|js|css|api|fonts)\//.test(slug)) return null;
+  if (slug.includes('.')) return null; // fichier statique (cgu.html, etc.)
+  return slug;
+}
+
+function injectPreviewMeta(html, { title, desc, image }) {
+  return html
+    .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${title}">`)
+    .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${desc}">`)
+    .replace(/<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${image}">`)
+    .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${title}">`)
+    .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${desc}">`)
+    .replace(/<meta name="twitter:image" content="[^"]*">/, `<meta name="twitter:image" content="${image}">`);
+}
+
 // ══ SPA FALLBACK ══════════════════════════════════════════════════════
-app.get('*', (req, res) => {
+app.get('*', async (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
+
+  const slug = slugFromPath(req.path);
+  if (slug) {
+    try {
+      const { data: dj } = await supabase.from('dj_profiles')
+        .select('stage_name, tagline, photo_url, cover_avatar').eq('slug', slug).maybeSingle();
+      const djImage = dj?.photo_url || (dj?.cover_avatar
+        ? `${req.protocol}://${req.get('host')}/images/dj-avatars/avatar-${String(dj.cover_avatar).padStart(2, '0')}-pullup.png`
+        : null);
+      if (dj?.stage_name && djImage) {
+        const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+        res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+        return res.send(injectPreviewMeta(html, {
+          title: escapeHtml(dj.stage_name),
+          desc:  escapeHtml(dj.tagline || 'Découvre ce profil DJ sur Pull Up.'),
+          image: escapeHtml(djImage),
+        }));
+      }
+
+      const { data: orga } = await supabase.from('organizer_pages')
+        .select('name, bio, logo_url').eq('slug', slug).maybeSingle();
+      if (orga?.name && orga.logo_url) {
+        const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+        res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+        return res.send(injectPreviewMeta(html, {
+          title: escapeHtml(orga.name),
+          desc:  escapeHtml(orga.bio || 'Découvre cette page sur Pull Up.'),
+          image: escapeHtml(orga.logo_url),
+        }));
+      }
+    } catch(e) { /* pas un slug connu, ou erreur — repli sur l'app normale */ }
+  }
+
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
