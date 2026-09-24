@@ -213,7 +213,7 @@ function djReject(id) {
 }
 function djLogout() {
   djLoggedIn = false;
-  document.getElementById('nav-dj').onclick = () => navTo('presskit');
+  document.getElementById('nav-dj').onclick = () => openDjRegister();
   document.querySelector('#nav-dj .nav-tab-ico').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2" y="14" width="5" height="7" rx="1.5"/><rect x="17" y="14" width="5" height="7" rx="1.5"/></svg>';
   document.querySelector('#nav-dj .nav-tab-lbl').textContent = "DJ's";
   const navAdmin = document.getElementById('nav-admin');
@@ -1793,7 +1793,7 @@ document.addEventListener('DOMContentLoaded', () => {
   on('nav-vote',    () => navTo('client'));
   on('nav-chat',    () => navTo('chat'));
   on('nav-profile', () => navTo('profile'));
-  on('nav-dj',      () => navTo('presskit'));
+  on('nav-dj',      () => openDjRegister());
 
   // DJ login
   on('btn-dj-choice-join',   _djLoginShowJoin);

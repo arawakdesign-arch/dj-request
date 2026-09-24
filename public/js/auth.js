@@ -870,9 +870,9 @@ async function djCreateSubmit() {
 async function _activateDJ(n, p) {
   console.log('[pullup] _activateDJ() entrée : eid=', eid, 'n=', n);
   ename = n; djLoggedIn = true; _djPassword = p;
-  document.getElementById('nav-dj').onclick = () => navTo('dj');
-  document.querySelector('#nav-dj .nav-tab-ico').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="5" y1="21" x2="5" y2="12"/><line x1="5" y1="8" x2="5" y2="3"/><circle cx="5" cy="10" r="2"/><line x1="12" y1="21" x2="12" y2="15"/><line x1="12" y1="11" x2="12" y2="3"/><circle cx="12" cy="13" r="2"/><line x1="19" y1="21" x2="19" y2="17"/><line x1="19" y1="13" x2="19" y2="3"/><circle cx="19" cy="15" r="2"/></svg>';
-  document.querySelector('#nav-dj .nav-tab-lbl').textContent = 'DJ';
+  // "DJ's" dans le menu reste le point d'entrée du profil DJ (openDjRegister)
+  // quel que soit l'état de connexion organisateur — c'est nav-admin,
+  // affiché juste en dessous, qui donne accès à l'espace organisateur.
   const navAdmin = document.getElementById('nav-admin');
   if (navAdmin) navAdmin.style.display = 'flex';
   showPage('dj'); renderAll();
