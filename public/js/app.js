@@ -1204,28 +1204,78 @@ async function saveDjProfile() {
   }
 }
 
-async function uploadDjPhoto(input) {
-  const file = input.files[0]; input.value = '';
-  if (!file || djMediaBusy) return;
-  if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) { djFeedback('Choisis une image de moins de 5 Mo.'); return; }
-  setDjMediaBusy(true); djFeedback('Envoi de la photo…');
+let djPhotoCropState = null;
+
+function positionDjPhotoCrop() {
+  const state=djPhotoCropState,stage=document.getElementById('djr-crop-stage'),image=document.getElementById('djr-crop-image');
+  if(!state?.ready||!stage||!image)return;
+  const width=stage.clientWidth,height=stage.clientHeight;
+  state.baseScale=Math.max(width/state.naturalWidth,height/state.naturalHeight);
+  const scale=state.baseScale*state.zoom,renderWidth=state.naturalWidth*scale,renderHeight=state.naturalHeight*scale;
+  const maxX=Math.max(0,(renderWidth-width)/2),maxY=Math.max(0,(renderHeight-height)/2);
+  state.x=Math.max(-maxX,Math.min(maxX,state.x));state.y=Math.max(-maxY,Math.min(maxY,state.y));
+  image.style.width=renderWidth+'px';image.style.height=renderHeight+'px';
+  image.style.left=((width-renderWidth)/2+state.x)+'px';image.style.top=((height-renderHeight)/2+state.y)+'px';
+}
+
+function resetDjPhotoCrop() {
+  if(!djPhotoCropState)return;
+  djPhotoCropState.zoom=1;djPhotoCropState.x=0;djPhotoCropState.y=0;
+  const range=document.getElementById('djr-crop-range');if(range)range.value='1';positionDjPhotoCrop();
+}
+
+function cancelDjPhotoCrop() {
+  const modal=document.getElementById('djr-crop-modal');if(modal)modal.hidden=true;
+  if(djPhotoCropState?.objectUrl)URL.revokeObjectURL(djPhotoCropState.objectUrl);
+  djPhotoCropState=null;
+}
+
+function openDjPhotoCrop(file) {
+  cancelDjPhotoCrop();
+  const modal=document.getElementById('djr-crop-modal'),stage=document.getElementById('djr-crop-stage'),image=document.getElementById('djr-crop-image'),range=document.getElementById('djr-crop-range'),apply=document.querySelector('.djr-crop-apply');
+  const objectUrl=URL.createObjectURL(file),state={file,objectUrl,ready:false,zoom:1,x:0,y:0,pointerId:null,lastX:0,lastY:0};djPhotoCropState=state;
+  modal.hidden=false;modal.focus();range.value='1';apply.disabled=false;apply.textContent='Utiliser cette photo';
+  image.onload=()=>{if(djPhotoCropState!==state)return;state.ready=true;state.naturalWidth=image.naturalWidth;state.naturalHeight=image.naturalHeight;positionDjPhotoCrop();};
+  image.onerror=()=>{cancelDjPhotoCrop();djFeedback('Cette image ne peut pas être ouverte. Choisis un fichier JPG, PNG ou WebP.');};
+  image.src=objectUrl;
+  range.oninput=()=>{if(!state.ready)return;const previous=state.zoom;state.zoom=Number(range.value);const ratio=state.zoom/previous;state.x*=ratio;state.y*=ratio;positionDjPhotoCrop();};
+  stage.onpointerdown=e=>{if(!state.ready)return;state.pointerId=e.pointerId;state.lastX=e.clientX;state.lastY=e.clientY;stage.setPointerCapture(e.pointerId);};
+  stage.onpointermove=e=>{if(state.pointerId!==e.pointerId)return;state.x+=e.clientX-state.lastX;state.y+=e.clientY-state.lastY;state.lastX=e.clientX;state.lastY=e.clientY;positionDjPhotoCrop();};
+  stage.onpointerup=stage.onpointercancel=e=>{if(state.pointerId===e.pointerId)state.pointerId=null;};
+}
+
+async function uploadCroppedDjPhoto(blob,previewUrl) {
+  setDjMediaBusy(true);djFeedback('Envoi de la photo recadrée…');
   try {
-    const dataUrl = await compressImage(file, 500, 0.8);
-    const form = new FormData(); form.append('photo', dataURLtoBlob(dataUrl), 'avatar.jpg');
-    const r = await fetch('/api/dj/profile/photo', {
-      method: 'POST', headers: { Authorization: 'Bearer ' + (_sbSession?.access_token || _authToken) }, body: form,
-    });
-    const result = await r.json();
-    if (!r.ok) throw new Error(result.error || 'Envoi impossible.');
-    _djProfileCache = _djProfileCache || {};
-    _djProfileCache.photo_url = result.url;
-    const img = document.getElementById('dj-edit-img');
-    img.src = dataUrl; img.style.display = 'block';
-    document.getElementById('dj-edit-initials').style.display = 'none';
-    document.querySelector('[data-error="photo_url"]').textContent = '';
-    djFeedback('Photo enregistrée.'); applyDjProfileToPresskit();
-  } catch(e) { djFeedback(e.message || 'La photo n’a pas pu être enregistrée.'); }
+    const form=new FormData();form.append('photo',blob,'avatar.jpg');
+    const r=await fetch('/api/dj/profile/photo',{method:'POST',headers:{Authorization:'Bearer '+(_sbSession?.access_token||_authToken)},body:form});
+    const result=await r.json();if(!r.ok)throw new Error(result.error||'Envoi impossible.');
+    _djProfileCache=_djProfileCache||{};_djProfileCache.photo_url=result.url;
+    const img=document.getElementById('dj-edit-img');img.src=previewUrl;img.style.display='block';
+    document.getElementById('dj-edit-initials').style.display='none';document.querySelector('[data-error="photo_url"]').textContent='';
+    djFeedback('Photo recadrée et enregistrée.');applyDjProfileToPresskit();
+  } catch(e) { djFeedback(e.message||'La photo n’a pas pu être enregistrée.'); }
   finally { setDjMediaBusy(false); }
+}
+
+async function confirmDjPhotoCrop() {
+  const state=djPhotoCropState,stage=document.getElementById('djr-crop-stage'),apply=document.querySelector('.djr-crop-apply');if(!state?.ready||state.confirming||!stage)return;
+  state.confirming=true;apply.disabled=true;apply.textContent='Préparation…';
+  const size=stage.clientWidth,scale=state.baseScale*state.zoom,renderWidth=state.naturalWidth*scale,renderHeight=state.naturalHeight*scale;
+  const left=(size-renderWidth)/2+state.x,top=(size-renderHeight)/2+state.y;
+  const sourceX=Math.max(0,-left/scale),sourceY=Math.max(0,-top/scale),sourceSize=size/scale;
+  const canvas=document.createElement('canvas');canvas.width=600;canvas.height=600;
+  const context=canvas.getContext('2d');context.fillStyle='#0b080d';context.fillRect(0,0,600,600);context.drawImage(document.getElementById('djr-crop-image'),sourceX,sourceY,sourceSize,sourceSize,0,0,600,600);
+  const previewUrl=canvas.toDataURL('image/jpeg',.9),blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.9));
+  if(!blob){state.confirming=false;apply.disabled=false;apply.textContent='Utiliser cette photo';djFeedback('Le recadrage a échoué. Réessaie avec une autre photo.');return;}
+  cancelDjPhotoCrop();await uploadCroppedDjPhoto(blob,previewUrl);
+}
+
+async function uploadDjPhoto(input) {
+  const file=input.files[0];input.value='';
+  if(!file||djMediaBusy)return;
+  if(!file.type.startsWith('image/')||file.size>5*1024*1024){djFeedback('Choisis une image de moins de 5 Mo.');return;}
+  djFeedback('');openDjPhotoCrop(file);
 }
 
 function copyBookingEmail() {

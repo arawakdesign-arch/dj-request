@@ -873,7 +873,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="/css/dj-register.css?v=18">
+<link rel="stylesheet" href="/css/dj-register.css?v=19">
 </head>
 <body>
 
@@ -1378,6 +1378,25 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <section class="djr-section"><h2>Booking</h2><div class="djr-fields"><div class="fl"><label for="dj-edit-booking-email">E-mail professionnel <span>*</span></label><input type="email" id="dj-edit-booking-email" class="fi" required aria-required="true" maxlength="254" placeholder="booking@exemple.fr" ><small class="djr-error" data-error="booking_email"></small></div><div class="fl"><label for="dj-edit-phone">Téléphone / WhatsApp</label><input type="tel" id="dj-edit-phone" class="fi" maxlength="40" placeholder="+33 6 12 34 56 78" ><small class="djr-error" data-error="phone"></small></div><div class="fl"><label for="dj-edit-travel-areas">Zones de déplacement</label><input type="text" id="dj-edit-travel-areas" class="fi" maxlength="300" placeholder="Paris, France, international" list="djr-travel"><small class="djr-error" data-error="travel_areas"></small></div><datalist id="djr-travel"><option value="Ma ville"><option value="France"><option value="Europe"><option value="International"></datalist></div></section>
 <div class="djr-save"><button type="button" class="btn-g" id="btn-save-dj-profile">Enregistrer mon profil</button></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div id="djr-crop-modal" class="djr-crop-modal" hidden tabindex="-1" onclick="if(event.target===this)cancelDjPhotoCrop()" onkeydown="if(event.key==='Escape')cancelDjPhotoCrop()">
+  <div class="djr-crop-panel" role="dialog" aria-modal="true" aria-labelledby="djr-crop-title">
+    <div class="djr-crop-head">
+      <div><span>PHOTO DE PROFIL</span><h2 id="djr-crop-title">Recadre ta photo</h2></div>
+      <button type="button" onclick="cancelDjPhotoCrop()" aria-label="Fermer le recadrage">×</button>
+    </div>
+    <p class="djr-crop-help">Déplace la photo avec ton doigt, puis ajuste le zoom.</p>
+    <div id="djr-crop-stage" class="djr-crop-stage">
+      <img id="djr-crop-image" alt="Aperçu à recadrer" draggable="false">
+      <div class="djr-crop-grid" aria-hidden="true"></div>
+    </div>
+    <label class="djr-crop-zoom" for="djr-crop-range"><span>Zoom</span><input id="djr-crop-range" type="range" min="1" max="3" step="0.01" value="1"></label>
+    <div class="djr-crop-actions">
+      <button type="button" class="djr-crop-reset" onclick="resetDjPhotoCrop()">Recentrer</button>
+      <button type="button" class="djr-crop-apply" onclick="confirmDjPhotoCrop()">Utiliser cette photo</button>
     </div>
   </div>
 </div>
@@ -2051,8 +2070,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=3"></script>
-<script src="/js/app.js?v=111"></script>
-<script src="/js/dj-profile-editor.js?v=16"></script>
+<script src="/js/app.js?v=112"></script>
+<script src="/js/dj-profile-editor.js?v=17"></script>
 <script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
 <script src="/js/auth.js?v=73"></script>

@@ -24,6 +24,7 @@ function djGenreState() {
 }
 function initDjProfileEditor(profile) {
   djFeedback('');
+  const photoHint=document.querySelector('#pg-dj-register .djr-photo-row p');if(photoHint)photoHint.textContent='JPG, PNG ou WebP · 5 Mo maximum · recadrage et zoom après sélection';
   const mixError=document.querySelector('#djr-editor [data-error="mixes"]'),mixHelp=mixError?.previousElementSibling,mixTitle=mixHelp?.previousElementSibling;
   if(mixTitle)mixTitle.textContent='Choisis ta plateforme *';
   if(mixHelp)mixHelp.textContent='Choisis SoundCloud, Mixcloud ou Spotify, puis colle le lien de ta playlist ou de ton mix. YouTube reste disponible pour une vidéo ou une playlist.';
