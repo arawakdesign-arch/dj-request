@@ -219,7 +219,7 @@ function renderDjProfileDetails(p) {
     paths.forEach(d=>{const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);svg.append(path);});
     wrap.append(svg);return wrap;
   }
-  function link(parent,label,value){const href=DjProfileSchema.url(value);if(!href)return;const a=document.createElement('a'),name=document.createElement('span');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.title=label;a.setAttribute('aria-label',label);a.className='pk-social-link';name.className='pk-social-label';name.textContent=label;a.append(socialIcon(label),name);parent.append(a);}
+  function link(parent,label,value){const href=DjProfileSchema.url(value);if(!href)return;const a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.title=label;a.setAttribute('aria-label',label);a.className='pk-social-link';a.append(socialIcon(label));parent.append(a);}
   function linksSection(title,entries,id,kicker){const links=document.createElement('div');links.className='pk-profile-links';entries.forEach(([label,value])=>link(links,label,value));if(!links.childNodes.length)return;const s=document.createElement('section');s.id=id;s.className='pk3-section';heading(s,title,kicker);s.append(links);box.append(s);}
   function embedUrl(platform,value){
     const hosts={soundcloud:['soundcloud.com'],mixcloud:['mixcloud.com'],youtube:['youtube.com','youtu.be'],spotify:['spotify.com']}[platform];
