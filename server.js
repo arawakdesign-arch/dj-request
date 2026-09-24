@@ -92,6 +92,14 @@ async function serveAppWithEventPreview(req, res, next) {
       .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${title}">`)
       .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${desc}">`)
       .replace(/<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${image}">`)
+      // Le flyer uploadé est toujours redimensionné en 1200×800 JPEG (cf.
+      // POST /events/:id/flyer) — sans corriger ces dimensions, elles
+      // restaient celles de l'image par défaut (500×745 PNG), ce que
+      // certains crawlers (Facebook/WhatsApp) utilisent pour décider
+      // d'afficher ou non la miniature d'aperçu.
+      .replace(/<meta property="og:image:width" content="[^"]*">/, `<meta property="og:image:width" content="1200">`)
+      .replace(/<meta property="og:image:height" content="[^"]*">/, `<meta property="og:image:height" content="800">`)
+      .replace(/<meta property="og:image:type" content="[^"]*">/, `<meta property="og:image:type" content="image/jpeg">`)
       .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${title}">`)
       .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${desc}">`)
       .replace(/<meta name="twitter:image" content="[^"]*">/, `<meta name="twitter:image" content="${image}">`);
@@ -169,11 +177,14 @@ function slugFromPath(pathname) {
   return slug;
 }
 
-function injectPreviewMeta(html, { title, desc, image }) {
+function injectPreviewMeta(html, { title, desc, image, imageWidth, imageHeight, imageType }) {
   return html
     .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${title}">`)
     .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${desc}">`)
     .replace(/<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${image}">`)
+    .replace(/<meta property="og:image:width" content="[^"]*">/, `<meta property="og:image:width" content="${imageWidth}">`)
+    .replace(/<meta property="og:image:height" content="[^"]*">/, `<meta property="og:image:height" content="${imageHeight}">`)
+    .replace(/<meta property="og:image:type" content="[^"]*">/, `<meta property="og:image:type" content="${imageType}">`)
     .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${title}">`)
     .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${desc}">`)
     .replace(/<meta name="twitter:image" content="[^"]*">/, `<meta name="twitter:image" content="${image}">`);
@@ -190,28 +201,38 @@ app.get('*', async (req, res) => {
     try {
       const { data: dj } = await supabase.from('dj_profiles')
         .select('stage_name, tagline, photo_url, cover_avatar').eq('slug', slug).maybeSingle();
-      const djImage = dj?.photo_url || (dj?.cover_avatar
-        ? `${req.protocol}://${req.get('host')}/images/dj-avatars/avatar-${String(dj.cover_avatar).padStart(2, '0')}-pullup.png`
-        : null);
+      // photo_url (uploadée) est toujours redimensionnée en 600×600 JPEG (cf.
+      // POST /dj/profile/photo) ; l'avatar Pull Up de secours fait 768×512 PNG —
+      // déclarer les bonnes dimensions selon laquelle des deux est utilisée.
+      const djImage = dj?.photo_url
+        ? { url: dj.photo_url, width: 600, height: 600, type: 'image/jpeg' }
+        : (dj?.cover_avatar ? {
+            url: `${req.protocol}://${req.get('host')}/images/dj-avatars/avatar-${String(dj.cover_avatar).padStart(2, '0')}-pullup.png`,
+            width: 768, height: 512, type: 'image/png',
+          } : null);
       if (dj?.stage_name && djImage) {
         const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
         res.setHeader('Content-Type', 'text/html; charset=UTF-8');
         return res.send(injectPreviewMeta(html, {
           title: escapeHtml(dj.stage_name),
           desc:  escapeHtml(dj.tagline || 'Découvre ce profil DJ sur Pull Up.'),
-          image: escapeHtml(djImage),
+          image: escapeHtml(djImage.url),
+          imageWidth: djImage.width, imageHeight: djImage.height, imageType: djImage.type,
         }));
       }
 
       const { data: orga } = await supabase.from('organizer_pages')
         .select('name, bio, logo_url').eq('slug', slug).maybeSingle();
       if (orga?.name && orga.logo_url) {
+        // Le logo uploadé est toujours redimensionné en 500×500 JPEG (cf.
+        // POST /orga/profile/logo).
         const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
         res.setHeader('Content-Type', 'text/html; charset=UTF-8');
         return res.send(injectPreviewMeta(html, {
           title: escapeHtml(orga.name),
           desc:  escapeHtml(orga.bio || 'Découvre cette page sur Pull Up.'),
           image: escapeHtml(orga.logo_url),
+          imageWidth: 500, imageHeight: 500, imageType: 'image/jpeg',
         }));
       }
     } catch(e) { /* pas un slug connu, ou erreur — repli sur l'app normale */ }
