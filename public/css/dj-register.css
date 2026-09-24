@@ -348,7 +348,7 @@
 }
 
 /* Immersive DJ press kit */
-#pg-presskit{background:#0a080c;color:#f8f5fb}
+#pg-presskit{overflow:hidden;background:#0a080c;color:#f8f5fb}
 #pg-presskit .pk2-topbar{min-height:72px;background:rgba(9,7,11,.94);border-bottom:1px solid #ffffff1f;padding:0 max(22px,var(--safe-right)) 0 max(22px,var(--safe-left));backdrop-filter:blur(18px)}
 #pg-presskit .pk2-topbar .tb-back{width:42px;height:42px;border:1px solid #ffffff24;color:#fff;border-radius:50%}
 #pg-presskit .pk2-logo{width:66px;height:66px}
@@ -356,8 +356,8 @@
 .pk3-nav a{font:700 .58rem Inter,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#bdb7c3;transition:color .2s}
 .pk3-nav a:hover{color:#fff}
 #pg-presskit .pk2-header-label{margin-left:0;border:1px solid #ffffff32;border-radius:40px;color:#fff;padding:11px 16px;font-size:.62rem}
-#pg-presskit .pk2-scroll{padding:0 18px max(36px,env(safe-area-inset-bottom));background:radial-gradient(circle at 88% 5%,#52209255,transparent 28%),linear-gradient(180deg,#100c14 0%,#09070b 72%)}
-#pg-presskit .pk2-shell{max-width:1180px}
+#pg-presskit .pk2-scroll{overflow-x:clip;padding:0 18px max(36px,env(safe-area-inset-bottom));background:radial-gradient(circle at 88% 5%,#52209255,transparent 28%),linear-gradient(180deg,#100c14 0%,#09070b 72%)}
+#pg-presskit .pk2-shell{max-width:1180px;overflow-x:clip}
 #pg-presskit .pk2-hero{min-height:min(620px,calc(100vh - 110px));margin-top:18px;border:1px solid #ffffff20;border-radius:18px;background:radial-gradient(circle at 72% 36%,#8d45f0 0%,#38145f 25%,#17101e 49%,#0a080c 76%)}
 #pg-presskit .pk2-hero::before{z-index:1;background:linear-gradient(90deg,#09070be8 0%,#09070ba8 38%,transparent 70%),linear-gradient(0deg,#09070bd9 0%,transparent 43%)}
 #pg-presskit .pk2-hero::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.22;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E")}
