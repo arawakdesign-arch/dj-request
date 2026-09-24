@@ -22,6 +22,23 @@ function djChoice(container, value, checked, name) {
 }
 function djSelected(name) { return [...document.querySelectorAll(`#djr-editor input[name="${name}"]:checked`)].map(e=>e.value); }
 function djEventField(index,key){return document.getElementById(`dj-event-${index}-${key.replaceAll('_','-')}`);}
+function normalizeDjSlug(value){
+  return (value||'').toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+}
+function updateDjPublicUrlPreview(){
+  const field=document.getElementById('dj-edit-slug'),preview=document.getElementById('djr-public-url-preview');
+  if(!field||!preview)return;
+  const slug=normalizeDjSlug(field.value),label=`pull-up.live/${slug||'nom-du-dj'}`;
+  preview.textContent=label;preview.href=slug?`${location.origin}/${encodeURIComponent(slug)}`:'#';
+  preview.classList.toggle('is-placeholder',!slug);
+}
+async function copyDjPublicUrl(){
+  const slug=normalizeDjSlug(document.getElementById('dj-edit-slug')?.value);
+  if(!slug){djFeedback('Choisis ton nom de scène pour créer ton lien.');document.getElementById('dj-edit-stage-name')?.focus();return;}
+  const url=`${location.origin}/${encodeURIComponent(slug)}`;
+  try{await navigator.clipboard.writeText(url);if(typeof toast==='function')toast('Lien copié !');}
+  catch(e){if(typeof toast==='function')toast(url);}
+}
 function updateDjEventFlyerPreview(index,url){
   const preview=document.getElementById(`dj-event-${index}-flyer-preview`);
   if(!preview)return;
@@ -109,7 +126,14 @@ function initDjProfileEditor(profile) {
   for(const key of [...Object.keys(DjProfileSchema.limits),...Object.keys(DjProfileSchema.links)]) {
     const field=djField(key);if(field) field.value=profile[key] || '';
   }
-  const slugField=document.getElementById('dj-edit-slug');if(slugField) slugField.value=profile.slug || '';
+  const slugField=document.getElementById('dj-edit-slug'),stageField=djField('stage_name');
+  if(slugField){
+    slugField.value=profile.slug||normalizeDjSlug(profile.stage_name||'');slugField.dataset.auto=profile.slug?'false':'true';
+    slugField.oninput=()=>{slugField.value=normalizeDjSlug(slugField.value);slugField.dataset.auto='false';updateDjPublicUrlPreview();};
+  }
+  if(stageField)stageField.oninput=()=>{if(slugField&&(slugField.dataset.auto==='true'||!slugField.value)){slugField.value=normalizeDjSlug(stageField.value);slugField.dataset.auto='true';updateDjPublicUrlPreview();}};
+  const copyButton=document.getElementById('djr-copy-public-url');if(copyButton)copyButton.onclick=copyDjPublicUrl;
+  updateDjPublicUrlPreview();
   const selected=(profile.genres||'').split(',').map(s=>s.trim()).filter(Boolean);
   const genres=document.getElementById('djr-genres');genres.replaceChildren();
   [...new Set([...DjProfileSchema.genres,...selected])].forEach(g=>djChoice(genres,g,selected.includes(g),'genres').addEventListener('change',djGenreState));
