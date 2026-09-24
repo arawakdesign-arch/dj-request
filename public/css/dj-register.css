@@ -494,8 +494,10 @@
 .pk3-public-qr canvas{display:block!important;width:70px!important;height:70px!important}
 .pk3-public-qr>img:not(.pk3-public-qr-logo){display:none!important}
 .pk3-public-qr .pk3-public-qr-logo{position:absolute;left:50%;top:50%;display:block!important;width:19px!important;height:19px!important;padding:2px;box-sizing:border-box;transform:translate(-50%,-50%);object-fit:contain;background:#fff}
-.pk3-public-share>button{min-height:44px;padding:0 17px;border:1px solid #ffffff35;border-radius:30px;background:#fff;color:#0a080c;font:800 .65rem Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;cursor:pointer}
-.pk3-public-share>button:hover{background:#e2d0ff}
+.pk3-public-share-actions{display:flex;flex-direction:column;gap:7px;min-width:164px}
+.pk3-public-share-actions button{min-height:38px;padding:0 14px;border:1px solid #ffffff35;border-radius:30px;background:#fff;color:#0a080c;font:800 .62rem Inter,sans-serif;text-transform:uppercase;letter-spacing:.05em;cursor:pointer}
+.pk3-public-share-actions button:nth-child(2){background:#8f52ee;color:#fff;border-color:#8f52ee}
+.pk3-public-share-actions button:hover{background:#e2d0ff;color:#0a080c}
 @media(max-width:700px){
   #pg-presskit .pk2-booking{display:block;margin-top:18px;padding:30px 22px}
   #pg-presskit .pk2-booking>h2{font-size:2.55rem}
@@ -504,7 +506,9 @@
   .pk3-public-qr{grid-column:2;grid-row:1/3;width:70px;height:70px;padding:5px}
   .pk3-public-qr canvas{width:60px!important;height:60px!important}
   .pk3-public-qr .pk3-public-qr-logo{width:17px!important;height:17px!important}
-  .pk3-public-share>button{grid-column:1;justify-self:start;min-height:38px;padding-inline:13px;font-size:.58rem}
+  .pk3-public-share-actions{grid-column:1/3;display:grid;grid-template-columns:1fr 1fr;min-width:0}
+  .pk3-public-share-actions button{min-height:40px;padding-inline:10px;font-size:.56rem}
+  .pk3-public-share-actions button:last-child{grid-column:1/3}
 }
 
 .djr-event-add,.djr-event-remove{padding:10px 14px;border:1px solid #e0dbe6;border-radius:8px;background:#fff;color:#423a4d;font:inherit;cursor:pointer}

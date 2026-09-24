@@ -405,16 +405,27 @@ function renderDjProfileDetails(p) {
 function renderDjPublicShareTools(profile,parent){
   const slug=normalizeDjSlug(profile?.slug),url=slug?`${location.origin}/${encodeURIComponent(slug)}`:'';
   if(!parent||!url)return;
-  const section=document.createElement('section'),copy=document.createElement('div'),label=document.createElement('span'),link=document.createElement('a'),qr=document.createElement('div'),button=document.createElement('button');
+  const section=document.createElement('section'),copy=document.createElement('div'),label=document.createElement('span'),link=document.createElement('a'),qr=document.createElement('div'),actions=document.createElement('div'),copyButton=document.createElement('button'),shareButton=document.createElement('button'),downloadButton=document.createElement('button');
   section.id='pk-public-share';section.className='pk3-public-share';section.setAttribute('aria-label','Partager cette page DJ');
   copy.className='pk3-public-share-copy';label.textContent='07 / PARTAGE';link.id='pk-public-url';link.target='_blank';link.rel='noopener noreferrer';
   qr.id='pk-public-qr';qr.className='pk3-public-qr';qr.setAttribute('aria-hidden','true');
-  button.type='button';button.textContent='Télécharger le QR code';button.onclick=downloadDjProfileQr;
-  copy.append(label,link);section.append(copy,qr,button);parent.append(section);
+  actions.className='pk3-public-share-actions';
+  copyButton.type='button';copyButton.textContent='Copier le lien';copyButton.onclick=copyDjProfilePublicLink;
+  shareButton.type='button';shareButton.textContent='Partager';shareButton.onclick=shareDjProfile;
+  downloadButton.type='button';downloadButton.textContent='Télécharger le QR';downloadButton.onclick=downloadDjProfileQr;
+  actions.append(copyButton,shareButton,downloadButton);copy.append(label,link);section.append(copy,qr,actions);parent.append(section);
   link.href=url;link.textContent=`pull-up.live/${slug}`;section.dataset.url=url;section.dataset.slug=slug;
   if(typeof QRCode==='function'){
     new QRCode(qr,{text:url,width:512,height:512,colorDark:'#09070b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
     const logo=document.createElement('img');logo.id='pk-public-qr-logo';logo.className='pk3-public-qr-logo';logo.src='/images/logo.png';logo.alt='';qr.append(logo);
+  }
+}
+
+async function copyDjProfilePublicLink(){
+  const url=document.getElementById('pk-public-share')?.dataset.url;if(!url)return;
+  try{await navigator.clipboard.writeText(url);if(typeof toast==='function')toast('Lien du profil copié');}
+  catch(e){
+    const input=document.createElement('input');input.value=url;input.style.position='fixed';input.style.opacity='0';document.body.append(input);input.select();document.execCommand('copy');input.remove();if(typeof toast==='function')toast('Lien du profil copié');
   }
 }
 

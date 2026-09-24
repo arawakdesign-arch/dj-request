@@ -144,7 +144,7 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#pk-public-url').getAttribute('href'),'http://127.0.0.1:3107/dj-public');
  assert.equal(await page.locator('#pk-public-qr canvas').count(),1);
  assert.equal(await page.locator('#pk-public-qr-logo').getAttribute('src'),'/images/logo.png');
- assert.match(await page.locator('#pk-public-share button').innerText(),/TÉLÉCHARGER LE QR CODE/);
+ assert.deepEqual(await page.locator('#pk-public-share button').allTextContents(),['Copier le lien','Partager','Télécharger le QR']);
  assert.equal(await page.locator('#pk-profile-details .pk-profile-gallery img').count(),1);
  assert.equal(await page.locator('#pk-profile-details .pk-profile-gallery a').count(),0);
  assert.equal(await page.locator('#pk-about').count(),1);
