@@ -112,7 +112,14 @@ window.addEventListener('load', async () => {
   // discuter avec son propre compte Google/téléphone, ce sont deux choses
   // distinctes. Ne jamais faire de cette session la source de l'identité
   // générale (cf. api.js) sous peine de "perdre" son compte personnel.
-  const savedOrgToken = loadToken();
+  // Un lien profond depuis la page d'accueil ("Créer ma page DJ" / "Lancer
+  // une soirée") demande explicitement autre chose que reprendre une
+  // ancienne session organisateur restée sur cet appareil — sans ce garde-
+  // fou, l'étape 1 ci-dessous l'activait quand même en tout premier
+  // (avant même de regarder l'intention), et l'utilisateur atterrissait
+  // sur l'espace organisateur au lieu du parcours demandé.
+  const urlIntentAtLoad = new URLSearchParams(window.location.search).get('intent');
+  const savedOrgToken = (urlIntentAtLoad === 'dj-register' || urlIntentAtLoad === 'create-event') ? null : loadToken();
   if (savedOrgToken) {
     try {
       const res = await api('GET', '/auth/me', null, { token: savedOrgToken });
