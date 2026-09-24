@@ -12,7 +12,7 @@ const assert=require('node:assert/strict');
  browser=await chromium.launch({...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{channel:'chrome'}),headless:true});
  const page=await browser.newPage({viewport:{width:390,height:844}});
  let photoFailure=true, gallery=[], saved=null;
- const publicProfile={id:'public-test',stage_name:'DJ Public',city:'Lyon, France',tagline:'Afro house et amapiano',bio:'Présentation publique.',genres:'Shatta, Afrobeats, Amapiano, Hip-hop, Zouk, House',service_types:['Club','Festival'],soundcloud:'https://soundcloud.com/public',mixcloud:'https://www.mixcloud.com/public/mix/',youtube:'https://www.youtube.com/watch?v=dQw4w9WgXcQ',spotify:'https://open.spotify.com/artist/0TnOYISbd1XYRBk9myaseg',instagram:'https://instagram.com/public',booking_email:'booking@example.com',travel_areas:'France et Europe',cover_avatar:3,photo_url:'/images/auth-hero-bg.jpg',gallery:['/images/logo.png']};
+ const publicProfile={id:'public-test',stage_name:'DJ Public',city:'Lyon, France',tagline:'Afro house et amapiano',bio:'Présentation publique.',genres:'Shatta, Afrobeats, Amapiano, Hip-hop, Zouk, House',service_types:['Club','Festival'],soundcloud:'https://soundcloud.com/public',mixcloud:'[mixcloud https://www.mixcloud.com/emilio-lameynardie/afro-vs-shatta-dj-paul-keranne-hustle-and-flow/ width=100% height=120 hide_cover=1 autoplay=1]',youtube:'https://www.youtube.com/watch?v=dQw4w9WgXcQ',spotify:'https://open.spotify.com/artist/0TnOYISbd1XYRBk9myaseg',instagram:'https://instagram.com/public',booking_email:'booking@example.com',travel_areas:'France et Europe',cover_avatar:3,photo_url:'/images/auth-hero-bg.jpg',gallery:['/images/logo.png']};
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',async route=>{
   const u=new URL(route.request().url());
@@ -107,6 +107,7 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#pk-music .pk-profile-player').count(),4);
  assert.match(await page.locator('#pk-music [data-platform="soundcloud"] iframe').getAttribute('src'),/^https:\/\/w\.soundcloud\.com\/player\//);
  assert.match(await page.locator('#pk-music [data-platform="mixcloud"] iframe').getAttribute('src'),/^https:\/\/www\.mixcloud\.com\/widget\/iframe\//);
+ assert.match(await page.locator('#pk-music [data-platform="mixcloud"] iframe').getAttribute('src'),/feed=%2Femilio-lameynardie%2Fafro-vs-shatta/);
  assert.match(await page.locator('#pk-music [data-platform="youtube"] iframe').getAttribute('src'),/^https:\/\/www\.youtube-nocookie\.com\/embed\//);
  assert.match(await page.locator('#pk-music [data-platform="spotify"] iframe').getAttribute('src'),/^https:\/\/open\.spotify\.com\/embed\//);
  assert.equal(await page.evaluate(()=>document.querySelector('#pk-booking').getBoundingClientRect().top>document.querySelector('#pk-profile-details').getBoundingClientRect().top),true);

@@ -24,6 +24,7 @@ function djGenreState() {
 }
 function initDjProfileEditor(profile) {
   djFeedback('');
+  const mixcloudField=djField('mixcloud');if(mixcloudField){mixcloudField.type='text';mixcloudField.placeholder='Lien ou code lecteur Mixcloud';}
   document.querySelectorAll('#djr-editor [data-error]').forEach(e=>e.textContent='');
   document.querySelectorAll('#djr-editor [aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));
   for(const key of [...Object.keys(DjProfileSchema.limits),...Object.keys(DjProfileSchema.links)]) {

@@ -24,6 +24,10 @@ test('URLs reject scripts, credentials, and spoofed platform domains',()=>{
  assert.equal(schema.url('soundcloud.com/nova',['soundcloud.com']),'https://soundcloud.com/nova');
 });
 test('Spotify alone meets the music link requirement',()=>assert.equal(schema.validate({...valid,soundcloud:'',spotify:'https://open.spotify.com/artist/abc'},'photo').errors.mixes,undefined));
+test('Mixcloud player shortcodes are reduced to their playable URL',()=>{
+ const shortcode='[mixcloud https://www.mixcloud.com/emilio-lameynardie/afro-vs-shatta-dj-paul-keranne-hustle-and-flow/ width=100% height=120 hide_cover=1 autoplay=1]';
+ const {value,errors}=schema.validate({...valid,soundcloud:'',mixcloud:shortcode},'photo');assert.equal(errors.mixcloud,undefined);assert.equal(value.mixcloud,'https://www.mixcloud.com/emilio-lameynardie/afro-vs-shatta-dj-paul-keranne-hustle-and-flow/');
+});
 test('invalid types cannot crash validation',()=>{
  const {errors}=schema.validate({...valid,stage_name:{},soundcloud:[],genres:[{}],service_types:[{}]},'photo');assert.ok(errors.stage_name);assert.ok(errors.soundcloud);assert.ok(errors.genres);assert.ok(errors.service_types);
 });

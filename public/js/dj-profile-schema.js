@@ -14,6 +14,8 @@
     if (typeof value !== 'string') return null;
     value=value.trim();
     if (!value) return '';
+    const embedded=value.match(/https?:\/\/[^\s\]\)]+/i);
+    if(embedded)value=embedded[0];
     if (!/^https?:\/\//i.test(value)) value='https://'+value;
     try {
       const u=new URL(value);
