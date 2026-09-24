@@ -22,6 +22,13 @@ function djChoice(container, value, checked, name) {
 }
 function djSelected(name) { return [...document.querySelectorAll(`#djr-editor input[name="${name}"]:checked`)].map(e=>e.value); }
 function djEventField(index,key){return document.getElementById(`dj-event-${index}-${key.replaceAll('_','-')}`);}
+function updateDjEventFlyerPreview(index,url){
+  const preview=document.getElementById(`dj-event-${index}-flyer-preview`);
+  if(!preview)return;
+  preview.style.backgroundImage=url?`url(${JSON.stringify(url)})`:'';
+  preview.classList.toggle('has-flyer',!!url);
+  preview.textContent=url?'':'Aucun flyer';
+}
 function djGenreState() {
   const count=djSelected('genres').length;
   const query=document.getElementById('djr-genre-search').value.toLocaleLowerCase('fr');
@@ -40,8 +47,18 @@ function renderDjEventEditor(events) {
     const head=document.createElement('div'),index=document.createElement('span'),title=document.createElement('strong');
     head.className='djr-event-card-head';index.textContent=String(i+1).padStart(2,'0');title.textContent=i===0?'Prochaine soirée':'Soirée à venir';head.append(index,title);
     const fields=document.createElement('div');fields.className='djr-fields';
+    const flyerWrap=document.createElement('div'),flyerLabel=document.createElement('label'),flyerInput=document.createElement('input'),file=document.createElement('input'),preview=document.createElement('div'),actions=document.createElement('div'),choose=document.createElement('button'),clear=document.createElement('button');
+    flyerWrap.className='fl djr-wide';flyerLabel.htmlFor=`dj-event-${i}-flyer-input`;flyerLabel.textContent='Flyer';
+    flyerInput.type='hidden';flyerInput.id=`dj-event-${i}-flyer-url`;flyerInput.value=event.flyer_url||'';
+    file.type='file';file.id=`dj-event-${i}-flyer-input`;file.accept='image/*';file.hidden=true;file.onchange=()=>uploadDjEventFlyer(file,i);
+    preview.id=`dj-event-${i}-flyer-preview`;preview.className='djr-event-flyer-preview';preview.setAttribute('aria-hidden','true');
+    actions.className='djr-event-flyer-actions';
+    choose.type='button';choose.textContent=event.flyer_url?'Changer le flyer':'Charger le flyer';choose.onclick=()=>file.click();
+    clear.type='button';clear.textContent='Retirer';clear.onclick=()=>{flyerInput.value='';choose.textContent='Charger le flyer';updateDjEventFlyerPreview(i,'');};
+    actions.append(choose,clear);flyerWrap.append(flyerLabel,flyerInput,file,preview,actions);fields.append(flyerWrap);
+    if(event.flyer_url){preview.style.backgroundImage=`url(${JSON.stringify(event.flyer_url)})`;preview.classList.add('has-flyer');}
+    else preview.textContent='Aucun flyer';
     [
-      ['flyer_url','URL du flyer','https://…/flyer.jpg','url'],
       ['date','Date','Vendredi 18 octobre','text'],
       ['name','Nom de l’event','Hustle & Flow','text'],
       ['place','Lieu','Club, ville','text'],
@@ -153,6 +170,24 @@ async function uploadDjGallery(event) {
     applyDjProfileToPresskit();
   }catch(e){djFeedback(e.message);}
   finally{setDjMediaBusy(false);renderDjGallery();}
+}
+async function uploadDjEventFlyer(input,index) {
+  if(djMediaBusy)return;
+  const file=input.files[0];input.value='';
+  if(!file)return;
+  if(!file.type.startsWith('image/')||file.size>5*1024*1024){djFeedback('Choisis un flyer image de moins de 5 Mo.');return;}
+  setDjMediaBusy(true);djFeedback(`Envoi du flyer ${index+1}…`);
+  try{
+    const form=new FormData();form.append('photo',file);
+    const response=await fetch('/api/dj/profile/event-flyer',{method:'POST',headers:{Authorization:'Bearer '+(_sbSession?.access_token||_authToken)},body:form});
+    const result=await response.json();if(!response.ok)throw new Error(result.error||'Envoi impossible.');
+    const field=djEventField(index,'flyer_url');if(field)field.value=result.url;
+    const choose=document.querySelector(`label[for="dj-event-${index}-flyer-input"]`)?.parentElement?.querySelector('.djr-event-flyer-actions button');
+    if(choose)choose.textContent='Changer le flyer';
+    updateDjEventFlyerPreview(index,result.url);
+    djFeedback('Flyer chargé. Pense à enregistrer ton profil.');
+  }catch(e){djFeedback(e.message||'Le flyer n’a pas pu être envoyé.');}
+  finally{setDjMediaBusy(false);}
 }
 function renderDjProfileDetails(p) {
   const box=document.getElementById('pk-profile-details');if(!box)return;box.replaceChildren();

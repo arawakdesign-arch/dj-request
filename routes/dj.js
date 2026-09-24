@@ -41,11 +41,13 @@ router.get('/dj/profile', requireAuth, async (req, res) => {
 });
 
 router.post('/dj/profile', requireAuth, async (req, res) => {
-  const { data: existing, error: readError } = await supabase.from('dj_profiles').select('photo_url, gallery').eq('id', req.user.id).maybeSingle();
+  const { data: existing, error: readError } = await supabase.from('dj_profiles').select('photo_url, gallery, upcoming_events').eq('id', req.user.id).maybeSingle();
   if (readError) return res.status(500).json({ error: 'Impossible de charger le profil. Vérifie la migration des profils DJ.' });
   const { value, errors } = DjProfileSchema.validate(req.body, existing?.photo_url);
   const nameCheck = validateDisplayName(value.stage_name || '');
   if (!nameCheck.ok) errors.stage_name = nameCheck.reason;
+  const eventFlyerPrefix = supabase.storage.from('profile-photos').getPublicUrl(`dj/${req.user.id}/event-flyer-`).data.publicUrl;
+  if (value.upcoming_events?.some(event => !event.flyer_url?.startsWith(eventFlyerPrefix))) errors.upcoming_events = 'Charge le flyer depuis ton profil DJ.';
   if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], fields: errors });
   // Only retain gallery images previously uploaded by this user.
   const gallery = req.body.gallery === undefined ? (existing?.gallery || []) : req.body.gallery;
@@ -114,6 +116,25 @@ router.post('/dj/profile/photo', requireAuth, upload.single('photo'), async (req
   const { error: dbError } = await supabase.from('dj_profiles').upsert({ id: req.user.id, photo_url: photoUrl, updated_at: new Date().toISOString() });
   if (dbError) { console.error('[dj profile photo] échec écriture DB —', req.user.id, dbError.message); return res.status(500).json({ error: dbError.message }); }
   res.json({ url: photoUrl });
+});
+
+router.post('/dj/profile/event-flyer', requireAuth, upload.single('photo'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Choisis un flyer.' });
+  let buffer;
+  try {
+    buffer = await require('sharp')(req.file.buffer)
+      .rotate()
+      .resize(1200, 1500, { fit: 'cover', withoutEnlargement: false })
+      .jpeg({ quality: 86, chromaSubsampling: '4:4:4', mozjpeg: true })
+      .toBuffer();
+  } catch { return res.status(400).json({ error: 'Flyer invalide.' }); }
+  const path = `dj/${req.user.id}/event-flyer-${randomUUID()}.jpg`;
+  const { error } = await supabase.storage.from('profile-photos').upload(path, buffer, {
+    contentType: 'image/jpeg', cacheControl: '31536000',
+  });
+  if (error) return res.status(500).json({ error: 'Échec de l’envoi du flyer.' });
+  const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(path);
+  res.json({ url: publicUrl });
 });
 
 // Add gallery images one at a time; the client serializes uploads.

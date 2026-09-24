@@ -23,6 +23,7 @@ const assert=require('node:assert/strict');
    else gallery.push('/images/logo.png?gallery='+gallery.length);
    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({gallery,url:gallery.at(-1)})});
   }
+  if(u.pathname==='/api/dj/profile/event-flyer')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({url:'https://storage.example/profile-photos/dj/test/event-flyer-1.jpg'})});
   if(u.pathname==='/api/dj/profile' && route.request().method()==='POST') {saved=route.request().postDataJSON();return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...saved,id:'test',photo_url:'/images/logo.png',gallery})});}
   if(u.pathname==='/api/dj/profile/public-test')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(publicProfile)});
   if(u.pathname.startsWith('/api/'))return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(u.pathname==='/api/config/public'?{}:[])});
@@ -78,7 +79,9 @@ const assert=require('node:assert/strict');
  assert.match(await page.locator('#djr-feedback').innerText(),/6 photos/);assert.equal(gallery.length,0);
  await page.evaluate(()=>{djGallery=[];renderDjGallery();});
  await page.locator('#djr-cover-options input[value="3"]').check();
- await page.locator('#dj-event-0-flyer-url').fill('https://example.com/flyer.jpg');
+ await page.locator('#dj-event-0-flyer-input').setInputFiles(path.join(root,'images/logo.png'));
+ await page.waitForFunction(()=>!djMediaBusy&&document.getElementById('dj-event-0-flyer-url').value.includes('event-flyer'));
+ assert.match(await page.locator('#djr-feedback').innerText(),/Flyer chargé/);
  await page.locator('#dj-event-0-date').fill('Vendredi 18 octobre');
  await page.locator('#dj-event-0-name').fill('Hustle & Flow');
  await page.locator('#dj-event-0-place').fill('Paris');

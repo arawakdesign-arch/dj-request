@@ -96,6 +96,11 @@
 .djr-event-card-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
 .djr-event-card-head span{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#0a0a0c;color:#fff;font-size:.68rem;font-weight:800}
 .djr-event-card-head strong{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:#423a4d}
+.djr-event-flyer-preview{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:4/5;border:1px dashed #c8c1cf;border-radius:7px;background:#17131b;background-size:cover;background-position:center;color:#82788a;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.djr-event-flyer-preview.has-flyer{border-style:solid}
+.djr-event-flyer-actions{display:flex;gap:8px;margin-top:10px}
+.djr-event-flyer-actions button{flex:1;min-height:40px;border:1px solid #0a0a0c;border-radius:4px;background:#0a0a0c;color:#fff;font-size:.72rem;font-weight:800;cursor:pointer}
+.djr-event-flyer-actions button+button{background:#fff;color:#0a0a0c}
 #pg-dj-register button:disabled{opacity:.5;cursor:wait}
 #pg-dj-register .djr-photo-row{margin:0;padding:0 0 16px;border:0}
 .djr-photo-link{display:block;margin-top:5px}

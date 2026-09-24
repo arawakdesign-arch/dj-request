@@ -66,7 +66,7 @@
       }
       const hasAny=Object.values(normalized).some(Boolean);
       if(!hasAny)return;
-      for(const key of ['date','name','place','link_url']) if(!normalized[key]) errors.upcoming_events='Complète date, nom, lieu et lien pour chaque soirée ajoutée.';
+      for(const key of ['flyer_url','date','name','place','link_url']) if(!normalized[key]) errors.upcoming_events='Charge un flyer, puis complète date, nom, lieu et lien pour chaque soirée ajoutée.';
       const flyer=normalized.flyer_url?url(normalized.flyer_url):'';
       const link=url(normalized.link_url);
       if(flyer===null) errors.upcoming_events='Lien du flyer invalide.';

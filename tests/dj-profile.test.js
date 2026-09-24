@@ -47,13 +47,15 @@ test('upcoming DJ events are normalized and limited to three cards',()=>{
  assert.equal(value.upcoming_events[0].link_url,'https://example.com/event');
  assert.ok(schema.validate({...valid,upcoming_events:[{...event,link_url:'javascript:alert(1)'}]},'photo').errors.upcoming_events);
  assert.ok(schema.validate({...valid,upcoming_events:[{...event,place:''}]},'photo').errors.upcoming_events);
+ assert.ok(schema.validate({...valid,upcoming_events:[{...event,flyer_url:''}]},'photo').errors.upcoming_events);
 });
 
 test('API enforces stored photo and uploaded gallery ownership',async()=>{
  const express=require('express');
+ const uploadedFlyer='https://storage.example/profile-photos/dj/test-user/event-flyer-abc.jpg';
  let stored={photo_url:'https://storage.example/avatar.jpg',gallery:['https://storage.example/owned.jpg']};
  let saved=null;
- const db={from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:stored,error:null})})}),upsert:value=>{saved=value;return {select:()=>({single:async()=>({data:value,error:null})})};}})};
+ const db={from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:stored,error:null})})}),upsert:value=>{saved=value;return {select:()=>({single:async()=>({data:value,error:null})})};}}),storage:{from:()=>({getPublicUrl:path=>({data:{publicUrl:'https://storage.example/profile-photos/'+path}})})}};
  for(const [path,exports] of [['../lib/supabase',db],['../middleware/auth',{requireAuth:(req,res,next)=>{req.user={id:'test-user'};next();}}],['../routes/events',{isClosed:()=>false,isUpcoming:()=>false}]]){
   require.cache[require.resolve(path)]={id:require.resolve(path),filename:require.resolve(path),loaded:true,exports};
  }
@@ -62,7 +64,8 @@ test('API enforces stored photo and uploaded gallery ownership',async()=>{
  const handler=layer.route.stack.at(-1).handle;
  const request=async body=>{let status=200,payload;const res={status(code){status=code;return this;},json(value){payload=value;return this;}};await handler({body,user:{id:'test-user'}},res);return {status,payload};};
  let result=await request({...valid,gallery:['https://storage.example/other-account.jpg']});assert.equal(result.status,400);
- result=await request({...valid,gallery:['https://storage.example/owned.jpg'],upcoming_events:[{date:'18 octobre',name:'Hustle & Flow',place:'Paris',link_url:'https://example.com/event'}]});assert.equal(result.status,200);assert.equal(saved.id,'test-user');assert.equal(saved.tagline,valid.tagline);assert.equal(saved.upcoming_events[0].name,'Hustle & Flow');
+ result=await request({...valid,gallery:['https://storage.example/owned.jpg'],upcoming_events:[{flyer_url:'https://example.com/flyer.jpg',date:'18 octobre',name:'Hustle & Flow',place:'Paris',link_url:'https://example.com/event'}]});assert.equal(result.status,400);assert.ok(result.payload.fields.upcoming_events);
+ result=await request({...valid,gallery:['https://storage.example/owned.jpg'],upcoming_events:[{flyer_url:uploadedFlyer,date:'18 octobre',name:'Hustle & Flow',place:'Paris',link_url:'https://example.com/event'}]});assert.equal(result.status,200);assert.equal(saved.id,'test-user');assert.equal(saved.tagline,valid.tagline);assert.equal(saved.upcoming_events[0].name,'Hustle & Flow');
  stored={gallery:[]};result=await request(valid);assert.equal(result.status,400);assert.ok(result.payload.fields.photo_url);
  result=await request({...valid,photo_url:'https://evil.example/pretend.jpg'});assert.equal(result.status,400);assert.ok(result.payload.fields.photo_url);
 });
