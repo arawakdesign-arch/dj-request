@@ -412,13 +412,23 @@ function renderDjPublicShareTools(profile,parent){
   button.type='button';button.textContent='Télécharger le QR code';button.onclick=downloadDjProfileQr;
   copy.append(label,link);section.append(copy,qr,button);parent.append(section);
   link.href=url;link.textContent=`pull-up.live/${slug}`;section.dataset.url=url;section.dataset.slug=slug;
-  if(typeof QRCode==='function')new QRCode(qr,{text:url,width:512,height:512,colorDark:'#09070b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  if(typeof QRCode==='function'){
+    new QRCode(qr,{text:url,width:512,height:512,colorDark:'#09070b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+    const logo=document.createElement('img');logo.id='pk-public-qr-logo';logo.className='pk3-public-qr-logo';logo.src='/images/logo.png';logo.alt='';qr.append(logo);
+  }
 }
 
-function downloadDjProfileQr(){
-  const section=document.getElementById('pk-public-share'),qr=document.getElementById('pk-public-qr'),source=qr?.querySelector('canvas,img');
+async function downloadDjProfileQr(){
+  const section=document.getElementById('pk-public-share'),qr=document.getElementById('pk-public-qr'),source=qr?.querySelector('canvas,img:not(.pk3-public-qr-logo)'),logo=document.getElementById('pk-public-qr-logo');
   if(!section?.dataset.url||!source){if(typeof toast==='function')toast('QR code indisponible.');return;}
-  const href=source.tagName==='CANVAS'?source.toDataURL('image/png'):source.src;
+  if(logo&&!logo.complete)await new Promise(resolve=>{logo.onload=logo.onerror=resolve;});
+  const size=Math.max(512,source.width||source.naturalWidth||512),output=document.createElement('canvas'),ctx=output.getContext('2d');output.width=size;output.height=size;
+  ctx.imageSmoothingEnabled=false;ctx.drawImage(source,0,0,size,size);
+  if(logo?.naturalWidth){
+    const pad=Math.round(size*.21),mark=Math.round(size*.17),x=Math.round((size-pad)/2),y=x;
+    ctx.fillStyle='#fff';ctx.fillRect(x,y,pad,pad);ctx.imageSmoothingEnabled=true;ctx.drawImage(logo,(size-mark)/2,(size-mark)/2,mark,mark);
+  }
+  const href=output.toDataURL('image/png');
   const download=document.createElement('a');download.href=href;download.download=`qr-${section.dataset.slug||'profil-dj'}-pull-up.png`;document.body.append(download);download.click();download.remove();
   if(typeof toast==='function')toast('QR code téléchargé');
 }
