@@ -19,6 +19,10 @@ function slugify(s) {
     .slice(0, 60);
 }
 
+function isMissingUpcomingEventsColumn(error) {
+  return error && (error.code === '42703' || /upcoming_events/i.test(error.message || ''));
+}
+
 // ── Soirées où je suis dans le line-up (DJ inscrit sur Pull up) ───────
 // Permet d'entrer administrer la soirée avec son propre compte, sans
 // connaître le mot de passe partagé (cf. isLineupMember côté middleware).
@@ -41,7 +45,7 @@ router.get('/dj/profile', requireAuth, async (req, res) => {
 });
 
 router.post('/dj/profile', requireAuth, async (req, res) => {
-  const { data: existing, error: readError } = await supabase.from('dj_profiles').select('photo_url, gallery, upcoming_events').eq('id', req.user.id).maybeSingle();
+  const { data: existing, error: readError } = await supabase.from('dj_profiles').select('photo_url, gallery').eq('id', req.user.id).maybeSingle();
   if (readError) return res.status(500).json({ error: 'Impossible de charger le profil. Vérifie la migration des profils DJ.' });
   const { value, errors } = DjProfileSchema.validate(req.body, existing?.photo_url);
   const nameCheck = validateDisplayName(value.stage_name || '');
@@ -71,7 +75,15 @@ router.post('/dj/profile', requireAuth, async (req, res) => {
     updates.slug = clean;
   }
 
-  const { data, error } = await supabase.from('dj_profiles').upsert(updates).select().single();
+  let { data, error } = await supabase.from('dj_profiles').upsert(updates).select().single();
+  if (isMissingUpcomingEventsColumn(error)) {
+    if (value.upcoming_events?.length) {
+      return res.status(500).json({ error: 'Migration Supabase manquante : exécute supabase/migration-add-dj-upcoming-events.sql pour enregistrer les soirées à venir.' });
+    }
+    const fallbackUpdates = { ...updates };
+    delete fallbackUpdates.upcoming_events;
+    ({ data, error } = await supabase.from('dj_profiles').upsert(fallbackUpdates).select().single());
+  }
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
