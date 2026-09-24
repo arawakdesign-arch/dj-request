@@ -714,7 +714,7 @@ function _lineupSearch(q, scope = 'create') {
 
 function _lineupAddApp(dj, scope = 'create') {
   const ids = _LINEUP_IDS[scope];
-  _lineup.push({ type: 'app', id: dj.id, name: dj.stage_name, photo_url: dj.photo_url || null });
+  _lineup.push({ type: 'app', id: dj.id, name: dj.stage_name, photo_url: dj.photo_url || null, cover_avatar: dj.cover_avatar || null });
   document.getElementById(ids.search).value = '';
   document.getElementById(ids.results).innerHTML = '';
   _renderLineup(scope);
@@ -1442,11 +1442,16 @@ function applyFlyer(dataUrl) {
 // Bannière DJ (page vote) — affiche le nom/photo du premier DJ du line-up,
 // à défaut du texte générique "DJ" figé dans le HTML.
 function applyDjBanner(lineup) {
-  // Pour l'instant on ne change que le nom — l'avatar générique (bitmoji)
-  // reste tel quel, pas la vraie photo du DJ.
   const nameTag = document.getElementById('dj-banner-name');
+  const avatar  = document.getElementById('dj-banner-avatar');
   const dj = Array.isArray(lineup) && lineup.length ? lineup[0] : null;
   if (nameTag) nameTag.textContent = dj ? dj.name.toUpperCase() : 'DJ';
+  // Le DJ inscrit sur Pull Up a choisi un avatar (bitmoji) sur son profil —
+  // on l'affiche à la place du générique. Un DJ externe (SoundCloud) ou sans
+  // avatar choisi garde le générique par défaut.
+  if (avatar) avatar.src = dj?.cover_avatar
+    ? `/images/dj-avatars/avatar-${String(dj.cover_avatar).padStart(2, '0')}-pullup.png`
+    : '/images/dj-avatar.webp?v=2';
 }
 
 function loadFlyerFromStorage() {

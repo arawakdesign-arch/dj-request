@@ -81,7 +81,7 @@ router.get('/dj/search', async (req, res) => {
   if (!q || q.length < 2) return res.json([]);
   const { data, error } = await supabase
     .from('dj_profiles')
-    .select('id, stage_name, photo_url')
+    .select('id, stage_name, photo_url, cover_avatar')
     .not('stage_name', 'is', null)
     .ilike('stage_name', `%${q}%`)
     .limit(10);
