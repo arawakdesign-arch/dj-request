@@ -59,6 +59,15 @@ function goToOrgaPublicPage() {
   if (venueOrgaSlug && typeof tryShowOrgaPublicPage === 'function') tryShowOrgaPublicPage(venueOrgaSlug);
 }
 
+// Bouton "Organisateur" du menu — même page que le clic sur la venue-card,
+// mais avec un retour explicite si cette soirée n'a pas (encore) de page
+// publique organisateur configurée, plutôt que de ne rien faire silencieusement.
+function openOrgaFromMenu() {
+  closeTopMenu();
+  if (venueOrgaSlug && typeof tryShowOrgaPublicPage === 'function') { tryShowOrgaPublicPage(venueOrgaSlug); return; }
+  toast('Cet organisateur n\'a pas encore de page publique.');
+}
+
 function navTo(id) {
   if (id === 'dj' && !djLoggedIn) { enterOrgaSpace(); closeTopMenu(); return; }
   showPage(id);
