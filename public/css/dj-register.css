@@ -502,8 +502,9 @@
 #pg-presskit .pk3-avatar-halo{display:none}
 #pg-presskit .pk3-avatar-stage .pk2-hero-art{position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center 24%;filter:saturate(.88) contrast(1.04)}
 #pg-presskit .pk2-photo.pk2-avatar-medallion{object-position:68% center;background:radial-gradient(circle at 65% 35%,#b982ff,#5e22a8 52%,#160b22);filter:saturate(1.05)}
-#pg-presskit #pk-about.has-avatar{position:relative;min-height:250px;padding-right:245px}
-#pg-presskit #pk-about .pk-about-avatar{position:absolute;right:34px;top:50%;width:178px;height:178px;transform:translateY(-50%);object-fit:cover;object-position:68% center;border:1px solid #a973ec66;border-radius:12px;background:radial-gradient(circle at 65% 35%,#b982ff,#5e22a8 52%,#160b22);box-shadow:0 22px 55px #0008}
+#pg-presskit #pk-about.has-avatar{position:relative;padding-right:150px}
+#pg-presskit #pk-about.has-avatar .pk3-section-heading{padding-right:100px}
+#pg-presskit #pk-about .pk-about-avatar{position:absolute;right:34px;top:34px;width:88px;height:88px;object-fit:cover;object-position:68% center;border:1px solid #a973ec66;border-radius:50%;background:radial-gradient(circle at 65% 35%,#b982ff,#5e22a8 52%,#160b22);box-shadow:0 14px 34px #0008}
 #pg-presskit .pk2-hero h1{font-size:clamp(4.6rem,9vw,8rem);max-width:56%}
 #pg-presskit .pk2-tagline{max-width:46%}
 @media(max-width:560px){
@@ -511,9 +512,9 @@
   #pg-presskit .pk3-avatar-stage{inset:0;width:100%;height:100%}
   #pg-presskit .pk3-avatar-stage::after{background:linear-gradient(0deg,#09070bf5 0%,#09070bd9 34%,#09070b52 61%,transparent 82%),linear-gradient(90deg,#09070b24,transparent 55%)}
   #pg-presskit .pk3-avatar-stage .pk2-hero-art{width:100%;height:100%;right:auto;top:auto;background-size:cover;background-position:center 20%;opacity:1}
-  #pg-presskit #pk-about.has-avatar{min-height:0;padding-right:19px}
-  #pg-presskit #pk-about.has-avatar .pk3-section-heading{min-height:106px;padding-right:110px}
-  #pg-presskit #pk-about .pk-about-avatar{right:18px;top:22px;width:96px;height:96px;transform:none;border-radius:9px}
+  #pg-presskit #pk-about.has-avatar{padding-right:19px}
+  #pg-presskit #pk-about.has-avatar .pk3-section-heading{min-height:54px;padding-right:62px}
+  #pg-presskit #pk-about .pk-about-avatar{right:18px;top:22px;width:48px;height:48px}
   #pg-presskit .pk2-hero h1{font-size:clamp(3.5rem,16vw,4.8rem);max-width:100%}
   #pg-presskit .pk2-tagline{max-width:94%}
 }
