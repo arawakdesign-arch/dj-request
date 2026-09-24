@@ -111,6 +111,30 @@ function renderDjProfileDetails(p) {
   function section(title,text,id,kicker){if(!text)return null;const s=document.createElement('section'),content=document.createElement('p');s.id=id;s.className='pk3-section';heading(s,title,kicker);content.textContent=text;s.append(content);box.append(s);return s;}
   function link(parent,label,value){const href=DjProfileSchema.url(value);if(!href)return;const a=document.createElement('a');a.textContent=label;a.href=href;a.target='_blank';a.rel='noopener noreferrer';parent.append(a);}
   function linksSection(title,entries,id,kicker){const links=document.createElement('div');links.className='pk-profile-links';entries.forEach(([label,value])=>link(links,label,value));if(!links.childNodes.length)return;const s=document.createElement('section');s.id=id;s.className='pk3-section';heading(s,title,kicker);s.append(links);box.append(s);}
+  function embedUrl(platform,value){
+    const hosts={soundcloud:['soundcloud.com'],mixcloud:['mixcloud.com'],youtube:['youtube.com','youtu.be'],spotify:['spotify.com']}[platform];
+    const safe=DjProfileSchema.url(value,hosts);if(!safe)return '';
+    const url=new URL(safe);
+    if(platform==='soundcloud')return `https://w.soundcloud.com/player/?url=${encodeURIComponent(safe)}&color=%23ff2a93&auto_play=false&hide_related=true&show_comments=false&show_reposts=false`;
+    if(platform==='mixcloud')return `https://www.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=${encodeURIComponent(url.pathname)}`;
+    if(platform==='spotify'){
+      const parts=url.pathname.split('/').filter(Boolean),offset=parts[0]?.startsWith('intl-')?1:0,type=parts[offset],id=parts[offset+1];
+      if(!['artist','track','album','playlist','episode','show'].includes(type)||!id)return '';
+      return `https://open.spotify.com/embed/${type}/${encodeURIComponent(id)}?utm_source=generator&theme=0`;
+    }
+    let videoId='';
+    if(url.hostname==='youtu.be')videoId=url.pathname.split('/').filter(Boolean)[0]||'';
+    else if(url.pathname==='/watch')videoId=url.searchParams.get('v')||'';
+    else if(/^\/(shorts|live|embed)\//.test(url.pathname))videoId=url.pathname.split('/')[2]||'';
+    if(/^[\w-]{6,}$/.test(videoId))return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}`;
+    const playlistId=url.searchParams.get('list');
+    return /^[\w-]{6,}$/.test(playlistId||'')?`https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(playlistId)}`:'';
+  }
+  function playersSection(entries){
+    const players=document.createElement('div');players.className='pk-profile-players';
+    entries.forEach(([label,platform,value])=>{const src=embedUrl(platform,value);if(!src)return;const player=document.createElement('div'),head=document.createElement('div'),name=document.createElement('strong'),status=document.createElement('span'),frame=document.createElement('iframe');player.className='pk-profile-player';player.dataset.platform=platform;head.className='pk-profile-player-head';name.textContent=label;status.textContent='Lecture intégrée';head.append(name,status);frame.src=src;frame.title=`Lecteur ${label}`;frame.loading='lazy';frame.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';frame.referrerPolicy='strict-origin-when-cross-origin';frame.setAttribute('allowfullscreen','');player.append(head,frame);players.append(player);});
+    if(!players.childNodes.length)return;const s=document.createElement('section');s.id='pk-music';s.className='pk3-section';heading(s,'Écouter','02 / SÉLECTION');s.append(players);box.append(s);
+  }
   const portrait=document.getElementById('pk-photo');
   const avatarUrl=p.cover_avatar?`/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}-pullup.png`:'';
   if(portrait){portrait.src=avatarUrl||p.photo_url||'/images/logo.png';portrait.alt=avatarUrl?`Avatar Pull Up de ${p.stage_name||'ce DJ'}`:`Photo de ${p.stage_name||'ce DJ'}`;portrait.style.display=(avatarUrl||p.photo_url)?'block':'none';portrait.classList.toggle('pk2-avatar-medallion',!!avatarUrl);}
@@ -121,7 +145,7 @@ function renderDjProfileDetails(p) {
   const about=section('À propos',p.bio,'pk-about','01 / IDENTITÉ');
   const services=Array.isArray(p.service_types)?p.service_types:[];
   if(services.length&&about){const chips=document.createElement('div');chips.className='pk-profile-chips';services.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;chips.append(chip);});about.append(chips);}
-  linksSection('Écouter',[['SoundCloud',p.soundcloud],['Mixcloud',p.mixcloud],['YouTube',p.youtube],['Spotify',p.spotify]],'pk-music','02 / SÉLECTION');
+  playersSection([['SoundCloud','soundcloud',p.soundcloud],['Mixcloud','mixcloud',p.mixcloud],['YouTube','youtube',p.youtube],['Spotify','spotify',p.spotify]]);
   section('Résidences & collaborations',p.experience,'pk-experience','03 / PARCOURS');
   if(p.gallery?.length){const gallery=document.createElement('section'),grid=document.createElement('div');gallery.id='pk-gallery';gallery.className='pk3-section pk3-gallery-section';heading(gallery,'Photos','04 / GALERIE');grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const photo=document.createElement('div'),img=document.createElement('img');photo.className='pk-profile-photo';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';photo.append(img);grid.append(photo);});gallery.append(grid);box.append(gallery);}
   linksSection('En ligne',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]],'pk-links','05 / CONTACT');
