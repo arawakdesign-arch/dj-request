@@ -162,10 +162,20 @@ function renderDjProfileDetails(p) {
   const contact=document.getElementById('pk-booking-contact');if(contact){contact.disabled=!p.booking_email;contact.onclick=()=>{if(p.booking_email)location.href='mailto:'+p.booking_email;};}
 }
 
+let _djProfileBackTo=null;
 async function openPublicDjProfile(id) {
   if(!id)return false;
   try{const profile=await api('GET','/dj/profile/'+encodeURIComponent(id));djViewedProfileId=id;_djProfileCache=profile;showPage('presskit');return true;}
   catch(e){return false;}
+}
+// Bannière DJ de la page vote : ouvre le profil du DJ réellement au line-up
+// de CETTE soirée, jamais celui déjà en cache (ex. son propre profil si
+// l'utilisateur est aussi un DJ inscrit) — sans ce fetch dédié, navTo('presskit')
+// réaffichait le profil déjà en mémoire plutôt que celui de la soirée.
+async function openDjBannerProfile() {
+  const dj = _currentDjBannerDj;
+  if (dj?.type === 'app' && dj.id) { _djProfileBackTo = eid ? 'client' : (currentUser ? 'profile' : 'auth'); await openPublicDjProfile(dj.id); return; }
+  if (dj?.type === 'external' && dj.soundcloud_url) window.open(dj.soundcloud_url, '_blank', 'noopener,noreferrer');
 }
 async function openPublicDjProfileBySlug(slug) {
   if(!slug)return false;
@@ -179,4 +189,8 @@ function djProfileUrl(){
   return id?`${location.origin}/app?dj=${encodeURIComponent(id)}`:location.href;
 }
 async function shareDjProfile(){const data={title:_djProfileCache?.stage_name||'Profil DJ Pull Up',text:_djProfileCache?.tagline||'Découvre ce profil DJ sur Pull Up.',url:djProfileUrl()};try{if(navigator.share){await navigator.share(data);return;}await navigator.clipboard.writeText(data.url);toast('Lien du profil copié');}catch(e){if(e?.name!=='AbortError')toast('Impossible de partager le profil');}}
-function djProfileBack(){if(djViewedProfileId){if(document.referrer.startsWith(location.origin))history.back();else location.href='/';return;}showPage(eid?'client':(currentUser?'profile':'auth'));}
+function djProfileBack(){
+  if(_djProfileBackTo){const p=_djProfileBackTo;_djProfileBackTo=null;showPage(p);return;}
+  if(djViewedProfileId){if(document.referrer.startsWith(location.origin))history.back();else location.href='/';return;}
+  showPage(eid?'client':(currentUser?'profile':'auth'));
+}

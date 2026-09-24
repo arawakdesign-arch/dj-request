@@ -1441,10 +1441,12 @@ function applyFlyer(dataUrl) {
 
 // Bannière DJ (page vote) — affiche le nom/photo du premier DJ du line-up,
 // à défaut du texte générique "DJ" figé dans le HTML.
+let _currentDjBannerDj = null;
 function applyDjBanner(lineup) {
   const nameTag = document.getElementById('dj-banner-name');
   const avatar  = document.getElementById('dj-banner-avatar');
   const dj = Array.isArray(lineup) && lineup.length ? lineup[0] : null;
+  _currentDjBannerDj = dj;
   if (nameTag) nameTag.textContent = dj ? dj.name.toUpperCase() : 'DJ';
   // Le DJ inscrit sur Pull Up a choisi un avatar (bitmoji) sur son profil —
   // on l'affiche à la place du générique. Un DJ externe (SoundCloud) ou sans
