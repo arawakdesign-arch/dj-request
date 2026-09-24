@@ -103,6 +103,8 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#pk-about .pk-profile-chips span').allTextContents().then(values=>values.join(',')),'Club');
  assert.equal(await page.locator('#pk-profile-details h2').filter({hasText:'Prestations'}).count(),0);
  assert.equal(await page.locator('#pk-profile-details a[href="https://tiktok.com/@test"]').count(),1);
+ assert.equal(await page.locator('#pk-links h2').innerText(),'RÉSEAUX');
+ assert.ok(await page.locator('#pk-links .pk-social-icon').count()>=3);
  assert.equal(await page.locator('#pk-profile-details .pk-profile-gallery img').count(),1);
  assert.equal(await page.locator('#pk-profile-details .pk-profile-gallery a').count(),0);
  assert.match(await page.locator('#pk-hero-art').evaluate(el=>el.style.backgroundImage),/logo\.png/);

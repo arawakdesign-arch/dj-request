@@ -206,7 +206,20 @@ function renderDjProfileDetails(p) {
   const box=document.getElementById('pk-profile-details');if(!box)return;box.replaceChildren();
   function heading(s,title,kicker){const head=document.createElement('div'),label=document.createElement('span'),h=document.createElement('h2');head.className='pk3-section-heading';label.className='pk3-section-label';label.textContent=kicker;h.textContent=title;head.append(label,h);s.append(head);}
   function section(title,text,id,kicker){if(!text)return null;const s=document.createElement('section'),content=document.createElement('p');s.id=id;s.className='pk3-section';heading(s,title,kicker);content.textContent=text;s.append(content);box.append(s);return s;}
-  function link(parent,label,value){const href=DjProfileSchema.url(value);if(!href)return;const a=document.createElement('a');a.textContent=label;a.href=href;a.target='_blank';a.rel='noopener noreferrer';parent.append(a);}
+  function socialIcon(label){
+    const brand=label.toLowerCase().replace(/\s+/g,'-'),wrap=document.createElement('span');wrap.className='pk-social-icon pk-social-icon-'+brand;
+    if(label==='Resident Advisor'){wrap.textContent='RA';return wrap;}
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');
+    const paths={
+      Instagram:['M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Z','M8.5 12a3.5 3.5 0 1 0 7 0 3.5 3.5 0 0 0-7 0Z','M17.5 6.5h.01'],
+      TikTok:['M14 3v11.2a4.2 4.2 0 1 1-4.2-4.2c.35 0 .69.04 1.02.13V7.4a7 7 0 0 0 7 3.8V8.2A4.7 4.7 0 0 1 14 3Z'],
+      'Site web':['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z','M2 12h20','M12 2c2.5 2.7 3.8 6 3.8 10S14.5 19.3 12 22c-2.5-2.7-3.8-6-3.8-10S9.5 4.7 12 2Z'],
+      'Vidéo live':['M5 4.5v15l14-7.5-14-7.5Z'],
+    }[label]||['M12 5v14M5 12h14'];
+    paths.forEach(d=>{const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);svg.append(path);});
+    wrap.append(svg);return wrap;
+  }
+  function link(parent,label,value){const href=DjProfileSchema.url(value);if(!href)return;const a=document.createElement('a'),name=document.createElement('span');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.title=label;a.setAttribute('aria-label',label);a.className='pk-social-link';name.className='pk-social-label';name.textContent=label;a.append(socialIcon(label),name);parent.append(a);}
   function linksSection(title,entries,id,kicker){const links=document.createElement('div');links.className='pk-profile-links';entries.forEach(([label,value])=>link(links,label,value));if(!links.childNodes.length)return;const s=document.createElement('section');s.id=id;s.className='pk3-section';heading(s,title,kicker);s.append(links);box.append(s);}
   function embedUrl(platform,value){
     const hosts={soundcloud:['soundcloud.com'],mixcloud:['mixcloud.com'],youtube:['youtube.com','youtu.be'],spotify:['spotify.com']}[platform];
@@ -299,7 +312,7 @@ function renderDjProfileDetails(p) {
   playersSection([['SoundCloud','soundcloud',p.soundcloud],['Mixcloud','mixcloud',p.mixcloud],['YouTube','youtube',p.youtube],['Spotify','spotify',p.spotify]]);
   section('Résidences & collaborations',p.experience,'pk-experience','04 / PARCOURS');
   if(p.gallery?.length){const gallery=document.createElement('section'),grid=document.createElement('div');gallery.id='pk-gallery';gallery.className='pk3-section pk3-gallery-section';heading(gallery,'Photos','05 / GALERIE');grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const photo=document.createElement('div'),img=document.createElement('img');photo.className='pk-profile-photo';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';photo.append(img);grid.append(photo);});gallery.append(grid);box.append(gallery);}
-  linksSection('En ligne',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]],'pk-links','06 / CONTACT');
+  linksSection('Réseaux',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]],'pk-links','06 / CONTACT');
   const area=document.getElementById('pk-travel-areas');if(area)area.textContent=p.travel_areas||'Zones de déplacement à confirmer';
   const email=document.getElementById('pk-booking-email');if(email)email.textContent=p.booking_email||'Non renseigné';
   const phone=document.getElementById('pk-booking-phone');if(phone){phone.hidden=!p.phone;phone.textContent=p.phone?`WhatsApp / téléphone · ${p.phone}`:'';phone.href=p.phone?'tel:'+p.phone.replace(/[^+\d]/g,''):'';}
