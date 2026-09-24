@@ -36,6 +36,8 @@ const assert=require('node:assert/strict');
  });
  await page.locator('#djr-editor').waitFor({state:'visible'});
  assert.equal(await page.locator('#dj-edit-tagline').getAttribute('maxlength'),'150');
+ assert.equal(await page.locator('[data-error="mixes"]').evaluate(el=>el.previousElementSibling.textContent),'Choisis SoundCloud, Mixcloud ou Spotify, puis colle le lien de ta playlist ou de ton mix. YouTube reste disponible pour une vidéo ou une playlist.');
+ assert.equal(await page.locator('#dj-edit-spotify').getAttribute('placeholder'),'Lien de ta playlist Spotify');
  await page.locator('#btn-save-dj-profile').click();
  assert.match(await page.locator('#djr-feedback').innerText(),/Complète/);
  const genreInputs=page.locator('#djr-genres input');for(let i=0;i<6;i++)await genreInputs.nth(i).check();

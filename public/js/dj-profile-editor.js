@@ -24,7 +24,12 @@ function djGenreState() {
 }
 function initDjProfileEditor(profile) {
   djFeedback('');
-  const mixcloudField=djField('mixcloud');if(mixcloudField){mixcloudField.type='text';mixcloudField.placeholder='Lien ou code lecteur Mixcloud';}
+  const mixError=document.querySelector('#djr-editor [data-error="mixes"]'),mixHelp=mixError?.previousElementSibling,mixTitle=mixHelp?.previousElementSibling;
+  if(mixTitle)mixTitle.textContent='Choisis ta plateforme *';
+  if(mixHelp)mixHelp.textContent='Choisis SoundCloud, Mixcloud ou Spotify, puis colle le lien de ta playlist ou de ton mix. YouTube reste disponible pour une vidéo ou une playlist.';
+  const soundcloudField=djField('soundcloud');if(soundcloudField)soundcloudField.placeholder='Lien de ta playlist ou de ton mix SoundCloud';
+  const mixcloudField=djField('mixcloud');if(mixcloudField){mixcloudField.type='text';mixcloudField.placeholder='Lien ou code de ta playlist Mixcloud';}
+  const spotifyField=djField('spotify');if(spotifyField)spotifyField.placeholder='Lien de ta playlist Spotify';
   document.querySelectorAll('#djr-editor [data-error]').forEach(e=>e.textContent='');
   document.querySelectorAll('#djr-editor [aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));
   for(const key of [...Object.keys(DjProfileSchema.limits),...Object.keys(DjProfileSchema.links)]) {
