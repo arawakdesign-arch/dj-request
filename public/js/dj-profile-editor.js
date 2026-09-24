@@ -405,15 +405,16 @@ function renderDjProfileDetails(p) {
 function renderDjPublicShareTools(profile,parent){
   const slug=normalizeDjSlug(profile?.slug),url=slug?`${location.origin}/${encodeURIComponent(slug)}`:'';
   if(!parent||!url)return;
-  const section=document.createElement('section'),copy=document.createElement('div'),label=document.createElement('span'),link=document.createElement('a'),qr=document.createElement('div'),actions=document.createElement('div'),copyButton=document.createElement('button'),shareButton=document.createElement('button'),downloadButton=document.createElement('button');
+  const section=document.createElement('section'),copy=document.createElement('div'),label=document.createElement('span'),title=document.createElement('h2'),description=document.createElement('p'),link=document.createElement('a'),visual=document.createElement('div'),qr=document.createElement('div'),scanLabel=document.createElement('span'),actions=document.createElement('div'),copyButton=document.createElement('button'),shareButton=document.createElement('button'),downloadButton=document.createElement('button');
   section.id='pk-public-share';section.className='pk3-public-share';section.setAttribute('aria-label','Partager cette page DJ');
-  copy.className='pk3-public-share-copy';label.textContent='07 / PARTAGE';link.id='pk-public-url';link.target='_blank';link.rel='noopener noreferrer';
+  copy.className='pk3-public-share-copy';label.textContent='07 / PARTAGE';title.textContent='Partager ce profil';description.textContent='Copie le lien ou envoie-le directement à tes contacts.';link.id='pk-public-url';link.target='_blank';link.rel='noopener noreferrer';
+  visual.className='pk3-public-share-visual';scanLabel.textContent='SCANNER';
   qr.id='pk-public-qr';qr.className='pk3-public-qr';qr.setAttribute('aria-hidden','true');
   actions.className='pk3-public-share-actions';
   copyButton.type='button';copyButton.textContent='Copier le lien';copyButton.onclick=copyDjProfilePublicLink;
   shareButton.type='button';shareButton.textContent='Partager';shareButton.onclick=shareDjProfile;
   downloadButton.type='button';downloadButton.textContent='Télécharger le QR';downloadButton.onclick=downloadDjProfileQr;
-  actions.append(copyButton,shareButton,downloadButton);copy.append(label,link);section.append(copy,qr,actions);parent.append(section);
+  actions.append(copyButton,shareButton,downloadButton);copy.append(label,title,description,link);visual.append(qr,scanLabel);section.append(copy,visual,actions);parent.append(section);
   link.href=url;link.textContent=`pull-up.live/${slug}`;section.dataset.url=url;section.dataset.slug=slug;
   if(typeof QRCode==='function'){
     new QRCode(qr,{text:url,width:512,height:512,colorDark:'#09070b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
