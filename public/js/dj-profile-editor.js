@@ -295,8 +295,8 @@ function renderDjProfileDetails(p) {
   const about=section('À propos',p.bio,'pk-about','01 / IDENTITÉ');
   const services=Array.isArray(p.service_types)?p.service_types:[];
   if(services.length&&about){const chips=document.createElement('div');chips.className='pk-profile-chips';services.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;chips.append(chip);});about.append(chips);}
-  playersSection([['SoundCloud','soundcloud',p.soundcloud],['Mixcloud','mixcloud',p.mixcloud],['YouTube','youtube',p.youtube],['Spotify','spotify',p.spotify]]);
   eventsSection(p.upcoming_events);
+  playersSection([['SoundCloud','soundcloud',p.soundcloud],['Mixcloud','mixcloud',p.mixcloud],['YouTube','youtube',p.youtube],['Spotify','spotify',p.spotify]]);
   section('Résidences & collaborations',p.experience,'pk-experience','04 / PARCOURS');
   if(p.gallery?.length){const gallery=document.createElement('section'),grid=document.createElement('div');gallery.id='pk-gallery';gallery.className='pk3-section pk3-gallery-section';heading(gallery,'Photos','05 / GALERIE');grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const photo=document.createElement('div'),img=document.createElement('img');photo.className='pk-profile-photo';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';photo.append(img);grid.append(photo);});gallery.append(grid);box.append(gallery);}
   linksSection('En ligne',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]],'pk-links','06 / CONTACT');
