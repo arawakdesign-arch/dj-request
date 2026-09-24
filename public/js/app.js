@@ -1311,6 +1311,12 @@ function applyDjProfileToPresskit() {
   elt('pk-name', p.stage_name.toUpperCase());
   elt('pk-tagline', p.tagline || '');
   renderDjProfileDetails(p);
+  // Le bloc "Live sur Pull Up" (prochain son, lien vers les votes) n'a de
+  // sens que dans le contexte d'une soirée en cours (on vote/propose pour
+  // CE DJ) — pas quand on arrive sur son profil via son lien public direct
+  // (pull-up.live/nom-du-dj), sans aucune soirée associée.
+  const liveBlock = document.querySelector('.pk2-live');
+  if (liveBlock) liveBlock.style.display = eid ? '' : 'none';
   const ownId = _sbSession?.user?.id || currentUser?.uid;
   if (editBtn) editBtn.style.display = ownId && (!djViewedProfileId || djViewedProfileId === ownId) ? 'block' : 'none';
 }
