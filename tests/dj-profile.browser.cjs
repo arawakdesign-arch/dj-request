@@ -115,11 +115,30 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#pk-socials').count(),0);
  assert.equal(await page.locator('#pk-music a').count(),0);
  assert.equal(await page.locator('#pk-music .pk-profile-player').count(),4);
+ // RGPD : aucun lecteur tiers ne doit charger avant un clic explicite —
+ // seuls des placeholders avec bouton "Afficher le lecteur" sont présents.
+ assert.equal(await page.locator('#pk-music iframe').count(),0);
+ assert.equal(await page.locator('#pk-music .pk-profile-player-gate').count(),4);
+ assert.match(await page.locator('#pk-music [data-platform="soundcloud"] .pk-profile-player-gate p').innerText(),/fourni par SoundCloud/);
+ await page.locator('#pk-music [data-platform="soundcloud"] button').click();
  assert.match(await page.locator('#pk-music [data-platform="soundcloud"] iframe').getAttribute('src'),/^https:\/\/w\.soundcloud\.com\/player\//);
+ await page.locator('#pk-music [data-platform="mixcloud"] button').click();
  assert.match(await page.locator('#pk-music [data-platform="mixcloud"] iframe').getAttribute('src'),/^https:\/\/player-widget\.mixcloud\.com\//);
  assert.match(await page.locator('#pk-music [data-platform="mixcloud"] iframe').getAttribute('src'),/feed=%2Femilio-lameynardie%2Fafro-vs-shatta/);
+ await page.locator('#pk-music [data-platform="youtube"] button').click();
  assert.match(await page.locator('#pk-music [data-platform="youtube"] iframe').getAttribute('src'),/^https:\/\/www\.youtube-nocookie\.com\/embed\//);
+ await page.locator('#pk-music [data-platform="spotify"] button').click();
  assert.match(await page.locator('#pk-music [data-platform="spotify"] iframe').getAttribute('src'),/^https:\/\/open\.spotify\.com\/embed\//);
+ // Revisiter la page dans la même session : le choix reste mémorisé (pas de re-consentement).
+ await page.reload();
+ await page.locator('#pg-presskit.active').waitFor();
+ assert.equal(await page.locator('#pk-music [data-platform="soundcloud"] iframe').count(),1);
+ assert.equal(await page.locator('#pk-music [data-platform="youtube"] iframe').count(),1);
+ // resetEmbedConsent() (bouton Paramètres → Confidentialité) efface ce choix
+ // et réaffiche immédiatement les placeholders sur la page ouverte.
+ await page.evaluate(()=>resetEmbedConsent());
+ assert.equal(await page.locator('#pk-music iframe').count(),0);
+ assert.equal(await page.locator('#pk-music .pk-profile-player-gate').count(),4);
  assert.equal(await page.evaluate(()=>document.querySelector('#pk-booking').getBoundingClientRect().top>document.querySelector('#pk-profile-details').getBoundingClientRect().top),true);
  assert.match(await page.locator('#pk-hero-art').evaluate(el=>el.style.backgroundImage),/auth-hero-bg\.jpg/);
  assert.match(await page.locator('#pk-photo').getAttribute('src'),/avatar-03-pullup\.png/);

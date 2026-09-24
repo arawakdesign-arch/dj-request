@@ -1,0 +1,29 @@
+/* Polices auto-hébergées (Anton, Inter, Outfit — licence SIL Open Font
+   License, téléchargées depuis Google Fonts et servies localement).
+   Évite qu'une simple ouverture de PULL UP! transmette l'adresse IP du
+   visiteur à fonts.googleapis.com / fonts.gstatic.com à chaque chargement
+   de page. Sous-ensemble latin uniquement (le Service est en français). */
+
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/anton-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/inter-var.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/outfit-var.woff2') format('woff2');
+}

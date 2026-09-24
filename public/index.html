@@ -33,7 +33,7 @@
 <meta name="twitter:image" content="https://pull-up.live/images/TEMPLATE%261.png">
 
 <title>Pull up</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Anton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/fonts.css">
 <!-- Si tu modifies ce bloc, recalcule son hash SHA-256 et mets à jour scriptSrc dans server.js (CSP) -->
 <script type="application/ld+json">
 {
@@ -880,7 +880,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="/css/dj-register.css?v=19">
+<link rel="stylesheet" href="/css/dj-register.css?v=20">
 </head>
 <body>
 
@@ -1235,10 +1235,13 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div id="prof-lineup-events" style="display:none;margin-bottom:.5rem"></div>
 
       <!-- Confidentialité : partage email/téléphone avec les organisateurs -->
+      <div style="font-size:.62rem;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.1em;margin:.9rem .1rem .5rem">Confidentialité</div>
       <label style="display:flex;align-items:flex-start;gap:.6rem;padding:.7rem .1rem;margin-bottom:.5rem;font-size:.78rem;color:var(--tx2);line-height:1.4;cursor:pointer">
         <input type="checkbox" id="chk-share-contact" onchange="api('PATCH','/profile',{share_contact_ok:this.checked}).then(()=>toast(this.checked?'✅ Préférence enregistrée':'Compris, tes coordonnées restent privées')).catch(()=>{})" style="margin-top:.15rem;flex-shrink:0">
         <span>Partager mon email/téléphone avec les organisateurs des soirées auxquelles je participe</span>
       </label>
+      <button onclick="downloadMyData()" style="width:100%;padding:.65rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.78rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.4rem;text-align:left;display:flex;align-items:center;gap:.5rem"><span>⬇️</span> Télécharger mes données</button>
+      <button onclick="resetEmbedConsent()" style="width:100%;padding:.65rem;border-radius:1rem;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx2);font-size:.78rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.5rem;text-align:left;display:flex;align-items:center;gap:.5rem"><span>🔄</span> Réinitialiser les lecteurs externes (SoundCloud, YouTube…)</button>
 
       <!-- Déconnexion utilisateur -->
       <button id="btn-user-logout" style="width:100%;padding:.72rem;border-radius:1rem;border:1px solid rgba(255,59,87,.2);background:rgba(255,59,87,.05);color:var(--red);font-size:.82rem;font-weight:600;font-family:Inter,sans-serif;margin-bottom:.5rem">
@@ -2086,9 +2089,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=3"></script>
 <script src="/js/app.js?v=119"></script>
-<script src="/js/dj-profile-editor.js?v=21"></script>
+<script src="/js/dj-profile-editor.js?v=22"></script>
 <script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
-<script src="/js/auth.js?v=74"></script>
+<script src="/js/auth.js?v=75"></script>
 </body>
 </html>

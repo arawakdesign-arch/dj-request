@@ -37,15 +37,15 @@ function makeSupabaseMock(results = {}) {
 }
 
 function withMockSupabase(results, fn) {
-  const path = require.resolve('../lib/supabase');
+  const path = require.resolve('../../lib/supabase');
   const mock = makeSupabaseMock(results);
   const original = require.cache[path];
   require.cache[path] = { id: path, filename: path, loaded: true, exports: mock };
-  delete require.cache[require.resolve('../lib/account')];
-  const { deleteUserAccount } = require('../lib/account');
+  delete require.cache[require.resolve('../../lib/account')];
+  const { deleteUserAccount } = require('../../lib/account');
   return Promise.resolve(fn(deleteUserAccount, mock)).finally(() => {
     if (original) require.cache[path] = original; else delete require.cache[path];
-    delete require.cache[require.resolve('../lib/account')];
+    delete require.cache[require.resolve('../../lib/account')];
   });
 }
 

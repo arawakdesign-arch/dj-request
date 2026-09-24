@@ -60,6 +60,42 @@ router.delete('/profile/account', requireAuth, async (req, res) => {
   }
 });
 
+// ── Export de mes données (droit à la portabilité, RGPD art. 20) ──────
+// Uniquement les données appartenant à la personne authentifiée — jamais
+// celles d'un tiers, aucun secret serveur, aucune donnée de modération
+// interne concernant d'autres personnes.
+router.get('/profile/export', requireAuth, async (req, res) => {
+  const uid = req.user.id;
+  const [profile, djProfile, orgaPage, votes, proposals, messages, friendsAdded, following, reportsFiled] = await Promise.all([
+    supabase.from('user_profiles').select('*').eq('id', uid).maybeSingle(),
+    supabase.from('dj_profiles').select('*').eq('id', uid).maybeSingle(),
+    supabase.from('organizer_pages').select('*').eq('owner_id', uid).maybeSingle(),
+    supabase.from('votes').select('event_id, proposal_id, created_at').eq('user_id', uid),
+    supabase.from('proposals').select('id, event_id, title, artist, votes, approved, created_at').eq('proposed_by', uid),
+    supabase.from('messages').select('id, event_id, text, photo_url, created_at').eq('user_id', uid),
+    supabase.from('friendships').select('friend_code, friend_name, created_at').eq('user_id', uid),
+    supabase.from('organizer_followers').select('organizer_id, created_at').eq('follower_id', uid),
+    supabase.from('reports').select('id, message_id, event_id, created_at').eq('reported_by', uid),
+  ]);
+  if ([profile, djProfile, orgaPage, votes, proposals, messages, friendsAdded, following, reportsFiled].some(r => r.error)) {
+    console.error('[GET /profile/export] échec —', uid);
+    return res.status(500).json({ error: 'Export impossible pour le moment — réessaie plus tard.' });
+  }
+  res.setHeader('Content-Disposition', 'attachment; filename="pullup-mes-donnees.json"');
+  res.json({
+    exported_at: new Date().toISOString(),
+    profil: profile.data || null,
+    profil_dj: djProfile.data || null,
+    page_organisateur: orgaPage.data || null,
+    votes: votes.data || [],
+    propositions: proposals.data || [],
+    messages: messages.data || [],
+    amis_ajoutes: friendsAdded.data || [],
+    organisateurs_suivis: following.data || [],
+    signalements_effectues: reportsFiled.data || [],
+  });
+});
+
 // ── Stats réelles du profil ───────────────────────────────────────────
 router.get('/profile/stats', requireAuth, async (req, res) => {
   const uid = req.user.id;

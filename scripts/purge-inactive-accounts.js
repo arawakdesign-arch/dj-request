@@ -12,10 +12,26 @@
 //
 // Vérifier ensuite que ça tourne réellement, depuis Supabase SQL Editor :
 //   select * from retention_runs order by started_at desc limit 5;
+//
+// --dry-run (ou : npm run retention:dry-run) : n'efface rien, affiche
+// uniquement le nombre de comptes concernés et leurs UUID techniques —
+// jamais leur email ni leur téléphone.
 
 require('dotenv').config();
-const { purgeInactiveAccounts } = require('../lib/retention');
+const { purgeInactiveAccounts, countInactiveAccounts } = require('../lib/retention');
 
-purgeInactiveAccounts()
-  .then(count => { console.log(`[retention] OK — ${count} compte(s) purgé(s).`); process.exit(0); })
-  .catch(e => { console.error('[retention] échec —', e.message); process.exit(1); });
+const dryRun = process.argv.includes('--dry-run');
+
+if (dryRun) {
+  countInactiveAccounts()
+    .then(ids => {
+      console.log(`[retention:dry-run] ${ids.length} compte(s) seraient purgés (aucune suppression effectuée).`);
+      if (ids.length) console.log('[retention:dry-run] UUID concernés :', ids.join(', '));
+      process.exit(0);
+    })
+    .catch(e => { console.error('[retention:dry-run] échec —', e.message); process.exit(1); });
+} else {
+  purgeInactiveAccounts()
+    .then(count => { console.log(`[retention] OK — ${count} compte(s) purgé(s).`); process.exit(0); })
+    .catch(e => { console.error('[retention] échec —', e.message); process.exit(1); });
+}

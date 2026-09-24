@@ -148,6 +148,10 @@
 .pk-profile-player[data-platform="soundcloud"] iframe{height:166px}
 .pk-profile-player[data-platform="mixcloud"] iframe{height:120px}
 .pk-profile-player[data-platform="youtube"] iframe{height:auto;aspect-ratio:16/9}
+.pk-profile-player-gate{padding:18px 16px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.pk-profile-player-gate p{margin:0;font-size:.72rem;line-height:1.5;color:#c9c2ce}
+.pk-profile-player-gate button{padding:8px 14px;border:1px solid #ffffff40;border-radius:20px;background:transparent;color:#fff;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;cursor:pointer}
+.pk-profile-player-gate button:hover{background:#ffffff14}
 .pk-profile-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pk-profile-gallery a{display:block;overflow:hidden;background:#eee}
 .pk-profile-gallery img{display:block;width:100%;aspect-ratio:1;object-fit:cover;transition:transform .25s}

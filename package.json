@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "pm2": "pm2 start ecosystem.config.js"
+    "pm2": "pm2 start ecosystem.config.js",
+    "test": "node --test tests/*.test.js tests/rgpd/*.test.js",
+    "test:rgpd": "node --test tests/rgpd/*.test.js",
+    "retention:dry-run": "node scripts/purge-inactive-accounts.js --dry-run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.43.1",

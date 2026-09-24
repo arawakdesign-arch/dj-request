@@ -1,4 +1,13 @@
 /* Extended DJ editor: all text is inserted with textContent, never HTML. */
+// Consentement (par plateforme, mémorisé pour la session) avant de charger un
+// lecteur SoundCloud/Mixcloud/Spotify/YouTube — cf. playersSection() plus bas.
+// Réinitialisable depuis Paramètres → Confidentialité.
+const EMBED_PLATFORMS = ['soundcloud', 'mixcloud', 'spotify', 'youtube'];
+function resetEmbedConsent() {
+  try { EMBED_PLATFORMS.forEach(p => sessionStorage.removeItem('pullup_embed_ok_' + p)); } catch(e) {}
+  if (typeof djViewedProfileId !== 'undefined' && document.getElementById('pg-presskit')?.classList.contains('active') && typeof applyDjProfileToPresskit === 'function') applyDjProfileToPresskit();
+  if (typeof toast === 'function') toast('Préférences de contenus externes réinitialisées');
+}
 let djMediaBusy = false;
 let djGallery = [];
 let djViewedProfileId = null;
@@ -137,9 +146,39 @@ function renderDjProfileDetails(p) {
     const playlistId=url.searchParams.get('list');
     return /^[\w-]{6,}$/.test(playlistId||'')?`https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(playlistId)}`:'';
   }
+  // Charger un lecteur SoundCloud/Mixcloud/Spotify/YouTube établit une
+  // connexion directe avec ce service (cookies/traceurs possibles) — on ne
+  // crée donc l'iframe qu'après un clic explicite, jamais au chargement de
+  // la page. Le choix est mémorisé pour la session en cours (par plateforme),
+  // et réinitialisable depuis Paramètres → Confidentialité (cf. resetEmbedConsent()).
+  function embedConsentKey(platform){return 'pullup_embed_ok_'+platform;}
+  function hasEmbedConsent(platform){try{return sessionStorage.getItem(embedConsentKey(platform))==='1';}catch(e){return false;}}
+  function grantEmbedConsent(platform){try{sessionStorage.setItem(embedConsentKey(platform),'1');}catch(e){}}
+  function mountPlayer(player,label,platform,src){
+    const frame=document.createElement('iframe');
+    frame.src=src;frame.title=`Lecteur ${label}`;frame.loading='lazy';
+    frame.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+    frame.referrerPolicy='strict-origin-when-cross-origin';frame.setAttribute('allowfullscreen','');
+    player.replaceChildren();
+    const head=document.createElement('div'),name=document.createElement('strong'),status=document.createElement('span');
+    head.className='pk-profile-player-head';name.textContent=label;status.textContent='Lecture intégrée';head.append(name,status);
+    player.append(head,frame);
+  }
   function playersSection(entries){
     const players=document.createElement('div');players.className='pk-profile-players';
-    entries.forEach(([label,platform,value])=>{const src=embedUrl(platform,value);if(!src)return;const player=document.createElement('div'),head=document.createElement('div'),name=document.createElement('strong'),status=document.createElement('span'),frame=document.createElement('iframe');player.className='pk-profile-player';player.dataset.platform=platform;head.className='pk-profile-player-head';name.textContent=label;status.textContent='Lecture intégrée';head.append(name,status);frame.src=src;frame.title=`Lecteur ${label}`;frame.loading='lazy';frame.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';frame.referrerPolicy='strict-origin-when-cross-origin';frame.setAttribute('allowfullscreen','');player.append(head,frame);players.append(player);});
+    entries.forEach(([label,platform,value])=>{
+      const src=embedUrl(platform,value);if(!src)return;
+      const player=document.createElement('div');player.className='pk-profile-player';player.dataset.platform=platform;
+      if(hasEmbedConsent(platform)){mountPlayer(player,label,platform,src);}
+      else{
+        const gate=document.createElement('div');gate.className='pk-profile-player-gate';
+        const text=document.createElement('p');text.textContent=`Ce contenu est fourni par ${label}. En l’affichant, vous acceptez qu’une connexion soit établie avec ${label}.`;
+        const btn=document.createElement('button');btn.type='button';btn.textContent='Afficher le lecteur';
+        btn.onclick=()=>{grantEmbedConsent(platform);mountPlayer(player,label,platform,src);};
+        gate.append(text,btn);player.append(gate);
+      }
+      players.append(player);
+    });
     if(!players.childNodes.length)return;const s=document.createElement('section');s.id='pk-music';s.className='pk3-section';heading(s,'Écouter','02 / SÉLECTION');s.append(players);box.append(s);
   }
   const portrait=document.getElementById('pk-photo');

@@ -79,17 +79,17 @@ function makeSupabaseMock({ authUsers = [], guestProfiles = [] } = {}) {
 }
 
 function withMockRetention(mockOptions, fn) {
-  const supabasePath = require.resolve('../lib/supabase');
+  const supabasePath = require.resolve('../../lib/supabase');
   const mock = makeSupabaseMock(mockOptions);
   const originalSupabase = require.cache[supabasePath];
   require.cache[supabasePath] = { id: supabasePath, filename: supabasePath, loaded: true, exports: mock };
-  delete require.cache[require.resolve('../lib/account')];
-  delete require.cache[require.resolve('../lib/retention')];
-  const { purgeInactiveAccounts } = require('../lib/retention');
+  delete require.cache[require.resolve('../../lib/account')];
+  delete require.cache[require.resolve('../../lib/retention')];
+  const { purgeInactiveAccounts } = require('../../lib/retention');
   return Promise.resolve(fn(purgeInactiveAccounts, mock)).finally(() => {
     if (originalSupabase) require.cache[supabasePath] = originalSupabase; else delete require.cache[supabasePath];
-    delete require.cache[require.resolve('../lib/account')];
-    delete require.cache[require.resolve('../lib/retention')];
+    delete require.cache[require.resolve('../../lib/account')];
+    delete require.cache[require.resolve('../../lib/retention')];
   });
 }
 

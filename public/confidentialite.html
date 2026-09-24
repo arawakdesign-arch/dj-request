@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Politique de confidentialité — PULL UP!</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/fonts.css">
 <style>
   :root{
     --ink:#FFFFFF;--ink2:#F7F5FB;--card:#F7F5FB;
@@ -95,7 +95,16 @@
   <p>Nous n'utilisons pas vos données à des fins de publicité ciblée et ne les vendons à aucun tiers.</p>
 
   <h2>4. Base légale du traitement</h2>
-  <p>Les traitements décrits ci-dessus reposent sur l'exécution du contrat qui vous lie à HUSTLE &amp; FLOW lorsque vous utilisez le Service (fourniture des fonctionnalités demandées), ainsi que sur l'intérêt légitime de l'éditeur à assurer la sécurité et la modération du Service. Les données de votre profil DJ ou de votre page organisateur, ainsi que votre choix de partager vos coordonnées, sont traitées sur la base de votre consentement explicite : vous choisissez de les renseigner et de les rendre publiques.</p>
+  <table>
+    <tr><th>Traitement</th><th>Base légale</th></tr>
+    <tr><td>Création de compte, connexion (Google/téléphone)</td><td>Exécution du contrat</td></tr>
+    <tr><td>Votes, propositions musicales, chat, amis, blind-test</td><td>Exécution du contrat (fonctionnalités que vous utilisez)</td></tr>
+    <tr><td>Sécurité (limitation d'abus), vérification de l'organisateur</td><td>Intérêt légitime</td></tr>
+    <tr><td>Modération (signalements, suppression de contenus)</td><td>Intérêt légitime</td></tr>
+    <tr><td>Partage de l'e-mail/téléphone avec un organisateur</td><td>Consentement (case décochée par défaut, révocable)</td></tr>
+    <tr><td>Profil DJ (press kit) et page organisateur publics</td><td>Consentement (vous choisissez de les créer et de les publier)</td></tr>
+    <tr><td>Chargement d'un lecteur SoundCloud/Mixcloud/Spotify/YouTube</td><td>Consentement (clic explicite avant chargement — voir section 5)</td></tr>
+  </table>
 
   <h2>5. Qui a accès à vos données</h2>
   <ul>
@@ -108,8 +117,8 @@
     <tr><th>Sous-traitant</th><th>Rôle</th></tr>
     <tr><td>Supabase</td><td>Hébergement de la base de données, authentification, stockage des photos</td></tr>
     <tr><td>Google (via Supabase Auth)</td><td>Authentification par compte Google, si vous choisissez ce mode de connexion</td></tr>
-    <tr><td>Google Fonts</td><td>Chargement des polices d'écriture du Service — votre navigateur contacte directement les serveurs de Google, qui reçoivent votre adresse IP</td></tr>
   </table>
+  <p>Les polices d'écriture du Service (Anton, Inter, Outfit) sont hébergées par nos soins, pas par Google Fonts : votre navigateur ne contacte aucun serveur Google au simple chargement d'une page.</p>
   <p>D'autres services publics sont interrogés <strong>par notre serveur</strong>, jamais directement par votre navigateur — votre adresse IP ne leur est donc jamais transmise, seul le terme recherché l'est, sans autre donnée personnelle. Il ne s'agit pas de sous-traitants au sens du RGPD : ce sont des sources de données publiques que nous consultons pour vous.</p>
   <table>
     <tr><th>Service</th><th>Usage</th></tr>
@@ -117,8 +126,12 @@
     <tr><td>SoundCloud</td><td>Recherche d'un DJ à ajouter au line-up d'une soirée (fonctionnalité organisateur)</td></tr>
     <tr><td>API Adresse (data.gouv.fr) et Photon/OpenStreetMap</td><td>Suggestions d'adresse et de nom d'établissement lors de la création d'un événement</td></tr>
   </table>
-  <p>Enfin, votre navigateur charge deux bibliothèques techniques (Supabase et un générateur de QR code) depuis les réseaux de diffusion <strong>jsdelivr.net</strong> et <strong>cdnjs.cloudflare.com</strong> : comme pour Google Fonts, ces serveurs reçoivent votre adresse IP au moment du chargement de la page, mais aucune donnée de votre compte ne leur est transmise.</p>
-  <p>Les données sont hébergées par Supabase dans la région <strong>eu-west-1 (Irlande)</strong>, au sein de l'Union européenne : aucun transfert hors UE n'est effectué pour l'hébergement de la base de données. Google (authentification et polices d'écriture) est basé hors UE ; les transferts correspondants s'appuient sur les garanties prévues par la réglementation européenne applicable aux transferts internationaux de données.</p>
+  <p>Enfin, votre navigateur charge deux bibliothèques techniques (Supabase et un générateur de QR code) depuis les réseaux de diffusion <strong>jsdelivr.net</strong> et <strong>cdnjs.cloudflare.com</strong> : ces serveurs reçoivent votre adresse IP au moment du chargement de la page, mais aucune donnée de votre compte ne leur est transmise.</p>
+
+  <h3>Lecteurs SoundCloud, Mixcloud, Spotify et YouTube</h3>
+  <p>Sur un profil DJ, les liens vers ses mixes peuvent être écoutés directement sur la page grâce à un lecteur intégré. Charger ce lecteur établit une connexion avec le service concerné (SoundCloud, Mixcloud, Spotify ou YouTube), qui peut alors recevoir votre adresse IP selon ses propres règles. <strong>Ce lecteur ne se charge jamais automatiquement</strong> : un message dédié s'affiche à la place (« Ce contenu est fourni par… »), et le lecteur n'apparaît qu'après avoir cliqué sur « Afficher le lecteur ». Ce choix est mémorisé le temps de votre visite (par plateforme) et peut être réinitialisé à tout moment depuis Paramètres → Confidentialité → « Réinitialiser les lecteurs externes ».</p>
+
+  <p>Les données sont hébergées par Supabase dans la région <strong>eu-west-1 (Irlande)</strong>, au sein de l'Union européenne : aucun transfert hors UE n'est effectué pour l'hébergement de la base de données. Google (authentification par compte Google) est basé hors UE ; les transferts correspondants s'appuient sur les garanties prévues par la réglementation européenne applicable aux transferts internationaux de données. Si vous choisissez d'afficher un lecteur SoundCloud/Mixcloud/Spotify/YouTube (voir ci-dessus), ce service tiers peut lui aussi être basé hors UE.</p>
 
   <h2>6. Durée de conservation</h2>
   <ul>
@@ -138,7 +151,8 @@
     <li>Droit à la limitation du traitement</li>
     <li>Droit d'opposition</li>
     <li>Droit de retirer à tout moment votre consentement au partage de vos coordonnées avec les organisateurs, depuis votre profil</li>
-    <li>Droit à la portabilité de vos données</li>
+    <li>Droit de retirer à tout moment votre consentement aux lecteurs externes (SoundCloud, Mixcloud, Spotify, YouTube), depuis Paramètres → Confidentialité</li>
+    <li>Droit à la portabilité de vos données : un bouton « Télécharger mes données » dans votre profil génère un export JSON de votre profil, vos votes, propositions, messages, amis et abonnements — jamais les données d'un tiers</li>
   </ul>
   <p>Pour exercer ces droits, contactez-nous à <a href="mailto:arawakdesign@gmail.com">arawakdesign@gmail.com</a>. Vous disposez également du droit d'introduire une réclamation auprès de la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener">www.cnil.fr</a>).</p>
 

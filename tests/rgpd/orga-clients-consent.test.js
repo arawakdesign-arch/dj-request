@@ -19,14 +19,14 @@ function makeSupabaseMock({ events, votes, proposals, profiles }) {
 
 function loadOrgaRouter(mock) {
   for (const [path, exports] of [
-    ['../lib/supabase', mock],
-    ['../middleware/auth', { requireAuth: (req, res, next) => { req.user = { id: 'orga-1' }; next(); }, requireOrganizer: (req, res, next) => next() }],
-    ['../routes/events', { isClosed: () => false, isUpcoming: () => false }],
+    ['../../lib/supabase', mock],
+    ['../../middleware/auth', { requireAuth: (req, res, next) => { req.user = { id: 'orga-1' }; next(); }, requireOrganizer: (req, res, next) => next() }],
+    ['../../routes/events', { isClosed: () => false, isUpcoming: () => false }],
   ]) {
     require.cache[require.resolve(path)] = { id: require.resolve(path), filename: require.resolve(path), loaded: true, exports };
   }
-  delete require.cache[require.resolve('../routes/orga')];
-  return require('../routes/orga');
+  delete require.cache[require.resolve('../../routes/orga')];
+  return require('../../routes/orga');
 }
 
 function callRoute(router, method, path) {

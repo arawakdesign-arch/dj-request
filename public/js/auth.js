@@ -912,6 +912,21 @@ function logout() {
   closeTopMenu();
 }
 
+// ── Export de mes données (droit à la portabilité) ─────────────────────
+async function downloadMyData() {
+  if (!(_authToken || _sbSession)) { toast('⚠️ Connecte-toi d\'abord pour télécharger tes données'); return; }
+  try {
+    const data = await api('GET', '/profile/export');
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'pullup-mes-donnees.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    toast('✅ Export téléchargé');
+  } catch(e) { toast('⚠️ ' + (e.message || 'Export impossible')); }
+}
+
 // ── Suppression du compte (droit à l'effacement) ───────────────────────
 function confirmDeleteAccount() {
   if (!(_authToken || _sbSession)) { toast('⚠️ Connecte-toi d\'abord pour supprimer ton compte'); return; }
