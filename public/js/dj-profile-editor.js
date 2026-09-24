@@ -176,6 +176,7 @@ async function openPublicDjProfile(id) {
 // le clic propose donc de choisir lequel consulter plutôt que d'ouvrir
 // silencieusement toujours le même.
 async function openDjBannerProfile() {
+  closeTopMenu(); // au cas où l'appel vienne du bouton "DJ's" du menu déroulant
   const clickable = _currentLineup.filter(dj => (dj.type === 'app' && dj.id) || (dj.type === 'external' && dj.soundcloud_url));
   // Rien à montrer (pas de soirée en cours, ou line-up vide) — "DJ's" reste
   // utile et propose de gérer son propre profil plutôt que de ne rien faire.
