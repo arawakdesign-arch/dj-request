@@ -472,7 +472,7 @@
   .pk3-footer{grid-template-columns:64px minmax(0,1fr);gap:13px;padding:24px 6px 8px}
   .pk3-footer img{width:64px;height:64px}
   .pk3-footer .pk3-create-cta{min-height:64px;padding:0}
-  .pk3-create-cta strong{font-size:clamp(2rem,10vw,2.8rem)}
+  .pk3-create-cta strong{font-size:clamp(1.6rem,8vw,2.3rem)}
   .pk3-create-cta i{font-size:1.55rem}
 }
 @media(max-width:600px){
