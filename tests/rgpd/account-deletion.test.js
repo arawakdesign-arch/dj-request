@@ -53,7 +53,7 @@ test('deleteUserAccount removes DJ gallery photos from storage, not just the ava
   dj_profiles: { data: { photo_url: 'https://x.supabase.co/storage/v1/object/public/profile-photos/dj/u1/avatar.jpg', gallery: [
     'https://x.supabase.co/storage/v1/object/public/profile-photos/dj/u1/gallery-a.jpg',
     'https://x.supabase.co/storage/v1/object/public/profile-photos/dj/u1/gallery-b.jpg',
-  ], upcoming_events: [
+  ], presskit_pdf_url: 'https://x.supabase.co/storage/v1/object/public/profile-photos/dj/u1/presskit.pdf', upcoming_events: [
     { flyer_url: 'https://x.supabase.co/storage/v1/object/public/profile-photos/dj/u1/event-flyer-a.jpg' },
   ] }, error: null },
 }, async (deleteUserAccount, mock) => {
@@ -61,6 +61,7 @@ test('deleteUserAccount removes DJ gallery photos from storage, not just the ava
   assert.ok(mock.removedFiles.includes('profile-photos/dj/u1/avatar.jpg'), 'avatar removed');
   assert.ok(mock.removedFiles.includes('profile-photos/dj/u1/gallery-a.jpg'), 'gallery photo a removed');
   assert.ok(mock.removedFiles.includes('profile-photos/dj/u1/gallery-b.jpg'), 'gallery photo b removed');
+  assert.ok(mock.removedFiles.includes('profile-photos/dj/u1/presskit.pdf'), 'press kit pdf removed');
   assert.ok(mock.removedFiles.includes('profile-photos/dj/u1/event-flyer-a.jpg'), 'event flyer removed');
 }));
 

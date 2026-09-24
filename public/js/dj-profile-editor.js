@@ -119,6 +119,7 @@ function initDjProfileEditor(profile) {
     name.textContent=i?`Avatar ${String(i).padStart(2,'0')}`:'Aucun';label.append(radio,name);covers.append(label);
   }
   djGallery=[...(profile.gallery||[])];renderDjGallery();
+  renderDjPresskitPdf(profile.presskit_pdf_url || '');
   document.getElementById('djr-gallery-input').onchange=uploadDjGallery;
 }
 function collectDjProfile() {
@@ -200,6 +201,38 @@ async function uploadDjEventFlyer(input,index) {
     updateDjEventFlyerPreview(index,result.url);
     djFeedback('Flyer chargé. Pense à enregistrer ton profil.');
   }catch(e){djFeedback(e.message||'Le flyer n’a pas pu être envoyé.');}
+  finally{setDjMediaBusy(false);}
+}
+function renderDjPresskitPdf(url) {
+  const safe=DjProfileSchema.url(url),link=document.getElementById('djr-pdf-link'),remove=document.getElementById('djr-pdf-remove'),status=document.getElementById('djr-pdf-status');
+  if(link){link.hidden=!safe;link.href=safe||'';}
+  if(remove)remove.hidden=!safe;
+  if(status)status.textContent=safe?'PDF chargé et visible sur la page DJ.':'Aucun PDF chargé pour le moment.';
+}
+async function uploadDjPresskitPdf(input) {
+  if(djMediaBusy)return;
+  const file=input.files[0];input.value='';
+  if(!file)return;
+  if(file.size>10*1024*1024||!(file.type==='application/pdf'||/\.pdf$/i.test(file.name))){djFeedback('Choisis un PDF de moins de 10 Mo.');return;}
+  setDjMediaBusy(true);djFeedback('Envoi du press kit PDF…');
+  try{
+    const form=new FormData();form.append('pdf',file);
+    const response=await fetch('/api/dj/profile/presskit-pdf',{method:'POST',headers:{Authorization:'Bearer '+(_sbSession?.access_token||_authToken)},body:form});
+    const result=await response.json();if(!response.ok)throw new Error(result.error||'Envoi impossible.');
+    _djProfileCache=_djProfileCache||{};_djProfileCache.presskit_pdf_url=result.url;
+    renderDjPresskitPdf(result.url);applyDjProfileToPresskit();djFeedback('Press kit PDF chargé.');
+  }catch(e){djFeedback(e.message||'Le PDF n’a pas pu être envoyé.');}
+  finally{setDjMediaBusy(false);}
+}
+async function removeDjPresskitPdf() {
+  if(djMediaBusy)return;
+  setDjMediaBusy(true);djFeedback('Suppression du press kit PDF…');
+  try{
+    const response=await fetch('/api/dj/profile/presskit-pdf',{method:'DELETE',headers:{Authorization:'Bearer '+(_sbSession?.access_token||_authToken)}});
+    const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Suppression impossible.');
+    if(_djProfileCache)_djProfileCache.presskit_pdf_url='';
+    renderDjPresskitPdf('');applyDjProfileToPresskit();djFeedback('Press kit PDF retiré.');
+  }catch(e){djFeedback(e.message||'Le PDF n’a pas pu être retiré.');}
   finally{setDjMediaBusy(false);}
 }
 function renderDjProfileDetails(p) {
@@ -316,6 +349,7 @@ function renderDjProfileDetails(p) {
   const area=document.getElementById('pk-travel-areas');if(area)area.textContent=p.travel_areas||'Zones de déplacement à confirmer';
   const email=document.getElementById('pk-booking-email');if(email)email.textContent=p.booking_email||'Non renseigné';
   const phone=document.getElementById('pk-booking-phone');if(phone){phone.hidden=!p.phone;phone.textContent=p.phone?`WhatsApp / téléphone · ${p.phone}`:'';phone.href=p.phone?'tel:'+p.phone.replace(/[^+\d]/g,''):'';}
+  const pdf=document.getElementById('pk-presskit-pdf');if(pdf){const href=DjProfileSchema.url(p.presskit_pdf_url);pdf.hidden=!href;pdf.href=href||'';}
 }
 
 let _djProfileBackTo=null;

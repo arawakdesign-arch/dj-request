@@ -36,8 +36,11 @@
 .djr-save p>span,#pg-dj-register label>span{color:#6f22ff}
 #pg-dj-register #btn-save-dj-profile{display:flex;justify-content:center;align-items:center;width:100%;padding:17px 20px;border:0;border-radius:4px;background:#0a0a0c;color:#fff;font-size:.85rem;font-weight:700;box-shadow:none;cursor:pointer}
 #pg-dj-register #btn-save-dj-profile:hover{background:#292929}
-#pg-dj-register .djr-pdf-btn{display:flex;justify-content:center;align-items:center;width:100%;margin-top:10px;padding:15px 20px;border:1px solid #0a0a0c;border-radius:4px;background:#fff;color:#0a0a0c;font-family:inherit;font-size:.8rem;font-weight:800;cursor:pointer}
-#pg-dj-register .djr-pdf-btn:hover{background:#f0edf3}
+#pg-dj-register .djr-pdf-upload{padding:18px;border:1px solid #e3dfeb;border-radius:6px;background:#faf8fc}
+#pg-dj-register .djr-pdf-actions{display:flex;gap:10px;margin:12px 0}
+#pg-dj-register .djr-pdf-actions button{min-height:42px;border:1px solid #0a0a0c;border-radius:4px;background:#0a0a0c;color:#fff;font-family:inherit;font-size:.74rem;font-weight:800;cursor:pointer;padding:0 16px}
+#pg-dj-register .djr-pdf-actions button+button{background:#fff;color:#0a0a0c}
+#pg-dj-register #djr-pdf-link{display:inline-flex;color:#0a0a0c;font-size:.76rem;font-weight:800;text-decoration:none;border-bottom:1px solid #0a0a0c}
 @media(max-width:600px){
   #pg-dj-register .djr-scroll{padding:24px 20px max(24px,env(safe-area-inset-bottom))}
   .djr-intro h1{font-size:1.8rem}
@@ -196,6 +199,7 @@
 .pk2-email span{display:block;font-size:.54rem;letter-spacing:.1em;color:#d8c7fa;margin-bottom:6px}
 .pk2-email strong{display:block;font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pk2-phone{display:block;color:#fff;font-size:.72rem;font-weight:700;text-decoration:none;border-bottom:1px solid #ffffff38;padding:13px 2px}
+.pk2-pdf-link{display:block;width:100%;text-align:center;color:#111;background:#fff;border-radius:4px;padding:14px;margin-top:14px;text-decoration:none;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
 @media(max-width:720px){
   .pk2-scroll{padding:16px 12px max(30px,env(safe-area-inset-bottom))}
   .pk2-hero{min-height:360px}
@@ -396,6 +400,7 @@
 #pg-presskit .pk2-email{border-color:#ffffff42;background:#ffffff0f;border-radius:6px;padding:16px}
 #pg-presskit .pk2-email span{color:#d9c3f8}
 #pg-presskit .pk2-phone{border-bottom-color:#ffffff35;padding:16px 2px}
+#pg-presskit .pk2-pdf-link{border-radius:30px}
 .pk3-footer{margin-top:58px;padding:36px 0 12px;border-top:1px solid #ffffff20;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;color:#8d8791}
 .pk3-footer img{width:72px;height:72px;object-fit:contain}
 .pk3-footer p{font-size:.62rem;text-transform:uppercase;letter-spacing:.15em}
@@ -480,6 +485,7 @@
 #pg-presskit .pk2-booking>.pk2-travel{grid-column:1;grid-row:3;margin:0}
 #pg-presskit .pk2-booking>.pk2-email{grid-column:2;grid-row:1;margin-top:0}
 #pg-presskit .pk2-booking>.pk2-phone{grid-column:2;grid-row:2}
+#pg-presskit .pk2-booking>.pk2-pdf-link{grid-column:2;grid-row:3}
 @media(max-width:700px){
   #pg-presskit .pk2-booking{display:block;margin-top:18px;padding:30px 22px}
   #pg-presskit .pk2-booking>h2{font-size:2.55rem}

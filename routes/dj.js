@@ -9,6 +9,7 @@ const { isClosed, isUpcoming } = require('./events');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+const pdfUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 function slugify(s) {
   return (s || '')
@@ -149,6 +150,27 @@ router.post('/dj/profile/event-flyer', requireAuth, upload.single('photo'), asyn
   res.json({ url: publicUrl });
 });
 
+router.post('/dj/profile/presskit-pdf', requireAuth, pdfUpload.single('pdf'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Choisis un fichier PDF.' });
+  const isPdf = req.file.mimetype === 'application/pdf' || /\.pdf$/i.test(req.file.originalname || '');
+  if (!isPdf || req.file.buffer.subarray(0, 5).toString('utf8') !== '%PDF-') {
+    return res.status(400).json({ error: 'Le fichier doit être un PDF valide.' });
+  }
+  const path = `dj/${req.user.id}/presskit.pdf`;
+  const { error } = await supabase.storage.from('profile-photos').upload(path, req.file.buffer, {
+    contentType: 'application/pdf', cacheControl: '3600', upsert: true,
+  });
+  if (error) return res.status(500).json({ error: 'Échec de l’envoi du PDF.' });
+  const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(path);
+  const pdfUrl = publicUrl + '?v=' + Date.now();
+  const { error: dbError } = await supabase.from('dj_profiles').upsert({ id: req.user.id, presskit_pdf_url: pdfUrl, updated_at: new Date().toISOString() });
+  if (isMissingUpcomingEventsColumn(dbError) || /presskit_pdf_url/i.test(dbError?.message || '')) {
+    return res.status(500).json({ error: 'Migration Supabase manquante : ajoute la colonne presskit_pdf_url sur dj_profiles.' });
+  }
+  if (dbError) return res.status(500).json({ error: dbError.message });
+  res.json({ url: pdfUrl });
+});
+
 // Add gallery images one at a time; the client serializes uploads.
 router.post('/dj/profile/gallery', requireAuth, upload.single('photo'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Choisis une image.' });
@@ -191,8 +213,23 @@ router.delete('/dj/profile/gallery', requireAuth, async (req, res) => {
   res.json({gallery:nextGallery});
 });
 
+router.delete('/dj/profile/presskit-pdf', requireAuth, async (req, res) => {
+  const { data: profile, error } = await supabase.from('dj_profiles').select('presskit_pdf_url').eq('id', req.user.id).maybeSingle();
+  if (isMissingUpcomingEventsColumn(error) || /presskit_pdf_url/i.test(error?.message || '')) {
+    return res.status(500).json({ error: 'Migration Supabase manquante : ajoute la colonne presskit_pdf_url sur dj_profiles.' });
+  }
+  if (error) return res.status(500).json({ error: 'Impossible de charger le PDF.' });
+  const { error: dbError } = await supabase.from('dj_profiles').update({ presskit_pdf_url: null, updated_at: new Date().toISOString() }).eq('id', req.user.id);
+  if (dbError) return res.status(500).json({ error: dbError.message });
+  const prefix = supabase.storage.from('profile-photos').getPublicUrl(`dj/${req.user.id}/`).data.publicUrl;
+  if (profile?.presskit_pdf_url?.startsWith(prefix + 'presskit.pdf')) {
+    await supabase.storage.from('profile-photos').remove([`dj/${req.user.id}/presskit.pdf`]);
+  }
+  res.json({ url: '' });
+});
+
 router.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError) return res.status(400).json({error:err.code==='LIMIT_FILE_SIZE'?'Chaque image doit faire moins de 5 Mo.':'Envoi de fichier invalide.'});
+  if (err instanceof multer.MulterError) return res.status(400).json({error:err.code==='LIMIT_FILE_SIZE'?(req.path.includes('presskit-pdf')?'Le PDF doit faire moins de 10 Mo.':'Chaque image doit faire moins de 5 Mo.'):'Envoi de fichier invalide.'});
   next(err);
 });
 
