@@ -450,7 +450,11 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 .dj-wv{width:3px;border-radius:2px 2px 0 0;background:var(--pk);animation:wva 1s ease-in-out infinite;transform-origin:bottom}
 .dj-wv:nth-child(1){animation-delay:0s;height:35%}.dj-wv:nth-child(2){animation-delay:.14s;height:100%}.dj-wv:nth-child(3){animation-delay:.28s;height:60%}.dj-wv:nth-child(4){animation-delay:.14s;height:80%}.dj-wv:nth-child(5){animation-delay:0s;height:30%}
 @keyframes wva{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
-.dj-lineup-card{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;border:1px solid var(--bdr);background-size:cover;background-position:center;cursor:pointer;padding:0}
+#pg-dj-lineup{background:#0b0b0d}
+#pg-dj-lineup .tb{background:#0b0b0d;border-bottom:1px solid rgba(255,255,255,.12)}
+#pg-dj-lineup .tb-back{background:#1a1a1e;border-color:rgba(255,255,255,.18);color:#fff}
+#pg-dj-lineup .tb-title{color:#fff}
+.dj-lineup-card{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.14);background-size:cover;background-position:center;cursor:pointer;padding:0}
 .dj-lineup-card::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,transparent 55%)}
 .dj-lineup-card-name{position:absolute;left:.7rem;right:.7rem;bottom:.6rem;z-index:2;font-family:'Anton',sans-serif;font-weight:400;font-size:1.05rem;line-height:1;color:#fff;text-transform:uppercase;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
 .dj-cover-wrap{position:relative;z-index:2;flex-shrink:0;width:100px;display:flex;flex-direction:column;align-items:center}
@@ -2081,8 +2085,8 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=3"></script>
-<script src="/js/app.js?v=117"></script>
-<script src="/js/dj-profile-editor.js?v=19"></script>
+<script src="/js/app.js?v=118"></script>
+<script src="/js/dj-profile-editor.js?v=20"></script>
 <script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
 <script src="/js/auth.js?v=74"></script>

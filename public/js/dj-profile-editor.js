@@ -177,7 +177,9 @@ async function openPublicDjProfile(id) {
 // silencieusement toujours le même.
 async function openDjBannerProfile() {
   const clickable = _currentLineup.filter(dj => (dj.type === 'app' && dj.id) || (dj.type === 'external' && dj.soundcloud_url));
-  if (!clickable.length) return;
+  // Rien à montrer (pas de soirée en cours, ou line-up vide) — "DJ's" reste
+  // utile et propose de gérer son propre profil plutôt que de ne rien faire.
+  if (!clickable.length) { await openDjRegister(); return; }
   const backTo = eid ? 'client' : (currentUser ? 'profile' : 'auth');
   if (clickable.length === 1) { await _openLineupDj(clickable[0], backTo); return; }
   _renderDjLineupGrid(clickable);
