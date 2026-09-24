@@ -90,6 +90,22 @@ router.get('/events/:id', async (req, res) => {
     .eq('id', req.params.id).single();
   if (error || !data) return res.status(404).json({ error: 'Événement introuvable' });
   data.flyer_url = bustFlyerCache(data.flyer_url, data.updated_at);
+  // Le line-up garde un instantané (nom/photo/avatar) pris au moment où le DJ
+  // y a été ajouté — sans ce rafraîchissement, changer son profil DJ (photo,
+  // avatar Pull Up...) après coup ne se reflète jamais sur les soirées où il
+  // est déjà inscrit.
+  if (Array.isArray(data.lineup) && data.lineup.length) {
+    const appIds = [...new Set(data.lineup.filter(dj => dj.type === 'app' && dj.id).map(dj => dj.id))];
+    if (appIds.length) {
+      const { data: profiles } = await supabase.from('dj_profiles').select('id, stage_name, photo_url, cover_avatar').in('id', appIds);
+      const byId = new Map((profiles || []).map(p => [p.id, p]));
+      data.lineup = data.lineup.map(dj => {
+        if (dj.type !== 'app' || !dj.id) return dj;
+        const live = byId.get(dj.id);
+        return live ? { ...dj, name: live.stage_name || dj.name, photo_url: live.photo_url || null, cover_avatar: live.cover_avatar || null } : dj;
+      });
+    }
+  }
   // Slug de la page publique organisateur, si l'organisateur en a configuré une —
   // permet aux liens/QR de la soirée de rediriger vers sa page de marque plutôt
   // que directement dans le flux d'inscription.
