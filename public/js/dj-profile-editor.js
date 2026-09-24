@@ -11,6 +11,7 @@ function resetEmbedConsent() {
 let djMediaBusy = false;
 let djGallery = [];
 let djViewedProfileId = null;
+let djCareerMapInstance = null;
 const djFieldIds = {stage_name:'stage-name',booking_email:'booking-email',resident_advisor:'ra'};
 function djField(key) { return document.getElementById('dj-edit-'+(djFieldIds[key] || key.replaceAll('_','-'))); }
 function djFeedback(message) { document.getElementById('djr-feedback').textContent=message; }
@@ -354,7 +355,9 @@ async function removeDjPresskitPdf() {
   finally{setDjMediaBusy(false);}
 }
 function renderDjProfileDetails(p) {
-  const box=document.getElementById('pk-profile-details');if(!box)return;box.replaceChildren();
+  const box=document.getElementById('pk-profile-details');if(!box)return;
+  if(djCareerMapInstance){djCareerMapInstance.remove();djCareerMapInstance=null;}
+  box.replaceChildren();
   function heading(s,title,kicker){const head=document.createElement('div'),label=document.createElement('span'),h=document.createElement('h2');head.className='pk3-section-heading';label.className='pk3-section-label';label.textContent=kicker;h.textContent=title;head.append(label,h);s.append(head);}
   function section(title,text,id,kicker){if(!text)return null;const s=document.createElement('section'),content=document.createElement('p');s.id=id;s.className='pk3-section';heading(s,title,kicker);content.textContent=text;s.append(content);box.append(s);return s;}
   function socialIcon(label){
@@ -459,17 +462,28 @@ function renderDjProfileDetails(p) {
       top.append(type);if(entry.period)top.append(period);card.append(top,name);if(location.textContent)card.append(location);cards.append(card);
     });
     const mapped=safe.map((entry,index)=>({entry,index,lat:Number(entry.lat),lng:Number(entry.lng),hasCoords:entry.lat!==null&&entry.lat!==''&&entry.lat!==undefined&&entry.lng!==null&&entry.lng!==''&&entry.lng!==undefined})).filter(point=>point.hasCoords&&Number.isFinite(point.lat)&&Number.isFinite(point.lng));
+    let mapElement=null;
     if(mapped.length){
-      const map=document.createElement('div'),label=document.createElement('div'),mapTitle=document.createElement('strong'),mapCount=document.createElement('span');map.className='pk-career-map';map.setAttribute('role','group');map.setAttribute('aria-label','Carte des résidences et collaborations');label.className='pk-career-map-label';mapTitle.textContent='CARTE DU PARCOURS';mapCount.textContent=`${mapped.length} ${mapped.length>1?'LIEUX':'LIEU'}`;label.append(mapTitle,mapCount);map.append(label);
-      const lats=mapped.map(point=>point.lat),lngs=mapped.map(point=>point.lng),latMin=Math.min(...lats),latMax=Math.max(...lats),lngMin=Math.min(...lngs),lngMax=Math.max(...lngs),latSpan=Math.max(2,latMax-latMin),lngSpan=Math.max(2,lngMax-lngMin),latCenter=(latMin+latMax)/2,lngCenter=(lngMin+lngMax)/2;
-      const positions=mapped.map(point=>({...point,x:12+76*((point.lng-(lngCenter-lngSpan/2))/lngSpan),y:12+76*(1-(point.lat-(latCenter-latSpan/2))/latSpan)}));
-      if(positions.length>1){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),line=document.createElementNS('http://www.w3.org/2000/svg','polyline');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('aria-hidden','true');line.setAttribute('points',positions.map(point=>`${point.x},${point.y}`).join(' '));svg.append(line);map.append(svg);}
-      positions.forEach((point,markerIndex)=>{const marker=document.createElement('button');marker.type='button';marker.className='pk-career-marker';marker.style.left=`${point.x}%`;marker.style.top=`${point.y}%`;marker.textContent=String(markerIndex+1);marker.setAttribute('aria-label',point.entry.name||point.entry.city||`Lieu ${markerIndex+1}`);marker.onclick=()=>{const card=document.getElementById(`pk-career-card-${point.index}`);card?.scrollIntoView({behavior:'smooth',block:'center'});card?.classList.add('is-selected');setTimeout(()=>card?.classList.remove('is-selected'),900);};map.append(marker);});
-      layout.append(map);
+      const shell=document.createElement('div'),map=document.createElement('div'),label=document.createElement('div'),mapTitle=document.createElement('strong'),mapCount=document.createElement('span');shell.className='pk-career-map-shell';map.className='pk-career-map';map.id='pk-career-map';map.setAttribute('role','group');map.setAttribute('aria-label','Carte interactive des résidences et collaborations');label.className='pk-career-map-label';mapTitle.textContent='CARTE DU PARCOURS';mapCount.textContent=`${mapped.length} ${mapped.length>1?'LIEUX':'LIEU'}`;label.append(mapTitle,mapCount);shell.append(map,label);layout.append(shell);mapElement=map;
     }
     if(safe.length)layout.append(cards);s.append(layout);
     if(legacyText){const note=document.createElement('p');note.className='pk-career-note';note.textContent=legacyText;s.append(note);}
     box.append(s);
+    if(mapElement)requestAnimationFrame(()=>{
+      if(!window.L||!mapElement.isConnected){mapElement.textContent='Carte momentanément indisponible';return;}
+      const map=L.map(mapElement,{scrollWheelZoom:false,zoomControl:false,attributionControl:true});djCareerMapInstance=map;
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'}).addTo(map);
+      L.control.zoom({position:'bottomright'}).addTo(map);
+      const bounds=[];
+      mapped.forEach((point,markerIndex)=>{
+        const icon=L.divIcon({className:'pk-career-leaflet-icon',html:`<span>${markerIndex+1}</span>`,iconSize:[42,42],iconAnchor:[21,21]});
+        const marker=L.marker([point.lat,point.lng],{icon,title:point.entry.name||point.entry.city||`Lieu ${markerIndex+1}`}).addTo(map),popup=document.createElement('div'),name=document.createElement('strong'),address=document.createElement('span');
+        name.textContent=point.entry.name||point.entry.city||`Lieu ${markerIndex+1}`;address.textContent=[point.entry.address,point.entry.city,point.entry.country].filter((value,index,array)=>value&&array.indexOf(value)===index).join(' · ');popup.className='pk-career-popup';popup.append(name);if(address.textContent)popup.append(address);marker.bindPopup(popup);
+        marker.on('click',()=>{const card=document.getElementById(`pk-career-card-${point.index}`);card?.classList.add('is-selected');setTimeout(()=>card?.classList.remove('is-selected'),900);});bounds.push([point.lat,point.lng]);
+      });
+      if(bounds.length===1)map.setView(bounds[0],14);else map.fitBounds(bounds,{padding:[38,38],maxZoom:14});
+      setTimeout(()=>map.invalidateSize(),80);
+    });
   }
   const portrait=document.getElementById('pk-photo');
   const avatarUrl=p.cover_avatar?`/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}-pullup.png`:'';

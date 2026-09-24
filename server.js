@@ -47,9 +47,9 @@ app.use(helmet({
       // (voir le commentaire au-dessus de la balise dans index.html).
       scriptSrc:     ["'self'", "sha256-XWZn3h8/cHcntD2SyhGI2rguiFgYmnBBH7XVqW7BoVc=", "cdn.jsdelivr.net", "cdnjs.cloudflare.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc:      ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
+      styleSrc:      ["'self'", "'unsafe-inline'", "fonts.googleapis.com", "cdnjs.cloudflare.com"],
       fontSrc:       ["'self'", "fonts.gstatic.com"],
-      imgSrc:        ["'self'", "data:", "blob:", "*.supabase.co", "i.pravatar.cc", "*.itunes.apple.com", "*.mzstatic.com", "*.dzcdn.net", "*.deezer.com", "*.sndcdn.com"],
+      imgSrc:        ["'self'", "data:", "blob:", "*.supabase.co", "i.pravatar.cc", "*.itunes.apple.com", "*.mzstatic.com", "*.dzcdn.net", "*.deezer.com", "*.sndcdn.com", "*.tile.openstreetmap.org"],
       connectSrc:    ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "itunes.apple.com", "api.deezer.com"],
       mediaSrc:      ["'self'", "*.itunes.apple.com", "*.supabase.co"],
       frameSrc:      ["'self'", "https://w.soundcloud.com", "https://player-widget.mixcloud.com", "https://www.youtube-nocookie.com", "https://open.spotify.com"],
