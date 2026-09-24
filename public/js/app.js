@@ -43,6 +43,10 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const pg = document.getElementById('pg-' + id);
   if (!pg) return;
+  // Une vraie destination est déterminée : on peut retirer l'écran de
+  // chargement affiché par défaut (cf. index.html, #app-loading) sans
+  // craindre d'avoir fait flasher la mauvaise page avant.
+  document.getElementById('app-loading')?.remove();
   pg.classList.add('active', 'pe');
   setTimeout(() => pg.classList.remove('pe'), 400);
   if (id === 'dj' || id === 'bigscreen') generateQR();

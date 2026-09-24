@@ -884,6 +884,18 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 </head>
 <body>
 
+<!-- Écran de chargement : évite de montrer un flash de la page "auth" (ou de
+     tout autre état par défaut) avant que la logique de démarrage (auth.js,
+     window.load) n'ait déterminé la vraie destination — page normale, profil
+     DJ/organisateur ouvert via un lien pull-up.live/nom, écran TV... showPage()
+     le masque dès qu'une vraie page devient active ; le repli de sécurité
+     évite un blocage indéfini si un chemin de démarrage ne l'appelait jamais. -->
+<div id="app-loading" style="position:fixed;inset:0;z-index:9999;background:#0b0b0d;display:flex;align-items:center;justify-content:center">
+  <img src="/images/logo.png" alt="" style="width:64px;height:auto;opacity:.9;animation:app-loading-pulse 1.4s ease-in-out infinite">
+</div>
+<style>@keyframes app-loading-pulse{0%,100%{opacity:.5;transform:scale(.96)}50%{opacity:1;transform:scale(1)}}</style>
+<script>setTimeout(()=>{const el=document.getElementById('app-loading');if(el)el.style.display='none';},4000);</script>
+
 <div class="toast" id="toast"></div>
 
 <!-- ══ MODALS ══════════════════════════════════════════════════════ -->
@@ -946,7 +958,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 ══════════════════════════════════════════════════════════════════ -->
 
 <!-- AUTH -->
-<div class="page active" id="pg-auth">
+<div class="page" id="pg-auth">
   <div class="auth-wrap" style="position:relative">
     <div class="auth-hero" style="text-align:center">
       <img src="/images/FON-APP_%C3%A92.png" alt="Pull up — Connecte-toi" class="auth-promo-img">
@@ -2088,7 +2100,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=6"></script>
-<script src="/js/app.js?v=126"></script>
+<script src="/js/app.js?v=127"></script>
 <script src="/js/dj-profile-editor.js?v=29"></script>
 <script src="/js/render.js?v=40"></script>
 <script src="/js/chat.js?v=25"></script>
