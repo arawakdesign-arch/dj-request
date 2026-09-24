@@ -10,6 +10,7 @@
     resident_advisor: ['Resident Advisor',['ra.co']], website: ['Site web',null], video_url: ['Vidéo',null]
   };
   const limits = {stage_name:30,tagline:150,bio:5000,experience:2000,booking_email:254,phone:40,travel_areas:300};
+  const eventLimits = {name:80,place:120,date:40,flyer_url:1000,link_url:1000};
   function url(value, hosts) {
     if (typeof value !== 'string') return null;
     value=value.trim();
@@ -53,9 +54,28 @@
     if(!['soundcloud','mixcloud','youtube','spotify'].some(k=>value[k])) errors.mixes='Ajoute au moins un lien SoundCloud, Mixcloud, YouTube ou Spotify.';
     value.cover_avatar=input.cover_avatar==null||input.cover_avatar===''?null:Number(input.cover_avatar);
     if(value.cover_avatar!==null && (!Number.isInteger(value.cover_avatar)||value.cover_avatar<1||value.cover_avatar>20)) errors.cover_avatar='Choisis un avatar parmi les 20 proposés.';
+    value.upcoming_events=[];
+    const rawEvents=Array.isArray(input.upcoming_events)?input.upcoming_events.slice(0,3):[];
+    rawEvents.forEach((event,index)=>{
+      if(!event || typeof event!=='object')return;
+      const normalized={};
+      for(const [key,max] of Object.entries(eventLimits)){
+        const raw=typeof event[key]==='string'?event[key].trim():'';
+        if(raw.length>max) errors.upcoming_events=`La soirée ${index+1} contient un champ trop long.`;
+        normalized[key]=raw;
+      }
+      const hasAny=Object.values(normalized).some(Boolean);
+      if(!hasAny)return;
+      for(const key of ['date','name','place','link_url']) if(!normalized[key]) errors.upcoming_events='Complète date, nom, lieu et lien pour chaque soirée ajoutée.';
+      const flyer=normalized.flyer_url?url(normalized.flyer_url):'';
+      const link=url(normalized.link_url);
+      if(flyer===null) errors.upcoming_events='Lien du flyer invalide.';
+      if(link===null) errors.upcoming_events='Lien de redirection invalide.';
+      value.upcoming_events.push({...normalized,flyer_url:flyer,link_url:link||''});
+    });
     return {value,errors};
   }
-  const schema={genres,services,links,limits,url,validate};
+  const schema={genres,services,links,limits,eventLimits,url,validate};
   if(typeof module==='object' && module.exports) module.exports=schema;
   else root.DjProfileSchema=schema;
 })(typeof globalThis!=='undefined'?globalThis:this);

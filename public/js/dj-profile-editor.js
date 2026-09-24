@@ -21,6 +21,7 @@ function djChoice(container, value, checked, name) {
   return input;
 }
 function djSelected(name) { return [...document.querySelectorAll(`#djr-editor input[name="${name}"]:checked`)].map(e=>e.value); }
+function djEventField(index,key){return document.getElementById(`dj-event-${index}-${key.replaceAll('_','-')}`);}
 function djGenreState() {
   const count=djSelected('genres').length;
   const query=document.getElementById('djr-genre-search').value.toLocaleLowerCase('fr');
@@ -30,6 +31,29 @@ function djGenreState() {
     input.parentElement.style.display=input.parentElement.hidden?'none':'';
   });
   document.getElementById('djr-genre-count').textContent=`${count} / 6 styles sélectionnés`;
+}
+function renderDjEventEditor(events) {
+  const list=document.getElementById('djr-upcoming-events');if(!list)return;list.replaceChildren();
+  const safeEvents=Array.isArray(events)?events:[];
+  for(let i=0;i<3;i++){
+    const event=safeEvents[i]||{},card=document.createElement('div');card.className='djr-event-card';
+    const head=document.createElement('div'),index=document.createElement('span'),title=document.createElement('strong');
+    head.className='djr-event-card-head';index.textContent=String(i+1).padStart(2,'0');title.textContent=i===0?'Prochaine soirée':'Soirée à venir';head.append(index,title);
+    const fields=document.createElement('div');fields.className='djr-fields';
+    [
+      ['flyer_url','URL du flyer','https://…/flyer.jpg','url'],
+      ['date','Date','Vendredi 18 octobre','text'],
+      ['name','Nom de l’event','Hustle & Flow','text'],
+      ['place','Lieu','Club, ville','text'],
+      ['link_url','Lien de redirection','https://…','url'],
+    ].forEach(([key,label,placeholder,type])=>{
+      const wrap=document.createElement('div'),lab=document.createElement('label'),input=document.createElement('input');
+      wrap.className=key==='link_url'?'fl djr-wide':'fl';lab.htmlFor=`dj-event-${i}-${key.replaceAll('_','-')}`;lab.textContent=label;
+      input.id=lab.htmlFor;input.className='fi';input.type=type;input.maxLength=String(DjProfileSchema.eventLimits[key]||1000);input.placeholder=placeholder;input.value=event[key]||'';
+      wrap.append(lab,input);fields.append(wrap);
+    });
+    card.append(head,fields);list.append(card);
+  }
 }
 function initDjProfileEditor(profile) {
   djFeedback('');
@@ -53,6 +77,7 @@ function initDjProfileEditor(profile) {
   document.getElementById('djr-genre-search').oninput=djGenreState;djGenreState();
   const services=document.getElementById('djr-services');services.replaceChildren();
   DjProfileSchema.services.forEach(s=>djChoice(services,s,(profile.service_types||[]).includes(s),'services'));
+  renderDjEventEditor(profile.upcoming_events);
   const coverPicker=document.querySelector('.djr-cover-picker'),coverSummary=coverPicker?.querySelector('summary'),coverHint=coverSummary?.querySelector('span');
   if(coverPicker)coverPicker.open=true;
   if(coverSummary){coverSummary.firstChild.textContent='Ton avatar Pull Up ';if(coverHint)coverHint.textContent='Choisis le personnage affiché dans ton médaillon · 20 créations';}
@@ -72,6 +97,14 @@ function collectDjProfile() {
   for(const key of [...Object.keys(DjProfileSchema.limits),...Object.keys(DjProfileSchema.links)]) input[key]=djField(key)?.value || '';
   input.genres=djSelected('genres');input.service_types=djSelected('services');
   input.cover_avatar=document.querySelector('#djr-editor input[name="cover"]:checked')?.value||null;
+  input.upcoming_events=[];
+  for(let i=0;i<3;i++) input.upcoming_events.push({
+    flyer_url:djEventField(i,'flyer_url')?.value||'',
+    date:djEventField(i,'date')?.value||'',
+    name:djEventField(i,'name')?.value||'',
+    place:djEventField(i,'place')?.value||'',
+    link_url:djEventField(i,'link_url')?.value||'',
+  });
   const result=DjProfileSchema.validate(input,_djProfileCache?.photo_url);
   document.querySelectorAll('#djr-editor [data-error]').forEach(el=>{const key=el.dataset.error;el.textContent=result.errors[key]||'';el.id='djr-error-'+key;});
   document.querySelectorAll('#djr-editor [aria-invalid]').forEach(el=>el.removeAttribute('aria-invalid'));
@@ -181,6 +214,24 @@ function renderDjProfileDetails(p) {
     });
     if(!players.childNodes.length)return;const s=document.createElement('section');s.id='pk-music';s.className='pk3-section';heading(s,'Écouter','02 / SÉLECTION');s.append(players);box.append(s);
   }
+  function eventsSection(events){
+    const safe=(Array.isArray(events)?events:[]).filter(event=>event?.name&&event?.date&&event?.place&&DjProfileSchema.url(event.link_url)).slice(0,3);
+    if(!safe.length)return;
+    const s=document.createElement('section'),grid=document.createElement('div');s.id='pk-upcoming-events';s.className='pk3-section';grid.className='pk-profile-events';
+    heading(s,'Soirées à venir','03 / DATES');
+    safe.forEach(event=>{
+      const href=DjProfileSchema.url(event.link_url),flyer=DjProfileSchema.url(event.flyer_url);
+      const card=document.createElement('a'),visual=document.createElement('span'),info=document.createElement('span'),date=document.createElement('span'),name=document.createElement('strong'),place=document.createElement('span'),cta=document.createElement('span');
+      card.className='pk-profile-event';card.href=href;card.target='_blank';card.rel='noopener noreferrer';
+      visual.className='pk-profile-event-flyer';
+      if(flyer)visual.style.backgroundImage=`url(${JSON.stringify(flyer)})`;
+      else visual.textContent='Flyer';
+      info.className='pk-profile-event-info';date.className='pk-profile-event-date';place.className='pk-profile-event-place';cta.className='pk-profile-event-cta';
+      date.textContent=event.date;name.textContent=event.name;place.textContent=event.place;cta.textContent='Voir la soirée';
+      info.append(date,name,place,cta);card.append(visual,info);grid.append(card);
+    });
+    s.append(grid);box.append(s);
+  }
   const portrait=document.getElementById('pk-photo');
   const avatarUrl=p.cover_avatar?`/images/dj-avatars/avatar-${String(p.cover_avatar).padStart(2,'0')}-pullup.png`:'';
   if(portrait){portrait.src=avatarUrl||p.photo_url||'/images/logo.png';portrait.alt=avatarUrl?`Avatar Pull Up de ${p.stage_name||'ce DJ'}`:`Photo de ${p.stage_name||'ce DJ'}`;portrait.style.display=(avatarUrl||p.photo_url)?'block':'none';portrait.classList.toggle('pk2-avatar-medallion',!!avatarUrl);}
@@ -192,9 +243,10 @@ function renderDjProfileDetails(p) {
   const services=Array.isArray(p.service_types)?p.service_types:[];
   if(services.length&&about){const chips=document.createElement('div');chips.className='pk-profile-chips';services.forEach(value=>{const chip=document.createElement('span');chip.textContent=value;chips.append(chip);});about.append(chips);}
   playersSection([['SoundCloud','soundcloud',p.soundcloud],['Mixcloud','mixcloud',p.mixcloud],['YouTube','youtube',p.youtube],['Spotify','spotify',p.spotify]]);
-  section('Résidences & collaborations',p.experience,'pk-experience','03 / PARCOURS');
-  if(p.gallery?.length){const gallery=document.createElement('section'),grid=document.createElement('div');gallery.id='pk-gallery';gallery.className='pk3-section pk3-gallery-section';heading(gallery,'Photos','04 / GALERIE');grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const photo=document.createElement('div'),img=document.createElement('img');photo.className='pk-profile-photo';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';photo.append(img);grid.append(photo);});gallery.append(grid);box.append(gallery);}
-  linksSection('En ligne',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]],'pk-links','05 / CONTACT');
+  eventsSection(p.upcoming_events);
+  section('Résidences & collaborations',p.experience,'pk-experience','04 / PARCOURS');
+  if(p.gallery?.length){const gallery=document.createElement('section'),grid=document.createElement('div');gallery.id='pk-gallery';gallery.className='pk3-section pk3-gallery-section';heading(gallery,'Photos','05 / GALERIE');grid.className='pk-profile-gallery';p.gallery.forEach((url,i)=>{const photo=document.createElement('div'),img=document.createElement('img');photo.className='pk-profile-photo';img.src=url;img.alt=`${p.stage_name} — photo ${i+1}`;img.loading='lazy';photo.append(img);grid.append(photo);});gallery.append(grid);box.append(gallery);}
+  linksSection('En ligne',[['Instagram',p.instagram],['TikTok',p.tiktok],['Site web',p.website],['Resident Advisor',p.resident_advisor],['Vidéo live',p.video_url]],'pk-links','06 / CONTACT');
   const area=document.getElementById('pk-travel-areas');if(area)area.textContent=p.travel_areas||'Zones de déplacement à confirmer';
   const email=document.getElementById('pk-booking-email');if(email)email.textContent=p.booking_email||'Non renseigné';
   const phone=document.getElementById('pk-booking-phone');if(phone){phone.hidden=!p.phone;phone.textContent=p.phone?`WhatsApp / téléphone · ${p.phone}`:'';phone.href=p.phone?'tel:'+p.phone.replace(/[^+\d]/g,''):'';}

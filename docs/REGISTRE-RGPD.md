@@ -41,7 +41,7 @@ Responsable du traitement : HUSTLE & FLOW, SASU (SIREN 941 167 835). Dernière m
 
 - **Finalité :** permettre à un DJ de présenter son travail publiquement et d'être contacté pour des bookings.
 - **Personnes concernées :** utilisateurs créant un profil DJ.
-- **Données :** nom de scène, bio, genres, réseaux, liens de mixes, photo/avatar, galerie (6 photos max), et — si le DJ les renseigne — email et téléphone de booking rendus **volontairement publics**.
+- **Données :** nom de scène, bio, genres, types de prestation, réseaux, liens de mixes, photo/avatar, galerie (6 photos max), soirées à venir, et — si le DJ les renseigne — email et téléphone de booking rendus **volontairement publics**.
 - **Base légale :** consentement (création et publication volontaires).
 - **Destinataires :** tout visiteur du lien public (`/dj/profile/:id`, `/dj/by-slug/:slug`).
 - **Sous-traitant :** Supabase (stockage photos) ; SoundCloud/Mixcloud/Spotify/YouTube si le visiteur choisit d'afficher un lecteur intégré (consentement au clic, cf. `public/js/dj-profile-editor.js`).
