@@ -401,13 +401,12 @@
 #pg-presskit .pk2-email span{color:#d9c3f8}
 #pg-presskit .pk2-phone{border-bottom-color:#ffffff35;padding:16px 2px}
 #pg-presskit .pk2-pdf-link{border-radius:30px}
-.pk3-footer{margin-top:58px;padding:36px 0 12px;border-top:1px solid #ffffff20;display:grid;grid-template-columns:auto 1fr minmax(280px,430px);gap:30px;align-items:center;color:#8d8791}
-.pk3-footer img{width:72px;height:72px;object-fit:contain}
-.pk3-footer p{font-size:.62rem;text-transform:uppercase;letter-spacing:.15em}
-.pk3-footer .pk3-create-cta{justify-self:stretch;display:flex;align-items:center;justify-content:space-between;gap:18px;text-align:left;border:0;background:#6f22ff;color:#fff;padding:16px 18px;cursor:pointer}
-.pk3-create-cta strong{font:800 .78rem/1.2 Inter,sans-serif}
-.pk3-create-cta i{font:400 1.4rem/1 Inter,sans-serif}
-.pk3-create-cta:hover{background:#8140ff}
+.pk3-footer{margin-top:58px;padding:36px 0 12px;border-top:1px solid #ffffff20;display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center;color:#8d8791}
+.pk3-footer img{width:86px;height:86px;object-fit:contain}
+.pk3-footer .pk3-create-cta{justify-self:stretch;display:flex;align-items:center;justify-content:space-between;gap:18px;text-align:left;border:0;background:transparent;color:#fff;padding:8px 0;cursor:pointer}
+.pk3-create-cta strong{font:400 clamp(2.6rem,6vw,5.2rem)/.92 Anton,sans-serif;text-transform:uppercase;letter-spacing:-.01em}
+.pk3-create-cta i{flex:0 0 auto;font:300 clamp(1.8rem,4vw,3rem)/1 Inter,sans-serif;color:#9f78d4}
+.pk3-create-cta:hover strong{color:#d8c2fa}
 @media(max-width:800px){
   .pk3-nav{display:none}
   #pg-presskit .pk2-header-label{margin-left:auto}
@@ -445,9 +444,11 @@
   #pg-presskit .pk-profile-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
   #pg-presskit .pk2-booking{padding:27px 22px}
   #pg-presskit .pk2-booking h2{font-size:2.35rem}
-  .pk3-footer{grid-template-columns:64px 1fr;gap:12px;padding-inline:6px}
-  .pk3-footer p{display:none}
-  .pk3-footer .pk3-create-cta{grid-column:1/3;min-height:64px;margin-top:4px}
+  .pk3-footer{grid-template-columns:64px minmax(0,1fr);gap:13px;padding:24px 6px 8px}
+  .pk3-footer img{width:64px;height:64px}
+  .pk3-footer .pk3-create-cta{min-height:64px;padding:0}
+  .pk3-create-cta strong{font-size:clamp(2rem,10vw,2.8rem)}
+  .pk3-create-cta i{font-size:1.55rem}
 }
 
 /* Avatar-first DJ profile */
