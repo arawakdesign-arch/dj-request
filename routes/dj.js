@@ -251,16 +251,22 @@ router.delete('/dj/profile/presskit-pdf', requireAuth, async (req, res) => {
 // Content-Disposition: attachment.
 router.get('/dj/profile/:id/presskit-pdf/download', async (req, res) => {
   const { data: profile, error } = await supabase.from('dj_profiles').select('stage_name, presskit_pdf_url').eq('id', req.params.id).maybeSingle();
-  if (error || !profile?.presskit_pdf_url) return res.status(404).json({ error: 'Press kit PDF introuvable.' });
+  if (error || !profile) return res.status(404).json({ error: 'Press kit PDF introuvable.' });
   const prefix = supabase.storage.from('profile-photos').getPublicUrl(`dj/${req.params.id}/presskit.pdf`).data.publicUrl;
-  if (!profile.presskit_pdf_url.startsWith(prefix)) return res.status(404).json({ error: 'Press kit PDF introuvable.' });
+  const storedUrl = typeof profile.presskit_pdf_url === 'string' ? profile.presskit_pdf_url : '';
+  if (storedUrl && !storedUrl.startsWith(prefix)) return res.status(404).json({ error: 'Press kit PDF introuvable.' });
+  const sourceUrl = storedUrl || prefix;
   try {
-    const upstream = await fetch(profile.presskit_pdf_url);
-    if (!upstream.ok) return res.status(502).json({ error: 'Le PDF est momentanément indisponible.' });
+    const upstream = await fetch(sourceUrl);
+    if (!upstream.ok) return res.status(upstream.status === 404 ? 404 : 502).json({ error: upstream.status === 404 ? 'Press kit PDF introuvable.' : 'Le PDF est momentanément indisponible.' });
     const declaredSize = Number(upstream.headers?.get?.('content-length') || 0);
     if (declaredSize > 10 * 1024 * 1024) return res.status(502).json({ error: 'Le PDF est trop volumineux.' });
     const pdf = Buffer.from(await upstream.arrayBuffer());
     if (pdf.length > 10 * 1024 * 1024 || pdf.subarray(0, 5).toString('utf8') !== '%PDF-') return res.status(502).json({ error: 'Le fichier PDF est invalide.' });
+    if (!storedUrl) {
+      const recoveredUrl = prefix + '?v=' + Date.now();
+      await supabase.from('dj_profiles').update({ presskit_pdf_url: recoveredUrl, updated_at: new Date().toISOString() }).eq('id', req.params.id);
+    }
     const filename = `press-kit-${slugify(profile.stage_name) || 'dj'}.pdf`;
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Length', String(pdf.length));

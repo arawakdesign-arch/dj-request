@@ -223,6 +223,7 @@
 .pk2-email strong{display:block;font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pk2-phone{display:block;color:#fff;font-size:.72rem;font-weight:700;text-decoration:none;border-bottom:1px solid #ffffff38;padding:13px 2px}
 .pk2-pdf-link{display:block;width:100%;text-align:center;color:#111;background:#fff;border-radius:4px;padding:14px;margin-top:14px;text-decoration:none;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.pk2-pdf-link[hidden]{display:none!important}
 @media(max-width:720px){
   .pk2-scroll{padding:16px 12px max(30px,env(safe-area-inset-bottom))}
   .pk2-hero{min-height:360px}

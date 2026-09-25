@@ -161,9 +161,9 @@ test('press kit PDF upload returns its public URL and reports a missing database
 
 test('public press kit PDF download is same-origin and forces an attachment filename',async()=>{
  const prefix='https://storage.example/profile-photos/dj/test-user/presskit.pdf';
- let profile={stage_name:'DJ Étoile',presskit_pdf_url:prefix+'?v=123'},fetchCalls=0;
+ let profile={stage_name:'DJ Étoile',presskit_pdf_url:prefix+'?v=123'},fetchCalls=0,recovered=null;
  const db={
-  from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:profile,error:null})})})}),
+  from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:profile,error:null})})}),update:value=>({eq:async()=>{recovered=value;return {error:null};}})}),
   storage:{from:()=>({getPublicUrl:()=>({data:{publicUrl:prefix}})})},
  };
  for(const [path,exports] of [['../lib/supabase',db],['../middleware/auth',{requireAuth:(req,res,next)=>next()}],['../routes/events',{isClosed:()=>false,isUpcoming:()=>false}]]){
@@ -178,5 +178,6 @@ test('public press kit PDF download is same-origin and forces an attachment file
  try{
   let result=await request();assert.equal(result.status,200);assert.equal(result.headers['Content-Type'],'application/pdf');assert.equal(result.headers['Content-Disposition'],'attachment; filename="press-kit-dj-etoile.pdf"');assert.ok(Buffer.isBuffer(result.body));assert.equal(fetchCalls,1);
   profile={stage_name:'DJ Étoile',presskit_pdf_url:'https://evil.example/presskit.pdf'};result=await request();assert.equal(result.status,404);assert.equal(fetchCalls,1);
+  profile={stage_name:'DJ Étoile',presskit_pdf_url:null};result=await request();assert.equal(result.status,200);assert.equal(fetchCalls,2);assert.match(recovered.presskit_pdf_url,/presskit\.pdf\?v=\d+$/);
  }finally{global.fetch=originalFetch;}
 });

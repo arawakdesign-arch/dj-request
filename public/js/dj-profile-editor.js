@@ -507,7 +507,7 @@ function renderDjProfileDetails(p) {
   const area=document.getElementById('pk-travel-areas');if(area)area.textContent=p.travel_areas||'Zones de déplacement à confirmer';
   const email=document.getElementById('pk-booking-email');if(email)email.textContent=p.booking_email||'Non renseigné';
   const phone=document.getElementById('pk-booking-phone');if(phone){phone.hidden=!p.phone;phone.textContent=p.phone?`WhatsApp / téléphone · ${p.phone}`:'';phone.href=p.phone?'tel:'+p.phone.replace(/[^+\d]/g,''):'';}
-  const pdf=document.getElementById('pk-presskit-pdf');if(pdf){const href=DjProfileSchema.url(p.presskit_pdf_url),filename=`press-kit-${normalizeDjSlug(p.stage_name)||'dj'}.pdf`;pdf.hidden=!href;pdf.href=href&&p.id?`/api/dj/profile/${encodeURIComponent(p.id)}/presskit-pdf/download`:(href||'');pdf.download=filename;pdf.removeAttribute('target');}
+  const pdf=document.getElementById('pk-presskit-pdf');if(pdf){const href=DjProfileSchema.url(p.presskit_pdf_url),filename=`press-kit-${normalizeDjSlug(p.stage_name)||'dj'}.pdf`,downloadUrl=p.id?`/api/dj/profile/${encodeURIComponent(p.id)}/presskit-pdf/download`:'';pdf.hidden=!href;pdf.href=href?(downloadUrl||href):'';pdf.download=filename;pdf.removeAttribute('target');if(!href&&downloadUrl)fetch(downloadUrl,{method:'HEAD'}).then(response=>{if(response.ok&&_djProfileCache?.id===p.id){pdf.href=downloadUrl;pdf.hidden=false;}}).catch(()=>{});}
 }
 
 function renderDjPublicShareTools(profile,parent){
