@@ -245,6 +245,33 @@ router.delete('/dj/profile/presskit-pdf', requireAuth, async (req, res) => {
   res.json({ url: '' });
 });
 
+// Téléchargement public depuis le domaine Pull Up. Safari ignore souvent
+// l'attribut HTML `download` quand le fichier pointe directement vers un
+// autre domaine (ici Supabase), donc le serveur renvoie lui-même le PDF avec
+// Content-Disposition: attachment.
+router.get('/dj/profile/:id/presskit-pdf/download', async (req, res) => {
+  const { data: profile, error } = await supabase.from('dj_profiles').select('stage_name, presskit_pdf_url').eq('id', req.params.id).maybeSingle();
+  if (error || !profile?.presskit_pdf_url) return res.status(404).json({ error: 'Press kit PDF introuvable.' });
+  const prefix = supabase.storage.from('profile-photos').getPublicUrl(`dj/${req.params.id}/presskit.pdf`).data.publicUrl;
+  if (!profile.presskit_pdf_url.startsWith(prefix)) return res.status(404).json({ error: 'Press kit PDF introuvable.' });
+  try {
+    const upstream = await fetch(profile.presskit_pdf_url);
+    if (!upstream.ok) return res.status(502).json({ error: 'Le PDF est momentanément indisponible.' });
+    const declaredSize = Number(upstream.headers?.get?.('content-length') || 0);
+    if (declaredSize > 10 * 1024 * 1024) return res.status(502).json({ error: 'Le PDF est trop volumineux.' });
+    const pdf = Buffer.from(await upstream.arrayBuffer());
+    if (pdf.length > 10 * 1024 * 1024 || pdf.subarray(0, 5).toString('utf8') !== '%PDF-') return res.status(502).json({ error: 'Le fichier PDF est invalide.' });
+    const filename = `press-kit-${slugify(profile.stage_name) || 'dj'}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Length', String(pdf.length));
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cache-Control', 'private, max-age=300');
+    return res.send(pdf);
+  } catch (downloadError) {
+    return res.status(502).json({ error: 'Le PDF est momentanément indisponible.' });
+  }
+});
+
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) return res.status(400).json({error:err.code==='LIMIT_FILE_SIZE'?(req.path.includes('presskit-pdf')?'Le PDF doit faire moins de 10 Mo.':'Chaque image doit faire moins de 5 Mo.'):'Envoi de fichier invalide.'});
   next(err);

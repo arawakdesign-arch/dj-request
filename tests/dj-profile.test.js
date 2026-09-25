@@ -158,3 +158,25 @@ test('press kit PDF upload returns its public URL and reports a missing database
  columnError={code:'42703',message:'column "presskit_pdf_url" does not exist'};
  result=await request();assert.equal(result.status,500);assert.match(result.payload.error,/Migration Supabase manquante/);
 });
+
+test('public press kit PDF download is same-origin and forces an attachment filename',async()=>{
+ const prefix='https://storage.example/profile-photos/dj/test-user/presskit.pdf';
+ let profile={stage_name:'DJ Étoile',presskit_pdf_url:prefix+'?v=123'},fetchCalls=0;
+ const db={
+  from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:profile,error:null})})})}),
+  storage:{from:()=>({getPublicUrl:()=>({data:{publicUrl:prefix}})})},
+ };
+ for(const [path,exports] of [['../lib/supabase',db],['../middleware/auth',{requireAuth:(req,res,next)=>next()}],['../routes/events',{isClosed:()=>false,isUpcoming:()=>false}]]){
+  require.cache[require.resolve(path)]={id:require.resolve(path),filename:require.resolve(path),loaded:true,exports};
+ }
+ delete require.cache[require.resolve('../routes/dj')];
+ const router=require('../routes/dj');
+ const handler=router.stack.find(layer=>layer.route?.path==='/dj/profile/:id/presskit-pdf/download').route.stack.at(-1).handle;
+ const originalFetch=global.fetch;
+ global.fetch=async()=>{fetchCalls++;return {ok:true,headers:{get:()=>null},arrayBuffer:async()=>Buffer.from('%PDF-1.4 public test')};};
+ const request=async()=>{let status=200,payload,body;const headers={};const res={status(code){status=code;return this;},json(value){payload=value;return this;},setHeader(key,value){headers[key]=value;},send(value){body=value;return this;}};await handler({params:{id:'test-user'}},res);return {status,payload,body,headers};};
+ try{
+  let result=await request();assert.equal(result.status,200);assert.equal(result.headers['Content-Type'],'application/pdf');assert.equal(result.headers['Content-Disposition'],'attachment; filename="press-kit-dj-etoile.pdf"');assert.ok(Buffer.isBuffer(result.body));assert.equal(fetchCalls,1);
+  profile={stage_name:'DJ Étoile',presskit_pdf_url:'https://evil.example/presskit.pdf'};result=await request();assert.equal(result.status,404);assert.equal(fetchCalls,1);
+ }finally{global.fetch=originalFetch;}
+});
