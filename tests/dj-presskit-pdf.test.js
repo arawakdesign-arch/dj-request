@@ -21,6 +21,7 @@ test('automatic DJ press kit generation returns a valid multi-page PDF', async (
   assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
   assert.match(pdf.subarray(-20).toString(), /%%EOF/);
   assert.ok(pdf.length > 3000);
+  assert.equal((pdf.toString('latin1').match(/\/Type \/Page\b/g) || []).length, 7);
 });
 
 test('press kit assets reject photos outside the DJ storage prefix', async () => {
@@ -28,5 +29,6 @@ test('press kit assets reject photos outside the DJ storage prefix', async () =>
   assert.equal(assets.profilePhoto, null);
   assert.deepEqual(assets.gallery, []);
   assert.deepEqual(assets.flyers, []);
+  assert.equal(assets.coverAvatar, null);
   assert.equal(assets.qr.subarray(1, 4).toString(), 'PNG');
 });
