@@ -172,9 +172,10 @@ test('public press kit PDF download is same-origin and forces an attachment file
  delete require.cache[require.resolve('../routes/dj')];
  const router=require('../routes/dj');
  const handler=router.stack.find(layer=>layer.route?.path==='/dj/profile/:id/presskit-pdf/download').route.stack.at(-1).handle;
- const request=async()=>{let status=200,payload,body;const headers={};const res={status(code){status=code;return this;},json(value){payload=value;return this;},setHeader(key,value){headers[key]=value;},send(value){body=value;return this;}};await handler({params:{id:'test-user'}},res);return {status,payload,body,headers};};
+ const request=async(preview=false)=>{let status=200,payload,body;const headers={};const res={status(code){status=code;return this;},json(value){payload=value;return this;},setHeader(key,value){headers[key]=value;},send(value){body=value;return this;}};await handler({params:{id:'test-user'},query:preview?{preview:'1'}:{}},res);return {status,payload,body,headers};};
  let result=await request();assert.equal(result.status,200);assert.equal(result.headers['Content-Type'],'application/pdf');assert.equal(result.headers['Content-Disposition'],'attachment; filename="press-kit-dj-etoile.pdf"');assert.ok(Buffer.isBuffer(result.body));assert.equal(downloadCalls,1);
- profile={stage_name:'DJ Étoile',presskit_pdf_url:'https://evil.example/presskit.pdf'};result=await request();assert.equal(result.status,404);assert.equal(downloadCalls,1);
- profile={stage_name:'DJ Étoile',presskit_pdf_url:null};result=await request();assert.equal(result.status,200);assert.equal(downloadCalls,2);assert.match(recovered.presskit_pdf_url,/presskit\.pdf\?v=\d+$/);
- schemaMissing=true;recovered=null;result=await request();assert.equal(result.status,200);assert.equal(downloadCalls,3);assert.equal(recovered,null);
+ result=await request(true);assert.equal(result.status,200);assert.equal(result.headers['Content-Disposition'],'inline; filename="press-kit-dj-etoile.pdf"');assert.equal(downloadCalls,2);
+ profile={stage_name:'DJ Étoile',presskit_pdf_url:'https://evil.example/presskit.pdf'};result=await request();assert.equal(result.status,404);assert.equal(downloadCalls,2);
+ profile={stage_name:'DJ Étoile',presskit_pdf_url:null};result=await request();assert.equal(result.status,200);assert.equal(downloadCalls,3);assert.match(recovered.presskit_pdf_url,/presskit\.pdf\?v=\d+$/);
+ schemaMissing=true;recovered=null;result=await request();assert.equal(result.status,200);assert.equal(downloadCalls,4);assert.equal(recovered,null);
 });

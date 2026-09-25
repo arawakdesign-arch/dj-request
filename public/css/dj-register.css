@@ -40,7 +40,8 @@
 #pg-dj-register .djr-pdf-actions{display:flex;gap:10px;margin:12px 0}
 #pg-dj-register .djr-pdf-actions button{min-height:42px;border:1px solid #0a0a0c;border-radius:4px;background:#0a0a0c;color:#fff;font-family:inherit;font-size:.74rem;font-weight:800;cursor:pointer;padding:0 16px}
 #pg-dj-register .djr-pdf-actions button+button{background:#fff;color:#0a0a0c}
-#pg-dj-register #djr-pdf-link{display:inline-flex;color:#0a0a0c;font-size:.76rem;font-weight:800;text-decoration:none;border-bottom:1px solid #0a0a0c}
+#pg-dj-register #djr-pdf-link{display:inline-flex;align-items:center;min-height:42px;border:1px solid #6f22ff;border-radius:4px;background:#fff;color:#6f22ff;font-family:inherit;font-size:.76rem;font-weight:800;padding:0 16px;cursor:pointer}
+#pg-dj-register #djr-pdf-link[hidden]{display:none}
 @media(max-width:600px){
   #pg-dj-register .djr-scroll{padding:24px max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
   .djr-intro h1{font-size:1.8rem}
@@ -65,11 +66,24 @@
 .djr-crop-reset{border:1px solid #ffffff30;background:transparent;color:#fff}
 .djr-crop-apply{border:0;background:#fff;color:#0b080d}
 .djr-crop-apply:disabled{opacity:.55;cursor:wait}
+.djr-pdf-preview-modal{position:fixed;z-index:720;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:#09070be8;backdrop-filter:blur(10px)}
+.djr-pdf-preview-modal[hidden]{display:none}
+.djr-pdf-preview-panel{display:flex;flex-direction:column;width:min(920px,100%);height:calc(100dvh - 36px);overflow:hidden;border:1px solid #ffffff25;border-radius:16px;background:#110e14;color:#fff;box-shadow:0 30px 100px #000c}
+.djr-pdf-preview-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 18px;border-bottom:1px solid #ffffff1d}
+.djr-pdf-preview-head span{display:block;color:#a77adf;font-size:.54rem;font-weight:800;letter-spacing:.16em;margin-bottom:4px}
+.djr-pdf-preview-head h2{font-family:'Anton',sans-serif;font-size:1.45rem;font-weight:400;line-height:1;text-transform:uppercase}
+.djr-pdf-preview-head>button{flex:0 0 auto;width:42px;height:42px;border:1px solid #ffffff30;border-radius:50%;background:#ffffff0c;color:#fff;font-size:1.6rem;line-height:1;cursor:pointer}
+#djr-pdf-preview-frame{display:block;flex:1;width:100%;min-height:0;border:0;background:#e9e7eb}
+.djr-pdf-preview-close{min-height:52px;margin:12px 18px calc(12px + env(safe-area-inset-bottom));border:0;border-radius:28px;background:#fff;color:#0b080d;font-family:inherit;font-size:.76rem;font-weight:800;cursor:pointer}
 @media(max-width:600px){
   #dj-edit-avatar{width:112px;height:112px}
   .djr-crop-modal{padding:10px;align-items:flex-end}
   .djr-crop-panel{max-height:calc(100dvh - 20px);border-radius:18px;padding:18px}
   .djr-crop-head h2{font-size:1.7rem}
+  .djr-pdf-preview-modal{padding:0}
+  .djr-pdf-preview-panel{width:100%;height:100dvh;border:0;border-radius:0}
+  .djr-pdf-preview-head{padding:max(12px,env(safe-area-inset-top)) 14px 12px}
+  .djr-pdf-preview-close{margin:10px 14px calc(10px + env(safe-area-inset-bottom))}
 }
 /* Extended artist profile */
 #pg-dj-register .djr-section>h2{margin-bottom:22px;font-size:1.1rem}

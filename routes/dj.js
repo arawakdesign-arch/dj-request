@@ -266,7 +266,8 @@ router.get('/dj/profile/:id/presskit-pdf/download', async (req, res) => {
     const filename = `press-kit-${slugify(profile.stage_name) || 'dj'}.pdf`;
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Length', String(pdf.length));
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    const disposition = req.query?.preview === '1' ? 'inline' : 'attachment';
+    res.setHeader('Content-Disposition', `${disposition}; filename="${filename}"`);
     res.setHeader('Cache-Control', 'private, max-age=300');
     return res.send(pdf);
   } catch (downloadError) {

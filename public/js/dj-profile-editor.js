@@ -324,9 +324,30 @@ async function uploadDjEventFlyer(input,index) {
 }
 function renderDjPresskitPdf(url) {
   const safe=DjProfileSchema.url(url),link=document.getElementById('djr-pdf-link'),remove=document.getElementById('djr-pdf-remove'),status=document.getElementById('djr-pdf-status');
-  if(link){link.hidden=!safe;link.href=safe||'';}
+  if(link)link.hidden=!safe;
   if(remove)remove.hidden=!safe;
   if(status)status.textContent=safe?'PDF chargé et visible sur la page DJ.':'Aucun PDF chargé pour le moment.';
+}
+let djPdfPreviewPreviousFocus=null;
+function djPresskitPdfEndpoint(preview=false){
+  const id=_djProfileCache?.id||_sbSession?.user?.id||currentUser?.uid;
+  if(!id)return '';
+  return `/api/dj/profile/${encodeURIComponent(id)}/presskit-pdf/download${preview?'?preview=1':''}`;
+}
+function openDjPresskitPdfPreview(){
+  const modal=document.getElementById('djr-pdf-preview-modal'),frame=document.getElementById('djr-pdf-preview-frame'),url=djPresskitPdfEndpoint(true);
+  if(!modal||!frame||!url){djFeedback('Enregistre ton profil avant d’ouvrir l’aperçu du PDF.');return;}
+  djPdfPreviewPreviousFocus=document.activeElement;
+  frame.src=url;
+  modal.hidden=false;
+  modal.focus();
+}
+function closeDjPresskitPdfPreview(){
+  const modal=document.getElementById('djr-pdf-preview-modal'),frame=document.getElementById('djr-pdf-preview-frame');
+  if(frame)frame.removeAttribute('src');
+  if(modal)modal.hidden=true;
+  if(djPdfPreviewPreviousFocus?.focus)djPdfPreviewPreviousFocus.focus();
+  djPdfPreviewPreviousFocus=null;
 }
 async function uploadDjPresskitPdf(input) {
   if(djMediaBusy)return;
