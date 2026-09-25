@@ -215,7 +215,13 @@ app.get('*', async (req, res) => {
         res.setHeader('Content-Type', 'text/html; charset=UTF-8');
         return res.send(injectPreviewMeta(html, {
           title: escapeHtml(dj.stage_name),
-          desc:  escapeHtml(dj.tagline || 'Découvre ce profil DJ sur Pull Up.'),
+          // Sur iOS, WhatsApp (et d'autres apps utilisant le partage natif du
+          // système) ignore le paramètre "text" passé à navigator.share() et
+          // affiche à la place la balise og:description de l'URL, aussi bien
+          // dans le corps du message que dans la carte d'aperçu — c'est donc
+          // ici, pas dans shareDjProfile(), que ce texte doit être défini
+          // pour apparaître réellement dans le message envoyé.
+          desc:  escapeHtml('Envie de découvrir mon univers ? 🎧 Retrouve mon profil DJ sur Pull Up et contacte-moi pour ton prochain événement 👇'),
           image: escapeHtml(djImage.url),
           imageWidth: djImage.width, imageHeight: djImage.height, imageType: djImage.type,
         }));
