@@ -628,7 +628,7 @@ function djProfileUrl(){
   const id=djViewedProfileId||_djProfileCache?.id||_sbSession?.user?.id||currentUser?.uid;
   return id?`${location.origin}/app?dj=${encodeURIComponent(id)}`:location.href;
 }
-async function shareDjProfile(){const data={title:_djProfileCache?.stage_name||'Profil DJ Pull Up',text:_djProfileCache?.tagline||'Découvre ce profil DJ sur Pull Up.',url:djProfileUrl()};try{if(navigator.share){await navigator.share(data);return;}await navigator.clipboard.writeText(data.url);toast('Lien du profil copié');}catch(e){if(e?.name!=='AbortError')toast('Impossible de partager le profil');}}
+async function shareDjProfile(){const data={title:_djProfileCache?.stage_name||'Profil DJ Pull Up',text:'Envie de découvrir mon univers ? 🎧 Retrouve mon profil DJ sur Pull Up et contacte-moi pour ton prochain événement 👇',url:djProfileUrl()};try{if(navigator.share){await navigator.share(data);return;}await navigator.clipboard.writeText(`${data.text}\n${data.url}`);toast('Texte et lien copiés');}catch(e){if(e?.name!=='AbortError')toast('Impossible de partager le profil');}}
 function djProfileBack(){
   if(_djProfileBackTo){const p=_djProfileBackTo;_djProfileBackTo=null;showPage(p);return;}
   if(djViewedProfileId){if(document.referrer.startsWith(location.origin))history.back();else location.href='/';return;}
