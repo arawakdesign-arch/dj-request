@@ -25,6 +25,7 @@ const assert=require('node:assert/strict');
    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({gallery,url:gallery.at(-1)})});
   }
   if(u.pathname==='/api/dj/profile/event-flyer')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({url:'https://storage.example/profile-photos/dj/test/event-flyer-1.jpg'})});
+  if(u.pathname==='/api/dj/profile/presskit-pdf/generate')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({url:'https://storage.example/profile-photos/dj/test/presskit.pdf?v=generated',generated:true})});
   if(u.pathname==='/api/dj/profile/presskit-pdf')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({url:route.request().method()==='DELETE'?'':'https://storage.example/profile-photos/dj/test/presskit.pdf?v=1'})});
   if(u.pathname.startsWith('/api/dj/slug-availability/')){const slug=decodeURIComponent(u.pathname.split('/').at(-1));return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({slug,available:slug!=='dj-deja-pris'})});}
   if(u.pathname==='/api/dj/profile' && route.request().method()==='POST') {saved=route.request().postDataJSON();return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...saved,id:'test',photo_url:'/images/logo.png',gallery})});}
@@ -87,6 +88,10 @@ const assert=require('node:assert/strict');
  assert.equal(page.url(),editorUrl);
  await page.locator('#djr-pdf-remove').click();await page.waitForFunction(()=>!djMediaBusy&&!_djProfileCache.presskit_pdf_url);
  assert.match(await page.locator('#djr-pdf-status').innerText(),/Aucun PDF/);
+ await page.locator('#djr-pdf-generate').click();
+ await page.waitForFunction(()=>!djMediaBusy&&_djProfileCache.presskit_pdf_url?.includes('generated'));
+ assert.match(await page.locator('#djr-pdf-status').innerText(),/généré automatiquement/);
+ assert.equal(await page.locator('#djr-pdf-link').isVisible(),true);
  await page.evaluate(()=>{_djProfileCache={};});
  await page.locator('#dj-photo-input').setInputFiles(path.join(root,'images/logo.png'));
  await page.waitForFunction(()=>djPhotoCropState?.ready===true);

@@ -323,9 +323,10 @@ async function uploadDjEventFlyer(input,index) {
   finally{setDjMediaBusy(false);}
 }
 function renderDjPresskitPdf(url) {
-  const safe=DjProfileSchema.url(url),link=document.getElementById('djr-pdf-link'),remove=document.getElementById('djr-pdf-remove'),status=document.getElementById('djr-pdf-status');
+  const safe=DjProfileSchema.url(url),link=document.getElementById('djr-pdf-link'),remove=document.getElementById('djr-pdf-remove'),generate=document.getElementById('djr-pdf-generate'),status=document.getElementById('djr-pdf-status');
   if(link)link.hidden=!safe;
   if(remove)remove.hidden=!safe;
+  if(generate)generate.textContent=safe?'Regénérer automatiquement':'Générer mon press kit';
   if(status)status.textContent=safe?'PDF chargé et visible sur la page DJ.':'Aucun PDF chargé pour le moment.';
 }
 let djPdfPreviewPreviousFocus=null;
@@ -348,6 +349,24 @@ function closeDjPresskitPdfPreview(){
   if(modal)modal.hidden=true;
   if(djPdfPreviewPreviousFocus?.focus)djPdfPreviewPreviousFocus.focus();
   djPdfPreviewPreviousFocus=null;
+}
+async function generateDjPresskitPdf(){
+  if(djMediaBusy)return;
+  const payload=collectDjProfile();if(!payload)return;
+  const status=document.getElementById('djr-pdf-status');
+  setDjMediaBusy(true);djFeedback('Création du press kit PDF…');
+  if(status)status.textContent='Création du PDF avec les informations du profil…';
+  try{
+    _djProfileCache=await api('POST','/dj/profile',payload);
+    const result=await api('POST','/dj/profile/presskit-pdf/generate',{});
+    _djProfileCache.presskit_pdf_url=result.url;
+    renderDjPresskitPdf(result.url);applyDjProfileToPresskit();
+    djFeedback('Press kit PDF créé. Tu peux maintenant l’ouvrir ou le télécharger depuis ta page.');
+    if(status)status.textContent='Press kit généré automatiquement et enregistré.';
+  }catch(e){
+    const message=e.message||'Le press kit n’a pas pu être généré.';
+    if(status)status.textContent=message;djFeedback(message);
+  }finally{setDjMediaBusy(false);}
 }
 async function uploadDjPresskitPdf(input) {
   if(djMediaBusy)return;

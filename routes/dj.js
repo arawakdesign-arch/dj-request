@@ -6,6 +6,7 @@ const { validateDisplayName } = require('../lib/moderation');
 const DjProfileSchema = require('../public/js/dj-profile-schema');
 const { randomUUID } = require('node:crypto');
 const { isClosed, isUpcoming } = require('./events');
+const { generateDjPresskitPdf, loadDjPresskitAssets } = require('../lib/dj-presskit-pdf');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -186,6 +187,38 @@ router.post('/dj/profile/presskit-pdf', requireAuth, pdfUpload.single('pdf'), as
   }
   if (dbError) return res.status(500).json({ error: dbError.message });
   res.json({ url: pdfUrl });
+});
+
+router.post('/dj/profile/presskit-pdf/generate', requireAuth, async (req, res) => {
+  const { data: profile, error: readError } = await supabase.from('dj_profiles').select('*').eq('id', req.user.id).maybeSingle();
+  if (readError || !profile) return res.status(404).json({ error: 'Enregistre d’abord ton profil DJ.' });
+  if (!profile.stage_name || !profile.bio || !profile.photo_url) {
+    return res.status(400).json({ error: 'Complète le nom, la biographie et la photo avant de générer le PDF.' });
+  }
+  try {
+    let appOrigin = 'https://pull-up.live';
+    try { appOrigin = new URL(process.env.APP_URL || appOrigin).origin; } catch {}
+    const profileUrl = profile.slug ? `${appOrigin}/${encodeURIComponent(profile.slug)}` : `${appOrigin}/app?dj=${encodeURIComponent(req.user.id)}`;
+    const storagePrefix = supabase.storage.from('profile-photos').getPublicUrl(`dj/${req.user.id}/`).data.publicUrl;
+    const assets = await loadDjPresskitAssets(profile, storagePrefix, profileUrl);
+    const pdf = await generateDjPresskitPdf(profile, assets, profileUrl);
+    if (!pdf.length || pdf.length > 10 * 1024 * 1024 || pdf.subarray(0, 5).toString('utf8') !== '%PDF-') {
+      return res.status(500).json({ error: 'Le PDF généré est invalide.' });
+    }
+    const storagePath = `dj/${req.user.id}/presskit.pdf`;
+    const { error: uploadError } = await supabase.storage.from('profile-photos').upload(storagePath, pdf, {
+      contentType: 'application/pdf', cacheControl: '3600', upsert: true,
+    });
+    if (uploadError) return res.status(500).json({ error: 'Impossible d’enregistrer le PDF généré.' });
+    const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(storagePath);
+    const pdfUrl = publicUrl + '?v=' + Date.now();
+    const { error: dbError } = await supabase.from('dj_profiles').update({ presskit_pdf_url: pdfUrl, updated_at: new Date().toISOString() }).eq('id', req.user.id);
+    if (dbError) return res.status(500).json({ error: dbError.message });
+    return res.json({ url: pdfUrl, generated: true });
+  } catch (error) {
+    console.error('[dj press kit] génération impossible —', req.user.id, error.message);
+    return res.status(500).json({ error: 'Le press kit n’a pas pu être généré.' });
+  }
 });
 
 // Add gallery images one at a time; the client serializes uploads.

@@ -159,7 +159,31 @@ test('press kit PDF upload still succeeds while the optional database column is 
  result=await request();assert.equal(result.status,200);assert.equal(result.payload.storage_only,true);assert.match(result.payload.url,/presskit\.pdf/);
 });
 
-test('public press kit PDF download is same-origin and forces an attachment filename',async()=>{
+test('automatic press kit generation stores the generated PDF and its public URL',async()=>{
+ let uploaded=null,saved=null;
+ const profile={id:'test-user',slug:'dj-test',stage_name:'DJ Test',bio:'Biographie',photo_url:'https://storage.example/profile-photos/dj/test-user/avatar.jpg'};
+ const db={
+  from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:profile,error:null})})}),update:value=>({eq:async()=>{saved=value;return {error:null};}})}),
+  storage:{from:()=>({getPublicUrl:path=>({data:{publicUrl:'https://storage.example/profile-photos/'+path}}),upload:async(path,buffer)=>{uploaded={path,buffer};return {error:null};}})},
+ };
+ const generated=Buffer.from('%PDF-1.4 generated press kit');
+ for(const [path,exports] of [
+  ['../lib/supabase',db],
+  ['../middleware/auth',{requireAuth:(req,res,next)=>{req.user={id:'test-user'};next();}}],
+  ['../routes/events',{isClosed:()=>false,isUpcoming:()=>false}],
+  ['../lib/dj-presskit-pdf',{loadDjPresskitAssets:async()=>({}),generateDjPresskitPdf:async()=>generated}],
+ ]) require.cache[require.resolve(path)]={id:require.resolve(path),filename:require.resolve(path),loaded:true,exports};
+ delete require.cache[require.resolve('../routes/dj')];
+ const router=require('../routes/dj');
+ const handler=router.stack.find(layer=>layer.route?.path==='/dj/profile/presskit-pdf/generate').route.stack.at(-1).handle;
+ let status=200,payload;const res={status(code){status=code;return this;},json(value){payload=value;return this;}};
+ await handler({user:{id:'test-user'}},res);
+ assert.equal(status,200);assert.equal(payload.generated,true);assert.match(payload.url,/presskit\.pdf\?v=\d+$/);
+ assert.equal(uploaded.path,'dj/test-user/presskit.pdf');assert.equal(uploaded.buffer,generated);assert.match(saved.presskit_pdf_url,/presskit\.pdf/);
+ delete require.cache[require.resolve('../lib/dj-presskit-pdf')];
+});
+
+test('public press kit PDF supports inline previews and forced downloads',async()=>{
  const prefix='https://storage.example/profile-photos/dj/test-user/presskit.pdf';
  let profile={stage_name:'DJ Étoile',presskit_pdf_url:prefix+'?v=123'},downloadCalls=0,recovered=null,schemaMissing=false;
  const db={
