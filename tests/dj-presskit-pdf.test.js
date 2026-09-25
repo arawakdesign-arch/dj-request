@@ -24,8 +24,9 @@ test('automatic DJ press kit generation returns a valid multi-page PDF', async (
 });
 
 test('press kit assets reject photos outside the DJ storage prefix', async () => {
-  const assets = await loadDjPresskitAssets({ ...profile, photo_url: 'https://evil.example/photo.jpg', gallery: ['https://evil.example/gallery.jpg'] }, 'https://storage.example/dj/test/', 'https://pull-up.live/dj-etoile');
+  const assets = await loadDjPresskitAssets({ ...profile, photo_url: 'https://evil.example/photo.jpg', gallery: ['https://evil.example/gallery.jpg'], upcoming_events: [{ flyer_url: 'https://evil.example/flyer.jpg' }] }, 'https://storage.example/dj/test/', 'https://pull-up.live/dj-etoile');
   assert.equal(assets.profilePhoto, null);
   assert.deepEqual(assets.gallery, []);
+  assert.deepEqual(assets.flyers, []);
   assert.equal(assets.qr.subarray(1, 4).toString(), 'PNG');
 });
