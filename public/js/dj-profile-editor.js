@@ -332,15 +332,17 @@ async function uploadDjPresskitPdf(input) {
   if(djMediaBusy)return;
   const file=input.files[0];input.value='';
   if(!file)return;
-  if(file.size>10*1024*1024||!(file.type==='application/pdf'||/\.pdf$/i.test(file.name))){djFeedback('Choisis un PDF de moins de 10 Mo.');return;}
+  const status=document.getElementById('djr-pdf-status');
+  if(file.size>10*1024*1024||!(file.type==='application/pdf'||/\.pdf$/i.test(file.name))){if(status)status.textContent='Choisis un PDF valide de moins de 10 Mo.';djFeedback('Choisis un PDF de moins de 10 Mo.');return;}
   setDjMediaBusy(true);djFeedback('Envoi du press kit PDF…');
+  if(status)status.textContent=`Envoi de « ${file.name} »…`;
   try{
     const form=new FormData();form.append('pdf',file);
     const response=await fetch('/api/dj/profile/presskit-pdf',{method:'POST',headers:{Authorization:'Bearer '+(_sbSession?.access_token||_authToken)},body:form});
-    const result=await response.json();if(!response.ok)throw new Error(result.error||'Envoi impossible.');
+    const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Envoi impossible.');
     _djProfileCache=_djProfileCache||{};_djProfileCache.presskit_pdf_url=result.url;
     renderDjPresskitPdf(result.url);applyDjProfileToPresskit();djFeedback('Press kit PDF chargé.');
-  }catch(e){djFeedback(e.message||'Le PDF n’a pas pu être envoyé.');}
+  }catch(e){const message=e.message||'Le PDF n’a pas pu être envoyé.';if(status)status.textContent=message;djFeedback(message);}
   finally{setDjMediaBusy(false);}
 }
 async function removeDjPresskitPdf() {

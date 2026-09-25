@@ -140,3 +140,21 @@ test('API explains the career locations migration and preserves basic profile sa
  result=await request({...valid,career_locations:[{type:'Club',name:'Le Balajo',address:'9 Rue de Lappe',city:'Paris',country:'France',lat:48.853,lng:2.374}]});
  assert.equal(result.status,500);assert.match(result.payload.error,/migration-add-dj-career-locations/);
 });
+
+test('press kit PDF upload returns its public URL and reports a missing database column',async()=>{
+ let saved=null,columnError=null;
+ const db={
+  from:()=>({upsert:async value=>{saved=value;return {error:columnError};}}),
+  storage:{from:()=>({upload:async()=>({error:null}),getPublicUrl:path=>({data:{publicUrl:'https://storage.example/profile-photos/'+path}})})},
+ };
+ for(const [path,exports] of [['../lib/supabase',db],['../middleware/auth',{requireAuth:(req,res,next)=>{req.user={id:'test-user'};next();}}],['../routes/events',{isClosed:()=>false,isUpcoming:()=>false}]]){
+  require.cache[require.resolve(path)]={id:require.resolve(path),filename:require.resolve(path),loaded:true,exports};
+ }
+ delete require.cache[require.resolve('../routes/dj')];
+ const router=require('../routes/dj');
+ const handler=router.stack.find(layer=>layer.route?.path==='/dj/profile/presskit-pdf'&&layer.route.methods.post).route.stack.at(-1).handle;
+ const request=async()=>{let status=200,payload;const res={status(code){status=code;return this;},json(value){payload=value;return this;}};await handler({file:{buffer:Buffer.from('%PDF-1.4 test'),mimetype:'application/pdf',originalname:'press-kit.pdf'},user:{id:'test-user'}},res);return {status,payload};};
+ let result=await request();assert.equal(result.status,200);assert.match(result.payload.url,/presskit\.pdf\?v=\d+$/);assert.match(saved.presskit_pdf_url,/presskit\.pdf/);
+ columnError={code:'42703',message:'column "presskit_pdf_url" does not exist'};
+ result=await request();assert.equal(result.status,500);assert.match(result.payload.error,/Migration Supabase manquante/);
+});

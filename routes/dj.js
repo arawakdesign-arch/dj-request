@@ -181,7 +181,7 @@ router.post('/dj/profile/presskit-pdf', requireAuth, pdfUpload.single('pdf'), as
   const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(path);
   const pdfUrl = publicUrl + '?v=' + Date.now();
   const { error: dbError } = await supabase.from('dj_profiles').upsert({ id: req.user.id, presskit_pdf_url: pdfUrl, updated_at: new Date().toISOString() });
-  if (isMissingUpcomingEventsColumn(dbError) || /presskit_pdf_url/i.test(dbError?.message || '')) {
+  if (isMissingColumn(dbError, 'presskit_pdf_url')) {
     return res.status(500).json({ error: 'Migration Supabase manquante : ajoute la colonne presskit_pdf_url sur dj_profiles.' });
   }
   if (dbError) return res.status(500).json({ error: dbError.message });
@@ -232,7 +232,7 @@ router.delete('/dj/profile/gallery', requireAuth, async (req, res) => {
 
 router.delete('/dj/profile/presskit-pdf', requireAuth, async (req, res) => {
   const { data: profile, error } = await supabase.from('dj_profiles').select('presskit_pdf_url').eq('id', req.user.id).maybeSingle();
-  if (isMissingUpcomingEventsColumn(error) || /presskit_pdf_url/i.test(error?.message || '')) {
+  if (isMissingColumn(error, 'presskit_pdf_url')) {
     return res.status(500).json({ error: 'Migration Supabase manquante : ajoute la colonne presskit_pdf_url sur dj_profiles.' });
   }
   if (error) return res.status(500).json({ error: 'Impossible de charger le PDF.' });
