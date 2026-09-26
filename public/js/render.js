@@ -10,7 +10,7 @@ function totalVotes() { return Object.values(proposals).reduce((s,p) => s + (p.v
 // Le serveur renvoie directement le nombre de votants distincts (jamais leur
 // identité — cf. GET /proposals/:eventId) sur chaque proposition.
 function totalVoters(){ return Object.values(proposals)[0]?.total_voters || 0; }
-function renderAll()  { renderClient(); renderDJ(); renderBS(); updateNP(); updateDJStats(); }
+function renderAll()  { renderClient(); renderDJ(); renderDJConsole(); renderBS(); updateNP(); updateDJStats(); }
 
 // ── Album art (Deezer via le serveur, iTunes en repli) ─────────────────
 // Deezer n'autorise pas les appels directs depuis le navigateur (pas de
@@ -194,6 +194,54 @@ function renderDJ() {
   });
 }
 
+// ── Mode DJ minimaliste ──────────────────────────────────────────────
+function renderDJConsole() {
+  const list = document.getElementById('djc-list'); if (!list) return;
+  const songs = sorted();
+  elt('djc-event-name', currentEventMeta?.name || ename || 'Soirée Pull Up');
+  elt('djc-count', songs.length);
+  elt('djc-count-label', songs.length > 1 ? 'titres' : 'titre');
+  const votes = totalVotes();
+  elt('djc-votes', votes);
+  elt('djc-votes-label', votes > 1 ? 'votes' : 'vote');
+  list.replaceChildren();
+
+  if (!songs.length) {
+    const empty = document.createElement('div');
+    empty.className = 'djc-empty';
+    empty.innerHTML = '<b>♪</b><strong>Aucune demande</strong><span>Les nouveaux titres apparaîtront ici en direct.</span>';
+    list.appendChild(empty);
+    return;
+  }
+
+  songs.forEach((p, index) => {
+    const song = CAT.find(item => item.id === p.id) || { n: p.title || p.id, a: p.artist || '' };
+    const row = document.createElement('article');
+    row.className = `djc-row${index < 3 ? ' djc-top' : ''}${p.approved ? ' is-approved' : ''}`;
+    const cover = p.coverUrl
+      ? `<img class="djc-cover" src="${escapeHtml(p.coverUrl)}" alt="" onerror="this.outerHTML='<div class=djc-cover-fallback>♪</div>'">`
+      : '<div class="djc-cover-fallback">♪</div>';
+    row.innerHTML = `
+      <div class="djc-rank">${index + 1}</div>
+      ${cover}
+      <div class="djc-song">
+        <strong>${escapeHtml(song.n)}</strong>
+        <span>${escapeHtml(song.a)}</span>
+        ${p.proposer_name ? `<small>Proposé par ${escapeHtml(p.proposer_name)}</small>` : ''}
+      </div>
+      <div class="djc-vote"><strong>${p.votes || 0}</strong><span>${(p.votes || 0) > 1 ? 'votes' : 'vote'}</span></div>
+      <div class="djc-actions">
+        <button type="button" class="djc-play" data-action="play"><b>▶</b> Jouer</button>
+        <button type="button" class="djc-approve" data-action="approve" ${p.approved ? 'disabled' : ''}><b>✓</b> ${p.approved ? 'Validé' : 'Valider'}</button>
+        <button type="button" class="djc-delete" data-action="delete"><b>×</b> Supprimer</button>
+      </div>`;
+    row.querySelector('[data-action="play"]').onclick = () => djPlay(p.id);
+    row.querySelector('[data-action="approve"]').onclick = () => djApprove(p.id);
+    row.querySelector('[data-action="delete"]').onclick = () => djReject(p.id);
+    list.appendChild(row);
+  });
+}
+
 // ── BigScreen ─────────────────────────────────────────────────────────
 const BCOLS = ['linear-gradient(90deg,#9333EA,#EC4899)','#7C3AED','#6D28D9','#4C1D95','#2E1065'];
 function renderBS() {
@@ -247,6 +295,7 @@ function updateNP() {
   const a = nowPlaying.a || '';
   elt('cli-now-t', t); elt('cli-now-a', a);
   elt('dj-np-t',  t); elt('dj-np-a', a);
+  elt('djc-np-t', t); elt('djc-np-a', a);
   elt('pk-np-t',  a ? t + ' — ' + a : t);
   elt('bs-np-t',  t); elt('bs-np-a', a);
   elt('bs-np-by', nowPlaying.by ? 'Proposé par ' + nowPlaying.by : '');
@@ -274,6 +323,19 @@ function updateNP() {
     } else {
       npCoverImg.style.display = 'none';
       npCoverFb.style.display  = 'flex';
+    }
+  }
+
+  const djcCoverImg = document.getElementById('djc-np-cover-img');
+  const djcCoverFb  = document.getElementById('djc-np-cover-fallback');
+  if (djcCoverImg && djcCoverFb) {
+    if (nowPlaying.coverUrl) {
+      djcCoverImg.src = nowPlaying.coverUrl;
+      djcCoverImg.style.display = 'block';
+      djcCoverFb.style.display = 'none';
+    } else {
+      djcCoverImg.style.display = 'none';
+      djcCoverFb.style.display = 'grid';
     }
   }
 

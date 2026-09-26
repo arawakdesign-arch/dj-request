@@ -52,10 +52,16 @@ function showPage(id) {
   setTimeout(() => pg.classList.remove('pe'), 400);
   if (id === 'dj' || id === 'bigscreen') generateQR();
   if (id === 'bigscreen') renderBS();
+  if (id === 'dj-console') renderDJConsole();
   if (id === 'profile')   renderProfile();
   if (id === 'dj')        renderAll();
   if (id === 'chat')      { chatMarkRead(); scrollChatBottom(); }
   if (id === 'presskit')  { if (_djProfileCache) applyDjProfileToPresskit(); else loadDjProfile(); }
+}
+
+function openDJConsole() {
+  if (!djLoggedIn) { enterOrgaSpace(); return; }
+  showPage('dj-console');
 }
 
 // Clic sur la venue-card (nom/infos/flyer de la soirée) → page publique de

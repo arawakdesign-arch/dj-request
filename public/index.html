@@ -887,6 +887,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="stylesheet" href="/css/dj-register.css?v=49">
 <link rel="stylesheet" href="/css/bigscreen.css?v=4">
+<link rel="stylesheet" href="/css/dj-console.css?v=1">
 </head>
 <body>
 
@@ -1596,6 +1597,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   <div class="tb">
     <div style="flex:1;min-width:0;display:flex;align-items:center;gap:.4rem;font-family:'Inter',sans-serif;font-weight:800;font-size:1rem;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🎛️ Espace Organisateur</div>
     <div style="flex-shrink:0;display:flex;align-items:center;gap:.4rem">
+      <button onclick="openDJConsole()" style="font-size:.65rem;padding:4px 10px;border-radius:8px;border:1px solid var(--vi);background:var(--vi);color:#fff;font-weight:800;flex-shrink:0">Mode DJ</button>
       <button onclick="orgaViewApp()" style="font-size:.65rem;padding:3px 8px;border-radius:8px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);flex-shrink:0">Voir l'app</button>
       <button onclick="djLogout()" style="font-size:.65rem;padding:3px 8px;border-radius:8px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);flex-shrink:0">Quitter</button>
     </div>
@@ -2029,6 +2031,40 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   </div>
 </div>
 
+<!-- MODE DJ : classement et commandes essentielles -->
+<div class="page" id="pg-dj-console">
+  <header class="djc-header">
+    <button class="djc-back" onclick="showPage('dj')" aria-label="Retour à l’espace organisateur">←</button>
+    <img src="/images/LOGO120.png" alt="Pull Up" class="djc-logo">
+    <div class="djc-event">
+      <span>MODE DJ · LIVE</span>
+      <strong id="djc-event-name">Soirée Pull Up</strong>
+    </div>
+    <div class="djc-live"><i></i>CONNECTÉ</div>
+  </header>
+
+  <main class="djc-main">
+    <section class="djc-now" aria-label="Morceau en cours">
+      <div class="djc-now-cover" id="djc-np-cover-fallback">♪</div>
+      <img class="djc-now-cover" id="djc-np-cover-img" src="" alt="" style="display:none">
+      <div class="djc-now-copy">
+        <span>EN COURS DE LECTURE</span>
+        <strong id="djc-np-t">En attente…</strong>
+        <p id="djc-np-a"></p>
+      </div>
+      <div class="djc-now-wave"><i></i><i></i><i></i><i></i></div>
+    </section>
+
+    <section class="djc-ranking">
+      <div class="djc-title-row">
+        <div><span>CLASSEMENT EN DIRECT</span><h1>LES DEMANDES</h1></div>
+        <p><strong id="djc-count">0</strong> <span id="djc-count-label">titre</span> · <strong id="djc-votes">0</strong> <span id="djc-votes-label">vote</span></p>
+      </div>
+      <div class="djc-list" id="djc-list"></div>
+    </section>
+  </main>
+</div>
+
 <!-- BIGSCREEN -->
 <div class="page" id="pg-bigscreen">
   <div class="bs2-wrap">
@@ -2149,9 +2185,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=8"></script>
-<script src="/js/app.js?v=130"></script>
+<script src="/js/app.js?v=131"></script>
 <script src="/js/dj-profile-editor.js?v=47"></script>
-<script src="/js/render.js?v=42"></script>
+<script src="/js/render.js?v=43"></script>
 <script src="/js/chat.js?v=26"></script>
 <script src="/js/auth.js?v=77"></script>
 </body>
