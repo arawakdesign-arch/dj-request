@@ -124,12 +124,13 @@ window.addEventListener('load', async () => {
   // propre ancien espace organisateur au lieu de rejoindre CETTE soirée-là.
   const urlIntentAtLoad = new URLSearchParams(window.location.search).get('intent');
   const urlEventAtLoad  = new URLSearchParams(window.location.search).get('event');
-  const savedOrgToken = (urlIntentAtLoad === 'dj-register' || urlIntentAtLoad === 'create-event' || urlEventAtLoad) ? null : loadToken();
+  const urlModeAtLoad   = new URLSearchParams(window.location.search).get('mode');
+  const savedOrgToken = (urlIntentAtLoad === 'dj-register' || urlIntentAtLoad === 'create-event' || (urlEventAtLoad && urlModeAtLoad !== 'dj')) ? null : loadToken();
   if (savedOrgToken) {
     try {
       const res = await api('GET', '/auth/me', null, { token: savedOrgToken });
       const u   = res.user;
-      if (u.role === 'organizer' && isValidUuid(u.event_id)) {
+      if (u.role === 'organizer' && isValidUuid(u.event_id) && (!urlEventAtLoad || u.event_id === eid)) {
         eid   = u.event_id;
         ename = u.displayName || '';
         await _activateDJ(ename, null);
@@ -177,14 +178,17 @@ window.addEventListener('load', async () => {
           // OAuth ici) passait complètement à côté de cette intention et
           // atterrissait sur sa dernière soirée en cache, parfois vide.
           const urlIntent = new URLSearchParams(window.location.search).get('intent');
+          const wantsDJConsole = isDJConsoleIntent();
           const hasPendingIntent = !!(
             sessionStorage.getItem('djr_pending_create_intent') ||
             sessionStorage.getItem('djr_pending_dj_register_intent') ||
             sessionStorage.getItem('djr_pending_orga_entry') ||
-            urlIntent
+            urlIntent || wantsDJConsole
           );
           afterLogin(hasPendingIntent);
-          if (sessionStorage.getItem('djr_pending_create_intent') || urlIntent === 'create-event') {
+          if (wantsDJConsole && isValidUuid(eid) && !djLoggedIn) {
+            await openSharedDJConsole();
+          } else if (sessionStorage.getItem('djr_pending_create_intent') || urlIntent === 'create-event') {
             sessionStorage.removeItem('djr_pending_create_intent');
             showPage('dj-login');
             _djLoginShowCreate(); // le formulaire nom/mot de passe apparaît, currentUser.email est maintenant renseigné
@@ -237,6 +241,7 @@ window.addEventListener('load', async () => {
     const intent = new URLSearchParams(window.location.search).get('intent');
     if (intent === 'create-event')     { showPage('dj-login'); _djLoginShowCreate(); }
     else if (intent === 'dj-register') { openDjRegister(); }
+    else if (isDJConsoleIntent() && isValidUuid(eid)) { await openSharedDJConsole(); }
     else                                showPage('auth');
   }
 });
@@ -632,6 +637,33 @@ function setErr(msg) {
 // - Identité inconnue (pas encore connecté du tout) → connexion Google
 //   d'abord, sans écran de choix intermédiaire ; la décision se prend au
 //   retour d'OAuth (cf. onAuthStateChange, flag djr_pending_orga_entry).
+async function openSharedDJConsole() {
+  if (!isValidUuid(eid)) return false;
+
+  // Un propriétaire ou un DJ Pull Up déjà inscrit dans le line-up entre sans
+  // retaper le mot de passe : sa session personnelle suffit au backend.
+  if (_sbSession) {
+    try {
+      const mine = await api('GET', '/events/mine');
+      const owned = (mine || []).find(event => event.id === eid);
+      if (owned) { await adminEnterEvent(owned.id, owned.name); return true; }
+    } catch(e) {}
+    try {
+      const lineupEvents = await api('GET', '/dj/my-events');
+      const lineupEvent = (lineupEvents || []).find(event => event.id === eid);
+      if (lineupEvent) { await enterAsLineupDj(lineupEvent.id, lineupEvent.name); return true; }
+    } catch(e) {}
+  }
+
+  // DJ externe au profil Pull Up : le lien identifie déjà la soirée, il ne
+  // reste donc que son mot de passe à saisir. Le secret n'est jamais mis dans
+  // l'URL partageable.
+  if (!ename) await loadEvent(eid).catch(() => {});
+  showPage('dj-login');
+  _djLoginShowJoin(ename || currentEventMeta?.name || '');
+  return false;
+}
+
 async function enterOrgaSpace() {
   // On ne bascule pas encore sur la page dj-login ici : son écran Créer/
   // Rejoindre est visible par défaut dès que la page s'affiche, donc le
@@ -681,17 +713,31 @@ async function _djEnterOrgaAfterAuth() {
 
 // ── Espace Organisateur — navigation entre les 2 accès ─────────────────
 function _djLoginShowChoice() {
+  _setDjLoginHeader('Espace Organisateur', 'DJ · Promoteur · Club manager');
   document.getElementById('dj-choice').style.display      = 'block';
   document.getElementById('dj-join-form').style.display   = 'none';
   document.getElementById('dj-create-flow').style.display = 'none';
 }
-function _djLoginShowJoin() {
+function _setDjLoginHeader(title, subtitle) {
+  const titleEl = document.getElementById('dj-login-title');
+  const subtitleEl = document.getElementById('dj-login-subtitle');
+  if (titleEl) titleEl.textContent = title;
+  if (subtitleEl) subtitleEl.textContent = subtitle;
+}
+function _djLoginShowJoin(prefilledName) {
+  _setDjLoginHeader(prefilledName ? 'Accès Mode DJ' : 'Espace Organisateur', prefilledName ? 'Entre le mot de passe transmis par l’organisateur' : 'DJ · Promoteur · Club manager');
   document.getElementById('dj-choice').style.display      = 'none';
   document.getElementById('dj-join-form').style.display   = 'block';
   document.getElementById('dj-create-flow').style.display = 'none';
   document.getElementById('dj-err').textContent = '';
+  const nameInput = document.getElementById('dj-ev-name');
+  if (nameInput) {
+    nameInput.readOnly = !!prefilledName;
+    if (prefilledName) nameInput.value = prefilledName;
+  }
 }
 function _djLoginShowCreate() {
+  _setDjLoginHeader('Créer une soirée', 'Configure ton événement Pull Up');
   document.getElementById('dj-choice').style.display      = 'none';
   document.getElementById('dj-join-form').style.display   = 'none';
   document.getElementById('dj-create-flow').style.display = 'block';
@@ -881,13 +927,14 @@ async function djCreateSubmit() {
 
 async function _activateDJ(n, p) {
   console.log('[pullup] _activateDJ() entrée : eid=', eid, 'n=', n);
+  const wantsDJConsole = isDJConsoleIntent();
   ename = n; djLoggedIn = true; _djPassword = p;
   // "DJ's" dans le menu reste le point d'entrée du profil DJ (openDjRegister)
   // quel que soit l'état de connexion organisateur — c'est nav-admin,
   // affiché juste en dessous, qui donne accès à l'espace organisateur.
   const navAdmin = document.getElementById('nav-admin');
   if (navAdmin) navAdmin.style.display = 'flex';
-  showPage('dj'); renderAll();
+  showPage(wantsDJConsole ? 'dj-console' : 'dj'); renderAll();
   // showPage('dj') déclenche generateQR() via app.js:37 — QR immédiat avec l'eid courant
   if (eid) {
     const preEid = eid;
@@ -902,7 +949,7 @@ async function _activateDJ(n, p) {
       eid = preEid;
     }
     const activeEid = eid;
-    const publicUrl = buildEventUrl(activeEid);
+    const publicUrl = wantsDJConsole ? buildDJConsoleUrl(activeEid) : buildEventUrl(activeEid);
     console.log('[pullup] _activateDJ() activeEid final=', activeEid, '| URL=', publicUrl);
     history.replaceState(null, '', publicUrl);
     generateQR(activeEid);

@@ -7,6 +7,7 @@
 .djc-event strong{font-family:'Anton','Inter',sans-serif;font-size:clamp(20px,2.2vw,36px);font-weight:400;line-height:1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .djc-live{display:flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid #ffffff28;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.08em}
 .djc-live i{width:8px;height:8px;border-radius:50%;background:#1bd981;box-shadow:0 0 0 4px #1bd98122}
+.djc-share{height:42px;padding:0 14px;border:1px solid #8550ff;background:#7024f5;color:#fff;font-family:'Inter',sans-serif;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}
 .djc-main{width:min(1480px,100%);margin:0 auto;padding:clamp(12px,1.6vw,25px);display:grid;grid-template-columns:minmax(260px,.62fr) minmax(0,2fr);gap:clamp(12px,1.6vw,24px);flex:1;min-height:0;overflow:hidden}
 .djc-now{position:relative;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;background:#111115;color:#fff}
 .djc-now::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#0b0b0ff5 5%,#0b0b0f20 72%);pointer-events:none}
@@ -59,7 +60,7 @@
   .djc-actions button{height:44px;padding:0 7px;font-size:11px}.djc-title-row h1{font-size:38px}
 }
 @media(max-width:480px){
-  .djc-event span{font-size:8px}.djc-event strong{font-size:19px}.djc-live{padding:0;border:0;font-size:0}.djc-live i{width:9px;height:9px}
-  .djc-back{width:38px;height:38px}.djc-logo{width:40px;height:40px}.djc-title-row p{font-size:10px}.djc-title-row p strong{font-size:13px}
+  .djc-event span{font-size:8px}.djc-event strong{font-size:19px}.djc-live{display:none}.djc-share{height:38px;padding:0 10px;font-size:0}.djc-share span{font-size:10px}
+  .djc-back{width:38px;height:38px}.djc-logo{display:none}.djc-title-row p{font-size:10px}.djc-title-row p strong{font-size:13px}
   .djc-song strong{font-size:16px}.djc-song span{font-size:11px}.djc-vote strong{font-size:25px}
 }

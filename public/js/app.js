@@ -61,7 +61,35 @@ function showPage(id) {
 
 function openDJConsole() {
   if (!djLoggedIn) { enterOrgaSpace(); return; }
+  if (isValidUuid(eid)) history.replaceState(null, '', buildDJConsoleUrl(eid));
   showPage('dj-console');
+}
+
+function buildDJConsoleUrl(eventId) {
+  if (!isValidUuid(eventId)) return window.location.origin + '/app?mode=dj';
+  return window.location.origin + '/app?event=' + encodeURIComponent(eventId) + '&mode=dj';
+}
+
+function isDJConsoleIntent() {
+  return new URLSearchParams(window.location.search).get('mode') === 'dj';
+}
+
+function closeDJConsole() {
+  if (isValidUuid(eid)) history.replaceState(null, '', buildEventUrl(eid));
+  showPage('dj');
+}
+
+function copyDJConsoleUrl() {
+  const url = buildDJConsoleUrl(eid);
+  const done = () => toast('🔗 Lien DJ copié · partage aussi le mot de passe');
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(done).catch(() => {
+    _copyFallback(url);
+    toast('🔗 Lien DJ copié · partage aussi le mot de passe');
+  });
+  else {
+    _copyFallback(url);
+    toast('🔗 Lien DJ copié · partage aussi le mot de passe');
+  }
 }
 
 // Clic sur la venue-card (nom/infos/flyer de la soirée) → page publique de
