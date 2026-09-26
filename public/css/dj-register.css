@@ -74,7 +74,14 @@
 .djr-pdf-preview-head span{display:block;color:#a77adf;font-size:.54rem;font-weight:800;letter-spacing:.16em;margin-bottom:4px}
 .djr-pdf-preview-head h2{font-family:'Anton',sans-serif;font-size:1.45rem;font-weight:400;line-height:1;text-transform:uppercase}
 .djr-pdf-preview-head>button{flex:0 0 auto;width:42px;height:42px;border:1px solid #ffffff30;border-radius:50%;background:#ffffff0c;color:#fff;font-size:1.6rem;line-height:1;cursor:pointer}
-#djr-pdf-preview-frame{display:block;flex:1;width:100%;min-height:0;border:0;background:#e9e7eb}
+.djr-pdf-preview-pages{display:flex;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;flex-direction:column;align-items:center;gap:16px;padding:16px;background:#211b26;scrollbar-gutter:stable}
+.djr-pdf-preview-status{width:100%;margin:0;padding:12px;color:#d8cfde;font-size:.8rem;font-weight:700;text-align:center}
+.djr-pdf-preview-status:only-child{margin:auto}
+.djr-pdf-preview-page{position:relative;width:min(100%,820px);flex:0 0 auto;background:#fff;box-shadow:0 10px 34px #0008}
+.djr-pdf-preview-page canvas{display:block;width:100%;height:auto;background:#fff}
+.djr-pdf-preview-page-label{position:absolute;right:8px;top:8px;padding:5px 8px;border-radius:20px;background:#09070bcc;color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.04em;pointer-events:none}
+.djr-pdf-preview-error{display:flex;flex-direction:column;align-items:center;gap:14px;margin:auto;color:#fff;text-align:center;font-size:.8rem}
+.djr-pdf-preview-error a{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:24px;background:#fff;color:#0b080d;font-weight:800;text-decoration:none}
 .djr-pdf-preview-close{min-height:52px;margin:12px 18px calc(12px + env(safe-area-inset-bottom));border:0;border-radius:28px;background:#fff;color:#0b080d;font-family:inherit;font-size:.76rem;font-weight:800;cursor:pointer}
 @media(max-width:600px){
   #dj-edit-avatar{width:112px;height:112px}
@@ -84,6 +91,7 @@
   .djr-pdf-preview-modal{padding:0}
   .djr-pdf-preview-panel{width:100%;height:100dvh;border:0;border-radius:0}
   .djr-pdf-preview-head{padding:max(12px,env(safe-area-inset-top)) 14px 12px}
+  .djr-pdf-preview-pages{gap:9px;padding:9px}
   .djr-pdf-preview-close{margin:10px 14px calc(10px + env(safe-area-inset-bottom))}
 }
 /* Extended artist profile */

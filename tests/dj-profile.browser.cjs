@@ -82,7 +82,7 @@ const assert=require('node:assert/strict');
  const editorUrl=page.url();
  await page.locator('#djr-pdf-link').click();
  assert.equal(await page.locator('#djr-pdf-preview-modal').isVisible(),true);
- assert.match(await page.locator('#djr-pdf-preview-frame').getAttribute('src'),/presskit-pdf\/download\?preview=1$/);
+ assert.equal(await page.locator('#djr-pdf-preview-pages').count(),1);
  await page.locator('.djr-pdf-preview-close').click();
  assert.equal(await page.locator('#djr-pdf-preview-modal').isHidden(),true);
  assert.equal(page.url(),editorUrl);

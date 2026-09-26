@@ -330,22 +330,57 @@ function renderDjPresskitPdf(url) {
   if(status)status.textContent=safe?'PDF chargé et visible sur la page DJ.':'Aucun PDF chargé pour le moment.';
 }
 let djPdfPreviewPreviousFocus=null;
+let djPdfPreviewRun=0;
+let djPdfPreviewLoadingTask=null;
+let djPdfPreviewDocument=null;
 function djPresskitPdfEndpoint(preview=false){
   const id=_djProfileCache?.id||_sbSession?.user?.id||currentUser?.uid;
   if(!id)return '';
   return `/api/dj/profile/${encodeURIComponent(id)}/presskit-pdf/download${preview?'?preview=1':''}`;
 }
-function openDjPresskitPdfPreview(){
-  const modal=document.getElementById('djr-pdf-preview-modal'),frame=document.getElementById('djr-pdf-preview-frame'),url=djPresskitPdfEndpoint(true);
-  if(!modal||!frame||!url){djFeedback('Enregistre ton profil avant d’ouvrir l’aperçu du PDF.');return;}
+async function openDjPresskitPdfPreview(){
+  const modal=document.getElementById('djr-pdf-preview-modal'),pages=document.getElementById('djr-pdf-preview-pages'),url=djPresskitPdfEndpoint(true);
+  if(!modal||!pages||!url){djFeedback('Enregistre ton profil avant d’ouvrir l’aperçu du PDF.');return;}
+  const run=++djPdfPreviewRun;
   djPdfPreviewPreviousFocus=document.activeElement;
-  frame.src=url;
+  pages.replaceChildren();
+  const status=document.createElement('p');status.id='djr-pdf-preview-status';status.className='djr-pdf-preview-status';status.setAttribute('role','status');status.textContent='Chargement des pages…';pages.append(status);
   modal.hidden=false;
   modal.focus();
+  try{
+    const pdfjs=await import('/vendor/pdfjs/pdf.min.mjs?v=4.10.38');
+    if(run!==djPdfPreviewRun)return;
+    pdfjs.GlobalWorkerOptions.workerSrc='/vendor/pdfjs/pdf.worker.min.mjs?v=4.10.38';
+    djPdfPreviewLoadingTask=pdfjs.getDocument({url});
+    const pdf=await djPdfPreviewLoadingTask.promise;djPdfPreviewDocument=pdf;
+    if(run!==djPdfPreviewRun){await pdf.destroy();return;}
+    status.textContent=`${pdf.numPages} pages · préparation de l’aperçu…`;
+    for(let number=1;number<=pdf.numPages;number++){
+      if(run!==djPdfPreviewRun)return;
+      const page=await pdf.getPage(number),base=page.getViewport({scale:1});
+      const displayWidth=Math.max(260,Math.min(820,pages.clientWidth-32)),displayScale=displayWidth/base.width,pixelRatio=Math.min(window.devicePixelRatio||1,1.6),viewport=page.getViewport({scale:displayScale*pixelRatio});
+      const sheet=document.createElement('section'),canvas=document.createElement('canvas'),label=document.createElement('span'),context=canvas.getContext('2d',{alpha:false});
+      sheet.className='djr-pdf-preview-page';sheet.setAttribute('aria-label',`Page ${number} sur ${pdf.numPages}`);
+      canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);canvas.style.width=Math.round(viewport.width/pixelRatio)+'px';canvas.style.height=Math.round(viewport.height/pixelRatio)+'px';
+      label.className='djr-pdf-preview-page-label';label.textContent=`${number} / ${pdf.numPages}`;sheet.append(canvas,label);pages.append(sheet);
+      await page.render({canvasContext:context,viewport}).promise;page.cleanup();
+      status.textContent=`${number} page${number>1?'s':''} sur ${pdf.numPages}`;
+    }
+    status.remove();pages.scrollTop=0;
+  }catch(e){
+    if(run!==djPdfPreviewRun)return;
+    pages.replaceChildren();
+    const error=document.createElement('div'),message=document.createElement('p'),download=document.createElement('a');
+    error.className='djr-pdf-preview-error';message.textContent='Impossible d’afficher l’aperçu complet.';download.href=djPresskitPdfEndpoint(false);download.textContent='Télécharger le PDF';download.setAttribute('download','');error.append(message,download);pages.append(error);
+  }
 }
 function closeDjPresskitPdfPreview(){
-  const modal=document.getElementById('djr-pdf-preview-modal'),frame=document.getElementById('djr-pdf-preview-frame');
-  if(frame)frame.removeAttribute('src');
+  const modal=document.getElementById('djr-pdf-preview-modal'),pages=document.getElementById('djr-pdf-preview-pages');
+  djPdfPreviewRun++;
+  if(djPdfPreviewDocument)djPdfPreviewDocument.destroy().catch(()=>{});
+  else if(djPdfPreviewLoadingTask)djPdfPreviewLoadingTask.destroy().catch(()=>{});
+  djPdfPreviewLoadingTask=null;djPdfPreviewDocument=null;
+  if(pages)pages.replaceChildren();
   if(modal)modal.hidden=true;
   if(djPdfPreviewPreviousFocus?.focus)djPdfPreviewPreviousFocus.focus();
   djPdfPreviewPreviousFocus=null;

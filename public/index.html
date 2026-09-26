@@ -885,7 +885,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<link rel="stylesheet" href="/css/dj-register.css?v=48">
+<link rel="stylesheet" href="/css/dj-register.css?v=49">
 </head>
 <body>
 
@@ -1441,7 +1441,9 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div><span>PRESS KIT</span><h2 id="djr-pdf-preview-title">Aperçu du PDF</h2></div>
       <button type="button" onclick="closeDjPresskitPdfPreview()" aria-label="Fermer l’aperçu">×</button>
     </div>
-    <iframe id="djr-pdf-preview-frame" title="Aperçu du press kit PDF"></iframe>
+    <div id="djr-pdf-preview-pages" class="djr-pdf-preview-pages" role="document" aria-label="Pages du press kit PDF">
+      <p id="djr-pdf-preview-status" class="djr-pdf-preview-status" role="status">Chargement des pages…</p>
+    </div>
     <button type="button" class="djr-pdf-preview-close" onclick="closeDjPresskitPdfPreview()">Fermer et revenir au formulaire</button>
   </div>
 </div>
@@ -2132,7 +2134,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=8"></script>
 <script src="/js/app.js?v=129"></script>
-<script src="/js/dj-profile-editor.js?v=46"></script>
+<script src="/js/dj-profile-editor.js?v=47"></script>
 <script src="/js/render.js?v=41"></script>
 <script src="/js/chat.js?v=25"></script>
 <script src="/js/auth.js?v=77"></script>
