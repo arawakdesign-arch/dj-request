@@ -45,6 +45,11 @@ function renderClient() {
     if (emptyState) emptyState.style.display = 'flex';
     if (djBanner)   djBanner.style.display   = 'none';
     if (proposeBtn) proposeBtn.style.display = 'none';
+    // Hors contexte de soirée, "DJ's" reste utile (accès à son propre profil,
+    // cf. openDjBannerProfile()) — seul le cas "soirée active sans DJ inscrit"
+    // masque ce bouton (cf. applyDjBanner()).
+    const navDj = document.getElementById('nav-dj');
+    if (navDj) navDj.style.display = '';
     elt('cli-total', '-');
     elt('venue-connected', 0);
     elt('venue-recent-votes', 0);

@@ -1479,6 +1479,17 @@ function applyDjBanner(lineup) {
   if (avatar) avatar.src = dj?.cover_avatar
     ? `/images/dj-avatars/avatar-${String(dj.cover_avatar).padStart(2, '0')}-pullup.png`
     : '/images/dj-avatar.webp?v=2';
+
+  // Aucun DJ inscrit dans le line-up de CETTE soirée : la bannière reste
+  // visible (générique) mais n'est plus cliquable — sans ça, cliquer dessus
+  // renvoyait vers la création d'un profil DJ, ce qui n'a de sens que hors
+  // contexte d'une soirée précise (cf. openDjBannerProfile()). Le bouton
+  // "DJ's" du menu, lui, disparaît complètement dans ce cas : rien à montrer.
+  const clickable = _currentLineup.filter(d => (d.type === 'app' && d.id) || (d.type === 'external' && d.soundcloud_url));
+  const banner = document.getElementById('dj-banner');
+  if (banner) banner.style.cursor = clickable.length ? 'pointer' : 'default';
+  const navDj = document.getElementById('nav-dj');
+  if (navDj) navDj.style.display = (eid && !clickable.length) ? 'none' : '';
 }
 
 function loadFlyerFromStorage() {

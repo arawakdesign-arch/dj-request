@@ -609,9 +609,15 @@ async function openPublicDjProfile(id) {
 async function openDjBannerProfile() {
   closeTopMenu(); // au cas où l'appel vienne du bouton "DJ's" du menu déroulant
   const clickable = _currentLineup.filter(dj => (dj.type === 'app' && dj.id) || (dj.type === 'external' && dj.soundcloud_url));
-  // Rien à montrer (pas de soirée en cours, ou line-up vide) — "DJ's" reste
-  // utile et propose de gérer son propre profil plutôt que de ne rien faire.
-  if (!clickable.length) { await openDjRegister(); return; }
+  if (!clickable.length) {
+    // Pas de soirée en cours : "DJ's" reste utile et propose de gérer son
+    // propre profil plutôt que de ne rien faire. Soirée en cours mais sans
+    // DJ inscrit par l'organisateur : rien à faire — ce bouton est de toute
+    // façon masqué dans ce cas précis (cf. applyDjBanner()), mais on garde
+    // ce garde-fou si jamais on est appelé directement.
+    if (!eid) await openDjRegister();
+    return;
+  }
   const backTo = eid ? 'client' : (currentUser ? 'profile' : 'auth');
   if (clickable.length === 1) { await _openLineupDj(clickable[0], backTo); return; }
   _renderDjLineupGrid(clickable);
