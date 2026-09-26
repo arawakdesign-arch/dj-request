@@ -1597,7 +1597,6 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   <div class="tb">
     <div style="flex:1;min-width:0;display:flex;align-items:center;gap:.4rem;font-family:'Inter',sans-serif;font-weight:800;font-size:1rem;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🎛️ Espace Organisateur</div>
     <div style="flex-shrink:0;display:flex;align-items:center;gap:.4rem">
-      <button onclick="openDJConsole()" style="font-size:.65rem;padding:4px 10px;border-radius:8px;border:1px solid var(--vi);background:var(--vi);color:#fff;font-weight:800;flex-shrink:0">Mode DJ</button>
       <button onclick="orgaViewApp()" style="font-size:.65rem;padding:3px 8px;border-radius:8px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);flex-shrink:0">Voir l'app</button>
       <button onclick="djLogout()" style="font-size:.65rem;padding:3px 8px;border-radius:8px;border:1px solid var(--bdr);background:#FFFFFF;color:var(--tx3);flex-shrink:0">Quitter</button>
     </div>
@@ -1638,7 +1637,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
       <div style="display:flex;align-items:flex-start;gap:.85rem">
         <div class="qr-box"><div id="dj-qr"></div></div>
         <div class="qr-acts-big" style="flex:1">
-          <button class="qr-btn-big" onclick="copyUrl()">📋 Copier le lien</button>
+          <button class="qr-btn-big" onclick="openDJConsole()">🎧 Mode DJ</button>
           <button class="qr-btn-big" onclick="showPage('bigscreen')">📺 Écran géant</button>
           <button class="qr-btn-big" onclick="orgaViewApp()">📱 Ouvrir l'app</button>
         </div>
