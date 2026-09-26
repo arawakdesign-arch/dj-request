@@ -3,6 +3,7 @@ let currentUser  = null;
 let confirmResult = null, otpPhase = false, resendTimer = null, resendCD = 30;
 let eid   = null, ename = '';
 let eventClosed = false; // soirée figée en lecture seule 24h après sa création
+let currentEventMeta = { name: '', club_name: '', orga: '', address: '', hours: '', lineup: [] };
 let proposals = {}, myVotes = new Set(), nowPlaying = {t:'En attente…', a:'', by:null};
 let selModal = null, selModalMeta = null, selectedPlan = 'free', subscribed = false, subCount = 1284;
 let djLoggedIn = false;
@@ -1470,6 +1471,7 @@ function applyDjBanner(lineup) {
   const nameTag = document.getElementById('dj-banner-name');
   const avatar  = document.getElementById('dj-banner-avatar');
   _currentLineup = Array.isArray(lineup) ? lineup : [];
+  currentEventMeta.lineup = _currentLineup;
   const dj = _currentLineup.length ? _currentLineup[0] : null;
   _currentDjBannerDj = dj;
   if (nameTag) nameTag.textContent = dj ? dj.name.toUpperCase() : 'DJ';
@@ -1504,6 +1506,14 @@ function saveSettings() {
   const address  = document.getElementById('settings-address')?.value.trim();
   const hours    = document.getElementById('settings-hours')?.value.trim();
   const dateV    = document.getElementById('settings-date')?.value;
+  currentEventMeta = {
+    ...currentEventMeta,
+    name: evName || currentEventMeta.name,
+    club_name: clubName || currentEventMeta.club_name,
+    orga: orga || currentEventMeta.orga,
+    address: address || currentEventMeta.address,
+    hours: hours || currentEventMeta.hours,
+  };
   if (evName)   { ename = evName; const fn = document.getElementById('flyer-ev-name'); if(fn) fn.textContent = evName;
                   const en = document.getElementById('venue-event-name'); if(en) en.textContent = evName; }
   if (clubName) { const cn = document.getElementById('club-name-strip'); if(cn) cn.textContent = clubName; }

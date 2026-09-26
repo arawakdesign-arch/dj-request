@@ -110,13 +110,15 @@ router.get('/events/:id', async (req, res) => {
   // permet aux liens/QR de la soirée de rediriger vers sa page de marque plutôt
   // que directement dans le flux d'inscription.
   let orgaSlug = null;
+  let orgaPageName = null;
   if (data.owner_id) {
     const { data: page } = await supabase
-      .from('organizer_pages').select('slug').eq('owner_id', data.owner_id).maybeSingle();
+      .from('organizer_pages').select('slug, name').eq('owner_id', data.owner_id).maybeSingle();
     orgaSlug = page?.slug || null;
+    orgaPageName = page?.name || null;
   }
   const { owner_id, ...pub } = data;
-  res.json({ ...pub, orga_slug: orgaSlug, closed: isClosed(data.created_at, data.scheduled_at, data.ended_at), upcoming: isUpcoming(data.scheduled_at) });
+  res.json({ ...pub, orga_slug: orgaSlug, orga_page_name: orgaPageName, closed: isClosed(data.created_at, data.scheduled_at, data.ended_at), upcoming: isUpcoming(data.scheduled_at) });
 });
 
 // Personnes ayant voté et/ou proposé un morceau sur cet événement — liste

@@ -886,6 +886,7 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="stylesheet" href="/css/dj-register.css?v=49">
+<link rel="stylesheet" href="/css/bigscreen.css?v=1">
 </head>
 <body>
 
@@ -2033,31 +2034,45 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
   <div class="bs2-wrap">
     <div class="bs2-back" onclick="showPage('dj')">←</div>
     <div class="fs-toggle" onclick="toggleFullscreen()" title="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
-    <div class="bs2-header-bar">
-      <img src="/images/LOGO120.png" alt="PULL UP!" class="bs2-header-logo">
-      <div class="bs2-live-pill"><div class="pdot"></div>LIVE</div>
-      <div class="bs2-now-row">
-        <img class="bs2-cover" id="bs-np-cover" src="" alt="" style="display:none">
-        <div class="bs2-cover" id="bs-np-cover-fb" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem">🎵</div>
-        <div class="bs2-now-txt">
-          <div class="bs2-now-t" id="bs-np-t">En attente…</div>
-          <div class="bs2-now-a" id="bs-np-a"></div>
-          <div class="bs2-now-by" id="bs-np-by"></div>
-          <div class="bs2-eq"><span></span><span></span><span></span><span></span></div>
+    <header class="bs2-tv-header">
+      <div class="bs2-brand">
+        <img src="/images/LOGO120.png" alt="PULL UP!" class="bs2-header-logo">
+        <div class="bs2-live-pill"><div class="pdot"></div>LIVE</div>
+      </div>
+      <div class="bs2-event-head">
+        <span class="bs2-eyebrow">ÉVÉNEMENT EN DIRECT</span>
+        <h1 id="bs-ev-lbl">Soirée Pull Up</h1>
+        <p id="bs-event-meta">Les informations de la soirée apparaîtront ici</p>
+      </div>
+      <div class="bs2-people">
+        <div class="bs2-organizer"><span>Organisateur</span><strong id="bs-organizer">Organisateur Pull Up</strong></div>
+        <div class="bs2-lineup-block"><span>Line-up</span><div id="bs-lineup" class="bs2-lineup"><span class="bs2-lineup-empty">Line-up à venir</span></div></div>
+      </div>
+      <div class="bs2-now-panel">
+        <span class="bs2-eyebrow">À L’ÉCOUTE</span>
+        <div class="bs2-now-row">
+          <img class="bs2-cover" id="bs-np-cover" src="" alt="" style="display:none">
+          <div class="bs2-cover" id="bs-np-cover-fb" style="display:flex;align-items:center;justify-content:center">♪</div>
+          <div class="bs2-now-txt">
+            <div class="bs2-now-t" id="bs-np-t">En attente…</div>
+            <div class="bs2-now-a" id="bs-np-a"></div>
+            <div class="bs2-now-by" id="bs-np-by"></div>
+            <div class="bs2-eq"><span></span><span></span><span></span><span></span></div>
+          </div>
         </div>
       </div>
-    </div>
+    </header>
     <div class="bs2-body">
       <div class="bs2-left">
         <div class="bs2-chart-card">
-          <div class="bs2-tag">Classement en direct</div>
+          <div class="bs2-section-head"><div><span>Classement en direct</span><h2>TOP 10</h2></div><p id="bs-chart-count">0 titre affiché · 0 proposition</p></div>
           <div class="bs2-card bs2-card-fill">
             <div class="bs2-chart" id="bs-chart"></div>
           </div>
         </div>
       </div>
       <div class="bs2-chat-card">
-        <div class="bs2-tag">Chat Club</div>
+        <div class="bs2-chat-head"><div><span class="pdot"></span><strong>CHAT CLUB</strong></div><p>Les réactions de la soirée en direct</p></div>
         <div class="bs2-card bs2-card-fill">
           <div class="bs2-chat-feed" id="bs-chat-feed"><div class="empty-state"><div class="ei">💬</div><p>En attente de messages…</p></div></div>
         </div>
@@ -2133,10 +2148,10 @@ button:active{opacity:.75;transform:scale(.97);transition:opacity .08s,transform
 <script src="/js/config.js?v=2"></script>
 <script src="/js/api.js?v=27"></script>
 <script src="/js/dj-profile-schema.js?v=8"></script>
-<script src="/js/app.js?v=129"></script>
+<script src="/js/app.js?v=130"></script>
 <script src="/js/dj-profile-editor.js?v=47"></script>
-<script src="/js/render.js?v=41"></script>
-<script src="/js/chat.js?v=25"></script>
+<script src="/js/render.js?v=42"></script>
+<script src="/js/chat.js?v=26"></script>
 <script src="/js/auth.js?v=77"></script>
 </body>
 </html>

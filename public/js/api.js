@@ -132,6 +132,14 @@ async function loadEvent(evId) {
   try {
     const ev = await api('GET', '/events/' + evId);
     eid = ev.id; ename = ev.name;
+    currentEventMeta = {
+      name: ev.name || '',
+      club_name: ev.club_name || '',
+      orga: ev.orga || ev.orga_page_name || '',
+      address: ev.address || '',
+      hours: ev.hours || '',
+      lineup: Array.isArray(ev.lineup) ? ev.lineup : [],
+    };
     eventClosed = !!ev.closed;
     venueOrgaSlug = ev.orga_slug || null;
     if (typeof applyEventClosedState === 'function') applyEventClosedState();
@@ -185,6 +193,7 @@ async function loadEvent(evId) {
     console.error('[pullup] loadEvent() échec : evId=', evId, 'erreur=', e.message);
     eid       = null;
     ename     = '';
+    currentEventMeta = { name: '', club_name: '', orga: '', address: '', hours: '', lineup: [] };
     proposals = {};
     nowPlaying = {t: 'En attente…', a: ''};
     myVotes   = new Set();

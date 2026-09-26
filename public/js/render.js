@@ -197,11 +197,15 @@ function renderDJ() {
 // ── BigScreen ─────────────────────────────────────────────────────────
 const BCOLS = ['linear-gradient(90deg,#9333EA,#EC4899)','#7C3AED','#6D28D9','#4C1D95','#2E1065'];
 function renderBS() {
-  const s     = sorted().slice(0, 5);
+  const all   = sorted();
+  const s     = all.slice(0, 10);
   const mx    = s.length ? Math.max(...s.map(p => p.votes||0)) : 1;
   const chart = document.getElementById('bs-chart'); if (!chart) return;
+  renderBigscreenEventInfo();
+  elt('bs-chart-count', `${s.length} titre${s.length > 1 ? 's' : ''} affiché${s.length > 1 ? 's' : ''} · ${all.length} proposition${all.length > 1 ? 's' : ''}`);
+  elt('bs-votes', totalVotes()); elt('bs-tracks', all.length);
   chart.innerHTML = '';
-  if (!s.length) { chart.innerHTML = '<div class="empty-state"><div class="ei">🎶</div><p>En attente…</p></div>'; return; }
+  if (!s.length) { chart.innerHTML = '<div class="empty-state"><div class="ei">🎶</div><p>En attente des premières propositions…</p></div>'; return; }
   s.forEach((p, i) => {
     const c = CAT.find(x => x.id === p.id) || { n: p.title||p.id, a: p.artist||'', e:'🎵', c:'#6F22FF' };
     const pct = Math.max(5, Math.round(((p.votes||0) / mx) * 100));
@@ -209,11 +213,32 @@ function renderBS() {
       ? `<img class="bs2-thumb" src="${escapeHtml(p.coverUrl)}" alt="" onerror="this.outerHTML='<div class=bs2-thumb style=display:flex;align-items:center;justify-content:center>${c.e}</div>'">`
       : `<div class="bs2-thumb" style="display:flex;align-items:center;justify-content:center">${c.e}</div>`;
     const proposer = p.proposer_name ? `<div class="bs2-row-by">Proposé par ${escapeHtml(p.proposer_name)}</div>` : '';
-    const row = document.createElement('div'); row.className = 'bs2-row';
+    const row = document.createElement('div'); row.className = 'bs2-row' + (i < 3 ? ' bs2-row-top' : '');
     row.innerHTML = `<div class="bs2-rank">${i+1}</div>${cover}<div class="bs2-row-mid"><div class="bs2-row-t">${escapeHtml(c.n)}</div><div class="bs2-row-a">${escapeHtml(c.a)}</div><div class="bs2-row-trk"><div class="bs2-row-f" style="width:${pct}%"></div></div>${proposer}</div><div class="bs2-row-vc"><div class="bs2-row-vn">${p.votes||0}</div><div class="bs2-row-vl">${(p.votes||0) > 1 ? 'votes' : 'vote'}</div></div>`;
     chart.appendChild(row);
   });
-  elt('bs-votes', totalVotes()); elt('bs-tracks', s.length);
+}
+
+function renderBigscreenEventInfo() {
+  const meta = currentEventMeta || {};
+  elt('bs-ev-lbl', meta.name || ename || 'Soirée Pull Up');
+  elt('bs-organizer', meta.orga || 'Organisateur Pull Up');
+  const venue = [meta.club_name, meta.address, meta.hours].filter(Boolean).join(' · ');
+  elt('bs-event-meta', venue || 'Les informations de la soirée apparaîtront ici');
+  const lineup = Array.isArray(meta.lineup) && meta.lineup.length ? meta.lineup : (typeof _currentLineup !== 'undefined' ? _currentLineup : []);
+  const box = document.getElementById('bs-lineup');
+  if (!box) return;
+  box.replaceChildren();
+  const names = [...new Set(lineup.map(dj => String(dj?.name || '').trim()).filter(Boolean))];
+  if (!names.length) {
+    const empty = document.createElement('span'); empty.className = 'bs2-lineup-empty'; empty.textContent = 'Line-up à venir'; box.appendChild(empty); return;
+  }
+  names.slice(0, 8).forEach(name => {
+    const chip = document.createElement('span'); chip.className = 'bs2-lineup-chip'; chip.textContent = name; box.appendChild(chip);
+  });
+  if (names.length > 8) {
+    const more = document.createElement('span'); more.className = 'bs2-lineup-chip'; more.textContent = `+${names.length - 8}`; box.appendChild(more);
+  }
 }
 
 // ── Now Playing ───────────────────────────────────────────────────────
