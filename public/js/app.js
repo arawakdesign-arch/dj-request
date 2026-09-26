@@ -1281,7 +1281,7 @@ function _copyFallback(url) {
 }
 
 function shareEventLink() {
-  const url = buildShortEventUrl(ename, eid);
+  const url = buildShortEventUrl(eid);
   const club    = document.getElementById('club-name-strip')?.textContent?.trim() || '';
   const address = document.getElementById('venue-addr-txt')?.textContent?.trim() || '';
   const venue   = club && address ? `${club} — ${address}` : (club || address);
@@ -1298,7 +1298,7 @@ function shareEventLink() {
 
 function copyUrl() {
   console.log('[pullup] copyUrl() eid=', eid, '| isValidUuid=', isValidUuid(eid));
-  const url = buildShortEventUrl(ename, eid);
+  const url = buildShortEventUrl(eid);
   console.log('[pullup] copyUrl() url=', url);
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url)

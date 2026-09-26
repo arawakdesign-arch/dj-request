@@ -351,15 +351,13 @@ function buildEventUrl(eventId) {
   return window.location.origin + '/?event=' + encodeURIComponent(eventId);
 }
 
-// Lien court à partager (QR code, bouton Copier). Si l'organisateur a
-// configuré sa page publique (pull-up.live/slug), on redirige vers elle en
-// priorité — page à sa marque (logo, bio, réseaux) listant ses soirées —
-// plutôt que de tomber directement dans le flux d'inscription. Sinon, on
-// utilise le nom de la soirée plutôt que l'UUID technique, résolu à
-// l'arrivée via GET /events/by-name : plus lisible sur un lien collé/affiché.
-function buildShortEventUrl(name, fallbackId) {
-  if (evOrgaSlug) return window.location.origin + '/' + evOrgaSlug;
-  if (name) return window.location.origin + '/?event=' + encodeURIComponent(name);
+// Lien à partager (QR code, bouton Copier, partage) : toujours un lien
+// direct vers CETTE soirée par UUID. Ni la page publique de l'organisateur
+// (pull-up.live/slug — liste ses soirées, n'ouvre pas le vote directement)
+// ni une recherche par nom (fragile : exige un nom exactement identique et
+// is_active=true côté serveur) ne garantissent d'amener l'invité droit au
+// vote — d'où le rejet de ces deux raccourcis ici.
+function buildShortEventUrl(fallbackId) {
   return buildEventUrl(fallbackId);
 }
 
@@ -371,7 +369,7 @@ function generateQR(activeEid) {
     console.warn('[pullup] generateQR: UUID invalide — génération ignorée, id=', id);
     return;
   }
-  const url = buildShortEventUrl(ename, id);
+  const url = buildShortEventUrl(id);
   const sizes = { 'dj-qr': 110, 'bs-qr-big': 260 };
   Object.entries(sizes).forEach(([elemId, sz]) => {
     const el = document.getElementById(elemId); if (!el) return;
