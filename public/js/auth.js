@@ -118,8 +118,13 @@ window.addEventListener('load', async () => {
   // fou, l'étape 1 ci-dessous l'activait quand même en tout premier
   // (avant même de regarder l'intention), et l'utilisateur atterrissait
   // sur l'espace organisateur au lieu du parcours demandé.
+  // Un lien de soirée explicite (?event=..., ex: QR code affiché en soirée)
+  // est le même cas de figure : quelqu'un qui a par ailleurs déjà créé une
+  // soirée sur cet appareil (donc un token organisateur enregistré) voit son
+  // propre ancien espace organisateur au lieu de rejoindre CETTE soirée-là.
   const urlIntentAtLoad = new URLSearchParams(window.location.search).get('intent');
-  const savedOrgToken = (urlIntentAtLoad === 'dj-register' || urlIntentAtLoad === 'create-event') ? null : loadToken();
+  const urlEventAtLoad  = new URLSearchParams(window.location.search).get('event');
+  const savedOrgToken = (urlIntentAtLoad === 'dj-register' || urlIntentAtLoad === 'create-event' || urlEventAtLoad) ? null : loadToken();
   if (savedOrgToken) {
     try {
       const res = await api('GET', '/auth/me', null, { token: savedOrgToken });
